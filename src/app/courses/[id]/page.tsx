@@ -11,7 +11,7 @@ import { getCourseById, getReviewsByCourseId, placeholderCourses, placeholderRev
 import type { Course, Review, Module as CurriculumModule, Lesson } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star, MessageSquareQuestion } from 'lucide-react';
+import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star } from 'lucide-react';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
 import { Badge } from '@/components/ui/badge';
@@ -178,7 +178,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-6">
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
                 <TabsTrigger value="description">Description</TabsTrigger>
-                <TabsTrigger value="instructor">Instructor</TabsTrigger>
+                <TabsTrigger value="instructor">Seller</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews ({reviews.length})</TabsTrigger>
                 <TabsTrigger value="faq">FAQ</TabsTrigger>
               </TabsList>
@@ -277,7 +277,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <TabsContent value="faq">
                 <Card className="shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-2xl font-headline flex items-center"><MessageSquareQuestion className="mr-2 h-6 w-6 text-primary"/>Frequently Asked Questions</CardTitle>
+                    <CardTitle className="text-2xl font-headline flex items-center"><HelpCircle className="mr-2 h-6 w-6 text-primary"/>Frequently Asked Questions</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {faqs.length > 0 ? (
