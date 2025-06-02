@@ -23,7 +23,7 @@ const lessonSchema = z.object({
   title: z.string().min(3, "Lesson title must be at least 3 characters"),
   type: z.enum(['video', 'pdf', 'quiz', 'text', 'assignment']),
   duration: z.string().optional().refine(val => !val || /^\d+m(in)?s?$/.test(val) || /^\d+h(r)?s?$/.test(val) || /^\d+h\s\d+m(in)?s?$/.test(val), { message: "Duration invalid (e.g., 10min, 2hr, 1h 30min)"}),
-  contentUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  contentUrl: z.string().url("Must be a valid URL for content like video or PDF.").optional().or(z.literal('')),
   textContent: z.string().optional(),
   order: z.number().int().min(1),
   isFreePreview: z.boolean().default(false),
@@ -45,15 +45,14 @@ const courseSchema = z.object({
   price: z.coerce.number().min(0, "Price must be non-negative"),
   originalPrice: z.coerce.number().optional(),
   imageUrl: z.string().url("Must be a valid URL for image").optional().or(z.literal('')),
-  videoPreviewUrl: z.string().url("Must be a valid URL for video preview").optional().or(z.literal('')),
   certificateAvailable: z.boolean().default(false),
   highlights: z.array(z.string().min(3, "Highlight too short")).optional(),
   curriculum: z.array(moduleSchema).min(1, "Course must have at least one module"),
   moneyBackGuaranteeDays: z.coerce.number().int().min(0).max(90).optional(),
   freeTrialAvailable: z.boolean().default(false),
-  demoVideoUrl: z.string().url().optional().or(z.literal('')),
-  downloadableMaterialsDescription: z.string().max(500, "Too long").optional(),
-  detailedScheduleDescription: z.string().max(1000, "Too long").optional(),
+  demoVideoUrl: z.string().url("Must be a valid URL for demo video").optional().or(z.literal('')),
+  downloadableMaterialsDescription: z.string().max(500, "Description of downloadable materials is too long (max 500 chars)").optional(),
+  detailedScheduleDescription: z.string().max(1000, "Detailed schedule description is too long (max 1000 chars)").optional(),
 });
 
 type CourseFormValues = z.infer<typeof courseSchema>;
@@ -70,7 +69,7 @@ export default function NewCoursePage() {
       highlights: ["", "", ""],
       curriculum: [{ title: "", order: 1, lessons: [{ title: "", type: "video", order: 1, isFreePreview: false, duration: "" }] }],
       price: 0,
-      moneyBackGuaranteeDays: 30,
+      moneyBackGuaranteeDays: 0, // Default to 0, seller can opt-in
       freeTrialAvailable: false,
     },
   });
@@ -86,6 +85,7 @@ export default function NewCoursePage() {
   const onSubmit = async (data: CourseFormValues) => {
     setIsLoading(true);
     console.log("Course data submitted:", data);
+    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     toast({
       title: "Course Created Successfully!",
@@ -93,13 +93,13 @@ export default function NewCoursePage() {
       duration: 5000,
     });
     setIsLoading(false);
-    router.push('/dashboard/seller/courses');
+    router.push('/dashboard/seller/courses'); // Navigate to manage courses page
   };
   
   const watchCurriculum = watch("curriculum");
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold font-headline">Create New Course</h1>
         <Button type="submit" disabled={isLoading} size="lg" className="text-base px-8 py-3">
@@ -182,12 +182,12 @@ export default function NewCoursePage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
                     <Label htmlFor="price">Price (₹) *</Label>
-                    <Input id="price" type="number" step="1" {...register('price')} placeholder="e.g., 499"/>
+                    <Input id="price" type="number" step="any" {...register('price')} placeholder="e.g., 499"/>
                     {errors.price && <p className="text-sm text-destructive mt-1">{errors.price.message}</p>}
                 </div>
                 <div>
                     <Label htmlFor="originalPrice">Original Price (Optional, for discounts)</Label>
-                    <Input id="originalPrice" type="number" step="1" {...register('originalPrice')} placeholder="e.g., 999"/>
+                    <Input id="originalPrice" type="number" step="any" {...register('originalPrice')} placeholder="e.g., 999"/>
                     {errors.originalPrice && <p className="text-sm text-destructive mt-1">{errors.originalPrice.message}</p>}
                 </div>
                 <div>
@@ -220,7 +220,7 @@ export default function NewCoursePage() {
                 </div>
             </div>
             <div>
-                <Label htmlFor="downloadableMaterialsDescription">Downloadable Materials (Optional)</Label>
+                <Label htmlFor="downloadableMaterialsDescription">Description of Downloadable Materials (Optional)</Label>
                 <Textarea id="downloadableMaterialsDescription" {...register('downloadableMaterialsDescription')} rows={2} placeholder="List any downloadable materials, e.g., PDFs, code snippets, templates. (Max 500 chars)"/>
                 {errors.downloadableMaterialsDescription && <p className="text-sm text-destructive mt-1">{errors.downloadableMaterialsDescription.message}</p>}
             </div>
@@ -361,11 +361,11 @@ export default function NewCoursePage() {
                         <li>Ensure your course content is original, accurate, and adheres to our quality standards.</li>
                         <li>All submitted courses undergo a review process by our admin team before being published. This may take 1-3 business days.</li>
                         <li>You will be notified via email of the review outcome.</li>
-                        <li>Provide clear instructions to students on how they will access the course content upon purchase (e.g., via email, external platform link).</li>
+                        <li>Provide clear instructions to students on how they will access the course content upon purchase (e.g., via email, external platform link). EdTechCart is a marketplace and does not host your course content directly.</li>
                     </ul>
                 </div>
             </div>
-             <p>By submitting your course, you agree to our <Link href="/terms/seller" className="text-primary hover:underline">Seller Terms and Conditions</Link>.</p>
+             <p>By submitting your course, you agree to our <Link href="/terms#seller-terms" className="text-primary hover:underline">Seller Terms and Conditions</Link>.</p>
         </CardContent>
       </Card>
 

@@ -26,7 +26,7 @@ const lessonSchema = z.object({
   title: z.string().min(3, "Lesson title must be at least 3 characters"),
   type: z.enum(['video', 'pdf', 'quiz', 'text', 'assignment']),
   duration: z.string().optional().refine(val => !val || /^\d+m(in)?s?$/.test(val) || /^\d+h(r)?s?$/.test(val) || /^\d+h\s\d+m(in)?s?$/.test(val), { message: "Duration invalid (e.g., 10min, 2hr, 1h 30min)"}),
-  contentUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
+  contentUrl: z.string().url("Must be a valid URL for content like video or PDF.").optional().or(z.literal('')),
   textContent: z.string().optional(),
   order: z.number().int().min(1),
   isFreePreview: z.boolean().default(false),
@@ -41,23 +41,22 @@ const moduleSchema = z.object({
 
 const courseSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters"),
-  shortDescription: z.string().min(20).max(150),
-  description: z.string().min(50),
-  category: z.string().min(1),
-  level: z.enum(DIFFICULTY_LEVELS as [string, ...string[]]),
-  language: z.string().min(1),
-  price: z.coerce.number().min(0),
+  shortDescription: z.string().min(20, "Short description is too short").max(150, "Short description is too long"),
+  description: z.string().min(50, "Description must be at least 50 characters"),
+  category: z.string().min(1, "Category is required"),
+  level: z.enum(DIFFICULTY_LEVELS as [string, ...string[]], { errorMap: () => ({ message: "Please select a difficulty level."}) }),
+  language: z.string().min(1, "Language is required"),
+  price: z.coerce.number().min(0, "Price must be non-negative"),
   originalPrice: z.coerce.number().optional(),
-  imageUrl: z.string().url().optional().or(z.literal('')),
-  videoPreviewUrl: z.string().url().optional().or(z.literal('')),
+  imageUrl: z.string().url("Must be a valid URL for image").optional().or(z.literal('')),
   certificateAvailable: z.boolean().default(false),
-  highlights: z.array(z.string().min(3)).optional(),
-  curriculum: z.array(moduleSchema).min(1),
+  highlights: z.array(z.string().min(3, "Highlight too short")).optional(),
+  curriculum: z.array(moduleSchema).min(1, "Course must have at least one module"),
   moneyBackGuaranteeDays: z.coerce.number().int().min(0).max(90).optional(),
   freeTrialAvailable: z.boolean().default(false),
-  demoVideoUrl: z.string().url().optional().or(z.literal('')),
-  downloadableMaterialsDescription: z.string().max(500, "Too long").optional(),
-  detailedScheduleDescription: z.string().max(1000, "Too long").optional(),
+  demoVideoUrl: z.string().url("Must be a valid URL for demo video").optional().or(z.literal('')),
+  downloadableMaterialsDescription: z.string().max(500, "Description of downloadable materials is too long (max 500 chars)").optional(),
+  detailedScheduleDescription: z.string().max(1000, "Detailed schedule description is too long (max 1000 chars)").optional(),
 });
 
 type CourseFormValues = z.infer<typeof courseSchema>;
@@ -109,6 +108,7 @@ export default function EditCoursePage() {
   const onSubmit = async (data: CourseFormValues) => {
     setIsLoading(true);
     console.log("Updated course data submitted:", data);
+    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     toast({
       title: "Course Updated Successfully!",
@@ -120,11 +120,11 @@ export default function EditCoursePage() {
   };
 
   if (!initialCourseData && courseId) {
-    return <div className="flex justify-center items-center h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary"/></div>;
+    return <div className="flex justify-center items-center min-h-[calc(100vh-200px)] w-full"><Loader2 className="h-8 w-8 animate-spin text-primary"/></div>;
   }
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold font-headline">Edit Course: <span className="text-primary">{initialCourseData?.title}</span></h1>
         <Button type="submit" disabled={isLoading} size="lg" className="text-base px-8 py-3">
@@ -207,12 +207,12 @@ export default function EditCoursePage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
                     <Label htmlFor="price">Price (₹) *</Label>
-                    <Input id="price" type="number" step="1" {...register('price')} />
+                    <Input id="price" type="number" step="any" {...register('price')} />
                     {errors.price && <p className="text-sm text-destructive mt-1">{errors.price.message}</p>}
                 </div>
                 <div>
                     <Label htmlFor="originalPrice">Original Price (Optional)</Label>
-                    <Input id="originalPrice" type="number" step="1" {...register('originalPrice')} />
+                    <Input id="originalPrice" type="number" step="any" {...register('originalPrice')} />
                     {errors.originalPrice && <p className="text-sm text-destructive mt-1">{errors.originalPrice.message}</p>}
                 </div>
                  <div>
@@ -244,7 +244,7 @@ export default function EditCoursePage() {
                 </div>
             </div>
             <div>
-                <Label htmlFor="downloadableMaterialsDescription">Downloadable Materials (Optional)</Label>
+                <Label htmlFor="downloadableMaterialsDescription">Description of Downloadable Materials (Optional)</Label>
                 <Textarea id="downloadableMaterialsDescription" {...register('downloadableMaterialsDescription')} rows={2} placeholder="List any downloadable materials..."/>
                 {errors.downloadableMaterialsDescription && <p className="text-sm text-destructive mt-1">{errors.downloadableMaterialsDescription.message}</p>}
             </div>
@@ -376,7 +376,7 @@ export default function EditCoursePage() {
                     <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-1">Important Notes</h4>
                     <ul className="list-disc pl-5 space-y-1">
                         <li>After saving changes, your course might be subject to re-review by admins, especially if significant modifications are made.</li>
-                        <li>This ensures continued quality on the platform. Current Status: <Badge variant={initialCourseData?.approvalStatus === 'approved' ? 'default' : (initialCourseData?.approvalStatus === 'pending' ? 'secondary' : 'destructive')} className={cn("capitalize", initialCourseData?.approvalStatus === 'approved' ? 'bg-green-100 text-green-700' : (initialCourseData?.approvalStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'))}>{initialCourseData?.approvalStatus?.toUpperCase() || 'UNKNOWN'}</Badge></li>
+                        <li>This ensures continued quality on the platform. Current Status: <Badge variant={initialCourseData?.approvalStatus === 'approved' ? 'success' : (initialCourseData?.approvalStatus === 'pending' ? 'warning' : 'destructive')} className="capitalize">{initialCourseData?.approvalStatus?.toUpperCase() || 'UNKNOWN'}</Badge></li>
                         <li>Ensure all information is accurate and up-to-date.</li>
                     </ul>
                 </div>

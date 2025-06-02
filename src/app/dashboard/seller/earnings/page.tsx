@@ -13,68 +13,71 @@ import { Badge } from '@/components/ui/badge';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
 import Image from 'next/image';
+import { useAuth } from '@/components/AppProviders';
+import { getSellerTotalRevenue } from '@/lib/placeholder-data'; // Assuming this gives revenue for a specific seller
 
 
-// Mock Data
-const earningsSummary = {
-  totalRevenue: 1234567.89,
-  pendingPayout: 150000.00,
-  lastPayout: 250050.50,
+// Mock Data - This should ideally be fetched for the logged-in seller
+const mockSellerEarningsSummary = (totalRevenue: number) => ({
+  totalRevenue: totalRevenue,
+  pendingPayout: totalRevenue * 0.25, // Example calculation
+  lastPayout: totalRevenue * 0.3, // Example calculation
   nextPayoutDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 15).toLocaleDateString(),
-};
+});
 
 const monthlyEarningsData = [
-  { month: 'Jan', earnings: 120000 }, { month: 'Feb', earnings: 180000 },
-  { month: 'Mar', earnings: 150000 }, { month: 'Apr', earnings: 220000 },
-  { month: 'May', earnings: 250000 }, { month: 'Jun', earnings: 300000 },
+  { month: 'Jan', earnings: 12000 }, { month: 'Feb', earnings: 18000 },
+  { month: 'Mar', earnings: 15000 }, { month: 'Apr', earnings: 22000 },
+  { month: 'May', earnings: 25000 }, { month: 'Jun', earnings: 30000 },
 ];
-const chartConfig = { earnings: { label: "Earnings (₹)", color: "hsl(var(--primary))" } };
+const chartConfig = { earnings: { label: "Your Earnings (₹)", color: "hsl(var(--primary))" } };
 
 const payoutHistoryData = [
-  { id: 'payout1', date: '2023-06-15', amount: 250050.50, status: 'Completed', method: 'Bank Transfer (NEFT)' },
-  { id: 'payout2', date: '2023-05-15', amount: 220000.00, status: 'Completed', method: 'Bank Transfer (IMPS)' },
-  { id: 'payout3', date: '2023-04-15', amount: 180075.75, status: 'Completed', method: 'Bank Transfer (NEFT)' },
-  { id: 'payout4', date: '2023-03-15', amount: 150020.20, status: 'Processing', method: 'Bank Transfer (NEFT)' },
-  { id: 'payout5', date: '2023-02-15', amount: 120000.00, status: 'Failed', method: 'Bank Transfer (NEFT)', reason: 'Invalid account details' },
+  { id: 'payout1', date: '2023-06-15', amount: 25050.50, status: 'Completed', method: 'Bank Transfer (NEFT)' },
+  { id: 'payout2', date: '2023-05-15', amount: 22000.00, status: 'Completed', method: 'Bank Transfer (IMPS)' },
+  { id: 'payout3', date: '2023-04-15', amount: 18075.75, status: 'Completed', method: 'Bank Transfer (NEFT)' },
+  { id: 'payout4', date: '2023-03-15', amount: 15020.20, status: 'Processing', method: 'Bank Transfer (NEFT)' },
+  { id: 'payout5', date: '2023-02-15', amount: 12000.00, status: 'Failed', method: 'Bank Transfer (NEFT)', reason: 'Invalid account details' },
 ];
 
 export default function SellerEarningsPage() {
+  const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("last_6_months");
   const [isClient, setIsClient] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(new Date().setDate(new Date().getDate() - 30)),
     to: new Date(),
   });
+  const [earningsSummary, setEarningsSummary] = useState(mockSellerEarningsSummary(0));
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    if (user) {
+      // In a real app, fetch seller-specific data
+      const revenue = getSellerTotalRevenue(user.id); // Assuming this function exists and works
+      setEarningsSummary(mockSellerEarningsSummary(revenue));
+    }
+  }, [user]);
 
-  if (!isClient) {
-    return <div className="text-center py-10">Loading earnings data...</div>;
+  if (!isClient || !user) {
+    return <div className="text-center py-10">Loading your earnings data...</div>;
   }
   
-  const getStatusBadgeVariant = (status: string) => {
-    if (status === 'Completed') return 'default';
-    if (status === 'Processing') return 'secondary';
-    if (status === 'Failed') return 'destructive';
+  const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    if (status === 'Completed') return 'default'; // Greenish through theme
+    if (status === 'Processing') return 'secondary'; // Bluish through theme
+    if (status === 'Failed') return 'destructive'; // Reddish (will be blueish) through theme
     return 'outline';
-  };
-   const getStatusBadgeColor = (status: string) => {
-    if (status === 'Completed') return 'bg-green-100 text-green-700 border-green-300';
-    if (status === 'Processing') return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-    if (status === 'Failed') return 'bg-red-100 text-red-700 border-red-300';
-    return '';
   };
 
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold font-headline">Earnings & Payouts</h1>
-        <div className="flex gap-2">
+        <h1 className="text-3xl font-bold font-headline">Your Earnings & Payouts</h1>
+        <div className="flex gap-2 flex-wrap">
             <DateRangePicker date={dateRange} onDateChange={setDateRange} />
-            <Button variant="outline">
+            <Button variant="outline" disabled>
             <Download className="mr-2 h-4 w-4" /> Export Report
             </Button>
         </div>
@@ -83,17 +86,17 @@ export default function SellerEarningsPage() {
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="shadow-md border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">Your Total Revenue</CardTitle>
             <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₹{earningsSummary.totalRevenue.toLocaleString('en-IN')}</div>
-            <p className="text-xs text-muted-foreground">All-time earnings (gross)</p>
+            <p className="text-xs text-muted-foreground">All-time earnings from your courses (gross)</p>
           </CardContent>
         </Card>
         <Card className="shadow-md border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payout</CardTitle>
+            <CardTitle className="text-sm font-medium">Your Pending Payout</CardTitle>
             <Banknote className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -103,7 +106,7 @@ export default function SellerEarningsPage() {
         </Card>
         <Card className="shadow-md border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Last Payout Amount</CardTitle>
+            <CardTitle className="text-sm font-medium">Your Last Payout</CardTitle>
             <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -127,7 +130,7 @@ export default function SellerEarningsPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
             <div>
-              <CardTitle className="font-headline text-xl">Monthly Earnings Trend</CardTitle>
+              <CardTitle className="font-headline text-xl">Your Monthly Earnings Trend</CardTitle>
               <CardDescription>Visualize your earnings (after platform fees) over time.</CardDescription>
             </div>
             <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
@@ -159,7 +162,7 @@ export default function SellerEarningsPage() {
 
       <Card className="shadow-lg border">
         <CardHeader>
-          <CardTitle className="font-headline text-xl">Payout History</CardTitle>
+          <CardTitle className="font-headline text-xl">Your Payout History</CardTitle>
           <CardDescription>Review your past payouts and their status.</CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">
@@ -183,7 +186,7 @@ export default function SellerEarningsPage() {
                   <TableCell>₹{payout.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
                   <TableCell>{payout.method}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeVariant(payout.status)} className={getStatusBadgeColor(payout.status)}>
+                    <Badge variant={getStatusBadgeVariant(payout.status)}>
                       {payout.status}
                     </Badge>
                     {payout.status === 'Failed' && payout.reason && (
@@ -199,15 +202,15 @@ export default function SellerEarningsPage() {
 
       <Card className="shadow-lg border">
         <CardHeader>
-            <CardTitle className="font-headline text-xl">Payout Settings</CardTitle>
+            <CardTitle className="font-headline text-xl">Your Payout Settings</CardTitle>
             <CardDescription>Manage your bank account or preferred payout method for receiving earnings.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-             <Image src="https://placehold.co/700x250.png?text=Secure+Payout+Setup" alt="Payout settings interface illustration" className="rounded-md mb-4 w-full object-cover" data-ai-hint="bank transfer payout setup"/>
+             <Image src="https://placehold.co/700x250/EBF4FF/3B82F6?text=Secure+Payout+Setup" alt="Payout settings interface illustration" className="rounded-md mb-4 w-full object-cover max-w-lg mx-auto" data-ai-hint="bank transfer payout setup"/>
             <p className="text-sm text-muted-foreground">Current Payout Method: Bank Transfer to A/C ending ****1234 (State Bank of India)</p>
             <div className="flex flex-wrap gap-2">
-                <Button variant="default"><Settings2 className="mr-2 h-4 w-4" /> Update Payout Method</Button>
-                <Button variant="outline" disabled>View Tax Information</Button>
+                <Button variant="default" disabled><Settings2 className="mr-2 h-4 w-4" /> Update Payout Method (Coming Soon)</Button>
+                <Button variant="outline" disabled>View Tax Information (Coming Soon)</Button>
             </div>
             <p className="text-xs text-muted-foreground">Ensure your payout details are accurate to avoid delays. Payouts are processed according to the platform's schedule (typically monthly).</p>
         </CardContent>
