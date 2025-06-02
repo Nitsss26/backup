@@ -1,5 +1,6 @@
+
 import type { Category, PaymentOption } from './types';
-import { BookOpen, Briefcase, Cpu, Globe, HeartPulse, LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2 } from 'lucide-react';
+import { BookOpen, Briefcase, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, Store } from 'lucide-react'; // Added Store
 
 export const APP_NAME = "EdTechCart";
 export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
@@ -15,7 +16,7 @@ export const CATEGORIES: Category[] = [
   { id: 'personal-dev', name: 'Personal Development', slug: 'personal-development', icon: PersonStanding },
 ];
 
-export const INSTRUCTOR_TYPES = [
+export const INSTRUCTOR_TYPES = [ // Kept for filter, but "Seller" is the primary term now
   'Individual Teacher',
   'Verified Educator',
   'Institute',
@@ -67,8 +68,8 @@ export const FOOTER_LINKS = {
   ],
   community: [
     { name: 'Blog', href: '/blog' },
-    { name: 'Forums', href: '/forums' },
-    { name: 'Teach on EdTechCart', href: '/teach' },
+    { name: 'Forums', href: '/forums' }, // Placeholder, actual page not complex
+    { name: 'Sell on EdTechCart', href: '/sell-courses' }, // Changed from /teach
   ]
 };
 

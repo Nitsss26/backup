@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { placeholderCourses } from "@/lib/placeholder-data";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Course } from '@/lib/types';
-import { PlayCircle } from 'lucide-react';
+import { PlayCircle, BookOpen } from 'lucide-react';
 
 interface EnrolledCourse extends Course {
   progress: number;
@@ -40,7 +41,8 @@ export default function MyCoursesPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold font-headline">My Courses</h1>
+      {/* StudentDashboardHeaderNav is now in layout */}
+      <h1 className="text-3xl font-bold font-headline">My Learning</h1>
 
       <Tabs defaultValue="active" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:w-1/2 lg:w-1/3">
@@ -59,7 +61,7 @@ export default function MyCoursesPage() {
                       width={400} 
                       height={225} 
                       className="rounded-t-lg object-cover w-full aspect-video"
-                      data-ai-hint={`${course.category} online course`}
+                      data-ai-hint={`${course.category} learning content`}
                     />
                   </CardHeader>
                   <CardContent className="p-4 flex flex-col flex-grow">
@@ -80,7 +82,13 @@ export default function MyCoursesPage() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-8">You have no active courses. <Link href="/courses" className="text-primary hover:underline">Explore courses</Link> to get started!</p>
+            <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-xl font-semibold mb-2">No Active Courses</h2>
+                <p className="text-muted-foreground mb-4">
+                    <Link href="/courses" className="text-primary hover:underline">Explore courses</Link> to enroll and start learning!
+                </p>
+            </div>
           )}
         </TabsContent>
         <TabsContent value="completed" className="mt-6">
@@ -95,7 +103,7 @@ export default function MyCoursesPage() {
                       width={400} 
                       height={225} 
                       className="rounded-t-lg object-cover w-full aspect-video opacity-70"
-                      data-ai-hint={`${course.category} completed course`}
+                      data-ai-hint={`${course.category} finished course`}
                     />
                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
                         <span className="text-white font-semibold text-lg">COMPLETED</span>
@@ -106,7 +114,7 @@ export default function MyCoursesPage() {
                     <p className="text-xs text-muted-foreground mb-2">By {course.instructor}</p>
                     <p className="text-xs text-muted-foreground mt-auto pt-2">Completed on: {new Date(course.lastUpdated || Date.now()).toLocaleDateString()}</p> {/* Mock completion date */}
                     <Button variant="outline" className="w-full mt-2" size="sm" asChild>
-                      <Link href={`/dashboard/student/certificates/${course.id}`}> {/* Placeholder certificate link */}
+                      <Link href={`/dashboard/student/certificates`}> {/* Updated link to certificates page */}
                         View Certificate
                       </Link>
                     </Button>
@@ -115,7 +123,11 @@ export default function MyCoursesPage() {
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground text-center py-8">You haven&apos;t completed any courses yet.</p>
+             <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                <BookOpen className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-xl font-semibold mb-2">No Completed Courses</h2>
+                <p className="text-muted-foreground mb-4">Keep learning to earn certificates!</p>
+            </div>
           )}
         </TabsContent>
       </Tabs>

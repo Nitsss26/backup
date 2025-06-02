@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Course } from '@/lib/types';
@@ -13,7 +14,7 @@ interface CourseCardProps {
 
 export function CourseCard({ course }: CourseCardProps) {
   const categorySlug = course.category.toLowerCase().replace(/\s+/g, '-');
-  const imageHint = categorySlug.split('-').slice(0,2).join(' ');
+  const imageHint = `${categorySlug} course`; // More specific hint
 
   return (
     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -25,10 +26,10 @@ export function CourseCard({ course }: CourseCardProps) {
             width={600}
             height={400}
             className="object-cover w-full h-48"
-            data-ai-hint={imageHint || "education learning"}
+            data-ai-hint={imageHint}
           />
           {course.providerInfo?.verified && (
-            <Badge variant="default" className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white">
+            <Badge variant="default" className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white text-xs px-1.5 py-0.5">
               <ShieldCheck className="h-3 w-3 mr-1" /> Verified
             </Badge>
           )}
@@ -36,11 +37,11 @@ export function CourseCard({ course }: CourseCardProps) {
       </Link>
       <CardContent className="p-4 flex-grow">
         <Link href={`/courses/${course.id}`} className="block">
-          <Badge variant="secondary" className="mb-2">{course.category}</Badge>
+          <Badge variant="secondary" className="mb-2 text-xs">{course.category}</Badge>
           <CardTitle className="text-lg font-semibold leading-tight mb-1 line-clamp-2 font-headline">
             {course.title}
           </CardTitle>
-          <p className="text-xs text-muted-foreground mb-2">By {course.instructor}</p>
+          <p className="text-xs text-muted-foreground mb-2">By {course.providerInfo?.name || course.instructor}</p>
         </Link>
         <div className="flex items-center mb-2">
           <StarRating rating={course.rating} size={16} />

@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CourseCard } from '@/components/CourseCard';
@@ -6,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { featuredCourses, popularCategories } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
-import { ArrowRight, BookOpen, CheckCircle, Users, Video } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle, Users, Video, Store } from 'lucide-react';
 import Image from 'next/image';
 
 export default function HomePage() {
@@ -22,7 +23,7 @@ export default function HomePage() {
                 Unlock Your Potential with <span className="text-primary">{APP_NAME}</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground">
-                Discover thousands of online courses from expert instructors. Learn at your own pace, anytime, anywhere.
+                Discover thousands of online courses from expert educators and institutions. Learn at your own pace, anytime, anywhere.
               </p>
               <div className="max-w-xl">
                 <SearchBar />
@@ -32,18 +33,18 @@ export default function HomePage() {
                   <Link href="/courses">Explore Courses <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/teach">Become an Instructor</Link>
+                  <Link href="/sell-courses">Sell Your Courses <Store className="ml-2 h-5 w-5" /></Link>
                 </Button>
               </div>
             </div>
             <div className="hidden md:block">
               <Image 
                 src="https://placehold.co/600x500.png" 
-                alt="Person learning online with a laptop" 
+                alt="Person learning online with a laptop in a modern setting" 
                 width={600} 
                 height={500} 
                 className="rounded-lg shadow-2xl"
-                data-ai-hint="online learning student"
+                data-ai-hint="online learning student laptop"
                 priority
               />
             </div>
@@ -59,9 +60,9 @@ export default function HomePage() {
             </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
-                { icon: BookOpen, title: "Expert Instructors", description: "Learn from industry leaders and experienced educators." },
+                { icon: BookOpen, title: "Expert Instructors & Institutions", description: "Learn from industry leaders, renowned institutions, and experienced educators." },
                 { icon: Video, title: "Flexible Learning", description: "Study at your own pace, on any device, anytime." },
-                { icon: CheckCircle, title: "Verified Courses", description: "Access high-quality, curated content you can trust." },
+                { icon: CheckCircle, title: "Verified Courses", description: "Access high-quality, curated content you can trust from approved sellers." },
                 { icon: Users, title: "Supportive Community", description: "Connect with peers and instructors for guidance." }
               ].map((feature, index) => (
                 <div key={index} className="bg-card p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow">
@@ -115,7 +116,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-3 gap-8">
               {[1, 2, 3].map(i => (
                 <div key={i} className="bg-background p-6 rounded-lg shadow-lg">
-                  <Image src={`https://placehold.co/80x80.png`} alt={`Happy Student ${i}`} width={80} height={80} className="rounded-full mx-auto mb-4" data-ai-hint="student testimonial portrait" />
+                  <Image src={`https://placehold.co/80x80.png`} alt={`Happy Student ${i}`} width={80} height={80} className="rounded-full mx-auto mb-4" data-ai-hint="student headshot testimonial" />
                   <p className="text-muted-foreground italic mb-4 text-center">"This platform is amazing! I've learned so much and boosted my career. The courses are top-notch."</p>
                   <p className="font-semibold text-center">Student Name {i}</p>
                   <p className="text-sm text-muted-foreground text-center">Course Title {i}</p>

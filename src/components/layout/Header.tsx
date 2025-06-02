@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from 'next/link';
-import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X } from 'lucide-react';
+import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserProfileDropdown } from '@/components/UserProfileDropdown';
@@ -14,15 +15,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import React from 'react';
-import { useAuth } from '@/components/AppProviders'; // Assuming useAuth is here
+import { useAuth } from '@/components/AppProviders'; 
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const { user, isLoading } = useAuth(); // Get user state
+  const { user, isLoading } = useAuth(); 
 
   const navLinks = [
     { href: '/courses', label: 'Courses', icon: BookOpenText },
-    { href: '/teach', label: 'Teach on EdTechCart', icon: GraduationCap },
+    { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
   ];
 
   if (user && user.role === 'student') {

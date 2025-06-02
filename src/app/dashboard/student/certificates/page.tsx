@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -24,6 +25,7 @@ export default function CertificatesPage() {
 
   return (
     <div className="space-y-8">
+      {/* StudentDashboardHeaderNav is now in layout */}
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold font-headline">My Certificates</h1>
         <Button variant="outline" asChild>

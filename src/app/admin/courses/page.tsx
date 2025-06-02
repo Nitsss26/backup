@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Search, CheckCircle, XCircle, Eye, Edit } from 'lucide-react';
+import { MoreHorizontal, Search, CheckCircle, XCircle, Eye, Edit, ShieldQuestion, ShieldCheck, ShieldAlert } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,10 +19,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     // In a real app, fetch courses from API
@@ -37,11 +40,19 @@ export default function AdminCoursesPage() {
   const getApprovalStatusBadge = (status?: 'pending' | 'approved' | 'rejected') => {
     if (!status) return <Badge variant="secondary">Unknown</Badge>;
     switch (status) {
-      case 'pending': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-200">Pending</Badge>;
-      case 'approved': return <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-200">Approved</Badge>;
-      case 'rejected': return <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200">Rejected</Badge>;
+      case 'pending': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-200"><ShieldQuestion className="mr-1 h-3 w-3"/>Pending</Badge>;
+      case 'approved': return <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-200"><ShieldCheck className="mr-1 h-3 w-3"/>Approved</Badge>;
+      case 'rejected': return <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200"><ShieldAlert className="mr-1 h-3 w-3"/>Rejected</Badge>;
       default: return <Badge variant="secondary">Unknown</Badge>;
     }
+  };
+
+  const handleCourseApprovalAction = (courseId: string, newStatus: 'approved' | 'rejected') => {
+    setCourses(prevCourses => prevCourses.map(c => c.id === courseId ? { ...c, approvalStatus: newStatus } : c));
+    toast({
+        title: `Course ${newStatus === 'approved' ? 'Approved' : 'Rejected'}`,
+        description: `Course ${courseId} has been ${newStatus}.`
+    });
   };
 
   return (
@@ -85,7 +96,7 @@ export default function AdminCoursesPage() {
                         width={60} 
                         height={34} 
                         className="rounded object-cover aspect-video"
-                        data-ai-hint={`${course.category} thumbnail`}
+                        data-ai-hint={`${course.category} course thumbnail`}
                     />
                   </TableCell>
                   <TableCell className="font-medium max-w-xs truncate">
@@ -108,16 +119,16 @@ export default function AdminCoursesPage() {
                             <Eye className="mr-2 h-4 w-4" /> View Course Page
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem> {/* Admin might need a different edit view than seller */}
+                        <DropdownMenuItem disabled> {/* Admin might need a different edit view than seller */}
                            <Edit className="mr-2 h-4 w-4" /> Edit Course Details
                         </DropdownMenuItem>
                         {course.approvalStatus === 'pending' && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-green-600 focus:text-green-700">
+                            <DropdownMenuItem onClick={() => handleCourseApprovalAction(course.id, 'approved')} className="text-green-600 focus:text-green-700 focus:bg-green-50">
                               <CheckCircle className="mr-2 h-4 w-4" /> Approve Course
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 focus:text-red-700">
+                            <DropdownMenuItem onClick={() => handleCourseApprovalAction(course.id, 'rejected')} className="text-red-600 focus:text-red-700 focus:bg-red-50">
                               <XCircle className="mr-2 h-4 w-4" /> Reject Course
                             </DropdownMenuItem>
                           </>

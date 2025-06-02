@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // Added React import
 import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,14 +13,15 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/components/AppProviders'; // Assuming this hook provides user data
-import { Loader2, UserCircle, Lock, Bell, Upload } from 'lucide-react';
+import { useAuth } from '@/components/AppProviders'; 
+import { Loader2, UserCircle, Lock, Bell, Upload, FileText, ShieldCheck } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  bio: z.string().max(200, "Bio must be less than 200 characters").optional(),
+  bio: z.string().max(500, "Bio must be less than 500 characters").optional(), // Increased bio length
   avatarUrl: z.string().url("Invalid URL for avatar").optional().or(z.literal('')),
 });
 
@@ -38,10 +40,15 @@ const notificationSchema = z.object({
   platformAnnouncements: z.boolean().default(true),
 });
 
+const sellerVerificationSchema = z.object({
+    documentType: z.string().min(1, "Please select document type"),
+    documentFile: z.any().refine(files => files?.length > 0, "Document file is required."), // Basic check
+});
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 type NotificationFormValues = z.infer<typeof notificationSchema>;
+type SellerVerificationFormValues = z.infer<typeof sellerVerificationSchema>;
 
 export default function ProfilePage() {
   const { user, isLoading: authLoading, /* updateUser, updatePassword - mock functions */ } = useAuth();
@@ -49,6 +56,7 @@ export default function ProfilePage() {
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [isSubmittingNotifications, setIsSubmittingNotifications] = useState(false);
+  const [isSubmittingVerification, setIsSubmittingVerification] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
   const profileForm = useForm<ProfileFormValues>({
@@ -59,11 +67,14 @@ export default function ProfilePage() {
   });
   const notificationForm = useForm<NotificationFormValues>({
     resolver: zodResolver(notificationSchema),
-    defaultValues: { // Mock notification settings
+    defaultValues: { 
         courseUpdates: true,
         promotions: false,
         platformAnnouncements: true,
     }
+  });
+  const sellerVerificationForm = useForm<SellerVerificationFormValues>({
+    resolver: zodResolver(sellerVerificationSchema)
   });
 
   useEffect(() => {
@@ -72,17 +83,15 @@ export default function ProfilePage() {
       profileForm.reset({
         name: user.name || '',
         email: user.email || '',
-        bio: user.bio || '', // Assuming bio and avatarUrl are part of user object
+        bio: user.bio || '',
         avatarUrl: user.avatarUrl || '',
       });
-      // Potentially fetch and set notification preferences
     }
-  }, [user, profileForm, profileForm.reset]); // Added profileForm to dependency array as reset is part of it
+  }, [user, profileForm, profileForm.reset]); 
 
   const onProfileSubmit: SubmitHandler<ProfileFormValues> = async (data) => {
     setIsSubmittingProfile(true);
     console.log("Profile update:", data);
-    // await updateUser(data); // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     toast({ title: "Profile Updated", description: "Your profile information has been saved." });
     setIsSubmittingProfile(false);
@@ -90,8 +99,7 @@ export default function ProfilePage() {
 
   const onPasswordSubmit: SubmitHandler<PasswordFormValues> = async (data) => {
     setIsSubmittingPassword(true);
-    console.log("Password change request for:", data.currentPassword.substring(0,1) + "***"); // Don't log actual passwords
-    // await updatePassword(data); // Mock API call
+    console.log("Password change request for:", data.currentPassword.substring(0,1) + "***");
     await new Promise(resolve => setTimeout(resolve, 1000));
     toast({ title: "Password Updated", description: "Your password has been changed successfully." });
     passwordForm.reset();
@@ -101,10 +109,25 @@ export default function ProfilePage() {
   const onNotificationsSubmit: SubmitHandler<NotificationFormValues> = async (data) => {
     setIsSubmittingNotifications(true);
     console.log("Notification settings updated:", data);
-    // await updateNotificationPreferences(data); // Mock API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     toast({ title: "Notification Settings Updated", description: "Your preferences have been saved." });
     setIsSubmittingNotifications(false);
+  };
+
+  const onSellerVerificationSubmit: SubmitHandler<SellerVerificationFormValues> = async (data) => {
+    setIsSubmittingVerification(true);
+    console.log("Seller verification documents submitted:", data);
+    // Simulate API call to upload document and update user status
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    toast({ title: "Documents Submitted", description: "Your verification documents have been submitted for review."});
+    // Mock update user object - in real app this would come from backend
+    if (user) {
+        // This is a mock update; in a real app, you'd refetch user or get updated user from API
+        user.documentsSubmitted = true; 
+        user.verificationStatus = 'pending';
+    }
+    sellerVerificationForm.reset();
+    setIsSubmittingVerification(false);
   };
 
   if (authLoading || !isClient) {
@@ -124,6 +147,9 @@ export default function ProfilePage() {
           <TabsTrigger value="profile"><UserCircle className="mr-2 h-4 w-4 inline-block"/>Profile</TabsTrigger>
           <TabsTrigger value="password"><Lock className="mr-2 h-4 w-4 inline-block"/>Password</TabsTrigger>
           <TabsTrigger value="notifications"><Bell className="mr-2 h-4 w-4 inline-block"/>Notifications</TabsTrigger>
+          {user.role === 'provider' && (
+            <TabsTrigger value="verification"><ShieldCheck className="mr-2 h-4 w-4 inline-block"/>Seller Verification</TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="profile" className="mt-6">
@@ -136,7 +162,7 @@ export default function ProfilePage() {
               <CardContent className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src={profileForm.watch('avatarUrl') || user.avatarUrl} alt={user.name} data-ai-hint="user avatar large"/>
+                    <AvatarImage src={profileForm.watch('avatarUrl') || user.avatarUrl} alt={user.name} data-ai-hint="user avatar profile"/>
                     <AvatarFallback>{userInitial}</AvatarFallback>
                   </Avatar>
                   <div className="flex-grow">
@@ -159,8 +185,8 @@ export default function ProfilePage() {
                    {profileForm.formState.errors.email && <p className="text-sm text-destructive mt-1">{profileForm.formState.errors.email.message}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="bio">Bio (Optional)</Label>
-                  <Textarea id="bio" {...profileForm.register('bio')} placeholder="Tell us a little about yourself..." rows={3} />
+                  <Label htmlFor="bio">Bio / About You (Optional)</Label>
+                  <Textarea id="bio" {...profileForm.register('bio')} placeholder={user.role === 'provider' ? "Tell students about your expertise and institution..." : "Tell us a little about yourself..."} rows={user.role === 'provider' ? 5 : 3} />
                   {profileForm.formState.errors.bio && <p className="text-sm text-destructive mt-1">{profileForm.formState.errors.bio.message}</p>}
                 </div>
               </CardContent>
@@ -247,6 +273,63 @@ export default function ProfilePage() {
             </form>
           </Card>
         </TabsContent>
+
+        {user.role === 'provider' && (
+          <TabsContent value="verification" className="mt-6">
+            <Card className="shadow-md">
+              <CardHeader>
+                <CardTitle>Seller Verification</CardTitle>
+                <CardDescription>Submit documents to verify your identity as a course seller.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {user.verificationStatus === 'verified' ? (
+                  <Alert variant="default" className="bg-green-50 border-green-300 text-green-700">
+                    <ShieldCheck className="h-4 w-4 !text-green-700" />
+                    <AlertTitle>Account Verified</AlertTitle>
+                    <AlertDescription>Your seller account is verified. You can publish courses.</AlertDescription>
+                  </Alert>
+                ) : user.verificationStatus === 'pending' ? (
+                  <Alert variant="default" className="bg-yellow-50 border-yellow-300 text-yellow-700">
+                     <FileText className="h-4 w-4 !text-yellow-700" />
+                    <AlertTitle>Documents Submitted</AlertTitle>
+                    <AlertDescription>Your verification documents are currently under review by our admin team.</AlertDescription>
+                  </Alert>
+                ) : user.verificationStatus === 'rejected' ? (
+                   <Alert variant="destructive">
+                    <AlertTitle>Verification Rejected</AlertTitle>
+                    <AlertDescription>There was an issue with your previous submission. Please review any feedback and resubmit, or contact support.</AlertDescription>
+                  </Alert>
+                ) : null}
+
+                {(user.verificationStatus !== 'verified' && user.verificationStatus !== 'pending') && (
+                  <form onSubmit={sellerVerificationForm.handleSubmit(onSellerVerificationSubmit)} className="space-y-4 mt-4">
+                    <div>
+                        <Label htmlFor="documentType">Document Type</Label>
+                        <select id="documentType" {...sellerVerificationForm.register("documentType")} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                            <option value="">Select document type...</option>
+                            <option value="id_card">Government ID / Passport</option>
+                            <option value="business_license">Business License (for Institutions)</option>
+                            <option value="edu_credential">Educational Credentials</option>
+                        </select>
+                        {sellerVerificationForm.formState.errors.documentType && <p className="text-sm text-destructive mt-1">{sellerVerificationForm.formState.errors.documentType.message}</p>}
+                    </div>
+                    <div>
+                        <Label htmlFor="documentFile">Upload Document (PDF, JPG, PNG)</Label>
+                        <Input id="documentFile" type="file" {...sellerVerificationForm.register("documentFile")} accept=".pdf,.jpg,.jpeg,.png" />
+                        {sellerVerificationForm.formState.errors.documentFile && <p className="text-sm text-destructive mt-1">{sellerVerificationForm.formState.errors.documentFile.message}</p>}
+                    </div>
+                     <CardFooter className="px-0 py-4">
+                        <Button type="submit" disabled={isSubmittingVerification}>
+                            {isSubmittingVerification && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Submit Documents
+                        </Button>
+                    </CardFooter>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
       </Tabs>
     </div>

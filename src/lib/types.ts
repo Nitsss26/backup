@@ -1,7 +1,8 @@
+
 export interface Course {
   id: string;
   title: string;
-  instructor: string;
+  instructor: string; // Keep for backward compatibility or simple display name
   rating: number;
   reviewsCount: number;
   price: number;
@@ -18,14 +19,15 @@ export interface Course {
   certificateAvailable?: boolean;
   highlights?: string[]; 
   sellerId?: string; 
-  providerInfo?: {
+  providerInfo?: { // Enhanced provider/seller information
     name: string;
     logoUrl?: string;
     verified?: boolean;
+    description?: string; // Short bio or description of the seller/institute
   };
   shortDescription?: string;
   tags?: string[];
-  approvalStatus?: 'pending' | 'approved' | 'rejected'; // Added for admin course approval
+  approvalStatus?: 'pending' | 'approved' | 'rejected'; 
 }
 
 export interface Module {
@@ -57,7 +59,7 @@ export interface Review {
   createdAt: string; 
   helpfulVotes: number;
   unhelpfulVotes: number;
-  moderationStatus?: 'pending' | 'approved' | 'rejected'; // Added for admin review moderation
+  moderationStatus?: 'pending' | 'approved' | 'rejected'; 
 }
 
 export type UserRole = 'student' | 'provider' | 'admin';
@@ -68,14 +70,14 @@ export interface User {
   email: string;
   role: UserRole;
   avatarUrl?: string;
+  bio?: string; // Added bio field
   createdAt?: string;
-  verificationStatus?: 'pending' | 'verified' | 'rejected'; // Added for seller verification
-  documentsSubmitted?: boolean; // Example field
+  verificationStatus?: 'pending' | 'verified' | 'rejected' | 'unverified'; // Added 'unverified'
+  documentsSubmitted?: boolean; 
 }
 
 export interface CartItem {
   course: Course;
-  // quantity is always 1 for courses
 }
 
 export interface WishlistItem {
@@ -86,7 +88,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  icon?: React.ElementType; // Optional: Lucide icon component
+  icon?: React.ElementType; 
   subcategories?: Category[];
 }
 
@@ -108,7 +110,7 @@ export interface Certificate {
 export interface Order {
   id: string;
   userId: string;
-  items: Course[];
+  items: Course[]; // Could be Course ID and snapshot of price/title at time of purchase
   totalAmount: number;
   paymentMethod: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';

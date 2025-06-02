@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -21,7 +22,7 @@ export default function OrderHistoryPage() {
 
   const getStatusVariant = (status: Order['status']): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
-      case 'completed': return 'default'; // 'default' usually maps to primary color, green is better
+      case 'completed': return 'default'; 
       case 'pending': return 'secondary';
       case 'failed': return 'destructive';
       case 'refunded': return 'outline';
@@ -33,7 +34,6 @@ export default function OrderHistoryPage() {
      switch (status) {
       case 'completed': return 'bg-green-500 hover:bg-green-600';
       case 'pending': return 'bg-yellow-500 hover:bg-yellow-600';
-      // Destructive variant already handles failed
       default: return '';
     }
   }
@@ -45,6 +45,7 @@ export default function OrderHistoryPage() {
 
   return (
     <div className="space-y-8">
+      {/* StudentDashboardHeaderNav is now in layout */}
       <h1 className="text-3xl font-bold font-headline">Order History</h1>
       {orders.length === 0 ? (
          <div className="text-center py-12 border-2 border-dashed rounded-lg">
@@ -72,7 +73,8 @@ export default function OrderHistoryPage() {
               {orders.map(order => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium text-primary hover:underline">
-                    <Link href={`/dashboard/student/orders/${order.id}`}>{order.id.substring(0,8)}...</Link>
+                    {/* Link to order detail page will be created later if needed */}
+                    {order.id.substring(0,8)}...
                   </TableCell>
                   <TableCell>{new Date(order.orderDate).toLocaleDateString()}</TableCell>
                   <TableCell>{order.items.length} course(s)</TableCell>
@@ -83,12 +85,9 @@ export default function OrderHistoryPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="space-x-2">
-                    <Button variant="outline" size="sm" asChild>
-                       <Link href={`/dashboard/student/orders/${order.id}`}>
+                    <Button variant="outline" size="sm" disabled> {/* Placeholder for view order details */}
                         <Eye className="mr-1 h-3.5 w-3.5"/> View
-                       </Link>
                     </Button>
-                    {/* Placeholder for invoice download */}
                     <Button variant="outline" size="sm" disabled={order.status !== 'completed'}>
                         <FileText className="mr-1 h-3.5 w-3.5"/> Invoice
                     </Button>

@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -10,7 +11,7 @@ import { getCourseById, getReviewsByCourseId, placeholderCourses, placeholderRev
 import type { Course, Review, Module as CurriculumModule, Lesson } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star } from 'lucide-react';
+import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star, MessageSquareQuestion } from 'lucide-react';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +25,7 @@ function ReviewCard({ review }: { review: Review }) {
     <Card className="mb-4">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
         <Avatar>
-          <AvatarImage src={review.userAvatar} alt={review.userName} data-ai-hint="person avatar" />
+          <AvatarImage src={review.userAvatar} alt={review.userName} data-ai-hint="student avatar review" />
           <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
         </Avatar>
         <div>
@@ -90,7 +91,15 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     { label: course.title },
   ];
   
-  const imageHint = course.category.toLowerCase().split('-').slice(0,2).join(' ') || "education content";
+  const imageHint = course.category.toLowerCase().split(' ').slice(0,2).join(' ') || "education content";
+
+  // Placeholder FAQs
+  const faqs = [
+    { q: "Is this course suitable for beginners?", a: "Yes, this course starts from the fundamentals and is designed to be accessible for beginners." },
+    { q: "Are there any prerequisites?", a: course.level === "Beginner" ? "No prior knowledge is required." : "Basic understanding of [relevant topic] is recommended." },
+    { q: "Is there a certificate upon completion?", a: course.certificateAvailable ? "Yes, a certificate of completion is provided." : "No, this course does not offer a certificate at this time." },
+    { q: "How long do I have access to the course?", a: "You get lifetime access to all course materials once enrolled." }
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -109,10 +118,10 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         </div>
                         <span>{course.studentsEnrolled?.toLocaleString()} students</span>
                     </div>
-                    <p className="text-sm">Created by <span className="font-semibold">{course.instructor}</span></p>
+                    <p className="text-sm">Sold by <span className="font-semibold">{course.providerInfo?.name || course.instructor}</span></p>
                     {course.providerInfo?.verified && (
                         <div className="flex items-center gap-1 text-sm bg-green-500/20 text-green-100 px-2 py-1 rounded-md w-fit">
-                            <ShieldCheck className="h-4 w-4"/> Verified Provider: {course.providerInfo.name}
+                            <ShieldCheck className="h-4 w-4"/> Verified Seller
                         </div>
                     )}
                     <p className="text-xs">Last updated: {new Date(course.lastUpdated || Date.now()).toLocaleDateString()}</p>
@@ -121,7 +130,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                 <div className="hidden md:block md:col-span-1 row-start-1 md:row-start-auto">
                      <Card className="shadow-xl sticky top-24">
                         <CardHeader className="p-0">
-                            <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={imageHint} />
+                            <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course cover`} />
                         </CardHeader>
                         <CardContent className="p-4 space-y-3">
                             <div className="text-3xl font-bold">${course.price.toFixed(2)}
@@ -149,7 +158,6 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
 
         <div className="container mt-8 grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            {/* What you'll learn - if available */}
             {course.highlights && course.highlights.length > 0 && (
             <Card className="mb-8 shadow-sm">
               <CardHeader>
@@ -167,11 +175,12 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             )}
 
             <Tabs defaultValue="curriculum" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:grid-cols-4 mb-6">
+              <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 mb-6">
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
                 <TabsTrigger value="description">Description</TabsTrigger>
+                <TabsTrigger value="instructor">Instructor</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews ({reviews.length})</TabsTrigger>
-                <TabsTrigger value="instructor" className="hidden md:inline-flex">Instructor</TabsTrigger>
+                <TabsTrigger value="faq">FAQ</TabsTrigger>
               </TabsList>
 
               <TabsContent value="curriculum">
@@ -211,8 +220,37 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                   </CardHeader>
                   <CardContent className="prose dark:prose-invert max-w-none">
                     <p>{course.description}</p>
+                    {/* Additional description sections could go here */}
                   </CardContent>
                 </Card>
+              </TabsContent>
+              
+              <TabsContent value="instructor">
+                 <Card className="shadow-sm">
+                    <CardHeader>
+                        <CardTitle className="text-2xl font-headline">About the Seller</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col md:flex-row items-start gap-6">
+                        <Avatar className="h-24 w-24 md:h-32 md:w-32">
+                            <AvatarImage src={course.providerInfo?.logoUrl || 'https://placehold.co/150x150.png'} alt={course.providerInfo?.name || course.instructor} data-ai-hint="seller logo instructor"/>
+                            <AvatarFallback>{(course.providerInfo?.name || course.instructor).charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <h3 className="text-xl font-semibold">{course.providerInfo?.name || course.instructor}</h3>
+                            <p className="text-sm text-primary">{course.providerInfo?.verified ? 'Verified Seller' : 'Seller'}</p>
+                            <p className="mt-2 text-sm text-muted-foreground">
+                                {course.providerInfo?.description || `Experienced professional in ${course.category}. Passionate about sharing knowledge and helping students succeed.`}
+                            </p>
+                            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-sm">
+                                <div className="flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400" /> {course.rating} Seller Rating</div>
+                                <div className="flex items-center gap-1"><Award className="h-4 w-4 text-primary" /> {course.reviewsCount} Reviews</div>
+                                <div className="flex items-center gap-1"><Users className="h-4 w-4 text-primary" /> {course.studentsEnrolled?.toLocaleString()} Students on platform</div>
+                                <div className="flex items-center gap-1"><Tv className="h-4 w-4 text-primary" /> {placeholderCourses.filter(c => c.sellerId === course.sellerId).length} Courses</div>
+                            </div>
+                             {/* <Button variant="outline" size="sm" className="mt-4">View Seller Store</Button> */}
+                        </div>
+                    </CardContent>
+                 </Card>
               </TabsContent>
 
               <TabsContent value="reviews">
@@ -236,36 +274,29 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="instructor">
-                 <Card className="shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-2xl font-headline">About the Instructor</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex items-start gap-6">
-                        <Avatar className="h-24 w-24">
-                            <AvatarImage src={course.providerInfo?.logoUrl || 'https://placehold.co/150x150.png'} alt={course.instructor} data-ai-hint="instructor portrait"/>
-                            <AvatarFallback>{course.instructor.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <h3 className="text-xl font-semibold">{course.instructor}</h3>
-                            <p className="text-sm text-primary">{course.providerInfo?.name || 'Independent Instructor'}</p>
-                            {/* Placeholder for instructor bio & stats */}
-                            <p className="mt-2 text-sm text-muted-foreground">
-                                Experienced professional with 10+ years in {course.category}. Passionate about sharing knowledge and helping students succeed.
-                            </p>
-                            <div className="flex gap-4 mt-3 text-sm">
-                                <div className="flex items-center gap-1"><Star className="h-4 w-4 text-yellow-400" /> 4.7 Instructor Rating</div>
-                                <div className="flex items-center gap-1"><Award className="h-4 w-4 text-primary" /> 50,000+ Reviews</div>
-                                <div className="flex items-center gap-1"><Users className="h-4 w-4 text-primary" /> 200,000+ Students</div>
-                                <div className="flex items-center gap-1"><Tv className="h-4 w-4 text-primary" /> 15 Courses</div>
-                            </div>
-                        </div>
-                    </CardContent>
-                 </Card>
+              <TabsContent value="faq">
+                <Card className="shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-headline flex items-center"><MessageSquareQuestion className="mr-2 h-6 w-6 text-primary"/>Frequently Asked Questions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {faqs.length > 0 ? (
+                      <Accordion type="multiple" className="w-full">
+                        {faqs.map((faq, index) => (
+                          <AccordionItem value={`faq-${index}`} key={index}>
+                            <AccordionTrigger className="text-base text-left hover:no-underline">{faq.q}</AccordionTrigger>
+                            <AccordionContent className="text-sm">{faq.a}</AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    ) : (
+                      <p>No FAQs available for this course yet.</p>
+                    )}
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
             
-             {/* Related Courses Section */}
             {relatedCourses.length > 0 && (
             <section className="mt-12">
               <h2 className="text-2xl font-bold mb-6 font-headline">Related Courses</h2>
@@ -279,11 +310,10 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
 
           </div>
 
-          {/* Price & Action Card - Mobile & Sticky part */}
-          <div className="lg:col-span-1 md:hidden"> {/* Hidden on LG, shown below MD hero card */}
+          <div className="lg:col-span-1 md:hidden"> 
              <Card className="shadow-xl sticky top-24">
-                <CardHeader className="p-0 md:hidden"> {/* Image only for below MD hero */}
-                     <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={imageHint} />
+                <CardHeader className="p-0 md:hidden">
+                     <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course mobile`} />
                 </CardHeader>
                 <CardContent className="p-4 space-y-3">
                     <div className="text-3xl font-bold">${course.price.toFixed(2)}

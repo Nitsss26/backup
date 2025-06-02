@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MoreHorizontal, Search, CheckCircle, XCircle, ShieldCheck, UserCog, FileText } from 'lucide-react';
+import { MoreHorizontal, Search, CheckCircle, XCircle, ShieldCheck, UserCog, FileText, ShieldAlert, ShieldQuestion } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +18,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     // In a real app, fetch users from API
@@ -33,14 +36,22 @@ export default function AdminUsersPage() {
     user.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const getVerificationStatusBadge = (status?: 'pending' | 'verified' | 'rejected') => {
-    if (!status) return null;
+  const getVerificationStatusBadge = (status?: 'pending' | 'verified' | 'rejected' | 'unverified') => {
     switch (status) {
-      case 'pending': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-200">Pending</Badge>;
-      case 'verified': return <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-200">Verified</Badge>;
-      case 'rejected': return <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200">Rejected</Badge>;
+      case 'pending': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700 hover:bg-yellow-200"><ShieldQuestion className="mr-1 h-3 w-3"/>Pending</Badge>;
+      case 'verified': return <Badge variant="default" className="bg-green-100 text-green-700 hover:bg-green-200"><ShieldCheck className="mr-1 h-3 w-3"/>Verified</Badge>;
+      case 'rejected': return <Badge variant="destructive" className="bg-red-100 text-red-700 hover:bg-red-200"><ShieldAlert className="mr-1 h-3 w-3"/>Rejected</Badge>;
+      case 'unverified': return <Badge variant="outline">Unverified</Badge>;
       default: return null;
     }
+  };
+
+  const handleVerificationAction = (userId: string, newStatus: 'verified' | 'rejected') => {
+    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? { ...u, verificationStatus: newStatus } : u));
+    toast({
+        title: `Seller ${newStatus === 'verified' ? 'Approved' : 'Rejected'}`,
+        description: `User ${userId} has been ${newStatus}.`
+    });
   };
 
 
@@ -80,7 +91,7 @@ export default function AdminUsersPage() {
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-3">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="user avatar" />
+                        <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="user avatar small" />
                         <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       {user.name}
@@ -98,27 +109,27 @@ export default function AdminUsersPage() {
                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        {user.role === 'provider' && user.verificationStatus === 'pending' && user.documentsSubmitted && (
-                          <DropdownMenuItem>
+                        {user.role === 'provider' && user.documentsSubmitted && (
+                          <DropdownMenuItem disabled> {/* Placeholder for view documents modal */}
                             <FileText className="mr-2 h-4 w-4" /> View Documents
                           </DropdownMenuItem>
                         )}
                         {user.role === 'provider' && user.verificationStatus === 'pending' && (
                           <>
-                            <DropdownMenuItem className="text-green-600 focus:text-green-700">
+                            <DropdownMenuItem onClick={() => handleVerificationAction(user.id, 'verified')} className="text-green-600 focus:text-green-700 focus:bg-green-50">
                               <CheckCircle className="mr-2 h-4 w-4" /> Approve Seller
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600 focus:text-red-700">
+                            <DropdownMenuItem onClick={() => handleVerificationAction(user.id, 'rejected')} className="text-red-600 focus:text-red-700 focus:bg-red-50">
                               <XCircle className="mr-2 h-4 w-4" /> Reject Seller
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                           </>
                         )}
-                         <DropdownMenuItem>
-                           <UserCog className="mr-2 h-4 w-4" /> Edit Role
+                         <DropdownMenuItem disabled> {/* Placeholder */}
+                           <UserCog className="mr-2 h-4 w-4" /> Edit Role 
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:text-red-700">
-                          <ShieldCheck className="mr-2 h-4 w-4" /> Suspend User {/* Or Deactivate User */}
+                        <DropdownMenuItem disabled className="text-red-600 focus:text-red-700 focus:bg-red-50">
+                           <ShieldAlert className="mr-2 h-4 w-4" /> Suspend User
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
