@@ -1,15 +1,16 @@
+
 "use client";
 
 import React, { type ReactNode, useState, useEffect } from 'react';
-// import { ThemeProvider } from "next-themes"; // Example, if using next-themes
+import type { User as AppUser } from '@/lib/types'; // Use the existing User type
 
-// Placeholder AuthContext
+// Define AuthContextType using AppUser
 interface AuthContextType {
-  user: any | null; // Replace 'any' with your User type
+  user: AppUser | null;
   isLoading: boolean;
-  login: (credentials: any) => Promise<void>;
+  login: (credentials: any) => Promise<AppUser | null>;
   logout: () => Promise<void>;
-  register: (details: any) => Promise<void>;
+  register: (details: any) => Promise<AppUser | null>;
 }
 
 export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
@@ -22,10 +23,9 @@ export const useAuth = () => {
   return context;
 };
 
-
 // Mock Auth Provider
 const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<any | null>(null); // Replace 'any' with User type
+  const [user, setUser] = useState<AppUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,14 +37,52 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (credentials: any) => {
+  const login = async (credentials: any): Promise<AppUser | null> => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    const mockUser = { id: 'user1', name: credentials.email.split('@')[0], email: credentials.email, role: credentials.email.includes('admin') ? 'admin' : (credentials.email.includes('provider') ? 'provider' : 'student') }; // Example role logic
+
+    let role: AppUser['role'] = 'student';
+    const email = credentials.email.toLowerCase();
+
+    // Specific emails for roles for testing
+    if (email === 'admin@example.com') {
+      role = 'admin';
+    } else if (
+      // Seller emails from placeholder-data.ts
+      email === 'expert.tutors@example.com' ||
+      email === 'kaushik.learning@example.com' ||
+      email === 'vidya.mandir@example.com' ||
+      email === 'innovate.skillhub@example.com' ||
+      email === 'gyan.ganga@example.com'
+    ) {
+      role = 'provider';
+    }
+    // Other emails will default to student
+
+    const mockUser: AppUser = {
+      id: 'user-' + Math.random().toString(36).substring(7),
+      name: credentials.email.split('@')[0],
+      email: credentials.email,
+      role: role,
+      avatarUrl: `https://placehold.co/100x100/EBF4FF/3B82F6?text=${credentials.email.charAt(0).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+      // Add default properties for provider if role is provider
+      ...(role === 'provider' && {
+        verificationStatus: email === 'kaushik.learning@example.com' ? 'verified' : 'pending', // Example logic
+        documentsSubmitted: email === 'kaushik.learning@example.com' ? true : true, // Example logic
+        bio: "Dedicated course provider.",
+      }),
+      ...(role === 'student' && {
+        bio: "Eager learner.",
+      }),
+      ...(role === 'admin' && {
+        bio: "Platform administrator.",
+      }),
+    };
     setUser(mockUser);
     localStorage.setItem('edtechcart_user', JSON.stringify(mockUser));
     setIsLoading(false);
+    return mockUser;
   };
 
   const logout = async () => {
@@ -53,18 +91,35 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     localStorage.removeItem('edtechcart_user');
     setIsLoading(false);
+    // After logout, router.push('/auth/login') or similar would typically be called from where logout is initiated,
+    // or a global effect could watch for user === null and redirect.
   };
 
-  const register = async (details: any) => {
+  const register = async (details: any): Promise<AppUser | null> => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    const mockUser = { id: 'newUser', name: details.name, email: details.email, role: 'student' };
+    const userRole = details.role || 'student';
+    const mockUser: AppUser = {
+      id: 'newUser-' + Math.random().toString(36).substring(7),
+      name: details.name,
+      email: details.email,
+      role: userRole,
+      avatarUrl: `https://placehold.co/100x100/EBF4FF/3B82F6?text=${details.name.charAt(0).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+      ...(userRole === 'provider' && {
+        verificationStatus: 'unverified',
+        documentsSubmitted: false,
+        bio: "New course provider ready to share knowledge!",
+      }),
+      ...(userRole === 'student' && {
+        bio: "Excited to start learning!",
+      }),
+    };
     setUser(mockUser);
     localStorage.setItem('edtechcart_user', JSON.stringify(mockUser));
     setIsLoading(false);
+    return mockUser;
   };
-
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, logout, register }}>
@@ -73,22 +128,17 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-
 export default function AppProviders({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    // Avoid hydration mismatch by rendering nothing or a loader on the server.
-    // Or, ensure your ThemeProvider handles SSR correctly.
     return null; 
   }
   
   return (
-    // <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <AuthProvider>
-        {children}
-      </AuthProvider>
-    // </ThemeProvider>
+    <AuthProvider>
+      {children}
+    </AuthProvider>
   );
 }

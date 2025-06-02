@@ -48,7 +48,7 @@ const adminNavItems: NavItem[] = [
   { href: '/admin/reviews', label: 'Review Moderation', icon: Eye },
   { href: '/admin/content', label: 'Platform Content', icon: FileQuestion },
   { href: '/admin/payments', label: 'Payments & Revenue', icon: DollarSign },
-  { href: '/admin/settings', label: 'Platform Settings', icon: Palette }, // Using Palette as example
+  { href: '/admin/settings', label: 'Platform Settings', icon: Palette },
 ];
 
 
@@ -64,44 +64,54 @@ export default function DashboardLayout({
   const [showSidebar, setShowSidebar] = useState(false);
   const [isStudentExclusivePage, setIsStudentExclusivePage] = useState(false);
 
-
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push(`/auth/login?redirect=${currentPath}`); // Redirect to login if not authenticated
+      router.push(`/auth/login?redirect=${currentPath}`);
       return;
     }
+
     if (user) {
-      const isAdminPage = currentPath.startsWith('/admin');
-      const isSellerPage = currentPath.startsWith('/dashboard/seller');
-      const isStudentPage = currentPath.startsWith('/dashboard/student');
+      const isAdminContext = currentPath.startsWith('/admin');
+      const isSellerContext = currentPath.startsWith('/dashboard/seller');
+      const isStudentContext = currentPath.startsWith('/dashboard/student');
       const isProfilePage = currentPath === '/dashboard/profile';
 
-      // Determine if the current student page is one that uses the header nav instead of the main sidebar
       const studentPagesWithHeaderNav = ['/dashboard/student/courses', '/dashboard/student/certificates', '/dashboard/student/wishlist', '/dashboard/student/orders', '/dashboard/student'];
-      setIsStudentExclusivePage(studentPagesWithHeaderNav.includes(currentPath) && user.role === 'student');
+      const shouldHideMainSidebarForStudent = studentPagesWithHeaderNav.includes(currentPath) && user.role === 'student';
+      setIsStudentExclusivePage(shouldHideMainSidebarForStudent);
 
-      if (isAdminPage && user.role === 'admin') {
-        setActiveNavItems(adminNavItems);
-        setShowSidebar(true);
-      } else if (isSellerPage && user.role === 'provider') {
-        setActiveNavItems(providerNavItems);
-        setShowSidebar(true);
-      } else if (isStudentPage && user.role === 'student') {
-         setActiveNavItems(studentNavItems); // For StudentDashboardHeaderNav
-         // Show sidebar for student's profile, or if they somehow land on a generic /dashboard/student page that's not exclusive.
-         setShowSidebar(isProfilePage || (isStudentPage && !studentPagesWithHeaderNav.includes(currentPath)));
-      } else if (isProfilePage) { // Shared profile page logic
-         if (user.role === 'admin') { setActiveNavItems(adminNavItems); setShowSidebar(true); }
-         else if (user.role === 'provider') { setActiveNavItems(providerNavItems); setShowSidebar(true); }
-         else { setActiveNavItems(studentNavItems); setShowSidebar(true); } // Student on profile page gets sidebar
+      if (user.role === 'admin') {
+        if (isAdminContext || isProfilePage) {
+          setActiveNavItems(adminNavItems);
+          setShowSidebar(true);
+        } else {
+          // If admin is not on an admin page or their profile, redirect them to the admin root.
+          if (!isAdminContext) router.push('/admin');
+        }
+      } else if (user.role === 'provider') {
+        if (isSellerContext || isProfilePage) {
+          setActiveNavItems(providerNavItems);
+          setShowSidebar(true);
+        } else {
+          // If provider is not on a seller page or their profile, redirect them to the seller root.
+          if (!isSellerContext) router.push('/dashboard/seller');
+        }
+      } else if (user.role === 'student') {
+        if (isStudentContext || isProfilePage) {
+          setActiveNavItems(studentNavItems);
+          // Show sidebar for student's profile, or if they are on a generic /dashboard/student page that's not in studentPagesWithHeaderNav.
+          setShowSidebar(isProfilePage || (isStudentContext && !shouldHideMainSidebarForStudent));
+        } else {
+          // If student is not on a student page or their profile, redirect them to the student root.
+          if (!isStudentContext) router.push('/dashboard/student');
+        }
       } else {
-        // If user is authenticated but on a path not matching their role (and not profile), redirect
-        if (user.role === 'admin') router.push('/admin');
-        else if (user.role === 'provider') router.push('/dashboard/seller');
-        else router.push('/dashboard/student');
+        // Fallback for unknown roles or if user object is somehow malformed.
+        router.push('/auth/login');
       }
     }
   }, [user, isLoading, router, currentPath]);
+
 
   if (isLoading || !user) {
     return (
@@ -118,7 +128,7 @@ export default function DashboardLayout({
       <div className="flex flex-col min-h-screen">
         <Header />
         <div className="flex flex-1">
-          {showSidebar && ( // Only render sidebar if showSidebar is true
+          {showSidebar && (
             <Sidebar className="border-r bg-background text-foreground" collapsible="icon">
               <SidebarHeader className="p-4 flex flex-col items-center text-center group-data-[collapsible=icon]:hidden">
                   <Avatar className="h-20 w-20 mb-2 border-2 border-primary p-0.5">
@@ -146,10 +156,9 @@ export default function DashboardLayout({
             </Sidebar>
           )}
 
-          {/* Adjust main content area based on whether sidebar is shown for student exclusive pages */}
           <SidebarInset className={`flex-1 bg-slate-50 dark:bg-slate-900 ${isStudentExclusivePage && !showSidebar ? 'md:ml-0' : ''}`}>
-             {isStudentExclusivePage && ( // Render StudentDashboardHeaderNav only for student exclusive pages
-                <StudentDashboardHeaderNav navItems={studentNavItems.filter(item => !item.isShared || currentPath === item.href)} user={user} />
+             {isStudentExclusivePage && user.role === 'student' && (
+                <StudentDashboardHeaderNav navItems={activeNavItems.filter(item => !item.isShared || currentPath === item.href)} user={user} />
              )}
             <div className="p-4 md:p-6 lg:p-8">
               {children}
