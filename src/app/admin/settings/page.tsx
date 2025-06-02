@@ -12,10 +12,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Settings, Percent, ShieldCheck, Mail, Palette, UploadCloud, Bell, Briefcase, CreditCard, Globe } from 'lucide-react';
+import { Loader2, Settings, Percent, ShieldCheck, Mail, Palette, UploadCloud, Bell, Briefcase, CreditCard, Globe, Settings2 as Settings2Icon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
-import Link from 'next/link'; // Import Link
+import Link from 'next/link'; 
 
 const generalSettingsSchema = z.object({
   platformName: z.string().min(3, "Platform name must be at least 3 characters"),
@@ -31,14 +31,14 @@ const financialSettingsSchema = z.object({
   commissionRate: z.coerce.number().min(0).max(100, "Commission rate must be between 0 and 100"),
   payoutSchedule: z.enum(['monthly', 'bi-weekly', 'weekly']),
   currency: z.enum(['INR', 'USD', 'EUR']), 
-  paymentGatewayApiKey: z.string().optional(), // Placeholder for API Key
+  paymentGatewayApiKey: z.string().optional(), 
 });
 
 const securitySettingsSchema = z.object({
   enable2FA: z.boolean().default(false),
   contentModerationLevel: z.enum(['low', 'medium', 'high']),
   autoApproveSellers: z.boolean().default(false),
-  autoApproveCourses: z.boolean().default(false), // New
+  autoApproveCourses: z.boolean().default(false), 
 });
 
 const themeSettingsSchema = z.object({ 
@@ -53,7 +53,7 @@ type ThemeSettingsValues = z.infer<typeof themeSettingsSchema>;
 
 export default function AdminSettingsPage() {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("general"); // For conditional rendering if needed later
+  const [activeTab, setActiveTab] = useState("general"); 
   
   const currentSettings = { 
     general: { platformName: "EdTechCart", platformDescription: "Your premier marketplace for online courses!", adminEmail: "admin@edtechcart.com", logoUrl: "https://placehold.co/200x50/EBF4FF/3B82F6?text=EdTechCart", faviconUrl: "https://placehold.co/32x32/3B82F6/FFFFFF?text=E", contactEmail: "support@edtechcart.com", contactPhone: "+91-9876543210" },
@@ -76,37 +76,37 @@ export default function AdminSettingsPage() {
   const onSubmit = async (data: any, formName: string, setSubmitting: React.Dispatch<React.SetStateAction<boolean>>) => {
     setSubmitting(true);
     console.log(`${formName} settings update:`, data);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    toast({ title: `${formName} Settings Updated`, description: `Your ${formName.toLowerCase()} settings have been saved.` });
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
+    toast({ title: `${formName} Settings Updated`, description: `Your ${formName.toLowerCase()} settings have been saved.`, variant: 'success' });
     setSubmitting(false);
   };
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg border bg-card">
-        <CardHeader>
-            <div className="flex items-center gap-3">
-                <Settings className="h-8 w-8 text-primary"/>
-                <div>
-                    <CardTitle className="text-2xl font-headline">Platform Settings</CardTitle>
-                    <CardDescription>Configure global settings for {process.env.NEXT_PUBLIC_APP_NAME || "EdTechCart"}.</CardDescription>
-                </div>
+      <Card className="shadow-xl border-l-4 border-primary">
+        <CardHeader className="flex flex-row items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-md">
+                 <Settings2Icon className="h-8 w-8 text-primary"/>
+            </div>
+            <div>
+                <CardTitle className="text-2xl font-headline text-primary">Platform Settings</CardTitle>
+                <CardDescription>Configure global settings for {process.env.NEXT_PUBLIC_APP_NAME || "EdTechCart"}.</CardDescription>
             </div>
         </CardHeader>
       </Card>
       
       <Tabs defaultValue="general" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:auto-cols-fr mb-6">
-          <TabsTrigger value="general"><Globe className="mr-2 h-4 w-4 inline-block"/>General</TabsTrigger>
-          <TabsTrigger value="financial"><Percent className="mr-2 h-4 w-4 inline-block"/>Financial</TabsTrigger>
-          <TabsTrigger value="security"><ShieldCheck className="mr-2 h-4 w-4 inline-block"/>Security</TabsTrigger>
-          <TabsTrigger value="theme"><Palette className="mr-2 h-4 w-4 inline-block"/>Theme & Customization</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:auto-cols-fr mb-6 bg-primary/5">
+          <TabsTrigger value="general" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Globe className="mr-2 h-4 w-4 inline-block"/>General</TabsTrigger>
+          <TabsTrigger value="financial" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Percent className="mr-2 h-4 w-4 inline-block"/>Financial</TabsTrigger>
+          <TabsTrigger value="security" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><ShieldCheck className="mr-2 h-4 w-4 inline-block"/>Security</TabsTrigger>
+          <TabsTrigger value="theme" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"><Palette className="mr-2 h-4 w-4 inline-block"/>Theme & Customization</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general" className="mt-0">
-          <Card className="shadow-md border bg-card">
+          <Card className="shadow-lg border bg-card">
             <CardHeader>
-              <CardTitle className="text-xl">General Platform Settings</CardTitle>
+              <CardTitle className="text-xl font-headline">General Platform Settings</CardTitle>
               <CardDescription>Manage basic information, branding, and contact details for the platform.</CardDescription>
             </CardHeader>
             <form onSubmit={generalForm.handleSubmit(data => onSubmit(data, "General", setIsSubmittingGeneral))}>
@@ -163,7 +163,7 @@ export default function AdminSettingsPage() {
                  <div>
                     <Label>Other Static Info (Managed Separately)</Label>
                     <p className="text-xs text-muted-foreground">Footer links, About Us, etc. are managed under "Platform Content".</p>
-                    <Button variant="link" className="p-0 h-auto text-sm" asChild><Link href="/admin/content">Go to Content Editor</Link></Button>
+                    <Button variant="link" className="p-0 h-auto text-sm text-primary hover:text-primary/80" asChild><Link href="/admin/content">Go to Content Editor</Link></Button>
                  </div>
               </CardContent>
               <CardFooter className="border-t px-6 py-4">
@@ -177,9 +177,9 @@ export default function AdminSettingsPage() {
         </TabsContent>
 
         <TabsContent value="financial" className="mt-0">
-          <Card className="shadow-md border bg-card">
+          <Card className="shadow-lg border bg-card">
             <CardHeader>
-              <CardTitle className="text-xl">Financial Settings</CardTitle>
+              <CardTitle className="text-xl font-headline">Financial Settings</CardTitle>
               <CardDescription>Configure commission rates, payout schedules, currency, and payment gateways.</CardDescription>
             </CardHeader>
             <form onSubmit={financialForm.handleSubmit(data => onSubmit(data, "Financial", setIsSubmittingFinancial))}>
@@ -220,14 +220,14 @@ export default function AdminSettingsPage() {
                     </div>
                     <div>
                         <Label>Payment Gateway Configuration</Label>
-                        <Card className="p-4 bg-muted/30 border-dashed">
-                            <CardDescription className="mb-3">Connect and manage payment gateways. (Conceptual - requires backend integration)</CardDescription>
+                        <Card className="p-4 bg-muted/30 border-dashed border-border">
+                            <CardDescription className="mb-3 text-muted-foreground">Connect and manage payment gateways. (Conceptual - requires backend integration)</CardDescription>
                             <div className="flex flex-wrap gap-3">
                                 <Button variant="outline" disabled><CreditCard className="mr-2"/>Connect Stripe</Button>
                                 <Button variant="outline" disabled><CreditCard className="mr-2"/>Connect Razorpay</Button>
                                 <Button variant="outline" disabled><CreditCard className="mr-2"/>Connect PayPal</Button>
                             </div>
-                            <Image src="https://placehold.co/400x80/EBF4FF/3B82F6?text=Payment+Gateway+Logos" alt="Payment gateway logos" width={400} height={80} className="mt-4 rounded object-contain" data-ai-hint="stripe razorpay paypal logos"/>
+                            <Image src="https://placehold.co/400x80/EBF4FF/3B82F6?text=Payment+Gateway+Logos" alt="Payment gateway logos" width={400} height={80} className="mt-4 rounded object-contain" data-ai-hint="stripe razorpay paypal logos payment gateways"/>
                         </Card>
                     </div>
                 </CardContent>
@@ -242,9 +242,9 @@ export default function AdminSettingsPage() {
         </TabsContent>
         
         <TabsContent value="security" className="mt-0">
-          <Card className="shadow-md border bg-card">
+          <Card className="shadow-lg border bg-card">
             <CardHeader>
-              <CardTitle className="text-xl">Security & Moderation</CardTitle>
+              <CardTitle className="text-xl font-headline">Security & Moderation</CardTitle>
               <CardDescription>Manage platform security features, content moderation policies, and approval workflows.</CardDescription>
             </CardHeader>
             <form onSubmit={securityForm.handleSubmit(data => onSubmit(data, "Security", setIsSubmittingSecurity))}>
@@ -283,8 +283,8 @@ export default function AdminSettingsPage() {
                     </div>
                     <div>
                         <Label>API Access & Integrations</Label>
-                         <Card className="p-4 bg-muted/30 border-dashed">
-                            <CardDescription className="mb-3">Manage API keys for third-party services, analytics, or custom integrations. (Conceptual)</CardDescription>
+                         <Card className="p-4 bg-muted/30 border-dashed border-border">
+                            <CardDescription className="mb-3 text-muted-foreground">Manage API keys for third-party services, analytics, or custom integrations. (Conceptual)</CardDescription>
                             <Button variant="outline" className="mt-2" disabled><Settings className="mr-2"/>Manage API Keys & Webhooks</Button>
                         </Card>
                     </div>
@@ -300,10 +300,10 @@ export default function AdminSettingsPage() {
         </TabsContent>
 
         <TabsContent value="theme" className="mt-0">
-          <Card className="shadow-md border bg-card">
+          <Card className="shadow-lg border bg-card">
             <CardHeader>
-              <CardTitle className="text-xl">Theme & Customization</CardTitle>
-              <CardDescription>Customize the look and feel of the platform. (Changes may require CSS updates).</CardDescription>
+              <CardTitle className="text-xl font-headline">Theme & Customization</CardTitle>
+              <CardDescription>Customize the look and feel of the platform. (Changes require CSS updates).</CardDescription>
             </CardHeader>
             <form onSubmit={themeForm.handleSubmit(data => onSubmit(data, "Theme", setIsSubmittingTheme))}>
                 <CardContent className="space-y-6">
@@ -312,7 +312,7 @@ export default function AdminSettingsPage() {
                             <Label htmlFor="primaryColor">Primary Theme Color (Hex) *</Label>
                             <div className="flex items-center gap-2">
                                 <Input id="primaryColor" {...themeForm.register('primaryColor')} placeholder="#3B82F6" />
-                                <div style={{ backgroundColor: themeForm.watch('primaryColor') || '#ffffff' }} className="h-10 w-10 rounded-md border"/>
+                                <div style={{ backgroundColor: themeForm.watch('primaryColor') || '#ffffff' }} className="h-10 w-10 rounded-md border border-input"/>
                             </div>
                             {themeForm.formState.errors.primaryColor && <p className="text-sm text-destructive mt-1">{themeForm.formState.errors.primaryColor.message}</p>}
                             <p className="text-xs text-muted-foreground mt-1">Changes require updating HSL variables in `globals.css` and potentially a theme rebuild.</p>
@@ -332,15 +332,15 @@ export default function AdminSettingsPage() {
                     </div>
                      <div>
                         <Label>Notification Email Templates</Label>
-                        <Card className="p-4 bg-muted/30 border-dashed">
-                            <CardDescription className="mb-3">Customize templates for welcome emails, order confirmations, course updates, etc. (Conceptual)</CardDescription>
+                        <Card className="p-4 bg-muted/30 border-dashed border-border">
+                            <CardDescription className="mb-3 text-muted-foreground">Customize templates for welcome emails, order confirmations, course updates, etc. (Conceptual)</CardDescription>
                             <Button variant="outline" disabled><Bell className="mr-2"/>Edit Email Templates</Button>
                         </Card>
                     </div>
                      <div>
                         <Label>Seller Store Customization Options</Label>
-                        <Card className="p-4 bg-muted/30 border-dashed">
-                            <CardDescription className="mb-3">Define what aspects of their store page sellers can customize (e.g., banner, featured courses). (Conceptual)</CardDescription>
+                        <Card className="p-4 bg-muted/30 border-dashed border-border">
+                            <CardDescription className="mb-3 text-muted-foreground">Define what aspects of their store page sellers can customize (e.g., banner, featured courses). (Conceptual)</CardDescription>
                             <Button variant="outline" disabled><Briefcase className="mr-2"/>Seller Store Settings</Button>
                         </Card>
                     </div>

@@ -3,12 +3,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit3, FileText, PlusCircle, LayoutList, Image as ImageIcon, Info, FileQuestion, Settings, Link2, Palette, MessageSquare } from "lucide-react";
+import { Edit3, FileText, PlusCircle, LayoutList, Image as ImageIcon, Info, FileQuestion, Settings, Link2, Palette, MessageSquare, Edit } from "lucide-react";
 import Link from "next/link";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Image from 'next/image'; // Import next/image
+import Image from 'next/image';
 
 export default function AdminContentPage() {
   const contentTypes = [
@@ -24,27 +24,34 @@ export default function AdminContentPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="text-3xl font-bold font-headline">Platform Content Management</h1>
-        <Button variant="default" disabled> {/* Placeholder for a more complex "add content" flow */}
-            <PlusCircle className="mr-2 h-4 w-4"/> Add New Custom Block
-        </Button>
-      </div>
+      <Card className="shadow-xl border-l-4 border-primary">
+        <CardHeader className="flex flex-row items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-md">
+                 <Edit className="h-8 w-8 text-primary"/>
+            </div>
+            <div>
+                <CardTitle className="text-2xl font-headline text-primary">Platform Content Management</CardTitle>
+                <CardDescription>
+                    Edit various text-based, promotional, and informational content across the platform. 
+                    Select a content type below to manage its entries or settings.
+                </CardDescription>
+            </div>
+             <Button variant="default" disabled className="ml-auto">
+                <PlusCircle className="mr-2 h-4 w-4"/> Add New Custom Block
+            </Button>
+        </CardHeader>
+      </Card>
       
       <Card className="shadow-lg border bg-card">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Manageable Content Areas</CardTitle>
-          <CardDescription>
-            Edit various text-based, promotional, and informational content across the platform. 
-            Select a content type below to manage its entries or settings.
-          </CardDescription>
+          <CardTitle className="text-xl font-headline">Manageable Content Areas</CardTitle>
         </CardHeader>
         <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {contentTypes.map((type) => (
             <Card key={type.name} className="hover:shadow-xl transition-shadow duration-300 flex flex-col border bg-background hover:border-primary/50">
                 <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3">
                     <type.icon className="h-10 w-10 text-primary shrink-0" />
-                    <CardTitle className="text-lg font-semibold">{type.name}</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-foreground">{type.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex-grow">
                     <p className="text-sm text-muted-foreground mb-4 h-16 line-clamp-3">{type.description}</p>
@@ -64,7 +71,7 @@ export default function AdminContentPage() {
 
       <Card className="shadow-lg border bg-card">
         <CardHeader>
-            <CardTitle  className="text-2xl font-headline">Static Page Editor (Conceptual)</CardTitle>
+            <CardTitle  className="text-xl font-headline">Static Page Editor (Conceptual)</CardTitle>
             <CardDescription>A simplified interface to edit predefined static pages like 'About Us' or 'Contact Us'. In a real system, this would involve rich text editors, versioning, and more granular controls.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -94,7 +101,7 @@ export default function AdminContentPage() {
 
        <Card className="shadow-lg border bg-card">
         <CardHeader>
-            <CardTitle className="text-2xl font-headline">SEO & Metadata Management</CardTitle>
+            <CardTitle className="text-xl font-headline">SEO & Metadata Management</CardTitle>
             <CardDescription>Configure default SEO settings, meta tags for key pages, and social sharing information.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -118,7 +125,6 @@ export default function AdminContentPage() {
             </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }

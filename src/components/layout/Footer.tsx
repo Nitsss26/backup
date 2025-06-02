@@ -15,7 +15,7 @@ export function Footer() {
               <span className="font-bold text-2xl text-primary">{APP_NAME}</span>
             </Link>
             <p className="text-muted-foreground text-sm">
-              Empowering learners and educators worldwide. Discover your next skill with EdTechCart.
+              Empowering learners and educators worldwide. Discover your next skill with {APP_NAME}.
             </p>
             <div className="flex gap-3 mt-4">
               <Link href="#" aria-label="Facebook"><Facebook className="h-5 w-5 text-muted-foreground hover:text-primary" /></Link>
@@ -39,6 +39,27 @@ export function Footer() {
           </div>
 
           <div>
+            <h3 className="text-lg font-semibold mb-3">For Sellers</h3>
+            <ul className="space-y-2 text-sm">
+                 <li>
+                  <Link href="/sell-courses" className="text-muted-foreground hover:text-primary transition-colors">
+                    Sell on {APP_NAME}
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/help/seller-verification" className="text-muted-foreground hover:text-primary transition-colors">
+                    Seller Verification
+                  </Link>
+                </li>
+                 <li>
+                  <Link href="/help/seller-faq" className="text-muted-foreground hover:text-primary transition-colors"> {/* Placeholder FAQ */}
+                    Seller FAQ
+                  </Link>
+                </li>
+            </ul>
+          </div>
+          
+          <div>
             <h3 className="text-lg font-semibold mb-3">Support</h3>
             <ul className="space-y-2 text-sm">
               {FOOTER_LINKS.support.map(link => (
@@ -51,16 +72,8 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-lg font-semibold mb-3">Stay Updated</h3>
-            <p className="text-muted-foreground text-sm mb-2">Subscribe to our newsletter for the latest courses and offers.</p>
-            <form className="flex gap-2">
-              <Input type="email" placeholder="Enter your email" className="flex-1" />
-              <Button type="submit" variant="default">Subscribe</Button>
-            </form>
-          </div>
         </div>
-        <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
+        <div className="mt-10 border-t pt-8 text-center text-sm text-muted-foreground">
           &copy; {new Date().getFullYear()} {APP_NAME}. All rights reserved.
         </div>
       </div>

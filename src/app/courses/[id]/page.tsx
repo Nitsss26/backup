@@ -11,7 +11,7 @@ import { getCourseById, getReviewsByCourseId, placeholderCourses, placeholderRev
 import type { Course, Review, Module as CurriculumModule, Lesson } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star, CalendarCheck, Video, FileSignature, RadioTower, BookCopy } from 'lucide-react';
+import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star, CalendarCheck, Video, BookCopy, RadioTower, Briefcase, FileSignature, Gift } from 'lucide-react';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
 import { Badge } from '@/components/ui/badge';
@@ -24,12 +24,12 @@ function ReviewCard({ review }: { review: Review }) {
   return (
     <Card className="mb-4 border shadow-sm bg-background">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
-        <Avatar className="h-11 w-11">
-          <AvatarImage src={review.userAvatar} alt={review.userName} data-ai-hint="student avatar review profile"/>
+        <Avatar className="h-11 w-11 border">
+          <AvatarImage src={review.userAvatar} alt={review.userName} data-ai-hint="student avatar review profile course detail"/>
           <AvatarFallback>{review.userName.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
         </Avatar>
         <div>
-          <CardTitle className="text-base font-semibold">{review.userName}</CardTitle>
+          <CardTitle className="text-base font-semibold text-foreground">{review.userName}</CardTitle>
           <StarRating rating={review.rating} size={16} />
           <p className="text-xs text-muted-foreground mt-1">{new Date(review.createdAt).toLocaleDateString()}</p>
         </div>
@@ -56,7 +56,7 @@ function CurriculumItem({ item }: { item: Lesson }) {
     <div className="flex justify-between items-center py-3.5 px-2 border-b last:border-b-0 hover:bg-muted/30 rounded-sm transition-colors">
       <div className="flex items-center gap-3">
         <IconComponent className="h-5 w-5 text-primary shrink-0" />
-        <span className="text-sm font-medium">{item.title}</span>
+        <span className="text-sm font-medium text-foreground">{item.title}</span>
         {item.isFreePreview && <Badge variant="outline" className="text-xs border-primary text-primary ml-2">Preview</Badge>}
       </div>
       {item.duration && <span className="text-sm text-muted-foreground">{item.duration}</span>}
@@ -99,8 +99,9 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     { q: "Is this course suitable for beginners?", a: `Yes, this course is designed for ${course.level} level learners and starts from the fundamentals.` },
     { q: `Are there any prerequisites for "${course.title}"?`, a: course.level === "Beginner" ? "No prior knowledge is required. Just bring your curiosity and enthusiasm!" : "A basic understanding of related introductory topics is recommended to get the most out of this course. Check the course description for specifics." },
     { q: "Is a certificate provided upon completion?", a: course.certificateAvailable ? `Yes, upon successful completion of all modules and assignments, you will receive a shareable certificate for "${course.title}".` : "Currently, this course does not offer a certificate. However, the skills and knowledge gained are highly valuable." },
-    { q: "How long will I have access to the course materials?", a: "Typically, sellers grant lifetime access to all course materials, including videos, documents, and any future updates, once enrolled. Please confirm with the specific seller's terms if available." },
-    { q: "What if I'm not satisfied with the course?", a: course.moneyBackGuaranteeDays ? `This course comes with a ${course.moneyBackGuaranteeDays}-day money-back guarantee. If you're not satisfied, you can request a full refund within ${course.moneyBackGuaranteeDays} days of purchase directly from the seller or through our platform support, subject to our <a href="/terms#refunds" class="text-primary hover:underline">Refund Policy</a>.` : "Refund policies may vary by seller. Please check the seller's specific terms or contact them for details. We encourage sellers to offer fair refund options."}
+    { q: "How long will I have access to the course materials?", a: "Access to course materials (videos, PDFs, etc.) is determined by the seller. Typically, sellers grant lifetime access, but please check the specific seller's terms or contact them. EdTechCart is a marketplace and does not host the course content directly." },
+    { q: "How do I access the course after purchase?", a: `After you purchase the course on ${APP_NAME}, the seller will provide you with access instructions. This is usually via email and may include links to their learning platform, access codes, or other methods. Please check your email (including spam/junk folders) from the seller.` },
+    { q: "What if I'm not satisfied with the course?", a: course.moneyBackGuaranteeDays ? `This course offers a ${course.moneyBackGuaranteeDays}-day money-back guarantee from the seller. If you're not satisfied, you can request a refund within ${course.moneyBackGuaranteeDays} days of purchase by contacting the seller or through our platform support, subject to our <a href="/terms#refunds" class="text-primary hover:underline">Refund Policy</a>.` : "Refund policies may vary by seller. Please check the seller's specific terms or contact them for details. We encourage sellers to offer fair refund options."}
   ];
 
   return (
@@ -111,27 +112,27 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             <div className="container grid md:grid-cols-3 gap-8 items-center">
                 <div className="md:col-span-2 space-y-4">
                     <Breadcrumbs items={breadcrumbItems.slice(0, -1)} className="mb-2 [&_a]:text-blue-100 [&_a:hover]:text-white [&_span]:text-blue-100 [&_svg]:text-blue-100"/>
-                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline">{course.title}</h1>
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline text-white">{course.title}</h1>
                     <p className="text-lg text-blue-100/90">{course.shortDescription || "An engaging online learning experience designed to elevate your skills."}</p>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-blue-50">
                         <div className="flex items-center gap-1">
                            <StarRating rating={course.rating} size={18} /> <span className="ml-1">({course.reviewsCount} ratings)</span>
                         </div>
                         <span>{course.studentsEnrolled?.toLocaleString()} students</span>
                         <Badge variant="secondary" className="bg-yellow-400 text-slate-900 font-medium">{course.level}</Badge>
                     </div>
-                    <p className="text-sm">Sold by <span className="font-semibold hover:underline"><Link href="#seller-section">{course.providerInfo?.name || course.instructor}</Link></span></p>
+                    <p className="text-sm text-blue-100">Sold by <Link href="#seller-section" className="font-semibold hover:underline text-white">{course.providerInfo?.name || course.instructor}</Link></p>
                     {course.providerInfo?.verified && (
-                        <Badge variant="default" className="bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-1 border-none">
+                        <Badge variant="success" className="text-xs px-2 py-1 border-none">
                             <ShieldCheck className="h-4 w-4 mr-1.5" /> Verified Seller
                         </Badge>
                     )}
-                    <p className="text-xs">Last updated: {new Date(course.lastUpdated || Date.now()).toLocaleDateString()}</p>
+                    <p className="text-xs text-blue-200">Last updated: {new Date(course.lastUpdated || Date.now()).toLocaleDateString()}</p>
                 </div>
                 <div className="hidden md:block md:col-span-1 row-start-1 md:row-start-auto">
                      <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
                         <CardHeader className="p-0">
-                            <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course promotional cover art`}/>
+                            <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course promotional cover art detail page`}/>
                         </CardHeader>
                         <CardContent className="p-5 space-y-3">
                             <div className="text-3xl font-bold text-primary">₹{course.price.toLocaleString('en-IN')}
@@ -143,19 +144,25 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                             <Button variant="outline" size="lg" className="w-full text-base py-3">
                                 <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
                             </Button>
-                            {course.moneyBackGuaranteeDays && (
+                            {course.moneyBackGuaranteeDays && course.moneyBackGuaranteeDays > 0 && (
                                 <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1 pt-1">
-                                    <CalendarCheck className="h-3.5 w-3.5 text-green-500"/> {course.moneyBackGuaranteeDays}-Day Money-Back Guarantee
+                                    <CalendarCheck className="h-3.5 w-3.5 text-success"/> {course.moneyBackGuaranteeDays}-Day Money-Back Guarantee
+                                </p>
+                            )}
+                            {course.freeTrialAvailable && (
+                                <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1 pt-1">
+                                    <Gift className="h-3.5 w-3.5 text-primary"/> Free Trial Available
                                 </p>
                             )}
                         </CardContent>
                         <CardContent className="p-5 border-t text-sm space-y-1.5">
-                            <h4 className="font-semibold mb-1.5 text-base">This course includes:</h4>
-                            {course.highlights?.slice(0,4).map((highlight, i) => (
+                            <h4 className="font-semibold mb-1.5 text-base text-foreground">This course includes:</h4>
+                            {course.highlights?.slice(0,3).map((highlight, i) => (
                                 <div key={i} className="flex items-center gap-2 text-muted-foreground"><CheckCircle className="h-4 w-4 text-primary"/>{highlight}</div>
                             ))}
                             {course.demoVideoUrl && <div className="flex items-center gap-2 text-muted-foreground"><Video className="h-4 w-4 text-primary"/>Demo Video Available</div>}
                             {course.downloadableMaterialsDescription && <div className="flex items-center gap-2 text-muted-foreground"><BookCopy className="h-4 w-4 text-primary"/>Downloadable Materials</div>}
+                             {course.certificateAvailable && <div className="flex items-center gap-2 text-muted-foreground"><Award className="h-4 w-4 text-primary"/>Certificate of Completion</div>}
                         </CardContent>
                     </Card>
                 </div>
@@ -167,13 +174,13 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             {course.highlights && course.highlights.length > 0 && (
             <Card className="mb-8 shadow-md border bg-card">
               <CardHeader>
-                <CardTitle className="text-2xl font-headline">What you&apos;ll learn</CardTitle>
+                <CardTitle className="text-2xl font-headline text-foreground">What you&apos;ll learn</CardTitle>
               </CardHeader>
               <CardContent className="grid md:grid-cols-2 gap-x-6 gap-y-3">
                 {course.highlights.map((highlight, index) => (
                   <div key={index} className="flex items-start gap-2.5">
                     <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm leading-relaxed">{highlight}</p>
+                    <p className="text-sm leading-relaxed text-foreground">{highlight}</p>
                   </div>
                 ))}
               </CardContent>
@@ -183,12 +190,11 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             {course.demoVideoUrl && (
                 <Card className="mb-8 shadow-md border bg-card">
                     <CardHeader>
-                        <CardTitle className="text-2xl font-headline flex items-center"><PlayCircle className="mr-2 h-6 w-6 text-primary"/>Course Preview</CardTitle>
+                        <CardTitle className="text-2xl font-headline flex items-center text-foreground"><PlayCircle className="mr-2 h-6 w-6 text-primary"/>Course Preview</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="aspect-video bg-muted rounded-lg overflow-hidden">
-                             <Image src={`https://placehold.co/800x450/EBF4FF/3B82F6?text=Demo+Video+Player`} alt="Course Demo Video" width={800} height={450} className="w-full h-full object-cover" data-ai-hint="course demo video player"/>
-                             {/* In a real app, replace with an actual video player component and use course.demoVideoUrl */}
+                        <div className="aspect-video bg-muted rounded-lg overflow-hidden border">
+                             <Image src={`https://placehold.co/800x450/EBF4FF/3B82F6?text=Demo+Video+Player+Mockup`} alt="Course Demo Video" width={800} height={450} className="w-full h-full object-cover" data-ai-hint="course demo video player online tutorial"/>
                         </div>
                     </CardContent>
                 </Card>
@@ -196,7 +202,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
 
 
             <Tabs defaultValue="curriculum" className="w-full mb-8">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6 mx-auto max-w-3xl sticky top-16 bg-background/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6 mx-auto max-w-3xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="seller" id="seller-section">Seller</TabsTrigger>
@@ -208,7 +214,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                 <Card className="shadow-md border bg-card">
                   <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
                     <div>
-                        <CardTitle className="text-2xl font-headline">Course Content</CardTitle>
+                        <CardTitle className="text-2xl font-headline text-foreground">Course Content</CardTitle>
                         <CardDescription className="mt-1">Explore the modules and lessons in this course.</CardDescription>
                     </div>
                     <span className="text-sm text-muted-foreground whitespace-nowrap mt-2 md:mt-0">
@@ -219,7 +225,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [course.curriculum[0].id] : []} className="w-full">
                       {course.curriculum?.sort((a,b) => a.order - b.order).map((module, index) => (
                         <AccordionItem value={module.id} key={module.id} className="border-b last:border-b-0">
-                          <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10">
+                          <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10 text-foreground">
                             <div className="flex justify-between w-full items-center">
                                 <span className="text-left font-semibold">Module {index + 1}: {module.title}</span>
                                 <span className="text-xs text-muted-foreground font-normal ml-2 shrink-0">{module.lessons.length} lessons</span>
@@ -241,19 +247,19 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <TabsContent value="description">
                 <Card className="shadow-md border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-2xl font-headline">Course Description</CardTitle>
+                    <CardTitle className="text-2xl font-headline text-foreground">Course Description</CardTitle>
                   </CardHeader>
-                  <CardContent className="prose dark:prose-invert max-w-none text-base leading-relaxed">
+                  <CardContent className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground">
                     <p>{course.description}</p>
                     {course.downloadableMaterialsDescription && (
                         <>
-                            <h3 className="font-semibold mt-6 mb-2 text-lg">Downloadable Materials</h3>
+                            <h3 className="font-semibold mt-6 mb-2 text-lg text-foreground">Downloadable Materials</h3>
                             <p>{course.downloadableMaterialsDescription}</p>
                         </>
                     )}
                     {course.detailedScheduleDescription && (
                          <>
-                            <h3 className="font-semibold mt-6 mb-2 text-lg">Course Schedule/Timeline</h3>
+                            <h3 className="font-semibold mt-6 mb-2 text-lg text-foreground">Course Schedule/Timeline</h3>
                             <p className="whitespace-pre-line">{course.detailedScheduleDescription}</p>
                         </>
                     )}
@@ -264,17 +270,17 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <TabsContent value="seller">
                  <Card className="shadow-md border bg-card">
                     <CardHeader>
-                        <CardTitle className="text-2xl font-headline">About the Seller</CardTitle>
+                        <CardTitle className="text-2xl font-headline text-foreground">About the Seller</CardTitle>
                     </CardHeader>
                     <CardContent className="flex flex-col md:flex-row items-start gap-6">
                         <Avatar className="h-28 w-28 md:h-36 md:w-36 border-2 border-primary p-1">
-                            <AvatarImage src={course.providerInfo?.logoUrl || `https://placehold.co/150x150/EBF4FF/3B82F6?text=${(course.providerInfo?.name || course.instructor).split(' ').map(n=>n[0]).join('')}`} alt={course.providerInfo?.name || course.instructor} data-ai-hint="seller logo instructor profile picture"/>
+                            <AvatarImage src={course.providerInfo?.logoUrl || `https://placehold.co/150x150/EBF4FF/3B82F6?text=${(course.providerInfo?.name || course.instructor).split(' ').map(n=>n[0]).join('')}`} alt={course.providerInfo?.name || course.instructor} data-ai-hint="seller logo instructor profile picture school university"/>
                             <AvatarFallback>{(course.providerInfo?.name || course.instructor).split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                             <h3 className="text-xl font-bold text-primary">{course.providerInfo?.name || course.instructor}</h3>
                             {course.providerInfo?.verified && (
-                                <Badge variant="default" className="mt-1 mb-2 bg-green-500 hover:bg-green-600 text-white text-xs px-2 py-0.5 border-none">
+                                <Badge variant="success" className="mt-1 mb-2 text-xs px-2 py-0.5 border-none">
                                     <ShieldCheck className="h-3.5 w-3.5 mr-1" /> Verified Seller
                                 </Badge>
                             )}
@@ -285,7 +291,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                                 <div className="flex items-center gap-1.5 text-muted-foreground"><Star className="h-4 w-4 text-yellow-400 fill-yellow-400" /> {course.rating} Seller Rating</div>
                                 <div className="flex items-center gap-1.5 text-muted-foreground"><Award className="h-4 w-4 text-primary" /> {course.reviewsCount} Course Reviews on Platform</div>
                                 <div className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4 text-primary" /> {course.studentsEnrolled?.toLocaleString()} Students on Platform</div>
-                                <div className="flex items-center gap-1.5 text-muted-foreground"><Tv className="h-4 w-4 text-primary" /> {placeholderCourses.filter(c => c.sellerId === course.sellerId).length} Courses Listed</div>
+                                <div className="flex items-center gap-1.5 text-muted-foreground"><Briefcase className="h-4 w-4 text-primary" /> {placeholderCourses.filter(c => c.sellerId === course.sellerId).length} Courses Listed</div>
                             </div>
                              <Button variant="outline" size="sm" className="mt-6" disabled>View Seller Store (Coming Soon)</Button>
                         </div>
@@ -296,10 +302,10 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <TabsContent value="reviews">
                 <Card className="shadow-md border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-2xl font-headline">Student Reviews</CardTitle>
+                    <CardTitle className="text-2xl font-headline text-foreground">Student Reviews</CardTitle>
                     <div className="flex items-center gap-2 mt-2">
                       <StarRating rating={course.rating} size={24} />
-                      <span className="text-2xl font-bold">{course.rating.toFixed(1)}</span>
+                      <span className="text-2xl font-bold text-foreground">{course.rating.toFixed(1)}</span>
                       <span className="text-muted-foreground">({course.reviewsCount} ratings)</span>
                     </div>
                   </CardHeader>
@@ -317,15 +323,15 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <TabsContent value="faq">
                 <Card className="shadow-md border bg-card">
                   <CardHeader>
-                    <CardTitle className="text-2xl font-headline flex items-center"><HelpCircle className="mr-2 h-6 w-6 text-primary"/>Frequently Asked Questions</CardTitle>
+                    <CardTitle className="text-2xl font-headline flex items-center text-foreground"><HelpCircle className="mr-2 h-6 w-6 text-primary"/>Frequently Asked Questions</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {faqs.length > 0 ? (
                       <Accordion type="multiple" className="w-full">
                         {faqs.map((faq, index) => (
                           <AccordionItem value={`faq-${index}`} key={index}>
-                            <AccordionTrigger className="text-base text-left hover:no-underline py-3.5 font-medium">{faq.q}</AccordionTrigger>
-                            <AccordionContent className="text-sm pb-3.5 leading-relaxed" dangerouslySetInnerHTML={{ __html: faq.a }} />
+                            <AccordionTrigger className="text-base text-left hover:no-underline py-3.5 font-medium text-foreground">{faq.q}</AccordionTrigger>
+                            <AccordionContent className="text-sm pb-3.5 leading-relaxed text-muted-foreground" dangerouslySetInnerHTML={{ __html: faq.a }} />
                           </AccordionItem>
                         ))}
                       </Accordion>
@@ -345,7 +351,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
             <div className="lg:hidden mt-8 md:mt-0"> 
                  <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
                     <CardHeader className="p-0 md:hidden">
-                         <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course mobile cover art`}/>
+                         <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course mobile cover art detail page`}/>
                     </CardHeader>
                     <CardContent className="p-5 space-y-3">
                         <div className="text-3xl font-bold text-primary">₹{course.price.toLocaleString('en-IN')}
@@ -357,25 +363,31 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         <Button variant="outline" size="lg" className="w-full text-base py-3">
                             <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
                         </Button>
-                         {course.moneyBackGuaranteeDays && (
+                         {course.moneyBackGuaranteeDays && course.moneyBackGuaranteeDays > 0 &&(
                             <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1 pt-1">
-                                <CalendarCheck className="h-3.5 w-3.5 text-green-500"/> {course.moneyBackGuaranteeDays}-Day Money-Back Guarantee
+                                <CalendarCheck className="h-3.5 w-3.5 text-success"/> {course.moneyBackGuaranteeDays}-Day Money-Back Guarantee
                             </p>
                         )}
+                         {course.freeTrialAvailable && (
+                                <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1 pt-1">
+                                    <Gift className="h-3.5 w-3.5 text-primary"/> Free Trial Available
+                                </p>
+                            )}
                     </CardContent>
                      <CardContent className="p-5 border-t text-sm space-y-1.5">
-                        <h4 className="font-semibold mb-1.5 text-base">This course includes:</h4>
-                         {course.highlights?.slice(0,4).map((highlight, i) => (
+                        <h4 className="font-semibold mb-1.5 text-base text-foreground">This course includes:</h4>
+                         {course.highlights?.slice(0,3).map((highlight, i) => (
                             <div key={i} className="flex items-center gap-2 text-muted-foreground"><CheckCircle className="h-4 w-4 text-primary"/>{highlight}</div>
                         ))}
                         {course.demoVideoUrl && <div className="flex items-center gap-2 text-muted-foreground"><Video className="h-4 w-4 text-primary"/>Demo Video Available</div>}
                         {course.downloadableMaterialsDescription && <div className="flex items-center gap-2 text-muted-foreground"><BookCopy className="h-4 w-4 text-primary"/>Downloadable Materials</div>}
+                        {course.certificateAvailable && <div className="flex items-center gap-2 text-muted-foreground"><Award className="h-4 w-4 text-primary"/>Certificate of Completion</div>}
                     </CardContent>
                 </Card>
               </div>
             {relatedCourses.length > 0 && (
             <section className="mt-12">
-              <h2 className="text-2xl font-bold mb-6 font-headline">Related Courses</h2>
+              <h2 className="text-2xl font-bold mb-6 font-headline text-foreground">Related Courses</h2>
               <div className="grid grid-cols-1 gap-6">
                 {relatedCourses.map((relCourse) => (
                   <CourseCard key={relCourse.id} course={relCourse} />

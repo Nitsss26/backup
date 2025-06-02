@@ -26,13 +26,19 @@ export function Header() {
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
   ];
 
-  if (user && user.role === 'student') {
-    navLinks.push({ href: '/dashboard/student', label: 'My Learning', icon: LayoutGrid });
-  } else if (user && user.role === 'provider') {
-    navLinks.push({ href: '/dashboard/seller', label: 'Seller Dashboard', icon: LayoutGrid });
-  } else if (user && user.role === 'admin') {
-    navLinks.push({ href: '/admin', label: 'Admin Panel', icon: LayoutGrid });
+  // Dynamically add dashboard link based on user role
+  let dashboardLink = null;
+  if (user && !isLoading) {
+    if (user.role === 'student') {
+      dashboardLink = { href: '/dashboard/student', label: 'My Learning', icon: LayoutGrid };
+    } else if (user.role === 'provider') {
+      dashboardLink = { href: '/dashboard/seller', label: 'Seller Dashboard', icon: LayoutGrid };
+    } else if (user.role === 'admin') {
+      dashboardLink = { href: '/admin', label: 'Admin Panel', icon: LayoutGrid };
+    }
   }
+  
+  const allNavLinks = dashboardLink ? [...navLinks, dashboardLink] : navLinks;
 
 
   return (
@@ -59,7 +65,7 @@ export function Header() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {navLinks.map(link => (
+          {navLinks.map(link => ( // Use original navLinks here, dashboard link is handled by UserProfileDropdown
             <Link key={link.href} href={link.href} className="text-foreground/70 hover:text-foreground transition-colors">
               {link.label}
             </Link>
@@ -109,7 +115,7 @@ export function Header() {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {navLinks.map(link => (
+                  {allNavLinks.map(link => ( // Use allNavLinks for mobile menu
                      <Link key={link.href} href={link.href} className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors text-base" onClick={() => setIsMobileMenuOpen(false)}>
                       <link.icon className="h-5 w-5" />
                       {link.label}

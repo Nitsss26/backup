@@ -32,10 +32,19 @@ body {
     --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
     --accent-foreground: 217 91% 25%; /* #1D4ED8 - Darker Blue for text on accent */
 
-    /* --destructive: 0 84.2% 60.2%; (Red) */
-    --destructive: 220 30% 50%; /* Muted Blue-Gray for destructive actions */
-    /* --destructive-foreground: 0 0% 98%; */
-    --destructive-foreground: 0 0% 100%; /* White text on destructive */
+    /* Destructive/Warning/Info colors aligned with blue theme */
+    --destructive: 217 80% 55%; /* A noticeable, but still blue, shade */
+    --destructive-foreground: 0 0% 100%; 
+
+    --warning: 210 100% 50%; /* A brighter, slightly different blue for warnings */
+    --warning-foreground: 0 0% 100%;
+
+    --info: 217 70% 60%; /* A softer blue for informational messages */
+    --info-foreground: 0 0% 100%;
+    
+    /* Success can remain green for universal understanding */
+    --success: 140 70% 45%; /* #22C55E - Green */
+    --success-foreground: 0 0% 100%;
 
 
     --ring: 217 91% 60%; /* #3B82F6 - Standard Blue */
@@ -84,10 +93,18 @@ body {
     --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
     --accent-foreground: 222 47% 11%; /* Dark text on accent */
 
-    /* --destructive: 0 62.8% 30.6%; (Dark Red) */
-    --destructive: 220 30% 40%; /* Dark Muted Blue-Gray for destructive actions */
-    /* --destructive-foreground: 0 0% 98%; */
-    --destructive-foreground: 210 40% 98%; /* Light text on destructive */
+    /* Destructive/Warning/Info colors aligned with blue theme for dark mode */
+    --destructive: 217 70% 50%; /* A noticeable, but still blue, shade for dark */
+    --destructive-foreground: 210 40% 98%; 
+
+    --warning: 210 90% 60%; /* A brighter, slightly different blue for warnings in dark */
+    --warning-foreground: 222 47% 11%;
+
+    --info: 217 60% 65%; /* A softer blue for informational messages in dark */
+    --info-foreground: 222 47% 11%;
+
+    --success: 140 60% 50%; /* #34D399 - Slightly adjusted Green for dark */
+    --success-foreground: 222 47% 11%;
 
 
     --ring: 217 91% 65%; /* #5D9CEC */

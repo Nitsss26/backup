@@ -1,6 +1,6 @@
 
 import type { Category, PaymentOption } from './types';
-import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, Store, Wallet } from 'lucide-react';
+import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, UploadCloud, Wallet } from 'lucide-react'; // Changed Store to UploadCloud for sell-courses
 
 export const APP_NAME = "EdTechCart";
 export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
@@ -53,7 +53,7 @@ export const SORT_OPTIONS = [
 ];
 
 export const PAYMENT_OPTIONS: PaymentOption[] = [
-    { id: 'upi', name: 'UPI / QR Code', icon: Store }, // Using Store as a generic icon for UPI
+    { id: 'upi', name: 'UPI / QR Code', icon: Wallet }, // Using Store as a generic icon for UPI
     { id: 'card', name: 'Credit/Debit Card', icon: CreditCard },
     { id: 'netbanking', name: 'Net Banking', icon: Banknote },
     { id: 'wallet', name: 'Digital Wallet (PayTM, PhonePe etc.)', icon: Wallet },
@@ -74,7 +74,7 @@ export const FOOTER_LINKS = {
   community: [
     { name: 'Blog', href: '/blog' },
     { name: 'Forums', href: '/forums' },
-    { name: 'Sell on EdTechCart', href: '/sell-courses' },
+    { name: 'Sell on EdTechCart', href: '/sell-courses' }, // Updated link
   ]
 };
 

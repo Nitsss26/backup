@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Search, CheckCircle, XCircle, Eye, Edit, ShieldQuestion, ShieldCheck, ShieldAlert, PlusCircle, Filter, Download, BookOpen } from 'lucide-react';
+import { MoreHorizontal, Search, CheckCircle, XCircle, Eye, Edit, ShieldQuestion, ShieldCheck, ShieldAlert, PlusCircle, Filter, Download, BookOpen as BookOpenIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,12 +53,12 @@ export default function AdminCoursesPage() {
   );
 
   const getApprovalStatusBadge = (status?: 'pending' | 'approved' | 'rejected') => {
-    if (!status) return <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-slate-300">Unknown</Badge>;
+    if (!status) return <Badge variant="info">Unknown</Badge>;
     switch (status) {
-      case 'pending': return <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"><ShieldQuestion className="mr-1 h-3.5 w-3.5"/>Pending</Badge>;
-      case 'approved': return <Badge variant="default" className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200"><ShieldCheck className="mr-1 h-3.5 w-3.5"/>Approved</Badge>;
-      case 'rejected': return <Badge variant="destructive" className="bg-red-100 text-red-700 border-red-300 hover:bg-red-200"><ShieldAlert className="mr-1 h-3.5 w-3.5"/>Rejected</Badge>;
-      default: return <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-slate-300">Unknown</Badge>;
+      case 'pending': return <Badge variant="warning"><ShieldQuestion/>Pending</Badge>;
+      case 'approved': return <Badge variant="success"><ShieldCheck/>Approved</Badge>;
+      case 'rejected': return <Badge variant="destructive"><ShieldAlert/>Rejected</Badge>;
+      default: return <Badge variant="info">Unknown</Badge>;
     }
   };
 
@@ -69,7 +69,7 @@ export default function AdminCoursesPage() {
     toast({
         title: `Course ${moderationAction === 'approved' ? 'Approved' : 'Rejected'}`,
         description: `Course "${courseToModerate.title}" has been ${moderationAction}.`,
-        variant: moderationAction === 'rejected' ? 'destructive' : 'default',
+        variant: moderationAction === 'rejected' ? 'destructive' : 'success',
     });
     setCourseToModerate(null);
     setModerationAction(null);
@@ -77,23 +77,18 @@ export default function AdminCoursesPage() {
 
   return (
     <div className="space-y-8">
-      <Card className="shadow-lg border bg-card">
-        <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <Card className="shadow-xl border-l-4 border-primary">
+        <CardHeader className="flex flex-row items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-md">
+                 <BookOpenIcon className="h-8 w-8 text-primary"/>
+            </div>
             <div>
-              <CardTitle className="text-2xl font-headline">Course Management</CardTitle>
-              <CardDescription>Manage course listings, approval statuses, and platform content.</CardDescription>
+              <CardTitle className="text-2xl font-headline text-primary">Course Management</CardTitle>
+              <CardDescription>Manage course listings, approval statuses, and platform content. Total Courses: {courses.length}</CardDescription>
             </div>
-            <div className="flex gap-2 flex-wrap">
-                 <Button variant="outline" disabled> 
-                    <PlusCircle className="mr-2 h-4 w-4"/> Add Course Manually
-                </Button>
-                <Button variant="outline" disabled>
-                    <Download className="mr-2 h-4 w-4"/> Export Courses
-                </Button>
-            </div>
-          </div>
-           <div className="mt-6 flex flex-col md:flex-row gap-4">
+        </CardHeader>
+        <CardContent className="pt-0">
+           <div className="mt-4 flex flex-col md:flex-row gap-4">
                 <div className="relative flex-grow">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
@@ -109,10 +104,17 @@ export default function AdminCoursesPage() {
                     <option value="approved">Approved</option>
                     <option value="rejected">Rejected</option>
                 </select>
+                 <Button variant="outline" disabled className="flex-shrink-0"> 
+                    <PlusCircle className="mr-2 h-4 w-4"/> Add Course Manually
+                </Button>
             </div>
-        </CardHeader>
-        <CardContent className="overflow-x-auto">
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg">
+        <CardContent className="p-0">
           {filteredCourses.length > 0 ? (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -127,7 +129,7 @@ export default function AdminCoursesPage() {
               </TableHeader>
               <TableBody>
                 {filteredCourses.map(course => (
-                  <TableRow key={course.id} className="hover:bg-muted/50">
+                  <TableRow key={course.id} className="hover:bg-muted/30">
                     <TableCell>
                       <Image 
                           src={course.imageUrl} 
@@ -138,7 +140,7 @@ export default function AdminCoursesPage() {
                           data-ai-hint={`${course.category} course admin list thumbnail`}
                       />
                     </TableCell>
-                    <TableCell className="font-medium max-w-xs truncate">
+                    <TableCell className="font-medium max-w-xs truncate text-foreground">
                       <Link href={`/courses/${course.id}`} className="hover:underline text-primary" title={course.title}>
                           {course.title}
                       </Link>
@@ -166,19 +168,19 @@ export default function AdminCoursesPage() {
                           {course.approvalStatus === 'pending' && (
                             <>
                               <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => {setCourseToModerate(course); setModerationAction('approved')}} className="text-green-600 focus:text-green-700 focus:bg-green-50">
-                                <CheckCircle className="mr-2 h-4 w-4" /> Approve Course
+                              <DropdownMenuItem onClick={() => {setCourseToModerate(course); setModerationAction('approved')}} className="text-success-foreground focus:text-success-foreground focus:bg-success/20">
+                                <CheckCircle className="mr-2 h-4 w-4 text-success" /> Approve Course
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => {setCourseToModerate(course); setModerationAction('rejected')}} className="text-red-600 focus:text-red-700 focus:bg-red-50">
-                                <XCircle className="mr-2 h-4 w-4" /> Reject Course
+                              <DropdownMenuItem onClick={() => {setCourseToModerate(course); setModerationAction('rejected')}} className="text-destructive-foreground focus:text-destructive-foreground focus:bg-destructive/20">
+                                <XCircle className="mr-2 h-4 w-4 text-destructive" /> Reject Course
                               </DropdownMenuItem>
                             </>
                           )}
                            {course.approvalStatus === 'approved' && (
                             <>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem disabled className="text-orange-600 focus:text-orange-700 focus:bg-orange-50"> {/* Example destructive style */}
-                                    <ShieldAlert className="mr-2 h-4 w-4" /> Unpublish Course
+                                <DropdownMenuItem disabled className="text-warning-foreground focus:text-warning-foreground focus:bg-warning/20">
+                                    <ShieldAlert className="mr-2 h-4 w-4 text-warning" /> Unpublish Course
                                 </DropdownMenuItem>
                             </>
                            )}
@@ -189,17 +191,19 @@ export default function AdminCoursesPage() {
                 ))}
               </TableBody>
             </Table>
+            </div>
           ) : (
             <div className="text-center py-16 text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-3 text-border"/>
-                <p className="font-semibold">No courses found matching your criteria.</p>
+                <BookOpenIcon className="h-16 w-16 mx-auto mb-4 text-border"/>
+                <p className="font-semibold text-lg">No courses found matching your criteria.</p>
                 <p className="text-sm">Try adjusting your search or filters.</p>
+                <Image src="https://placehold.co/400x250/EBF4FF/3B82F6?text=No+Courses+Illustration" alt="Illustration for no courses found" width={400} height={250} className="mt-6 mx-auto rounded-md" data-ai-hint="empty state no data courses list"/>
             </div>
           )}
         </CardContent>
-         <CardFooter>
+         <CardFooter className="border-t pt-4">
             <p className="text-xs text-muted-foreground">Showing {filteredCourses.length} of {courses.length} total courses.</p>
-            {/* Pagination placeholder */}
+            <Button variant="outline" disabled className="ml-auto"><Download className="mr-2 h-4 w-4"/> Export Courses</Button>
         </CardFooter>
       </Card>
 
@@ -209,7 +213,7 @@ export default function AdminCoursesPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Course Moderation</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to <span className={cn("font-semibold", moderationAction === 'approved' ? "text-green-600" : "text-red-600")}>{moderationAction}</span> the course "{courseToModerate.title}"?
+                Are you sure you want to <span className={cn("font-semibold", moderationAction === 'approved' ? "text-success" : "text-destructive")}>{moderationAction}</span> the course "{courseToModerate.title}"?
                 This will update its visibility on the marketplace.
               </AlertDialogDescription>
             </AlertDialogHeader>
@@ -217,7 +221,7 @@ export default function AdminCoursesPage() {
               <AlertDialogCancel onClick={() => {setCourseToModerate(null); setModerationAction(null)}}>Cancel</AlertDialogCancel>
               <AlertDialogAction 
                 onClick={confirmCourseApprovalAction}
-                className={cn(moderationAction === 'approved' ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700")}
+                className={cn(moderationAction === 'approved' ? "bg-success hover:bg-success/90" : "bg-destructive hover:bg-destructive/90")}
               >
                 Yes, {moderationAction === 'approved' ? 'Approve' : 'Reject'} Course
               </AlertDialogAction>

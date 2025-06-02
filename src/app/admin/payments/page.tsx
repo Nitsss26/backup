@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, Users, Download, Search, TrendingUp, AlertTriangle, CalendarDays, Filter, FileSpreadsheet, Settings2, Wallet, Banknote } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Input } from '@/components/ui/input';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
@@ -52,30 +52,31 @@ export default function AdminPaymentsPage() {
   
   const getStatusBadge = (status: Order['status']) => {
     switch (status) {
-      case 'completed': return <Badge className="bg-green-100 text-green-700 border-green-300 hover:bg-green-200">Completed</Badge>;
-      case 'pending': return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200">Pending</Badge>;
-      case 'failed': return <Badge className="bg-red-100 text-red-700 border-red-300 hover:bg-red-200">Failed</Badge>;
-      case 'refunded': return <Badge className="bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200">Refunded</Badge>;
-      default: return <Badge variant="secondary" className="bg-slate-100 text-slate-600 border-slate-300">Unknown</Badge>;
+      case 'completed': return <Badge variant="success">Completed</Badge>;
+      case 'pending': return <Badge variant="warning">Pending</Badge>;
+      case 'failed': return <Badge variant="destructive">Failed</Badge>;
+      case 'refunded': return <Badge variant="info">Refunded</Badge>;
+      default: return <Badge variant="secondary">Unknown</Badge>;
     }
   };
 
 
   return (
     <div className="space-y-8">
-       <Card className="shadow-lg border bg-card">
-        <CardHeader>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <CardTitle className="text-2xl font-headline">Payments & Revenue</CardTitle>
-                    <CardDescription>Monitor platform financial performance and manage transactions.</CardDescription>
-                </div>
-                <div className="flex gap-2 flex-wrap">
-                    <DateRangePicker date={dateRange} onDateChange={setDateRange} />
-                    <Button variant="outline" disabled>
-                    <Download className="mr-2 h-4 w-4" /> Export Financial Report
-                    </Button>
-                </div>
+       <Card className="shadow-xl border-l-4 border-primary">
+        <CardHeader className="flex flex-row items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-md">
+                 <DollarSign className="h-8 w-8 text-primary"/>
+            </div>
+            <div>
+                <CardTitle className="text-2xl font-headline text-primary">Payments & Revenue</CardTitle>
+                <CardDescription>Monitor platform financial performance and manage transactions.</CardDescription>
+            </div>
+            <div className="ml-auto flex gap-2 flex-wrap">
+                <DateRangePicker date={dateRange} onDateChange={setDateRange} />
+                <Button variant="outline" disabled>
+                <Download className="mr-2 h-4 w-4" /> Export Financial Report
+                </Button>
             </div>
         </CardHeader>
       </Card>
@@ -87,27 +88,27 @@ export default function AdminPaymentsPage() {
             <DollarSign className="h-6 w-6 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">₹{totalPlatformRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div className="text-3xl font-bold text-foreground">₹{totalPlatformRevenue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             <p className="text-xs text-muted-foreground">All-time gross revenue from sales</p>
           </CardContent>
         </Card>
-        <Card className="shadow-md border-l-4 border-green-500 bg-green-500/5">
+        <Card className="shadow-md border-l-4 border-success bg-success/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-green-600">Platform Earnings (Net)</CardTitle>
-            <TrendingUp className="h-6 w-6 text-green-600" />
+            <CardTitle className="text-sm font-medium text-success-foreground">Platform Earnings (Net)</CardTitle>
+            <TrendingUp className="h-6 w-6 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">₹{totalPlatformEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div className="text-3xl font-bold text-foreground">₹{totalPlatformEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             <p className="text-xs text-muted-foreground">After seller payouts ({platformCommissionRate*100}% commission)</p>
           </CardContent>
         </Card>
-         <Card className="shadow-md border-l-4 border-blue-500 bg-blue-500/5">
+         <Card className="shadow-md border-l-4 border-info bg-info/5">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-blue-600">Total Seller Payouts</CardTitle>
-            <Users className="h-6 w-6 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-info-foreground">Total Seller Payouts</CardTitle>
+            <Users className="h-6 w-6 text-info" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">₹{totalSellerPayouts.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div className="text-3xl font-bold text-foreground">₹{totalSellerPayouts.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             <p className="text-xs text-muted-foreground">Paid or due to course sellers</p>
           </CardContent>
         </Card>
@@ -125,7 +126,7 @@ export default function AdminPaymentsPage() {
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={10} />
               <YAxis tickFormatter={(value) => `₹${value/1000}k`} tickLine={false} axisLine={false} tickMargin={10} />
               <ChartTooltip cursor={{strokeDasharray: '3 3'}} content={<ChartTooltipContent indicator="dot" formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`} />} />
-              <Line type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2.5} dot={{r: 5, strokeWidth:1}} activeDot={{r:7}} />
+              <Line type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2.5} dot={{r: 5, strokeWidth:1, fill: "hsl(var(--background))", stroke: "hsl(var(--primary))"}} activeDot={{r:7, fill: "hsl(var(--primary))"}} />
             </LineChart>
           </ChartContainer>
         </CardContent>
@@ -148,8 +149,9 @@ export default function AdminPaymentsPage() {
                 <Button variant="outline" disabled><Filter className="mr-2 h-4 w-4"/> Filter Transactions</Button>
             </div>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className="p-0">
           {filteredOrders.length > 0 ? (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -169,15 +171,15 @@ export default function AdminPaymentsPage() {
                   const platformFee = order.totalAmount * platformCommissionRate;
                   const sellerEarning = order.totalAmount * (1 - platformCommissionRate);
                   return (
-                  <TableRow key={order.id} className="hover:bg-muted/50">
+                  <TableRow key={order.id} className="hover:bg-muted/30">
                     <TableCell className="font-medium text-primary hover:underline text-sm">
                         <Link href="#">{order.id.substring(0,8)}...</Link>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{user?.name || order.userId}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{new Date(order.orderDate).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-sm">{order.totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
-                    <TableCell className="text-sm">{platformFee.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
-                    <TableCell className="text-sm">{sellerEarning.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
+                    <TableCell className="text-sm text-foreground">{order.totalAmount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
+                    <TableCell className="text-sm text-foreground">{platformFee.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
+                    <TableCell className="text-sm text-foreground">{sellerEarning.toLocaleString('en-IN', {minimumFractionDigits: 2})}</TableCell>
                     <TableCell>
                       {getStatusBadge(order.status)}
                     </TableCell>
@@ -186,15 +188,17 @@ export default function AdminPaymentsPage() {
                 )})}
               </TableBody>
             </Table>
+            </div>
           ) : (
             <div className="text-center py-16 text-muted-foreground">
-                <Wallet className="h-12 w-12 mx-auto mb-3 text-border"/>
-                <p className="font-semibold">No transactions found matching your criteria.</p>
+                <Wallet className="h-16 w-16 mx-auto mb-4 text-border"/>
+                <p className="font-semibold text-lg">No transactions found matching your criteria.</p>
                 <p className="text-sm">Try adjusting your search or filters.</p>
+                 <Image src="https://placehold.co/400x250/EBF4FF/3B82F6?text=No+Transactions+Illustration" alt="Illustration for no transactions" width={400} height={250} className="mt-6 mx-auto rounded-md" data-ai-hint="empty state no data transactions list"/>
             </div>
           )}
         </CardContent>
-         <CardFooter>
+         <CardFooter className="border-t pt-4">
             <p className="text-xs text-muted-foreground">Showing {filteredOrders.length} of {orders.length} total transactions.</p>
             {/* Pagination placeholder */}
         </CardFooter>
@@ -206,7 +210,7 @@ export default function AdminPaymentsPage() {
             <CardDescription>Initiate and track payouts to sellers. Configure payout schedules and methods.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+            <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center border">
                 <Image src="https://placehold.co/800x400/EBF4FF/3B82F6?text=Payout+Workflow+Diagram" alt="Payout process illustration and workflow diagram" width={800} height={400} className="object-contain" data-ai-hint="financial payout workflow diagram admin interface"/>
             </div>
             <p className="text-sm text-muted-foreground">

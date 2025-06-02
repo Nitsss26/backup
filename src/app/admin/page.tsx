@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { placeholderUsers, placeholderCourses, placeholderReviews, placeholderOrders } from "@/lib/placeholder-data";
-import { Users, BookOpen, MessageSquare, DollarSign, CheckCircle, AlertTriangle, Hourglass, ArrowRight, Settings as SettingsIcon, Eye, BarChart3 as BarChartIcon, Edit3, ListChecks, ShieldAlert, FileQuestion, Palette } from "lucide-react";
+import { Users, BookOpen, MessageSquare, DollarSign, CheckCircle, AlertTriangle, Hourglass, ArrowRight, Settings as SettingsIcon, Eye, BarChart3 as BarChartIcon, Edit3, ListChecks, ShieldAlert, FileQuestion, Palette, ShieldCheck, ShieldQuestion, CalendarDays } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import Image from "next/image";
@@ -35,28 +35,31 @@ export default function AdminDashboardPage() {
   const reportedContentCount = placeholderReviews.filter(r => r.moderationStatus === 'pending').length; 
 
   const quickStats = [
-    { title: "Total Users", value: totalUsers.toLocaleString(), icon: Users, color: "text-primary", bgColor: "bg-primary/5", href: "/admin/users" },
-    { title: "Total Courses", value: totalCourses.toLocaleString(), icon: BookOpen, color: "text-blue-600", bgColor: "bg-blue-50 dark:bg-blue-900/20", href: "/admin/courses" },
-    { title: "Total Revenue", value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: DollarSign, color: "text-green-600", bgColor: "bg-green-50 dark:bg-green-900/20", href: "/admin/payments" },
-    { title: "Pending Verifications", value: pendingSellerVerifications.toLocaleString(), icon: ShieldAlert, color: "text-yellow-600", bgColor: "bg-yellow-50 dark:bg-yellow-900/20", href: "/admin/users?filter=pending_verification"},
+    { title: "Total Users", value: totalUsers.toLocaleString(), icon: Users, color: "text-primary", bgColor: "bg-primary/5", href: "/admin/users", borderColor: "border-primary" },
+    { title: "Total Courses", value: totalCourses.toLocaleString(), icon: BookOpen, color: "text-blue-600", bgColor: "bg-blue-50 dark:bg-blue-900/20", href: "/admin/courses", borderColor: "border-blue-600" },
+    { title: "Total Revenue", value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: DollarSign, color: "text-green-600", bgColor: "bg-green-50 dark:bg-green-900/20", href: "/admin/payments", borderColor: "border-green-600" }, // Green for revenue is acceptable
+    { title: "Pending Verifications", value: pendingSellerVerifications.toLocaleString(), icon: ShieldQuestion, color: "text-info-foreground", bgColor: "bg-info/10", href: "/admin/users?filter=pending_verification", borderColor: "border-info"},
   ];
 
   const actionItems = [
-    { title: "Seller Verifications", value: pendingSellerVerifications, icon: CheckCircle, link: "/admin/users?filter=pending_verification", description: "Review new seller applications.", imageHint: "admin verification checkmark user document" },
-    { title: "Course Approvals", value: pendingCourseApprovals, icon: ListChecks, link: "/admin/courses?filter=pending_approval", description: "Moderate new course submissions.", imageHint: "admin course approval checklist document" },
-    { title: "Review Moderation", value: placeholderReviews.filter(r => r.moderationStatus === 'pending').length, icon: Eye, link: "/admin/reviews?filter=pending", description: "Manage user-submitted reviews.", imageHint: "admin review moderation eye content" }
+    { title: "Seller Verifications", value: pendingSellerVerifications, icon: ShieldCheck, link: "/admin/users?filter=pending_verification", description: "Review new seller applications.", imageHint: "admin verification checkmark user document", iconColor: "text-info" },
+    { title: "Course Approvals", value: pendingCourseApprovals, icon: ListChecks, link: "/admin/courses?filter=pending_approval", description: "Moderate new course submissions.", imageHint: "admin course approval checklist document", iconColor: "text-info" },
+    { title: "Review Moderation", value: placeholderReviews.filter(r => r.moderationStatus === 'pending').length, icon: Eye, link: "/admin/reviews?filter=pending", description: "Manage user-submitted reviews.", imageHint: "admin review moderation eye content", iconColor: "text-primary" }
   ];
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-        <h1 className="text-3xl font-bold font-headline text-foreground">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Welcome, {placeholderUsers.find(u=>u.role==='admin')?.name || 'Admin'}!</p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-card rounded-lg shadow border-l-4 border-primary">
+        <div>
+            <h1 className="text-3xl font-bold font-headline text-primary">Admin Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Welcome, {placeholderUsers.find(u=>u.role==='admin')?.name || 'Admin'}! Overview of platform activity.</p>
+        </div>
+        <Image src="https://placehold.co/300x150/EBF4FF/3B82F6?text=Admin+Welcome+Banner" alt="Admin Dashboard Illustration" width={300} height={150} className="rounded-md shadow-md object-cover mt-4 md:mt-0" data-ai-hint="admin dashboard charts graphs illustration"/>
       </div>
       
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickStats.map(stat => (
-          <Card key={stat.title} className={`shadow-lg hover:shadow-xl transition-shadow border-l-4 ${stat.color.replace('text-','border-')} ${stat.bgColor}`}>
+          <Card key={stat.title} className={`shadow-lg hover:shadow-xl transition-shadow border-l-4 ${stat.borderColor} ${stat.bgColor}`}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className={`text-sm font-medium ${stat.color}`}>{stat.title}</CardTitle>
               <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -65,7 +68,7 @@ export default function AdminDashboardPage() {
               <div className={`text-3xl font-bold text-foreground`}>{stat.value}</div>
             </CardContent>
             <CardFooter className="pt-0">
-                <Button variant="ghost" size="sm" asChild className={`p-0 h-auto text-xs ${stat.color} hover:underline`}>
+                <Button variant="link" size="sm" asChild className={`p-0 h-auto text-xs ${stat.color} hover:underline`}>
                     <Link href={stat.href || "#"}>View Details <ArrowRight className="ml-1 h-3 w-3"/></Link>
                 </Button>
             </CardFooter>
@@ -80,8 +83,8 @@ export default function AdminDashboardPage() {
                  <Card key={action.title} className="shadow-lg hover:shadow-xl transition-shadow border bg-card flex flex-col">
                     <CardHeader className="pb-4">
                          <div className="flex items-center justify-between mb-2">
-                            <action.icon className={`h-10 w-10 text-primary`} />
-                            <span className="text-4xl font-bold text-primary">{action.value}</span>
+                            <action.icon className={`h-10 w-10 ${action.iconColor || 'text-primary'}`} />
+                            <span className={`text-4xl font-bold ${action.iconColor || 'text-primary'}`}>{action.value}</span>
                          </div>
                          <CardTitle className="text-lg font-semibold">{action.title}</CardTitle>
                          <CardDescription className="text-xs h-8">{action.description}</CardDescription>
@@ -112,8 +115,8 @@ export default function AdminDashboardPage() {
               <YAxis yAxisId="left" orientation="left" stroke="hsl(var(--primary))" tickFormatter={(value) => `₹${value/1000}k`} tickLine={false} axisLine={false} tickMargin={10} />
               <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--accent))" tickLine={false} axisLine={false} tickMargin={10} />
               <ChartTooltip content={<ChartTooltipContent formatter={(value, name) => name === 'revenue' ? `₹${Number(value).toLocaleString('en-IN')}` : value} />} />
-              <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2.5} dot={{r: 5, strokeWidth:1}} activeDot={{r:7}} />
-              <Line yAxisId="right" type="monotone" dataKey="users" stroke="var(--color-users)" strokeWidth={2.5} dot={{r: 5, strokeWidth:1}} activeDot={{r:7}}/>
+              <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2.5} dot={{r: 5, strokeWidth:1, fill: "hsl(var(--background))", stroke: "hsl(var(--primary))" }} activeDot={{r:7, fill: "hsl(var(--primary))" }} />
+              <Line yAxisId="right" type="monotone" dataKey="users" stroke="var(--color-users)" strokeWidth={2.5} dot={{r: 5, strokeWidth:1, fill: "hsl(var(--background))", stroke: "hsl(var(--accent))" }} activeDot={{r:7, fill: "hsl(var(--accent))"}}/>
             </LineChart>
           </ChartContainer>
         </CardContent>
