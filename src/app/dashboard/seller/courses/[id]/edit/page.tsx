@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect }
@@ -19,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter, useParams } from 'next/navigation';
 import { getCourseById } from '@/lib/placeholder-data'; // Assuming this fetches course data
 import type { Course } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 // Schemas are identical to new course page
 const lessonSchema = z.object({
@@ -242,18 +244,33 @@ export default function EditCoursePage() {
               <Accordion type="multiple" className="w-full">
               {watchCurriculum?.[moduleIndex]?.lessons?.map((_, lessonIndex) => (
                  <AccordionItem key={`${moduleField.id}-lesson-${lessonIndex}`} value={`lesson-${moduleIndex}-${lessonIndex}`} className="border-b-0">
-                    <AccordionTrigger className="bg-background hover:no-underline p-2 rounded-md text-sm justify-between">
-                        Lesson {lessonIndex + 1}: {watchCurriculum?.[moduleIndex]?.lessons?.[lessonIndex]?.title || "New Lesson"}
-                         <Button type="button" variant="ghost" size="sm" className="ml-auto p-1 h-auto text-destructive hover:bg-destructive/10"
-                            onClick={() => {
-                                const lessons = watchCurriculum[moduleIndex].lessons;
-                                lessons.splice(lessonIndex, 1);
-                                setValue(`curriculum.${moduleIndex}.lessons`, lessons);
-                            }}>
-                            <Trash2 className="h-3 w-3"/>
-                        </Button>
+                    <AccordionTrigger className="bg-background hover:no-underline p-2 rounded-md text-sm justify-start">
+                        <span>Lesson {lessonIndex + 1}: {watchCurriculum?.[moduleIndex]?.lessons?.[lessonIndex]?.title || "New Lesson"}</span>
                     </AccordionTrigger>
-                    <AccordionContent className="p-3 space-y-3 border rounded-b-md mt-[-1px] bg-background">
+                    <AccordionContent className="p-3 space-y-3 border rounded-b-md mt-[-1px] bg-background relative">
+                      <span
+                          role="button"
+                          tabIndex={0}
+                          className="absolute top-3 right-3 p-1 h-auto text-destructive hover:bg-destructive/10 inline-flex items-center justify-center rounded-md cursor-pointer transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background"
+                          onClick={(e) => {
+                              e.stopPropagation();
+                              const lessons = watchCurriculum[moduleIndex].lessons;
+                              lessons.splice(lessonIndex, 1);
+                              setValue(`curriculum.${moduleIndex}.lessons`, lessons);
+                          }}
+                          onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  const lessons = watchCurriculum[moduleIndex].lessons;
+                                  lessons.splice(lessonIndex, 1);
+                                  setValue(`curriculum.${moduleIndex}.lessons`, lessons);
+                              }
+                          }}
+                          aria-label={`Delete lesson ${lessonIndex + 1}`}
+                      >
+                          <Trash2 className="h-3 w-3"/>
+                      </span>
                       <Input {...register(`curriculum.${moduleIndex}.lessons.${lessonIndex}.title`)} placeholder="Lesson Title" />
                       {errors.curriculum?.[moduleIndex]?.lessons?.[lessonIndex]?.title && <p className="text-sm text-destructive">{errors.curriculum?.[moduleIndex]?.lessons?.[lessonIndex]?.title?.message}</p>}
                       <div className="grid grid-cols-2 gap-3">
