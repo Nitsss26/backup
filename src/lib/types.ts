@@ -24,15 +24,17 @@ export interface Course {
     logoUrl?: string;
     verified?: boolean;
     description?: string; 
+    websiteUrl?: string; // Added for seller platform link
+    type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator'; // Added for instructor type filter
   };
   shortDescription?: string;
   tags?: string[];
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   moneyBackGuaranteeDays?: number;
-  freeTrialAvailable?: boolean; // New
-  demoVideoUrl?: string; // New
-  downloadableMaterialsDescription?: string; // New - Text field for seller to list materials
-  detailedScheduleDescription?: string; // New - Text field for seller to list schedule
+  freeTrialAvailable?: boolean;
+  demoVideoUrl?: string; 
+  downloadableMaterialsDescription?: string; 
+  detailedScheduleDescription?: string; 
 }
 
 export interface Module {
@@ -79,6 +81,11 @@ export interface User {
   createdAt?: string;
   verificationStatus?: 'pending' | 'verified' | 'rejected' | 'unverified'; 
   documentsSubmitted?: boolean;
+  notificationPreferences?: { // Added for profile settings
+    courseUpdates?: boolean;
+    promotions?: boolean;
+    platformAnnouncements?: boolean;
+  };
 }
 
 export interface CartItem {
@@ -122,3 +129,4 @@ export interface Order {
   orderDate: string;
   transactionId?: string;
 }
+

@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { placeholderCourses, popularCategories } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
-import { ArrowRight, BookOpen, CheckCircle, Users, Video, Store, Zap, TrendingUp, Award, Lightbulb, BarChart3, ShieldCheck, Star, UploadCloud, SearchIcon } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle, Users, UploadCloud, SearchIcon, Zap, ShieldCheck, UserCheck, TrendingUp, PenTool, Lightbulb, BarChart3, Store } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,8 +16,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 const getTopCoursesInCategory = (categorySlug: string, count: number) => {
   return placeholderCourses
     .filter(course => course.category.toLowerCase().replace(/\s+/g, '-') === categorySlug && course.approvalStatus === 'approved')
-    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0)) // Primary sort: more students
-    .sort((a, b) => b.rating - a.rating) // Secondary sort: higher rating
+    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0)) 
+    .sort((a, b) => b.rating - a.rating) 
     .slice(0, count);
 };
 
@@ -28,7 +28,14 @@ const featuredCoursesForHomepage = placeholderCourses
     .slice(0,4); 
 
 export default function HomePage() {
-  const topCategoriesForShowcase = popularCategories.slice(0, 3); // Show top 3 categories with courses for denser layout
+  // Select diverse categories that likely have approved courses
+  const topCategoriesForShowcase = [
+    CATEGORIES.find(c => c.slug === 'computer-science'),
+    CATEGORIES.find(c => c.slug === 'business-finance'),
+    CATEGORIES.find(c => c.slug === 'iit-jee'),
+    CATEGORIES.find(c => c.slug === 'personal-development'),
+  ].filter(Boolean) as typeof CATEGORIES;
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -38,33 +45,33 @@ export default function HomePage() {
         <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/20 py-16 md:py-24 lg:py-32">
           <div className="container grid md:grid-cols-2 items-center gap-12">
             <div className="space-y-6 text-center md:text-left">
-              <Badge variant="outline" className="border-primary text-primary font-medium py-1 px-3">India's Premier Course Marketplace</Badge>
+              <Badge variant="outline" className="border-primary text-primary font-medium py-1.5 px-4 text-sm shadow-sm">India's Premier Course Marketplace</Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tight text-foreground">
                 Unlock Your Potential with <span className="text-primary">{APP_NAME}</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto md:mx-0">
                 Discover thousands of online courses from top educators and institutions. Learn, grow, and achieve your goals, all in one place.
               </p>
-              <div className="max-w-xl mx-auto md:mx-0">
-                <SearchBar />
+              <div className="max-w-lg mx-auto md:mx-0">
+                <SearchBar placeholder="Search from 10,000+ courses..." />
               </div>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                <Button size="lg" asChild className="text-base px-8 py-3">
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start pt-2">
+                <Button size="lg" asChild className="text-base px-8 py-3 shadow-md hover:shadow-lg transition-shadow">
                   <Link href="/courses">Explore All Courses <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="text-base px-8 py-3 border-primary text-primary hover:bg-primary/5">
+                <Button size="lg" variant="outline" asChild className="text-base px-8 py-3 border-primary text-primary hover:bg-primary/10 shadow-sm hover:shadow-md transition-shadow">
                   <Link href="/sell-courses">Become a Seller <UploadCloud className="ml-2 h-5 w-5" /></Link>
                 </Button>
               </div>
             </div>
             <div className="hidden md:flex justify-center">
               <Image
-                src="https://placehold.co/600x500/EBF4FF/3B82F6?text=Interactive+Online+Learning+Platform"
-                alt="Diverse group of students learning online, engaging with digital content on various devices, with graphs and icons overlaying."
+                src="https://placehold.co/600x500/EBF4FF/3B82F6?text=Online+Learning+Platform+Illustration"
+                alt="Illustration of diverse students learning online on various devices, with educational icons."
                 width={600}
                 height={500}
-                className="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300"
-                data-ai-hint="online education diverse students learning digital content interactive graphs"
+                className="rounded-xl shadow-2xl transform hover:scale-105 transition-transform duration-300 border-2 border-primary/20"
+                data-ai-hint="online education diverse students digital content interactive platform"
                 priority
               />
             </div>
@@ -81,19 +88,19 @@ export default function HomePage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 { icon: BookOpen, title: "Vast Course Selection", description: "From IIT-JEE & NEET to Business & Arts, find courses from diverse sellers." },
-                { icon: Users, title: "Expert Sellers & Institutions", description: "Learn from verified individual teachers, renowned institutions, and experienced educators." },
+                { icon: UserCheck, title: "Expert Sellers & Institutions", description: "Learn from verified individual teachers, renowned institutions, and experienced educators." },
                 { icon: Zap, title: "Flexible Learning Paths", description: "Study at your own pace, on any device. Access materials anytime, anywhere." },
                 { icon: ShieldCheck, title: "Quality & Trust Guaranteed", description: "Access high-quality, curated content. Many courses offer certificates upon completion." },
               ].map((feature, index) => (
-                <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card">
-                  <CardHeader className="items-center pt-6">
+                <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card transform hover:-translate-y-1">
+                  <CardHeader className="items-center pt-8 pb-4">
                     <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
                        <feature.icon className="h-10 w-10 text-primary" />
                     </div>
                     <CardTitle className="text-xl font-semibold font-headline">{feature.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="pb-6">
-                    <p className="text-sm text-muted-foreground px-2">{feature.description}</p>
+                  <CardContent className="pb-8">
+                    <p className="text-sm text-muted-foreground px-3 leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -105,99 +112,86 @@ export default function HomePage() {
         <section className="py-16 md:py-20 bg-secondary/30">
             <div className="container">
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">How {APP_NAME} Works</h2>
-                <div className="grid md:grid-cols-2 gap-10 items-start"> {/* Changed items-center to items-start */}
-                    <Card className="shadow-lg border-primary border-2 h-full"> {/* Added h-full */}
+                <div className="grid md:grid-cols-2 gap-10 items-stretch">
+                    <Card className="shadow-lg border-primary border-2 flex flex-col">
                         <CardHeader className="flex-row items-center gap-4">
-                            <Users className="h-12 w-12 text-primary p-2 bg-primary/10 rounded-lg"/>
+                            <Users className="h-12 w-12 text-primary p-2.5 bg-primary/10 rounded-lg"/>
                             <div>
                                 <CardTitle className="text-2xl font-headline">For Students</CardTitle>
                                 <CardDescription>Find your perfect course and start learning.</CardDescription>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 text-sm pl-10">
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Discover a wide range of courses across all categories.</p>
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Compare courses based on price, reviews, curriculum, and more.</p>
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Enroll securely; access instructions provided by sellers after purchase.</p>
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Track your purchases and earned certificates in your dashboard.</p>
+                        <CardContent className="space-y-3 text-sm pl-10 flex-grow">
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2.5 mt-0.5 shrink-0"/>Discover a wide range of courses across all categories.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2.5 mt-0.5 shrink-0"/>Compare courses based on price, reviews, curriculum, and more.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2.5 mt-0.5 shrink-0"/>Enroll securely; access instructions provided by sellers after purchase.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2.5 mt-0.5 shrink-0"/>Track your purchases and earned certificates in your dashboard.</p>
                         </CardContent>
-                        <CardContent className="pl-10 pb-6 mt-auto"> {/* Added mt-auto to push image down */}
-                             <Image src="https://placehold.co/400x250/EBF4FF/3B82F6?text=Student+Learning+Infographic" alt="Illustration of a student learning journey, with icons for discovery, comparison, enrollment, and achievement" width={400} height={250} className="rounded-md shadow" data-ai-hint="student journey diagram infographic discovery learning"/>
+                        <CardContent className="pl-10 pb-6 mt-auto">
+                             <Image src="https://placehold.co/400x250/EBF4FF/3B82F6?text=Student+Learning+Journey" alt="Illustration of a student learning journey, with icons for discovery, comparison, enrollment, and achievement" width={400} height={250} className="rounded-md shadow-md border" data-ai-hint="student journey diagram learning path discovery enrollment"/>
                         </CardContent>
                     </Card>
-                     <Card className="shadow-lg border-accent border-2 h-full"> {/* Added h-full */}
+                     <Card className="shadow-lg border-accent border-2 flex flex-col">
                         <CardHeader className="flex-row items-center gap-4">
-                            <Store className="h-12 w-12 text-accent p-2 bg-accent/10 rounded-lg"/>
+                            <Store className="h-12 w-12 text-accent p-2.5 bg-accent/10 rounded-lg"/>
                             <div>
                                 <CardTitle className="text-2xl font-headline">For Sellers</CardTitle>
                                 <CardDescription>Share your expertise and grow your audience.</CardDescription>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 text-sm pl-10">
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Register and get verified to build trust with learners.</p>
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Easily create and list your courses with our intuitive tools.</p>
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Reach a global audience and manage your sales effectively.</p>
-                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Access analytics to track your performance and earnings.</p>
+                        <CardContent className="space-y-3 text-sm pl-10 flex-grow">
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2.5 mt-0.5 shrink-0"/>Register and get verified to build trust with learners.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2.5 mt-0.5 shrink-0"/>Easily create and list your courses with our intuitive tools.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2.5 mt-0.5 shrink-0"/>Reach a global audience and manage your sales effectively.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2.5 mt-0.5 shrink-0"/>Access analytics to track your performance and earnings.</p>
                         </CardContent>
-                         <CardContent className="pl-10 pb-6 mt-auto"> {/* Added mt-auto to push image down */}
-                             <Image src="https://placehold.co/400x250/D6E9FE/1D4ED8?text=Seller+Tools+Dashboard+Concept" alt="Illustration of seller tools, course creation interface, and growth charts" width={400} height={250} className="rounded-md shadow" data-ai-hint="seller tools dashboard growth charts interface"/>
+                         <CardContent className="pl-10 pb-6 mt-auto">
+                             <Image src="https://placehold.co/400x250/D6E9FE/1D4ED8?text=Seller+Tools+Interface" alt="Illustration of seller tools, course creation interface, and growth charts" width={400} height={250} className="rounded-md shadow-md border" data-ai-hint="seller tools dashboard course creation analytics interface"/>
                         </CardContent>
                     </Card>
                 </div>
             </div>
         </section>
 
-        {/* Featured Courses Section */}
+        {/* Top Courses by Category Section */}
         <section className="py-16 md:py-20 bg-background">
           <div className="container">
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 md:mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4 sm:mb-0">Featured Courses</h2>
-              <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary/5">
-                <Link href="/courses?sort=popularity">View All Featured <ArrowRight className="ml-2 h-4 w-4" /></Link>
-              </Button>
-            </div>
-            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredCoursesForHomepage.map((course) => (
-                <CourseCard key={course.id} course={course} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Top Selling by Category Section */}
-        <section className="py-16 md:py-20 bg-secondary/30">
-          <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Top Courses by Category</h2>
-            {topCategoriesForShowcase.map(category => (
+            {topCategoriesForShowcase.map(category => {
+              if (!category) return null; // Skip if category is undefined
+              const coursesInCategory = getTopCoursesInCategory(category.slug, 4);
+              return (
               <div key={category.id} className="mb-12 last:mb-0">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8">
                   <h3 className="text-2xl font-semibold flex items-center mb-2 sm:mb-0">
                     <category.icon className="h-8 w-8 text-primary mr-3" /> {category.name}
                   </h3>
-                  <Button variant="link" asChild className="text-primary self-start sm:self-center hover:text-primary/80">
+                  <Button variant="link" asChild className="text-primary self-start sm:self-center hover:text-primary/80 px-0 sm:px-3">
                     <Link href={`/courses?category=${category.slug}`}>View all in {category.name} <ArrowRight className="ml-1 h-4 w-4" /></Link>
                   </Button>
                 </div>
-                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {getTopCoursesInCategory(category.slug, 4).map(course => (
-                    <CourseCard key={course.id} course={course} />
-                  ))}
-                  {getTopCoursesInCategory(category.slug, 4).length === 0 && (
-                     <div className="col-span-full text-center text-muted-foreground py-8 flex flex-col items-center">
-                        <Image src="https://placehold.co/300x200/F0F5FA/64748B?text=No+Courses+Here+Yet" alt="Empty category illustration" width={300} height={200} className="rounded-md mb-4" data-ai-hint="empty category illustration education"/>
-                        <p>No top sellers in this category yet. Be the first to explore!</p>
-                    </div>
-                  )}
-                </div>
+                {coursesInCategory.length > 0 ? (
+                  <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {coursesInCategory.map(course => (
+                      <CourseCard key={course.id} course={course} />
+                    ))}
+                  </div>
+                ) : (
+                   <div className="col-span-full text-center text-muted-foreground py-8 flex flex-col items-center bg-card border rounded-lg shadow-sm">
+                      <Image src="https://placehold.co/300x200/F0F5FA/64748B?text=More+Coming+Soon!" alt="No courses in this category yet" width={300} height={200} className="rounded-md mb-4" data-ai-hint="empty category illustration bookshelf"/>
+                      <p>No featured courses in "{category.name}" right now. Check back soon!</p>
+                  </div>
+                )}
               </div>
-            ))}
+            )})}
           </div>
         </section>
 
         {/* Explore All Categories Section */}
-        <section className="py-16 md:py-20 bg-background">
+        <section className="py-16 md:py-20 bg-secondary/30">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Explore All Categories</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6"> {/* Changed lg to 4 for symmetry */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
               {CATEGORIES.map((category) => (
                 <Link key={category.id} href={`/courses?category=${category.slug}`}>
                   <div className="group bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-2 border-transparent transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1.5 duration-300">
@@ -211,7 +205,7 @@ export default function HomePage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-16 md:py-20 bg-secondary/30">
+        <section className="py-16 md:py-20 bg-background">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">What Our Community Says</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -220,11 +214,11 @@ export default function HomePage() {
                 { name: "Rohan Mehta", course: "Business Analytics Pro", imageHint: "male professional testimonial formal analytics", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" },
                 { name: "Aisha Khan", course: "Advanced Python Programming", imageHint: "female coder testimonial hijab programming", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." }
               ].map((testimonial, i) => (
-                <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col">
+                <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col transform hover:scale-102">
                   <CardContent className="p-6 text-center flex flex-col flex-grow items-center">
-                  <Image src={`https://placehold.co/100x100/EBF4FF/3B82F6?text=${testimonial.name.split(' ').map(n=>n[0]).join('')}`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover" data-ai-hint={testimonial.imageHint} />
+                  <Image src={`https://placehold.co/100x100/EBF4FF/3B82F6?text=${testimonial.name.split(' ').map(n=>n[0]).join('')}`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover shadow-md" data-ai-hint={testimonial.imageHint} />
                   <div className="flex mb-3">
-                    {[...Array(5)].map((_, idx) => <Star key={idx} className="h-5 w-5 text-yellow-400" fill="currentColor"/>)}
+                    {[...Array(5)].map((_, idx) => <Star key={idx} className="h-5 w-5 text-yellow-400" fill="hsl(var(--primary))"/>)}
                   </div>
                   <blockquote className="text-muted-foreground italic mb-4 text-sm leading-relaxed flex-grow">"{testimonial.text}"</blockquote>
                   <p className="font-semibold mt-auto text-foreground">{testimonial.name}</p>

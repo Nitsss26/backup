@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -12,12 +13,14 @@ const badgeVariants = cva(
           "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
+        destructive: // Uses theme's destructive color (now blue/gray based)
           "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
-        success: "border-transparent bg-success text-success-foreground hover:bg-success/80", // For verified status etc.
-        warning: "border-transparent bg-warning text-warning-foreground hover:bg-warning/80", // For pending status
-        info: "border-transparent bg-info text-info-foreground hover:bg-info/80", // For draft/other informational status
+        success: "border-transparent bg-success text-success-foreground hover:bg-success/80", // Stays green for "Verified"
+        warning: // Uses theme's warning color (now blue/gray based)
+          "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
+        info: // Uses theme's info color (now blue based)
+          "border-transparent bg-info text-info-foreground hover:bg-info/80",
       },
     },
     defaultVariants: {

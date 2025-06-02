@@ -1,6 +1,6 @@
 
 import type { Course, Review, User, Certificate, Order } from './types';
-import { CATEGORIES, DIFFICULTY_LEVELS, LANGUAGES } from './constants';
+import { CATEGORIES, DIFFICULTY_LEVELS, LANGUAGES, INSTRUCTOR_TYPES } from './constants';
 
 const indianStudentNames = [
   "Priya Sharma", "Rahul Kumar", "Ananya Singh", "Amit Patel", "Sneha Reddy",
@@ -17,11 +17,11 @@ const indianAdminName = "Aditya Kumar";
 
 export const placeholderUsers: User[] = [
   // Students
-  { id: 'user1', name: indianStudentNames[0], email: 'priya.sharma@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=PS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), bio: "Lifelong learner passionate about technology and design." },
-  { id: 'user4', name: indianStudentNames[1], email: 'rahul.kumar@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=RK', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), bio: "Exploring new skills to advance my career in finance." },
-  { id: 'user7', name: indianStudentNames[2], email: 'ananya.singh@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString(), bio: "Preparing for NEET and exploring creative writing." },
-  { id: 'user9', name: indianStudentNames[3], email: 'amit.patel@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AP', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), bio: "Student of Computer Science, eager to learn new programming languages." },
-  { id: 'user10', name: indianStudentNames[4], email: 'sneha.reddy@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=SR', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), bio: "Future marketing professional, looking for courses on digital marketing." },
+  { id: 'user1', name: indianStudentNames[0], email: 'priya.sharma@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=PS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), bio: "Lifelong learner passionate about technology and design.", notificationPreferences: { courseUpdates: true, promotions: false, platformAnnouncements: true } },
+  { id: 'user4', name: indianStudentNames[1], email: 'rahul.kumar@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=RK', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), bio: "Exploring new skills to advance my career in finance.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: true } },
+  { id: 'user7', name: indianStudentNames[2], email: 'ananya.singh@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString(), bio: "Preparing for NEET and exploring creative writing.", notificationPreferences: { courseUpdates: false, promotions: false, platformAnnouncements: true } },
+  { id: 'user9', name: indianStudentNames[3], email: 'amit.patel@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AP', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), bio: "Student of Computer Science, eager to learn new programming languages.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: false } },
+  { id: 'user10', name: indianStudentNames[4], email: 'sneha.reddy@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=SR', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), bio: "Future marketing professional, looking for courses on digital marketing.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: true } },
 
   // Providers/Sellers
   { id: 'user2', name: indianSellerNames[0], email: 'expert.tutors@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=ET', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), verificationStatus: 'pending', documentsSubmitted: true, bio: "Dedicated to providing top-notch coding bootcamps and exam preparation courses. We believe in practical learning." },
@@ -35,38 +35,48 @@ export const placeholderUsers: User[] = [
 ];
 
 
-export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) => { // Increased to 30 for more data
+export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) => {
   const category = CATEGORIES[i % CATEGORIES.length];
   const sellerCandidates = placeholderUsers.filter(u => u.role === 'provider');
   const seller = sellerCandidates[i % sellerCandidates.length];
-  const priceInINR = Math.floor(Math.random() * (12000 - 399) + 399); // Adjusted price range
+  const priceInINR = Math.floor(Math.random() * (12000 - 399) + 399);
   const isApprovedSeller = seller.verificationStatus === 'verified';
   
   let approvalStatus: 'pending' | 'approved' | 'rejected' = 'pending';
   if (isApprovedSeller) {
-    approvalStatus = (i % 5 === 0) ? 'pending' : 'approved'; // Some courses from verified sellers are pending
+    approvalStatus = (i % 5 === 0) ? 'pending' : 'approved';
   } else if (seller.verificationStatus === 'rejected') {
     approvalStatus = 'rejected';
-  } else { // unverified or pending seller
-    approvalStatus = 'pending'; // Courses from unverified/pending sellers remain pending
+  } else { 
+    approvalStatus = 'pending';
+  }
+
+  // Assign provider type based on seller name or index for variety
+  let providerType: Course['providerInfo']['type'] = 'Individual';
+  if (seller.name.toLowerCase().includes('academy') || seller.name.toLowerCase().includes('institute') || seller.name.toLowerCase().includes('center') || seller.name.toLowerCase().includes('solutions') || seller.name.toLowerCase().includes('hub') ) {
+    providerType = 'Institute';
+  } else if (i % 4 === 1) {
+    providerType = 'Coaching Center';
+  } else if (seller.verificationStatus === 'verified' && i % 4 === 2) {
+     providerType = 'Verified Educator';
   }
 
 
   return {
     id: `course${i + 1}`,
-    title: `Advanced ${category.name} Certification Program ${i + 1}`,
+    title: `Advanced ${category.name} Masterclass ${i + 1}`,
     instructor: seller.name,
     sellerId: seller.id,
-    rating: parseFloat((Math.random() * (5 - 3.8) + 3.8).toFixed(1)), // Higher average rating
+    rating: parseFloat((Math.random() * (5 - 3.8) + 3.8).toFixed(1)),
     reviewsCount: Math.floor(Math.random() * 500) + 100,
     price: priceInINR,
     originalPrice: i % 2 === 0 ? Math.floor(priceInINR * (Math.random() * 0.4 + 1.3)) : undefined,
     category: category.name,
-    imageUrl: `https://placehold.co/600x400.png`, // Base placeholder
-    shortDescription: `Elevate your ${category.name} skills with this in-depth program by ${seller.name}. Ideal for professionals seeking mastery.`,
+    imageUrl: `https://placehold.co/600x400.png`,
+    shortDescription: `Elevate your ${category.name} skills with this in-depth masterclass by ${seller.name}. Ideal for professionals seeking mastery.`,
     duration: `${Math.floor(Math.random() * 30) + 15} hours total`,
     level: DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length],
-    description: `Explore advanced topics in ${category.name} with ${seller.name}. This comprehensive certification program covers everything from core principles to specialized applications. You will engage with complex problem-solving, case studies, and advanced project work. This course is designed for ${DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length]} learners aiming to become experts in ${category.name}. We provide extensive resources, expert mentorship, and a collaborative learning environment. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula.`,
+    description: `Explore advanced topics in ${category.name} with ${seller.name}. This comprehensive masterclass covers everything from core principles to specialized applications. You will engage with complex problem-solving, case studies, and advanced project work. This course is designed for ${DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length]} learners aiming to become experts in ${category.name}. We provide extensive resources, expert mentorship, and a collaborative learning environment. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula.`,
     curriculum: [
       { id: `m1c${i+1}`, title: `Module 1: Foundations of Advanced ${category.name}`, order: 1, lessons: [
         { id: `l1m1c${i+1}`, title: 'Welcome & Program Overview', type: 'video', duration: '7min', order: 1, isFreePreview: true, contentUrl: 'https://example.com/preview_video.mp4' },
@@ -87,17 +97,19 @@ export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) =>
     studentsEnrolled: Math.floor(Math.random() * 2500) + 300,
     lastUpdated: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 60).toISOString().split('T')[0],
     language: LANGUAGES[i % LANGUAGES.length],
-    certificateAvailable: i % 2 !== 0, // More offer certificates
+    certificateAvailable: i % 2 !== 0,
     highlights: [`Become an expert in ${category.name}`, 'Tackle complex real-world projects', 'Receive a verified certificate of completion', 'Lifetime access to course content & updates', 'Exclusive access to expert Q&A sessions', 'Comprehensive downloadable resources', `Learn advanced strategies for ${category.name}`],
     providerInfo: {
       name: seller.name,
       verified: seller.verificationStatus === 'verified',
       logoUrl: seller.avatarUrl?.replace('100x100', '150x150'),
-      description: seller.bio || `A leading expert in ${category.name}, committed to delivering high-impact learning experiences.`
+      description: seller.bio || `A leading expert in ${category.name}, committed to delivering high-impact learning experiences.`,
+      websiteUrl: `https://example.com/seller/${seller.id}`,
+      type: providerType,
     },
     tags: [category.name.toLowerCase().replace(' & ', '-').replace(/\s+/g, '-'), DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length].toLowerCase().replace(' ', '-'), 'advanced', 'certification', 'expert-led'],
     approvalStatus: approvalStatus,
-    moneyBackGuaranteeDays: (i % 3 === 0) ? 30 : ((i%3 === 1) ? 15 : 7),
+    moneyBackGuaranteeDays: (i % 3 === 0) ? 30 : ((i%3 === 1) ? 15 : 0), // Make 0 an option for no guarantee
     freeTrialAvailable: i % 4 === 0,
     demoVideoUrl: i % 3 === 0 ? `https://example.com/demo_video_${i+1}.mp4` : undefined,
     downloadableMaterialsDescription: i % 2 === 0 ? "Includes 20+ PDF guides, cheat sheets, and project templates." : "Key lecture slides and summary notes available for download.",
@@ -106,7 +118,7 @@ export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) =>
 });
 
 export const placeholderReviews: Review[] = placeholderCourses.flatMap(course =>
-  Array.from({ length: Math.floor(Math.random() * 10) + 3 }, (_, i) => { // more reviews per course
+  Array.from({ length: Math.floor(Math.random() * 10) + 3 }, (_, i) => {
     const studentUsers = placeholderUsers.filter(u => u.role === 'student');
     const reviewer = studentUsers[i % studentUsers.length];
     return {
@@ -115,8 +127,8 @@ export const placeholderReviews: Review[] = placeholderCourses.flatMap(course =>
     userId: reviewer.id,
     userName: reviewer.name,
     userAvatar: reviewer.avatarUrl,
-    rating: Math.floor(Math.random() * 2) + 4, // Skew towards higher ratings (4-5 stars)
-    comment: `This course on ${course.category.toLowerCase()} by ${course.providerInfo?.name || course.instructor} is truly ${['outstanding', 'transformative', 'exceptionally insightful', 'very practical', 'a must-have for professionals'][i%5]}! I've gained so much practical knowledge. The teaching style is ${['engaging and clear', 'thorough and expert', 'very supportive'][i%3]}. I strongly recommend this to anyone serious about mastering ${course.category.toLowerCase()}. The capstone project was challenging but rewarding.`,
+    rating: Math.floor(Math.random() * 2) + 4,
+    comment: `The ${course.category.toLowerCase()} course by ${course.providerInfo?.name || course.instructor} was ${['excellent', 'very informative', 'a great learning experience', 'challenging but rewarding', 'highly recommended'][i%5]}! I learned a lot about advanced concepts and the practical examples were very helpful. The instructor's explanations were ${['clear and concise', 'very detailed', 'easy to follow'][i%3]}. Definitely worth the investment.`,
     createdAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 200).toISOString().split('T')[0],
     helpfulVotes: Math.floor(Math.random() * 150),
     unhelpfulVotes: Math.floor(Math.random() * 10),
@@ -125,15 +137,15 @@ export const placeholderReviews: Review[] = placeholderCourses.flatMap(course =>
 );
 
 export const placeholderCertificates: Certificate[] = placeholderCourses
-  .filter(c => c.certificateAvailable && c.studentsEnrolled && c.studentsEnrolled > 700 && c.approvalStatus === 'approved') // Higher enrollment for cert
-  .slice(0,5) // More certificates
+  .filter(c => c.certificateAvailable && c.studentsEnrolled && c.studentsEnrolled > 700 && c.approvalStatus === 'approved')
+  .slice(0,5)
   .map((course, i) => ({
     id: `cert${course.id}-${placeholderUsers[i % placeholderUsers.filter(u=>u.role === 'student').length].id}`,
     courseId: course.id,
     courseTitle: course.title,
     studentName: placeholderUsers[i % placeholderUsers.filter(u=>u.role === 'student').length].name,
     issueDate: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 45 * (i+1)).toISOString().split('T')[0],
-    certificateUrl: `/placeholder-certificate-${course.id}.pdf` // Link to a sample PDF
+    certificateUrl: `/placeholder-certificate-${course.id}.pdf`
 }));
 
 export const placeholderOrders: Order[] = Array.from({ length: 10 }, (_, i) => {
@@ -169,9 +181,9 @@ export const getCertificatesByUserId = (userId: string): Certificate[] => {
 export const getOrdersByUserId = (userId: string): Order[] => placeholderOrders.filter(order => order.userId === userId);
 
 const approvedAndPublishedCourses = placeholderCourses.filter(c => c.approvalStatus === 'approved');
-export const featuredCourses = approvedAndPublishedCourses.slice(0, 4);
+export const featuredCourses = approvedAndPublishedCourses.slice(0, 4); // This can be used for a generic "Featured Courses" section if needed
 export const recommendedCourses = approvedAndPublishedCourses.slice(4, 8);
-export const recentlyViewedCourses = approvedAndPublishedCourses.slice(8,12); // Students might view any course
+export const recentlyViewedCourses = approvedAndPublishedCourses.slice(8,12);
 export const popularCategories = CATEGORIES.slice(0,6);
 
 export const getSellerCourses = (sellerId: string): Course[] => {
@@ -183,10 +195,8 @@ export const getSellerReviews = (sellerId: string): Review[] => {
   return placeholderReviews.filter(review => sellerCourseIds.includes(review.courseId));
 }
 
-// For seller analytics
 export const getSellerTotalRevenue = (sellerId: string): number => {
   const sellerCourseIds = getSellerCourses(sellerId).map(c => c.id);
-  // Simulate revenue from completed orders for this seller's courses
   return placeholderOrders
     .filter(order => order.status === 'completed')
     .flatMap(order => order.items)
@@ -197,4 +207,3 @@ export const getSellerTotalRevenue = (sellerId: string): number => {
 export const getSellerTotalStudents = (sellerId: string): number => {
   return getSellerCourses(sellerId).reduce((sum, course) => sum + (course.studentsEnrolled || 0), 0);
 }
-

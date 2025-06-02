@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -9,11 +10,13 @@ const alertVariants = cva(
     variants: {
       variant: {
         default: "bg-background text-foreground border-border",
-        destructive:
-          "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
-        success: "border-success/50 text-success-foreground bg-success/10 dark:border-success [&>svg]:text-success",
-        warning: "border-warning/50 text-warning-foreground bg-warning/10 dark:border-warning [&>svg]:text-warning",
-        info: "border-info/50 text-info-foreground bg-info/10 dark:border-info [&>svg]:text-info",
+        destructive: // Uses theme's destructive color (now blue/gray based)
+          "border-destructive/50 text-destructive-foreground bg-destructive/10 dark:border-destructive [&>svg]:text-destructive-foreground",
+        success: "border-success/50 text-success-foreground bg-success/10 dark:border-success [&>svg]:text-success", // Stays green for "Verified"
+        warning: // Uses theme's warning color (now blue/gray based)
+          "border-warning/50 text-warning-foreground bg-warning/10 dark:border-warning [&>svg]:text-warning-foreground",
+        info: // Uses theme's info color (now blue based)
+          "border-info/50 text-info-foreground bg-info/10 dark:border-info [&>svg]:text-info-foreground",
       },
     },
     defaultVariants: {

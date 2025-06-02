@@ -11,7 +11,8 @@ import { ITEMS_PER_PAGE, SORT_OPTIONS } from '@/lib/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Filter } from 'lucide-react';
+import { Filter, Search } from 'lucide-react';
+import Image from 'next/image';
 
 interface CoursesPageProps {
   searchParams: {
@@ -21,7 +22,7 @@ interface CoursesPageProps {
     maxPrice?: string;
     rating?: string | string[];
     level?: string | string[];
-    instructor?: string | string[];
+    instructor?: string | string[]; // This will be instructor type
     language?: string | string[];
     certification?: string;
     sort?: string;
@@ -29,23 +30,23 @@ interface CoursesPageProps {
   };
 }
 
-// Simulate filtering and sorting
 function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['searchParams']): Course[] {
-  let filtered = [...courses];
+  let filtered = [...courses.filter(c => c.approvalStatus === 'approved')]; // Only show approved courses
 
   if (params.q) {
     const query = params.q.toLowerCase();
     filtered = filtered.filter(c => 
       c.title.toLowerCase().includes(query) || 
       (c.description && c.description.toLowerCase().includes(query)) ||
-      (c.instructor && c.instructor.toLowerCase().includes(query))
+      (c.instructor && c.instructor.toLowerCase().includes(query)) ||
+      (c.category && c.category.toLowerCase().includes(query))
     );
   }
 
   if (params.category) {
     const categories = Array.isArray(params.category) ? params.category : [params.category];
     if (categories.length > 0) {
-       filtered = filtered.filter(c => categories.map(catSlug => catSlug.replace(/-/g, ' ')).some(catName => c.category.toLowerCase().includes(catName)));
+       filtered = filtered.filter(c => categories.includes(c.category.toLowerCase().replace(/\s+/g, '-')));
     }
   }
   
@@ -69,18 +70,24 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
        filtered = filtered.filter(c => levels.includes(c.level!));
     }
   }
+
+  if (params.instructor) {
+    const instructorTypes = Array.isArray(params.instructor) ? params.instructor : [params.instructor];
+    if (instructorTypes.length > 0) {
+      filtered = filtered.filter(c => c.providerInfo?.type && instructorTypes.includes(c.providerInfo.type));
+    }
+  }
   
   if (params.language) {
     const languages = Array.isArray(params.language) ? params.language : [params.language];
     if (languages.length > 0) {
-       filtered = filtered.filter(c => languages.includes(c.language!));
+       filtered = filtered.filter(c => c.language && languages.includes(c.language));
     }
   }
 
   if (params.certification === 'true') {
     filtered = filtered.filter(c => c.certificateAvailable);
   }
-
 
   if (params.sort) {
     switch (params.sort) {
@@ -95,6 +102,9 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
         break;
       case 'newest': 
         filtered.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+        break;
+      case 'popularity': // Assuming studentsEnrolled indicates popularity
+        filtered.sort((a,b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0));
         break;
     }
   }
@@ -115,15 +125,17 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
     page * ITEMS_PER_PAGE
   );
 
-  const currentCategoryArray = Array.isArray(searchParams.category) ? searchParams.category : (searchParams.category ? [searchParams.category] : []);
-  const currentCategory = currentCategoryArray.length > 0 ? currentCategoryArray[0] : undefined;
+  const currentCategoryParams = Array.isArray(searchParams.category) ? searchParams.category : (searchParams.category ? [searchParams.category] : []);
+  const currentCategoryName = currentCategoryParams.length > 0 
+    ? currentCategoryParams[0].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+    : undefined;
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'Courses', href: '/courses' },
   ];
-  if (currentCategory) {
-    breadcrumbItems.push({ label: currentCategory.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') });
+  if (currentCategoryName) {
+    breadcrumbItems.push({ label: currentCategoryName });
   }
 
 
@@ -135,7 +147,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
         <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold font-headline">
             {searchParams.q ? `Search results for "${searchParams.q}"` : 
-             currentCategory ? `${currentCategory.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} Courses` : 
+             currentCategoryName ? `${currentCategoryName} Courses` : 
              'All Courses'}
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -168,7 +180,12 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
               <p className="text-sm text-muted-foreground">
                 {totalCourses} courses found
               </p>
-              <Select defaultValue={searchParams.sort || 'relevance'}>
+              <Select defaultValue={searchParams.sort || 'relevance'} onValueChange={(value) => {
+                 const params = new URLSearchParams(searchParams.toString());
+                 if (value === 'relevance') params.delete('sort');
+                 else params.set('sort', value);
+                 router.push(`${pathname}?${params.toString()}`);
+              }}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -189,9 +206,11 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <h2 className="text-2xl font-semibold mb-2">No Courses Found</h2>
-                <p className="text-muted-foreground">Try adjusting your filters or search terms.</p>
+              <div className="text-center py-16 text-muted-foreground bg-card rounded-lg shadow-sm">
+                <Search className="h-16 w-16 mx-auto mb-4 text-border"/>
+                <h2 className="text-2xl font-semibold mb-2 text-foreground">No Courses Found</h2>
+                <p className="text-sm mb-6">Try adjusting your filters or search terms.</p>
+                <Image src="https://placehold.co/400x250/EBF4FF/64748B?text=No+Results+Illustration" alt="No courses found illustration" width={400} height={250} className="mx-auto rounded-md" data-ai-hint="empty state no data search results illustration"/>
               </div>
             )}
 
@@ -208,3 +227,4 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
     </div>
   );
 }
+

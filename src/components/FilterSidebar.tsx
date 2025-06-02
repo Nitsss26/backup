@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -11,34 +12,44 @@ import { CATEGORIES, DIFFICULTY_LEVELS, INSTRUCTOR_TYPES, LANGUAGES } from '@/li
 import { StarRating } from '@/components/ui/StarRating';
 import { X } from 'lucide-react';
 
+const MAX_PRICE = 15000; // Max price for slider
+
 export function FilterSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [filters, setFilters] = useState({
-    categories: searchParams.getAll('category') || [],
-    priceRange: [
-      Number(searchParams.get('minPrice')) || 0,
-      Number(searchParams.get('maxPrice')) || 500,
-    ],
-    ratings: searchParams.getAll('rating').map(Number) || [],
-    difficultyLevels: searchParams.getAll('level') || [],
-    instructorTypes: searchParams.getAll('instructor') || [],
-    languages: searchParams.getAll('language') || [],
-    certification: searchParams.get('certification') === 'true' || false,
+  const [filters, setFilters] = useState(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    return {
+      categories: params.getAll('category') || [],
+      priceRange: [
+        Number(params.get('minPrice')) || 0,
+        Number(params.get('maxPrice')) || MAX_PRICE,
+      ],
+      ratings: params.getAll('rating').map(Number) || [],
+      difficultyLevels: params.getAll('level') || [],
+      instructorTypes: params.getAll('instructor') || [],
+      languages: params.getAll('language') || [],
+      certification: params.get('certification') === 'true' || false,
+    };
   });
 
   useEffect(() => {
-    // Sync state with URL params on initial load or when URL changes externally
+    // This effect ensures that if the URL is changed directly (e.g., browser back/forward),
+    // the filter UI updates to reflect the current URL parameters.
+    const params = new URLSearchParams(searchParams.toString());
     setFilters({
-      categories: searchParams.getAll('category') || [],
-      priceRange: [ Number(searchParams.get('minPrice')) || 0, Number(searchParams.get('maxPrice')) || 500 ],
-      ratings: searchParams.getAll('rating').map(Number) || [],
-      difficultyLevels: searchParams.getAll('level') || [],
-      instructorTypes: searchParams.getAll('instructor') || [],
-      languages: searchParams.getAll('language') || [],
-      certification: searchParams.get('certification') === 'true' || false,
+      categories: params.getAll('category') || [],
+      priceRange: [
+        Number(params.get('minPrice')) || 0,
+        Number(params.get('maxPrice')) || MAX_PRICE,
+      ],
+      ratings: params.getAll('rating').map(Number) || [],
+      difficultyLevels: params.getAll('level') || [],
+      instructorTypes: params.getAll('instructor') || [],
+      languages: params.getAll('language') || [],
+      certification: params.get('certification') === 'true' || false,
     });
   }, [searchParams]);
 
@@ -48,8 +59,8 @@ export function FilterSidebar() {
       let newValues;
       if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(type)) {
         const currentValues = prev[type as keyof Omit<typeof filters, 'priceRange' | 'certification'>] as string[] | number[];
-        if (currentValues.includes(value as never)) {
-          newValues = currentValues.filter(item => item !== value);
+        if ((currentValues as any[]).includes(value)) {
+          newValues = (currentValues as any[]).filter(item => item !== value);
         } else {
           newValues = [...currentValues, value];
         }
@@ -60,10 +71,11 @@ export function FilterSidebar() {
   };
   
   const applyFilters = () => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(); // Start with fresh params
     
-    // Clear existing multi-value params before setting new ones
-    ['category', 'rating', 'level', 'instructor', 'language'].forEach(p => params.delete(p));
+    // Preserve existing 'q' and 'sort' if they exist
+    if (searchParams.has('q')) params.set('q', searchParams.get('q')!);
+    if (searchParams.has('sort')) params.set('sort', searchParams.get('sort')!);
 
     filters.categories.forEach(cat => params.append('category', cat));
     filters.ratings.forEach(r => params.append('rating', String(r)));
@@ -72,23 +84,23 @@ export function FilterSidebar() {
     filters.languages.forEach(lang => params.append('language', lang));
 
     if (filters.priceRange[0] > 0) params.set('minPrice', String(filters.priceRange[0]));
-    else params.delete('minPrice');
-    if (filters.priceRange[1] < 500) params.set('maxPrice', String(filters.priceRange[1]));
-    else params.delete('maxPrice');
+    if (filters.priceRange[1] < MAX_PRICE) params.set('maxPrice', String(filters.priceRange[1]));
     
     if (filters.certification) params.set('certification', 'true');
-    else params.delete('certification');
 
-    router.push(`${pathname}?${params.toString()}`);
+    // Reset page to 1 when filters change
+    params.set('page', '1');
+    
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const resetFilters = () => {
-    const clearedParams = new URLSearchParams();
-    const q = searchParams.get('q');
-    if (q) clearedParams.set('q', q); // Preserve search query
-    
-    router.push(`${pathname}?${clearedParams.toString()}`);
-    // State will be updated by useEffect listening to searchParams
+    const params = new URLSearchParams();
+    if (searchParams.has('q')) params.set('q', searchParams.get('q')!);
+    if (searchParams.has('sort')) params.set('sort', searchParams.get('sort')!);
+    params.set('page', '1');
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    // State update will be handled by useEffect listening to searchParams
   };
   
   const ratingOptions = [5, 4, 3, 2, 1];
@@ -105,7 +117,7 @@ export function FilterSidebar() {
       <Accordion type="multiple" defaultValue={['categories', 'price', 'ratings']} className="w-full">
         <AccordionItem value="categories">
           <AccordionTrigger className="text-base font-medium">Category</AccordionTrigger>
-          <AccordionContent className="space-y-2 pt-2">
+          <AccordionContent className="space-y-2 pt-2 max-h-60 overflow-y-auto">
             {CATEGORIES.map(category => (
               <div key={category.id} className="flex items-center space-x-2">
                 <Checkbox
@@ -120,20 +132,20 @@ export function FilterSidebar() {
         </AccordionItem>
 
         <AccordionItem value="price">
-          <AccordionTrigger className="text-base font-medium">Price Range</AccordionTrigger>
+          <AccordionTrigger className="text-base font-medium">Price Range (₹)</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-3">
             <Slider
-              defaultValue={[0, 500]}
+              defaultValue={[0, MAX_PRICE]}
               min={0}
-              max={500}
-              step={10}
+              max={MAX_PRICE}
+              step={100} // Adjusted step for INR
               value={filters.priceRange}
               onValueChange={(value) => handleFilterChange('priceRange', value)}
               className="my-4"
             />
             <div className="flex justify-between text-sm text-muted-foreground">
-              <span>${filters.priceRange[0]}</span>
-              <span>${filters.priceRange[1]}{filters.priceRange[1] === 500 ? '+' : ''}</span>
+              <span>₹{filters.priceRange[0].toLocaleString('en-IN')}</span>
+              <span>₹{filters.priceRange[1].toLocaleString('en-IN')}{filters.priceRange[1] === MAX_PRICE ? '+' : ''}</span>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -150,7 +162,7 @@ export function FilterSidebar() {
                 />
                 <Label htmlFor={`rating-${rating}`} className="font-normal text-sm flex items-center">
                   <StarRating rating={rating} size={14} /> 
-                  <span className="ml-1">&amp; Up</span>
+                  <span className="ml-1.5">&amp; Up</span>
                 </Label>
               </div>
             ))}
@@ -175,8 +187,8 @@ export function FilterSidebar() {
         
         <AccordionItem value="language">
           <AccordionTrigger className="text-base font-medium">Language</AccordionTrigger>
-          <AccordionContent className="space-y-2 pt-2">
-            {LANGUAGES.slice(0, 5).map(lang => ( // Show a subset for brevity
+          <AccordionContent className="space-y-2 pt-2  max-h-60 overflow-y-auto">
+            {LANGUAGES.map(lang => ( 
               <div key={lang} className="flex items-center space-x-2">
                 <Checkbox
                   id={`lang-${lang}`}
@@ -190,7 +202,7 @@ export function FilterSidebar() {
         </AccordionItem>
 
         <AccordionItem value="instructorType">
-          <AccordionTrigger className="text-base font-medium">Instructor Type</AccordionTrigger>
+          <AccordionTrigger className="text-base font-medium">Seller Type</AccordionTrigger>
           <AccordionContent className="space-y-2 pt-2">
             {INSTRUCTOR_TYPES.map(type => (
               <div key={type} className="flex items-center space-x-2">
@@ -212,9 +224,9 @@ export function FilterSidebar() {
               <Checkbox
                 id="certification"
                 checked={filters.certification}
-                onCheckedChange={(checked) => handleFilterChange('certification', checked)}
+                onCheckedChange={(checked) => handleFilterChange('certification', Boolean(checked))}
               />
-              <Label htmlFor="certification" className="font-normal text-sm">Certification Available</Label>
+              <Label htmlFor="certification" className="font-normal text-sm">Certificate Available</Label>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -225,3 +237,4 @@ export function FilterSidebar() {
     </aside>
   );
 }
+

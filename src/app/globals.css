@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,17 +33,17 @@ body {
     --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
     --accent-foreground: 217 91% 25%; /* #1D4ED8 - Darker Blue for text on accent */
 
-    /* Destructive/Warning/Info colors aligned with blue theme */
-    --destructive: 217 80% 55%; /* A noticeable, but still blue, shade */
+    /* Destructive/Warning/Info colors - using blues and grays */
+    --destructive: 220 15% 45%; /* Slate Gray (same as muted-foreground) for less aggressive "destructive" */
     --destructive-foreground: 0 0% 100%; 
 
-    --warning: 210 100% 50%; /* A brighter, slightly different blue for warnings */
+    --warning: 217 70% 60%; /* Softer blue (info) for warnings */
     --warning-foreground: 0 0% 100%;
 
     --info: 217 70% 60%; /* A softer blue for informational messages */
     --info-foreground: 0 0% 100%;
     
-    /* Success can remain green for universal understanding */
+    /* Success can remain green for universal understanding of "verified" or success states */
     --success: 140 70% 45%; /* #22C55E - Green */
     --success-foreground: 0 0% 100%;
 
@@ -94,15 +95,16 @@ body {
     --accent-foreground: 222 47% 11%; /* Dark text on accent */
 
     /* Destructive/Warning/Info colors aligned with blue theme for dark mode */
-    --destructive: 217 70% 50%; /* A noticeable, but still blue, shade for dark */
-    --destructive-foreground: 210 40% 98%; 
+    --destructive: 215 25% 70%; /* Light Slate Gray (muted-foreground) for dark mode "destructive" */
+    --destructive-foreground: 222 47% 11%; 
 
-    --warning: 210 90% 60%; /* A brighter, slightly different blue for warnings in dark */
+    --warning: 217 60% 65%; /* Softer blue (info) for warnings in dark */
     --warning-foreground: 222 47% 11%;
 
     --info: 217 60% 65%; /* A softer blue for informational messages in dark */
     --info-foreground: 222 47% 11%;
 
+    /* Success can remain green for universal understanding */
     --success: 140 60% 50%; /* #34D399 - Slightly adjusted Green for dark */
     --success-foreground: 222 47% 11%;
 
