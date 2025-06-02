@@ -10,9 +10,10 @@ import { getCourseById, getReviewsByCourseId, placeholderCourses, placeholderRev
 import type { Course, Review, Module as CurriculumModule, Lesson } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck } from 'lucide-react';
+import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star } from 'lucide-react';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
+import { Badge } from '@/components/ui/badge';
 
 interface CourseDetailPageProps {
   params: { id: string };
