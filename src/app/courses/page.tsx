@@ -1,3 +1,4 @@
+
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CourseCard } from '@/components/CourseCard';
@@ -36,20 +37,50 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
     const query = params.q.toLowerCase();
     filtered = filtered.filter(c => 
       c.title.toLowerCase().includes(query) || 
-      c.description.toLowerCase().includes(query) ||
-      c.instructor.toLowerCase().includes(query)
+      (c.description && c.description.toLowerCase().includes(query)) ||
+      (c.instructor && c.instructor.toLowerCase().includes(query))
     );
   }
 
   if (params.category) {
     const categories = Array.isArray(params.category) ? params.category : [params.category];
     if (categories.length > 0) {
-       filtered = filtered.filter(c => categories.map(catSlug => catSlug.replace('-', ' ')).some(catName => c.category.toLowerCase().includes(catName)));
+       filtered = filtered.filter(c => categories.map(catSlug => catSlug.replace(/-/g, ' ')).some(catName => c.category.toLowerCase().includes(catName)));
     }
   }
   
-  // Add more filter logic here based on other params (price, rating, level, etc.)
-  // For brevity, this example only implements search and category.
+  if (params.minPrice) {
+    filtered = filtered.filter(c => c.price >= parseFloat(params.minPrice!));
+  }
+  if (params.maxPrice) {
+    filtered = filtered.filter(c => c.price <= parseFloat(params.maxPrice!));
+  }
+
+  if (params.rating) {
+    const ratings = (Array.isArray(params.rating) ? params.rating : [params.rating]).map(Number);
+    if (ratings.length > 0) {
+      filtered = filtered.filter(c => ratings.some(r => c.rating >= r));
+    }
+  }
+  
+  if (params.level) {
+    const levels = Array.isArray(params.level) ? params.level : [params.level];
+    if (levels.length > 0) {
+       filtered = filtered.filter(c => levels.includes(c.level!));
+    }
+  }
+  
+  if (params.language) {
+    const languages = Array.isArray(params.language) ? params.language : [params.language];
+    if (languages.length > 0) {
+       filtered = filtered.filter(c => languages.includes(c.language!));
+    }
+  }
+
+  if (params.certification === 'true') {
+    filtered = filtered.filter(c => c.certificateAvailable);
+  }
+
 
   if (params.sort) {
     switch (params.sort) {
@@ -62,9 +93,9 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
       case 'rating_desc':
         filtered.sort((a, b) => b.rating - a.rating);
         break;
-      // case 'newest': // Requires date field
-      //   filtered.sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
-      //   break;
+      case 'newest': 
+        filtered.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
+        break;
     }
   }
 
@@ -72,7 +103,7 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
 }
 
 
-export default function CoursesPage({ searchParams }: CoursesPageProps) {
+export default async function CoursesPage({ searchParams }: CoursesPageProps) {
   const page = parseInt(searchParams.page || '1', 10);
   
   const filteredAndSortedCourses = applyFiltersAndSort(placeholderCourses, searchParams);
@@ -84,7 +115,9 @@ export default function CoursesPage({ searchParams }: CoursesPageProps) {
     page * ITEMS_PER_PAGE
   );
 
-  const currentCategory = Array.isArray(searchParams.category) ? searchParams.category[0] : searchParams.category;
+  const currentCategoryArray = Array.isArray(searchParams.category) ? searchParams.category : (searchParams.category ? [searchParams.category] : []);
+  const currentCategory = currentCategoryArray.length > 0 ? currentCategoryArray[0] : undefined;
+
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'Courses', href: '/courses' },
