@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { placeholderCourses, popularCategories } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
-import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star } from 'lucide-react'; // Added Star
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,8 +24,8 @@ const getTopCoursesInCategory = (categorySlug: string, count: number) => {
 const featuredCoursesForHomepage = placeholderCourses
     .filter(c => c.approvalStatus === 'approved')
     .sort((a,b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0))
-    .sort((a, b) => b.rating - a.rating) 
-    .slice(0,4); 
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0,4);
 
 export default function HomePage() {
   const topCategoriesForShowcase = [
@@ -106,7 +106,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-        
+
         {/* How it Works Section */}
         <section className="py-16 md:py-20 bg-secondary/30">
             <div className="container">
