@@ -9,10 +9,10 @@ body {
 @layer base {
   :root {
     --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 222 47% 11%; /* #0F172A */
+    --foreground: 222 47% 11%; /* #0F172A - Dark Slate Blue */
 
-    --muted: 220 9% 96%; /* #F4F4F5 */
-    --muted-foreground: 220 9% 45%; /* #6C727F */
+    --muted: 220 60% 97%; /* #F0F5FA - Very Light Blue */
+    --muted-foreground: 220 15% 45%; /* #64748B - Slate Gray */
 
     --popover: 0 0% 100%; /* #FFFFFF */
     --popover-foreground: 222 47% 11%; /* #0F172A */
@@ -20,29 +20,33 @@ body {
     --card: 0 0% 100%; /* #FFFFFF */
     --card-foreground: 222 47% 11%; /* #0F172A */
 
-    --border: 217 91% 85%; /* #93C5FD - Light Blue */
-    --input: 217 91% 90%; /* #BFDBFE - Lighter Blue */
+    --border: 217 91% 88%; /* #BDDDFD - Light Sky Blue Border */
+    --input: 217 91% 92%; /* #D6E9FE - Lighter Sky Blue Input */
 
-    --primary: 217 91% 67%; /* #60A5FA - Main Blue */
+    --primary: 217 91% 60%; /* #3B82F6 - Standard Blue */
     --primary-foreground: 0 0% 100%; /* White for text on primary */
 
-    --secondary: 217 91% 92%; /* #CCDEF9 - Very Light Blue */
-    --secondary-foreground: 217 91% 30%; /* #1E40AF - Darker Blue */
+    --secondary: 217 91% 95%; /* #EBF4FF - Very Light Blue (Secondary Background) */
+    --secondary-foreground: 217 91% 45%; /* #2563EB - Medium Blue (Text on Secondary) */
 
-    --accent: 217 91% 75%; /* #7CB9F9 - Lighter Accent Blue */
-    --accent-foreground: 217 91% 15%; /* #183265 - Darkest Blue for text on accent */
+    --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
+    --accent-foreground: 217 91% 25%; /* #1D4ED8 - Darker Blue for text on accent */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    /* --destructive: 0 84.2% 60.2%; (Red) */
+    --destructive: 220 30% 50%; /* Muted Blue-Gray for destructive actions */
+    /* --destructive-foreground: 0 0% 98%; */
+    --destructive-foreground: 0 0% 100%; /* White text on destructive */
 
-    --ring: 217 91% 67%; /* #60A5FA - Main Blue */
+
+    --ring: 217 91% 60%; /* #3B82F6 - Standard Blue */
     --radius: 0.5rem;
 
-    --chart-1: 217 91% 67%;
-    --chart-2: 217 80% 57%;
-    --chart-3: 217 70% 47%;
-    --chart-4: 217 60% 37%;
-    --chart-5: 217 50% 27%;
+    /* Chart colors - keeping blues */
+    --chart-1: 217 91% 60%; /* Primary Blue */
+    --chart-2: 217 80% 70%; /* Lighter Blue */
+    --chart-3: 217 70% 50%; /* Darker Blue */
+    --chart-4: 217 60% 80%; /* Very Light Blue */
+    --chart-5: 217 50% 40%; /* Deep Blue */
 
     /* Sidebar variables aligned with main theme */
     --sidebar-background: var(--background);
@@ -56,41 +60,44 @@ body {
   }
 
   .dark {
-    --background: 222 47% 11%; /* #0F172A */
-    --foreground: 210 40% 98%; /* #FAFAFA */
+    --background: 222 47% 11%; /* #0F172A - Dark Slate Blue */
+    --foreground: 210 40% 98%; /* #FAFAFA - Off White */
 
-    --muted: 222 47% 18%; /* #26324A */
-    --muted-foreground: 215 20% 65%; /* #9AA5B9 */
+    --muted: 222 40% 20%; /* #26324A - Darker Muted Blue */
+    --muted-foreground: 215 25% 70%; /* #A0AEC0 - Light Slate Gray */
 
     --popover: 222 47% 11%; /* #0F172A */
     --popover-foreground: 210 40% 98%; /* #FAFAFA */
 
-    --card: 222 47% 15%; /* #1E293B */
+    --card: 222 47% 15%; /* #1E293B - Darker Card Blue */
     --card-foreground: 210 40% 98%; /* #FAFAFA */
 
-    --border: 217 33% 30%; /* #364B7C */
-    --input: 217 33% 25%; /* #2A3A60 */
+    --border: 217 33% 35%; /* #4A5E8A - Darker Muted Blue Border */
+    --input: 217 33% 30%; /* #3A4C7A - Even Darker Input Blue */
 
-    --primary: 217 91% 70%; /* #79B6F9 - Lighter Blue for dark mode */
-    --primary-foreground: 217 91% 10%; /* #0D2147 - Dark Blue for text */
+    --primary: 217 91% 65%; /* #5D9CEC - Brighter Blue for dark mode */
+    --primary-foreground: 222 47% 11%; /* Dark text on primary for contrast */
 
-    --secondary: 217 33% 20%; /* #21304F */
-    --secondary-foreground: 210 40% 94%; /* #EEF2F9 */
+    --secondary: 217 33% 25%; /* #303F60 - Dark Secondary Background */
+    --secondary-foreground: 210 40% 90%; /* #E2E8F0 - Lighter text on secondary */
 
-    --accent: 217 91% 75%; /* #7CB9F9 - Consistent accent */
-    --accent-foreground: 217 91% 10%; /* #0D2147 */
+    --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
+    --accent-foreground: 222 47% 11%; /* Dark text on accent */
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    /* --destructive: 0 62.8% 30.6%; (Dark Red) */
+    --destructive: 220 30% 40%; /* Dark Muted Blue-Gray for destructive actions */
+    /* --destructive-foreground: 0 0% 98%; */
+    --destructive-foreground: 210 40% 98%; /* Light text on destructive */
 
-    --ring: 217 91% 70%; /* #79B6F9 */
 
-    --chart-1: 217 91% 70%;
-    --chart-2: 217 80% 60%;
-    --chart-3: 217 70% 50%;
-    --chart-4: 217 60% 40%;
-    --chart-5: 217 50% 30%;
+    --ring: 217 91% 65%; /* #5D9CEC */
 
+    --chart-1: 217 91% 65%;
+    --chart-2: 217 80% 75%;
+    --chart-3: 217 70% 55%;
+    --chart-4: 217 60% 85%;
+    --chart-5: 217 50% 45%;
+    
     /* Sidebar variables aligned with main theme for dark mode */
     --sidebar-background: var(--background);
     --sidebar-foreground: var(--foreground);

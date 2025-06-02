@@ -2,7 +2,7 @@
 export interface Course {
   id: string;
   title: string;
-  instructor: string; // Keep for backward compatibility or simple display name
+  instructor: string; 
   rating: number;
   reviewsCount: number;
   price: number;
@@ -19,16 +19,20 @@ export interface Course {
   certificateAvailable?: boolean;
   highlights?: string[];
   sellerId?: string;
-  providerInfo?: { // Enhanced provider/seller information
+  providerInfo?: { 
     name: string;
     logoUrl?: string;
     verified?: boolean;
-    description?: string; // Short bio or description of the seller/institute
+    description?: string; 
   };
   shortDescription?: string;
   tags?: string[];
   approvalStatus?: 'pending' | 'approved' | 'rejected';
-  moneyBackGuaranteeDays?: number; // Added for seller option
+  moneyBackGuaranteeDays?: number;
+  freeTrialAvailable?: boolean; // New
+  demoVideoUrl?: string; // New
+  downloadableMaterialsDescription?: string; // New - Text field for seller to list materials
+  detailedScheduleDescription?: string; // New - Text field for seller to list schedule
 }
 
 export interface Module {
@@ -71,9 +75,9 @@ export interface User {
   email: string;
   role: UserRole;
   avatarUrl?: string;
-  bio?: string; // Added bio field
+  bio?: string; 
   createdAt?: string;
-  verificationStatus?: 'pending' | 'verified' | 'rejected' | 'unverified'; // Added 'unverified'
+  verificationStatus?: 'pending' | 'verified' | 'rejected' | 'unverified'; 
   documentsSubmitted?: boolean;
 }
 
@@ -105,13 +109,13 @@ export interface Certificate {
   courseTitle: string;
   studentName: string;
   issueDate: string;
-  certificateUrl: string;
+  certificateUrl: string; // This would be a link to a generated PDF or image
 }
 
 export interface Order {
   id: string;
   userId: string;
-  items: Course[]; // Could be Course ID and snapshot of price/title at time of purchase
+  items: Course[]; 
   totalAmount: number;
   paymentMethod: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';

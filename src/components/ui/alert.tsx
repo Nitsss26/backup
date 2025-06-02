@@ -8,8 +8,8 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
-        destructive:
+        default: "bg-background text-foreground border-border", // Ensure default uses theme border
+        destructive: // Will use blue/gray theme color from globals.css
           "border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive",
       },
     },

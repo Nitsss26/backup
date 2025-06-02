@@ -14,19 +14,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CATEGORIES, DIFFICULTY_LEVELS, LANGUAGES } from '@/lib/constants';
-import { PlusCircle, Trash2, Loader2, Info } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Info, Video, BookCopy, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter, useParams } from 'next/navigation';
 import { getCourseById } from '@/lib/placeholder-data';
 import type { Course } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-// Schemas are identical to new course page
 const lessonSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(3, "Lesson title must be at least 3 characters"),
   type: z.enum(['video', 'pdf', 'quiz', 'text', 'assignment']),
-  duration: z.string().optional().refine(val => !val || /^\d+m(in)?s?$/.test(val) || /^\d+h(r)?s?$/.test(val), { message: "Duration format invalid (e.g., 10min, 2hr)"}),
+  duration: z.string().optional().refine(val => !val || /^\d+m(in)?s?$/.test(val) || /^\d+h(r)?s?$/.test(val) || /^\d+h\s\d+m(in)?s?$/.test(val), { message: "Duration invalid (e.g., 10min, 2hr, 1h 30min)"}),
   contentUrl: z.string().url("Must be a valid URL").optional().or(z.literal('')),
   textContent: z.string().optional(),
   order: z.number().int().min(1),
@@ -55,6 +54,10 @@ const courseSchema = z.object({
   highlights: z.array(z.string().min(3)).optional(),
   curriculum: z.array(moduleSchema).min(1),
   moneyBackGuaranteeDays: z.coerce.number().int().min(0).max(90).optional(),
+  freeTrialAvailable: z.boolean().default(false),
+  demoVideoUrl: z.string().url().optional().or(z.literal('')),
+  downloadableMaterialsDescription: z.string().max(500, "Too long").optional(),
+  detailedScheduleDescription: z.string().max(1000, "Too long").optional(),
 });
 
 type CourseFormValues = z.infer<typeof courseSchema>;
@@ -82,9 +85,13 @@ export default function EditCoursePage() {
           highlights: courseData.highlights || ["", "", ""],
           curriculum: courseData.curriculum?.map(m => ({
             ...m,
-            lessons: m.lessons.map(l => ({...l, duration: l.duration || ""})) || [] // ensure duration is string
+            lessons: m.lessons.map(l => ({...l, duration: l.duration || ""})) || [] 
           })) || [{ title: "", order: 1, lessons: [{ title: "", type: "video", order: 1, isFreePreview: false, duration: "" }] }],
-          moneyBackGuaranteeDays: courseData.moneyBackGuaranteeDays || 30,
+          moneyBackGuaranteeDays: courseData.moneyBackGuaranteeDays || 0,
+          freeTrialAvailable: courseData.freeTrialAvailable || false,
+          demoVideoUrl: courseData.demoVideoUrl || "",
+          downloadableMaterialsDescription: courseData.downloadableMaterialsDescription || "",
+          detailedScheduleDescription: courseData.detailedScheduleDescription || "",
         });
       } else {
         toast({ title: "Error", description: "Course not found.", variant: "destructive" });
@@ -118,17 +125,18 @@ export default function EditCoursePage() {
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h1 className="text-3xl font-bold font-headline">Edit Course: <span className="text-primary">{initialCourseData?.title}</span></h1>
-        <Button type="submit" disabled={isLoading} size="lg">
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button type="submit" disabled={isLoading} size="lg" className="text-base px-8 py-3">
+          {isLoading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
           Save Changes
         </Button>
       </div>
 
-      <Card className="border shadow-md">
+       <Card className="border shadow-md bg-card">
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle className="text-xl font-headline">Basic Information</CardTitle>
+          <CardDescription>Update the fundamental details for your course.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
@@ -146,7 +154,7 @@ export default function EditCoursePage() {
             <Textarea id="description" {...register('description')} rows={5} />
             {errors.description && <p className="text-sm text-destructive mt-1">{errors.description.message}</p>}
           </div>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-6">
             <div>
               <Label htmlFor="category">Category *</Label>
               <Controller
@@ -193,10 +201,10 @@ export default function EditCoursePage() {
         </CardContent>
       </Card>
       
-       <Card className="border shadow-md">
-        <CardHeader><CardTitle>Pricing & Media</CardTitle></CardHeader>
+      <Card className="border shadow-md bg-card">
+        <CardHeader><CardTitle  className="text-xl font-headline">Pricing, Media & Options</CardTitle><CardDescription>Update course price, media URLs, and extra options.</CardDescription></CardHeader>
         <CardContent className="space-y-6">
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
                     <Label htmlFor="price">Price (₹) *</Label>
                     <Input id="price" type="number" step="1" {...register('price')} />
@@ -213,25 +221,43 @@ export default function EditCoursePage() {
                     {errors.moneyBackGuaranteeDays && <p className="text-sm text-destructive mt-1">{errors.moneyBackGuaranteeDays.message}</p>}
                 </div>
             </div>
-             <div>
-                <Label htmlFor="imageUrl">Course Thumbnail Image URL</Label>
-                <Input id="imageUrl" {...register('imageUrl')} placeholder="https://example.com/image.png"/>
-                {errors.imageUrl && <p className="text-sm text-destructive mt-1">{errors.imageUrl.message}</p>}
+             <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                    <Label htmlFor="imageUrl">Course Thumbnail Image URL</Label>
+                    <Input id="imageUrl" {...register('imageUrl')} placeholder="https://example.com/image.png"/>
+                    {errors.imageUrl && <p className="text-sm text-destructive mt-1">{errors.imageUrl.message}</p>}
+                </div>
+                <div>
+                    <Label htmlFor="demoVideoUrl">Public Demo Video URL (Optional)</Label>
+                    <Input id="demoVideoUrl" {...register('demoVideoUrl')} placeholder="https://youtube.com/watch?v=your_demo_id"/>
+                    {errors.demoVideoUrl && <p className="text-sm text-destructive mt-1">{errors.demoVideoUrl.message}</p>}
+                </div>
+             </div>
+             <div className="space-y-3 pt-2">
+                <div className="flex items-center space-x-2">
+                    <Controller name="certificateAvailable" control={control} render={({ field }) => <Checkbox id="certificateAvailable" checked={field.value} onCheckedChange={field.onChange} />} />
+                    <Label htmlFor="certificateAvailable" className="font-normal">Certificate of Completion Available</Label>
+                </div>
+                 <div className="flex items-center space-x-2">
+                    <Controller name="freeTrialAvailable" control={control} render={({ field }) => <Checkbox id="freeTrialAvailable" checked={field.value} onCheckedChange={field.onChange} />} />
+                    <Label htmlFor="freeTrialAvailable" className="font-normal">Offer a Free Trial Period</Label>
+                </div>
             </div>
-             <div>
-                <Label htmlFor="videoPreviewUrl">Video Preview URL (Optional)</Label>
-                <Input id="videoPreviewUrl" {...register('videoPreviewUrl')} placeholder="https://example.com/video_preview.mp4"/>
-                {errors.videoPreviewUrl && <p className="text-sm text-destructive mt-1">{errors.videoPreviewUrl.message}</p>}
+            <div>
+                <Label htmlFor="downloadableMaterialsDescription">Downloadable Materials (Optional)</Label>
+                <Textarea id="downloadableMaterialsDescription" {...register('downloadableMaterialsDescription')} rows={2} placeholder="List any downloadable materials..."/>
+                {errors.downloadableMaterialsDescription && <p className="text-sm text-destructive mt-1">{errors.downloadableMaterialsDescription.message}</p>}
             </div>
-             <div className="flex items-center space-x-2 pt-2">
-                <Controller name="certificateAvailable" control={control} render={({ field }) => <Checkbox id="certificateAvailable" checked={field.value} onCheckedChange={field.onChange} />} />
-                <Label htmlFor="certificateAvailable">Certificate of Completion Available</Label>
+            <div>
+                <Label htmlFor="detailedScheduleDescription">Detailed Schedule/Timeline (Optional)</Label>
+                <Textarea id="detailedScheduleDescription" {...register('detailedScheduleDescription')} rows={4} placeholder="Provide a week-by-week schedule or module timeline..."/>
+                {errors.detailedScheduleDescription && <p className="text-sm text-destructive mt-1">{errors.detailedScheduleDescription.message}</p>}
             </div>
         </CardContent>
       </Card>
 
-      <Card className="border shadow-md">
-        <CardHeader><CardTitle>Course Highlights</CardTitle></CardHeader>
+      <Card className="border shadow-md bg-card">
+        <CardHeader><CardTitle className="text-xl font-headline">Course Highlights</CardTitle><CardDescription>Update key takeaways or benefits.</CardDescription></CardHeader>
         <CardContent className="space-y-3">
           {highlightFields.map((field, index) => (
             <div key={field.id} className="flex items-center gap-2">
@@ -244,8 +270,8 @@ export default function EditCoursePage() {
         </CardContent>
       </Card>
 
-      <Card className="border shadow-md">
-        <CardHeader><CardTitle>Curriculum *</CardTitle></CardHeader>
+      <Card className="border shadow-md bg-card">
+        <CardHeader><CardTitle className="text-xl font-headline">Curriculum *</CardTitle><CardDescription>Update modules and lessons.</CardDescription></CardHeader>
         <CardContent className="space-y-4">
           {moduleFields.map((moduleField, moduleIndex) => (
             <Card key={moduleField.id} className="p-4 bg-muted/30 border">
@@ -339,17 +365,21 @@ export default function EditCoursePage() {
         </CardContent>
       </Card>
       
-      <Card className="border shadow-md">
+      <Card className="border shadow-md bg-card">
         <CardHeader>
-            <CardTitle>Course Status & Review</CardTitle>
+            <CardTitle className="text-xl font-headline">Course Status & Review</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700">
-                <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0"/>
-                <p>
-                After saving changes, your course might be subject to re-review by admins, especially if significant modifications are made. This ensures continued quality on the platform.
-                Current Status: <Badge variant={initialCourseData?.approvalStatus === 'approved' ? 'default' : (initialCourseData?.approvalStatus === 'pending' ? 'secondary' : 'destructive')} className={initialCourseData?.approvalStatus === 'approved' ? 'bg-green-100 text-green-700' : (initialCourseData?.approvalStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700')}>{initialCourseData?.approvalStatus?.toUpperCase() || 'UNKNOWN'}</Badge>
-                </p>
+            <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-700">
+                <Info className="h-6 w-6 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0"/>
+                <div>
+                    <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-1">Important Notes</h4>
+                    <ul className="list-disc pl-5 space-y-1">
+                        <li>After saving changes, your course might be subject to re-review by admins, especially if significant modifications are made.</li>
+                        <li>This ensures continued quality on the platform. Current Status: <Badge variant={initialCourseData?.approvalStatus === 'approved' ? 'default' : (initialCourseData?.approvalStatus === 'pending' ? 'secondary' : 'destructive')} className={cn("capitalize", initialCourseData?.approvalStatus === 'approved' ? 'bg-green-100 text-green-700' : (initialCourseData?.approvalStatus === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'))}>{initialCourseData?.approvalStatus?.toUpperCase() || 'UNKNOWN'}</Badge></li>
+                        <li>Ensure all information is accurate and up-to-date.</li>
+                    </ul>
+                </div>
             </div>
         </CardContent>
       </Card>

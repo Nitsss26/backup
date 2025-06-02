@@ -4,62 +4,65 @@ import { Button } from '@/components/ui/button';
 import { CourseCard } from '@/components/CourseCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { featuredCourses, popularCategories, getCoursesByCategory, placeholderCourses } from '@/lib/placeholder-data';
+import { placeholderCourses, popularCategories } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
-import { ArrowRight, BookOpen, CheckCircle, Users, Video, Store, Zap, TrendingUp, Award } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle, Users, Video, Store, Zap, TrendingUp, Award, Lightbulb, BarChart3, ShieldCheck, Star } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 
-// Helper to get top N courses from a category (mock)
 const getTopCoursesInCategory = (categorySlug: string, count: number) => {
   return placeholderCourses
     .filter(course => course.category.toLowerCase().replace(/\s+/g, '-') === categorySlug && course.approvalStatus === 'approved')
-    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0)) // Sort by enrolled, then rating
-    .sort((a,b) => b.rating - a.rating)
+    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0))
+    .sort((a, b) => b.rating - a.rating)
     .slice(0, count);
 };
 
+const featuredCoursesForHomepage = placeholderCourses
+    .filter(c => c.approvalStatus === 'approved')
+    .sort((a,b) => b.rating - a.rating) // Sort by rating
+    .slice(0,4); // Take top 4
 
 export default function HomePage() {
-  const topCategoriesForShowcase = popularCategories.slice(0, 3); // Show top 3 categories with courses
+  const topCategoriesForShowcase = popularCategories.slice(0, 4); // Show top 4 categories with courses
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/20 py-16 md:py-24">
+        <section className="bg-gradient-to-br from-primary/5 via-background to-secondary/10 py-16 md:py-24 lg:py-32">
           <div className="container grid md:grid-cols-2 items-center gap-12">
-            <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tight">
-                Discover Your Next Skill with <span className="text-primary">{APP_NAME}</span>
+            <div className="space-y-6 text-center md:text-left">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tight text-foreground">
+                Unlock Your Potential with <span className="text-primary">{APP_NAME}</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground">
-                Explore thousands of online courses from top educators, institutes, and experts. Learn, grow, and achieve your goals.
+              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto md:mx-0">
+                Discover thousands of online courses from top educators and institutions. Learn, grow, and achieve your goals, all in one place.
               </p>
-              <div className="max-w-xl">
+              <div className="max-w-xl mx-auto md:mx-0">
                 <SearchBar />
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button size="lg" asChild>
+              <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                <Button size="lg" asChild className="text-base px-8 py-6">
                   <Link href="/courses">Explore All Courses <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/sell-courses">Sell Your Courses <Store className="ml-2 h-5 w-5" /></Link>
+                <Button size="lg" variant="outline" asChild className="text-base px-8 py-6">
+                  <Link href="/sell-courses">Become a Seller <Store className="ml-2 h-5 w-5" /></Link>
                 </Button>
               </div>
             </div>
             <div className="hidden md:flex justify-center">
               <Image
-                src="https://placehold.co/600x500/EBF4FF/60A5FA?text=Learn+Anything%2C+Anytime"
-                alt="Student joyfully learning online with a laptop and headphones in a bright, modern setting"
+                src="https://placehold.co/600x500/EBF4FF/3B82F6?text=Learn+Anything%2C+Anytime"
+                alt="Diverse group of students learning online, engaging with digital content on various devices"
                 width={600}
                 height={500}
                 className="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300"
-                data-ai-hint="online learning student laptop headphones"
+                data-ai-hint="online education diverse students learning digital content"
                 priority
               />
             </div>
@@ -67,28 +70,28 @@ export default function HomePage() {
         </section>
 
         {/* Why Choose Us Section */}
-        <section className="py-16">
+        <section className="py-16 md:py-20">
           <div className="container">
-            <h2 className="text-3xl font-bold text-center mb-4 font-headline">Why Learn with {APP_NAME}?</h2>
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
-              We provide a seamless, enriching learning experience with features designed for your success and a marketplace trusted by sellers.
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-headline">Why {APP_NAME}?</h2>
+            <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-3xl mx-auto text-lg">
+              We provide a seamless, enriching learning experience with features designed for your success and a marketplace trusted by sellers for its reach and tools.
             </p>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 { icon: BookOpen, title: "Vast Course Selection", description: "From IIT-JEE & NEET to Business & Arts, find courses from diverse sellers." },
                 { icon: Users, title: "Expert Sellers & Institutions", description: "Learn from verified individual teachers, renowned institutions, and experienced educators." },
-                { icon: Zap, title: "Flexible Learning", description: "Study at your own pace, on any device, anytime, anywhere. Fit learning into your life." },
-                { icon: Award, title: "Quality & Trust", description: "Access high-quality, curated content. Many courses offer certificates upon completion." },
+                { icon: Zap, title: "Flexible Learning Paths", description: "Study at your own pace, on any device. Access materials anytime, anywhere." },
+                { icon: ShieldCheck, title: "Quality & Trust Guaranteed", description: "Access high-quality, curated content. Many courses offer certificates upon completion." },
               ].map((feature, index) => (
-                <Card key={index} className="text-center hover:shadow-xl transition-shadow border-t-4 border-primary">
-                  <CardHeader className="items-center">
-                    <div className="p-3 bg-primary/10 rounded-full mb-3">
+                <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card">
+                  <CardHeader className="items-center pt-6">
+                    <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
                        <feature.icon className="h-10 w-10 text-primary" />
                     </div>
                     <CardTitle className="text-xl font-semibold font-headline">{feature.title}</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  <CardContent className="pb-6">
+                    <p className="text-sm text-muted-foreground px-2">{feature.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -97,42 +100,88 @@ export default function HomePage() {
         </section>
 
         {/* Featured Courses Section */}
-        <section className="py-16 bg-slate-50 dark:bg-slate-800/30">
+        <section className="py-16 md:py-20 bg-secondary/50">
           <div className="container">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold font-headline">Featured Courses</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 md:mb-10">
+              <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4 sm:mb-0">Featured Courses</h2>
               <Button variant="outline" asChild>
-                <Link href="/courses">View All <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/courses">View All Featured <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {featuredCourses.map((course) => (
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredCoursesForHomepage.map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
             </div>
           </div>
         </section>
+        
+        {/* How it Works Section */}
+        <section className="py-16 md:py-20">
+            <div className="container">
+                <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">How {APP_NAME} Works</h2>
+                <div className="grid md:grid-cols-2 gap-10 items-center">
+                    <Card className="shadow-lg border-primary border-2">
+                        <CardHeader className="flex-row items-center gap-4">
+                            <Users className="h-12 w-12 text-primary p-2 bg-primary/10 rounded-lg"/>
+                            <div>
+                                <CardTitle className="text-2xl font-headline">For Students</CardTitle>
+                                <CardDescription>Find your perfect course and start learning.</CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm pl-10">
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Discover a wide range of courses across all categories.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Compare courses based on price, reviews, curriculum, and more.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Enroll securely and get access instructions from sellers.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"/>Track your purchases and earned certificates in your dashboard.</p>
+                        </CardContent>
+                        <CardContent className="pl-10 pb-6">
+                             <Image src="https://placehold.co/400x250/EBF4FF/3B82F6?text=Student+Learning+Journey" alt="Illustration of a student learning journey" width={400} height={250} className="rounded-md shadow" data-ai-hint="student journey diagram infographic"/>
+                        </CardContent>
+                    </Card>
+                     <Card className="shadow-lg border-accent border-2">
+                        <CardHeader className="flex-row items-center gap-4">
+                            <Store className="h-12 w-12 text-accent p-2 bg-accent/10 rounded-lg"/>
+                            <div>
+                                <CardTitle className="text-2xl font-headline">For Sellers</CardTitle>
+                                <CardDescription>Share your expertise and grow your audience.</CardDescription>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm pl-10">
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Register and get verified to build trust with learners.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Easily create and list your courses with our intuitive tools.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Reach a global audience and manage your sales effectively.</p>
+                            <p className="flex items-start"><CheckCircle className="h-5 w-5 text-accent mr-2 mt-0.5 shrink-0"/>Access analytics to track your performance and earnings.</p>
+                        </CardContent>
+                         <CardContent className="pl-10 pb-6">
+                             <Image src="https://placehold.co/400x250/D6E9FE/1D4ED8?text=Seller+Tools+and+Growth" alt="Illustration of seller tools and growth" width={400} height={250} className="rounded-md shadow" data-ai-hint="seller tools dashboard growth"/>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </section>
+
 
         {/* Top Selling by Category Section */}
-        <section className="py-16">
+        <section className="py-16 md:py-20 bg-secondary/50">
           <div className="container">
-            <h2 className="text-3xl font-bold text-center mb-12 font-headline">Top Selling by Category</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Top Selling Courses by Category</h2>
             {topCategoriesForShowcase.map(category => (
-              <div key={category.id} className="mb-12">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-2xl font-semibold flex items-center">
-                    <category.icon className="h-7 w-7 text-primary mr-3" /> {category.name}
+              <div key={category.id} className="mb-12 last:mb-0">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8">
+                  <h3 className="text-2xl font-semibold flex items-center mb-2 sm:mb-0">
+                    <category.icon className="h-8 w-8 text-primary mr-3" /> {category.name}
                   </h3>
-                  <Button variant="link" asChild>
-                    <Link href={`/courses?category=${category.slug}`} className="text-primary">View all in {category.name} <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                  <Button variant="link" asChild className="text-primary self-start sm:self-center">
+                    <Link href={`/courses?category=${category.slug}`}>View all in {category.name} <ArrowRight className="ml-1 h-4 w-4" /></Link>
                   </Button>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   {getTopCoursesInCategory(category.slug, 4).map(course => (
                     <CourseCard key={course.id} course={course} />
                   ))}
                   {getTopCoursesInCategory(category.slug, 4).length === 0 && (
-                    <p className="col-span-full text-center text-muted-foreground">No top sellers in this category yet. Be the first to explore!</p>
+                    <p className="col-span-full text-center text-muted-foreground py-8">No top sellers in this category yet. Be the first to explore!</p>
                   )}
                 </div>
               </div>
@@ -140,17 +189,16 @@ export default function HomePage() {
           </div>
         </section>
 
-
         {/* Popular Categories Section */}
-        <section className="py-16 bg-primary/5">
+        <section className="py-16 md:py-20">
           <div className="container">
-            <h2 className="text-3xl font-bold text-center mb-12 font-headline">Explore All Categories</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-              {CATEGORIES.map((category) => ( // Show all categories here
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Explore All Categories</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+              {CATEGORIES.map((category) => (
                 <Link key={category.id} href={`/courses?category=${category.slug}`}>
-                  <div className="group bg-card p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-transparent border-2 transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1">
-                    {category.icon && <category.icon className="h-10 w-10 text-primary mb-3 group-hover:scale-110 transition-transform" />}
-                    <h3 className="text-md font-semibold group-hover:text-primary transition-colors">{category.name}</h3>
+                  <div className="group bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-2 border-transparent transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1.5 duration-300">
+                    {category.icon && <category.icon className="h-10 w-10 md:h-12 md:w-12 text-primary mb-3 group-hover:scale-110 transition-transform" />}
+                    <h3 className="text-sm md:text-base font-semibold group-hover:text-primary transition-colors line-clamp-2">{category.name}</h3>
                   </div>
                 </Link>
               ))}
@@ -158,22 +206,25 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Testimonials Section - Placeholder */}
-        <section className="py-16">
+        {/* Testimonials Section */}
+        <section className="py-16 md:py-20 bg-secondary/50">
           <div className="container">
-            <h2 className="text-3xl font-bold text-center mb-12 font-headline">What Our Community Says</h2>
-            <div className="grid md:grid-cols-3 gap-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">What Our Community Says</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { name: "Priya S.", course: "IIT-JEE Crash Course", imageHint: "indian student testimonial", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. Thanks EdTechCart!" },
-                { name: "Rohan M.", course: "Business Analytics Pro", imageHint: "male professional testimonial", text: "Upgraded my analytics skills significantly. The seller provided excellent support. Platform is very user-friendly." },
-                { name: "Aisha K.", course: "Advanced Python", imageHint: "female coder testimonial", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend it." }
+                { name: "Priya Sharma", course: "IIT-JEE Crash Course", imageHint: "indian student testimonial glasses", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." },
+                { name: "Rohan Mehta", course: "Business Analytics Pro", imageHint: "male professional testimonial formal", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" },
+                { name: "Aisha Khan", course: "Advanced Python Programming", imageHint: "female coder testimonial hijab", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." }
               ].map((testimonial, i) => (
-                <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow">
-                  <CardContent className="p-6 text-center">
-                  <Image src={`https://placehold.co/100x100.png`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-4 border-2 border-primary p-1" data-ai-hint={testimonial.imageHint} />
-                  <p className="text-muted-foreground italic mb-4">"{testimonial.text}"</p>
-                  <p className="font-semibold">{testimonial.name}</p>
-                  <p className="text-sm text-primary">{testimonial.course}</p>
+                <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col">
+                  <CardContent className="p-6 text-center flex flex-col flex-grow items-center">
+                  <Image src={`https://placehold.co/100x100/EBF4FF/3B82F6?text=${testimonial.name.split(' ').map(n=>n[0]).join('')}`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover" data-ai-hint={testimonial.imageHint} />
+                  <div className="flex mb-3">
+                    {[...Array(5)].map((_, idx) => <Star key={idx} className="h-5 w-5 text-yellow-400" fill="currentColor"/>)}
+                  </div>
+                  <blockquote className="text-muted-foreground italic mb-4 text-sm leading-relaxed flex-grow">"{testimonial.text}"</blockquote>
+                  <p className="font-semibold mt-auto">{testimonial.name}</p>
+                  <p className="text-xs text-primary">{testimonial.course}</p>
                   </CardContent>
                 </Card>
               ))}
