@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -77,7 +77,7 @@ export default function ProfilePage() {
       });
       // Potentially fetch and set notification preferences
     }
-  }, [user, profileForm.reset]);
+  }, [user, profileForm, profileForm.reset]); // Added profileForm to dependency array as reset is part of it
 
   const onProfileSubmit: SubmitHandler<ProfileFormValues> = async (data) => {
     setIsSubmittingProfile(true);
@@ -136,7 +136,7 @@ export default function ProfilePage() {
               <CardContent className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src={profileForm.watch('avatarUrl') || user.avatarUrl} alt={user.name} />
+                    <AvatarImage src={profileForm.watch('avatarUrl') || user.avatarUrl} alt={user.name} data-ai-hint="user avatar large"/>
                     <AvatarFallback>{userInitial}</AvatarFallback>
                   </Avatar>
                   <div className="flex-grow">

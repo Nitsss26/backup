@@ -2,24 +2,27 @@ import type { Course, Review, User, Certificate, Order } from './types';
 import { CATEGORIES, DIFFICULTY_LEVELS, LANGUAGES } from './constants';
 
 export const placeholderUsers: User[] = [
-  { id: 'user1', name: 'Alice Student', email: 'alice@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100.png', createdAt: new Date().toISOString() },
-  { id: 'user2', name: 'Bob Provider', email: 'bob@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100.png', createdAt: new Date().toISOString() },
-  { id: 'user3', name: 'Charlie Admin', email: 'charlie@example.com', role: 'admin', avatarUrl: 'https://placehold.co/100x100.png', createdAt: new Date().toISOString() },
-  { id: 'user4', name: 'Diana Learner', email: 'diana@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100.png', createdAt: new Date().toISOString() },
+  { id: 'user1', name: 'Alice Student', email: 'alice@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100.png?text=AS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString() },
+  { id: 'user2', name: 'Bob Provider', email: 'provider@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100.png?text=BP', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), verificationStatus: 'pending', documentsSubmitted: true },
+  { id: 'user3', name: 'Charlie Admin', email: 'admin@example.com', role: 'admin', avatarUrl: 'https://placehold.co/100x100.png?text=CA', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString() },
+  { id: 'user4', name: 'Diana Learner', email: 'diana@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100.png?text=DL', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString() },
+  { id: 'user5', name: 'Eva Educator', email: 'eva.provider@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100.png?text=EE', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString(), verificationStatus: 'verified', documentsSubmitted: true },
 ];
 
 export const placeholderCourses: Course[] = Array.from({ length: 24 }, (_, i) => {
   const category = CATEGORIES[i % CATEGORIES.length];
+  const seller = placeholderUsers.filter(u => u.role === 'provider')[i % placeholderUsers.filter(u => u.role === 'provider').length];
   return {
     id: `course${i + 1}`,
     title: `Mastering ${category.name}: From Zero to Hero ${i + 1}`,
-    instructor: `Dr. Expert ${i % 5 + 1}`,
+    instructor: seller.name,
+    sellerId: seller.id,
     rating: parseFloat((Math.random() * (5 - 3.5) + 3.5).toFixed(1)),
     reviewsCount: Math.floor(Math.random() * 300) + 50,
     price: parseFloat((Math.random() * (199.99 - 19.99) + 19.99).toFixed(2)),
     originalPrice: i % 3 === 0 ? parseFloat((Math.random() * (299.99 - 99.99) + 99.99).toFixed(2)) : undefined,
     category: category.name,
-    imageUrl: `https://placehold.co/600x400.png`,
+    imageUrl: `https://placehold.co/600x400.png`, // data-ai-hint will be added in components
     shortDescription: `Unlock the secrets of ${category.name} with this comprehensive course. Perfect for aspiring professionals and enthusiasts.`,
     duration: `${Math.floor(Math.random() * 20) + 5} hours`,
     level: DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length],
@@ -47,11 +50,12 @@ export const placeholderCourses: Course[] = Array.from({ length: 24 }, (_, i) =>
     certificateAvailable: i % 2 === 0,
     highlights: ['Lifetime access to course materials', 'Certificate of completion', 'Downloadable resources & articles', 'Access on mobile and TV', 'Instructor Q&A'],
     providerInfo: {
-      name: `EduSolutions Inc. ${i % 4 + 1}`,
-      verified: i % 2 === 0,
-      logoUrl: `https://placehold.co/80x80.png`
+      name: seller.name, // Use seller name as provider name
+      verified: seller.verificationStatus === 'verified',
+      logoUrl: seller.avatarUrl?.replace('100x100', '80x80') // Use seller avatar
     },
-    tags: [category.name.toLowerCase().replace(' & ', '-').replace(' ', '-'), DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length].toLowerCase(), 'top-rated']
+    tags: [category.name.toLowerCase().replace(' & ', '-').replace(' ', '-'), DIFFICULTY_LEVELS[i % DIFFICULTY_LEVELS.length].toLowerCase(), 'top-rated'],
+    approvalStatus: i % 4 === 0 ? 'pending' : (i % 4 === 1 ? 'rejected' : 'approved'), // Add mock approval status
   };
 });
 
@@ -67,11 +71,12 @@ export const placeholderReviews: Review[] = placeholderCourses.flatMap(course =>
     createdAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 180).toISOString().split('T')[0],
     helpfulVotes: Math.floor(Math.random() * 100),
     unhelpfulVotes: Math.floor(Math.random() * 20),
+    moderationStatus: i % 5 === 0 ? 'pending' : (i % 5 === 1 ? 'rejected' : 'approved'), // Add mock moderation status
   }))
 );
 
 export const placeholderCertificates: Certificate[] = placeholderCourses
-  .filter(c => c.certificateAvailable && c.id.includes('1')) // for user1
+  .filter(c => c.certificateAvailable && c.studentsEnrolled && c.studentsEnrolled > 500) // Some logic for students who might have completed
   .slice(0,3)
   .map((course, i) => ({
     id: `cert${course.id}-user1-${i}`,
@@ -79,7 +84,7 @@ export const placeholderCertificates: Certificate[] = placeholderCourses
     courseTitle: course.title,
     studentName: placeholderUsers[0].name,
     issueDate: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 30 * (i+1)).toISOString().split('T')[0],
-    certificateUrl: `/placeholder-certificate-${course.id}.pdf`
+    certificateUrl: `/placeholder-certificate-${course.id}.pdf` // This will be a 404 as no PDF is generated
 }));
 
 export const placeholderOrders: Order[] = [
@@ -102,6 +107,16 @@ export const placeholderOrders: Order[] = [
     status: 'completed',
     orderDate: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 15).toISOString().split('T')[0],
     transactionId: 'txn_456def'
+  },
+  {
+    id: 'order3',
+    userId: 'user4', // For Diana Learner
+    items: [placeholderCourses[1], placeholderCourses[3]],
+    totalAmount: placeholderCourses[1].price + placeholderCourses[3].price,
+    paymentMethod: 'Net Banking',
+    status: 'pending',
+    orderDate: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 2).toISOString().split('T')[0],
+    transactionId: 'txn_789ghi'
   }
 ];
 
@@ -113,7 +128,11 @@ export const getCoursesByCategory = (categorySlug: string): Course[] => {
     if (!category) return [];
     return placeholderCourses.filter(course => course.category === category.name);
 };
-export const getCertificatesByUserId = (userId: string): Certificate[] => placeholderCertificates.filter(cert => cert.studentName === placeholderUsers.find(u => u.id === userId)?.name); // simplified
+export const getCertificatesByUserId = (userId: string): Certificate[] => {
+    const user = placeholderUsers.find(u => u.id === userId);
+    if (!user) return [];
+    return placeholderCertificates.filter(cert => cert.studentName === user.name); 
+};
 export const getOrdersByUserId = (userId: string): Order[] => placeholderOrders.filter(order => order.userId === userId);
 
 export const featuredCourses = placeholderCourses.slice(0, 4);

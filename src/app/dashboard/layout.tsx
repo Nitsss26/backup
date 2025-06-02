@@ -16,7 +16,7 @@ import {
 import { APP_NAME } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { LogOut, Settings, UserCircle, LayoutGrid, BookOpen, DollarSign, Users, Edit3, BarChart3, ShieldAlert, FileCheck2, MessageSquare } from 'lucide-react';
+import { LogOut, Settings, UserCircle, LayoutGrid, BookOpen, DollarSign, Users, Edit3, BarChart3, ShieldAlert, FileCheck2, MessageSquare, Briefcase } from 'lucide-react';
 import { useAuth } from '@/components/AppProviders';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -43,9 +43,9 @@ const providerNavItems: NavItem[] = [
 const adminNavItems: NavItem[] = [
   { href: '/admin', label: 'Overview', icon: LayoutGrid },
   { href: '/admin/users', label: 'User Management', icon: Users },
-  { href: '/admin/courses', label: 'Course Approval', icon: FileCheck2 },
+  { href: '/admin/courses', label: 'Course Management', icon: Briefcase },
   { href: '/admin/reviews', label: 'Review Moderation', icon: MessageSquare },
-  { href: '/admin/content', label: 'Content Management', icon: Edit3 },
+  { href: '/admin/content', label: 'Platform Content', icon: Edit3 },
   { href: '/admin/payments', label: 'Payments & Revenue', icon: DollarSign },
   { href: '/admin/settings', label: 'Platform Settings', icon: Settings },
 ];
@@ -59,19 +59,24 @@ export default function DashboardLayout({
   const { user, isLoading, logout } = useAuth();
   const router = useRouter();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
+  const currentPath = usePathname();
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/auth/login');
     } else if (user) {
-      switch (user.role) {
-        case 'student': setNavItems(studentNavItems); break;
-        case 'provider': setNavItems(providerNavItems); break;
-        case 'admin': setNavItems(adminNavItems); break;
-        default: setNavItems([]);
+      if (currentPath.startsWith('/admin')) {
+         setNavItems(adminNavItems);
+      } else {
+        switch (user.role) {
+            case 'student': setNavItems(studentNavItems); break;
+            case 'provider': setNavItems(providerNavItems); break;
+            case 'admin': setNavItems(adminNavItems); break; // Should be caught by currentPath check but good fallback
+            default: setNavItems([]);
+        }
       }
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, currentPath]);
   
   if (isLoading || !user) {
     return (
@@ -82,30 +87,32 @@ export default function DashboardLayout({
   }
   
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
+  const userRoleForNav = currentPath.startsWith('/admin') && user.role === 'admin' ? 'admin' : user.role;
+
 
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex flex-col min-h-screen">
         <Header />
         <div className="flex flex-1">
-          <Sidebar className="border-r bg-sidebar text-sidebar-foreground" collapsible="icon">
+          <Sidebar className="border-r bg-background text-foreground" collapsible="icon">
             <SidebarHeader className="p-4 flex flex-col items-center text-center group-data-[collapsible=icon]:hidden">
                 <Avatar className="h-20 w-20 mb-2">
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="user profile picture"/>
                   <AvatarFallback>{userInitial}</AvatarFallback>
                 </Avatar>
                 <h2 className="font-semibold text-lg">{user.name}</h2>
-                <p className="text-xs text-sidebar-foreground/70 capitalize">{user.role}</p>
+                <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
             </SidebarHeader>
             <SidebarHeader className="p-2 hidden group-data-[collapsible=icon]:flex justify-center">
                  <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="user profile small"/>
                   <AvatarFallback>{userInitial}</AvatarFallback>
                 </Avatar>
             </SidebarHeader>
 
             <SidebarContent className="p-2">
-              <DashboardSidebarNav navItems={navItems} userRole={user.role} />
+              <DashboardSidebarNav navItems={navItems} userRole={userRoleForNav} />
             </SidebarContent>
             <SidebarFooter className="p-2 mt-auto">
               <Button variant="ghost" className="w-full justify-start group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2" onClick={logout}>

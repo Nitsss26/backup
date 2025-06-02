@@ -44,14 +44,15 @@ body {
     --chart-4: 217 60% 37%;
     --chart-5: 217 50% 27%;
 
-    --sidebar-background: 222 47% 8%; /* Darker shade for sidebar for contrast */
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 91% 67%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 47% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 222 47% 20%;
-    --sidebar-ring: 217 91% 67%;
+    /* Sidebar variables aligned with main theme */
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 
   .dark {
@@ -90,14 +91,15 @@ body {
     --chart-4: 217 60% 40%;
     --chart-5: 217 50% 30%;
 
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 217 91% 70%;
-    --sidebar-primary-foreground: 217 91% 10%;
-    --sidebar-accent: 222 47% 15%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 222 47% 20%;
-    --sidebar-ring: 217 91% 70%;
+    /* Sidebar variables aligned with main theme for dark mode */
+    --sidebar-background: var(--background);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
   }
 }
 

@@ -25,6 +25,7 @@ export interface Course {
   };
   shortDescription?: string;
   tags?: string[];
+  approvalStatus?: 'pending' | 'approved' | 'rejected'; // Added for admin course approval
 }
 
 export interface Module {
@@ -56,6 +57,7 @@ export interface Review {
   createdAt: string; 
   helpfulVotes: number;
   unhelpfulVotes: number;
+  moderationStatus?: 'pending' | 'approved' | 'rejected'; // Added for admin review moderation
 }
 
 export type UserRole = 'student' | 'provider' | 'admin';
@@ -67,6 +69,8 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   createdAt?: string;
+  verificationStatus?: 'pending' | 'verified' | 'rejected'; // Added for seller verification
+  documentsSubmitted?: boolean; // Example field
 }
 
 export interface CartItem {

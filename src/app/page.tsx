@@ -39,7 +39,7 @@ export default function HomePage() {
             <div className="hidden md:block">
               <Image 
                 src="https://placehold.co/600x500.png" 
-                alt="Person learning online" 
+                alt="Person learning online with a laptop" 
                 width={600} 
                 height={500} 
                 className="rounded-lg shadow-2xl"
@@ -115,7 +115,7 @@ export default function HomePage() {
             <div className="grid md:grid-cols-3 gap-8">
               {[1, 2, 3].map(i => (
                 <div key={i} className="bg-background p-6 rounded-lg shadow-lg">
-                  <Image src={`https://placehold.co/80x80.png`} alt={`Student ${i}`} width={80} height={80} className="rounded-full mx-auto mb-4" data-ai-hint="person portrait" />
+                  <Image src={`https://placehold.co/80x80.png`} alt={`Happy Student ${i}`} width={80} height={80} className="rounded-full mx-auto mb-4" data-ai-hint="student testimonial portrait" />
                   <p className="text-muted-foreground italic mb-4 text-center">"This platform is amazing! I've learned so much and boosted my career. The courses are top-notch."</p>
                   <p className="font-semibold text-center">Student Name {i}</p>
                   <p className="text-sm text-muted-foreground text-center">Course Title {i}</p>

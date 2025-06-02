@@ -1,10 +1,15 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { placeholderCourses, placeholderReviews } from "@/lib/placeholder-data";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { DollarSign, Users, BookOpen, MessageSquare, ArrowRight, PlusCircle } from "lucide-react";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'; // Assuming shadcn chart components
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { DollarSign, Users, BookOpen, MessageSquare, ArrowRight, PlusCircle, ShieldCheck, AlertTriangle } from "lucide-react";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'; 
+import { useAuth } from "@/components/AppProviders";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 
 const totalRevenueData = [
   { month: 'Jan', revenue: 1200 }, { month: 'Feb', revenue: 1800 },
@@ -26,11 +31,15 @@ const enrollmentChartConfig = {
 
 
 export default function SellerDashboardPage() {
+  const { user } = useAuth();
   // Mock data - replace with actual data fetching
   const totalEarnings = 12345.67;
   const totalStudents = 1234;
-  const activeCourses = placeholderCourses.filter(c => c.sellerId === 'user2').length || 5; // Assuming user2 is a provider
-  const totalReviews = placeholderReviews.filter(r => placeholderCourses.find(c => c.id === r.courseId && c.sellerId === 'user2')).length || 88;
+  // Filter courses based on the logged-in provider's ID if available
+  const activeCourses = user ? placeholderCourses.filter(c => c.sellerId === user.id).length : 5; 
+  const totalReviews = user ? placeholderReviews.filter(r => placeholderCourses.find(c => c.id === r.courseId && c.sellerId === user.id)).length : 88;
+
+  const sellerVerificationStatus = user?.verificationStatus || 'unknown';
 
   return (
     <div className="space-y-8">
@@ -40,6 +49,35 @@ export default function SellerDashboardPage() {
             <Link href="/dashboard/seller/courses/new"><PlusCircle className="mr-2 h-4 w-4"/> Create New Course</Link>
         </Button>
       </div>
+
+      {sellerVerificationStatus === 'pending' && (
+        <Alert variant="default" className="bg-yellow-50 border-yellow-300 text-yellow-700 dark:bg-yellow-900/30 dark:border-yellow-700 dark:text-yellow-300">
+          <AlertTriangle className="h-4 w-4 !text-yellow-700 dark:!text-yellow-300" />
+          <AlertTitle className="font-semibold">Verification Pending</AlertTitle>
+          <AlertDescription>
+            Your account is currently under review by our admin team. You can create courses, but they will require approval before publishing.
+          </AlertDescription>
+        </Alert>
+      )}
+      {sellerVerificationStatus === 'rejected' && (
+         <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Verification Rejected</AlertTitle>
+          <AlertDescription>
+            There was an issue with your verification. Please check your email or contact support for more information.
+          </AlertDescription>
+        </Alert>
+      )}
+       {sellerVerificationStatus === 'verified' && (
+        <Alert variant="default" className="bg-green-50 border-green-300 text-green-700 dark:bg-green-900/30 dark:border-green-700 dark:text-green-300">
+          <ShieldCheck className="h-4 w-4 !text-green-700 dark:!text-green-300" />
+          <AlertTitle className="font-semibold">Account Verified</AlertTitle>
+          <AlertDescription>
+            Your account is verified. You can publish courses and manage your earnings.
+          </AlertDescription>
+        </Alert>
+      )}
+
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="shadow-md">
