@@ -1,12 +1,13 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { placeholderUsers, placeholderCourses, placeholderReviews, placeholderOrders } from "@/lib/placeholder-data";
-import { Users, BookOpen, MessageSquare, DollarSign, CheckCircle, AlertTriangle, Hourglass, ArrowRight } from "lucide-react";
+import { Users, BookOpen, MessageSquare, DollarSign, CheckCircle, AlertTriangle, Hourglass, ArrowRight, Settings as SettingsIcon } from "lucide-react"; // Renamed Settings to SettingsIcon to avoid conflict
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'; // Added ChartTooltip
 
 const chartConfig = {
   revenue: { label: "Revenue", color: "hsl(var(--primary))" },
@@ -108,7 +109,7 @@ export default function AdminDashboardPage() {
                 {label: "User Management", href: "/admin/users", icon: Users},
                 {label: "Course Management", href: "/admin/courses", icon: BookOpen},
                 {label: "Review Moderation", href: "/admin/reviews", icon: MessageSquare},
-                {label: "Platform Settings", href: "/admin/settings", icon: Users /* Settings icon not imported */},
+                {label: "Platform Settings", href: "/admin/settings", icon: SettingsIcon },
             ].map(link => (
                  <Button key={link.href} variant="outline" size="lg" asChild className="justify-start text-base py-6">
                     <Link href={link.href}><link.icon className="mr-3 h-5 w-5"/>{link.label}</Link>
