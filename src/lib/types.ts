@@ -1,0 +1,113 @@
+export interface Course {
+  id: string;
+  title: string;
+  instructor: string;
+  rating: number;
+  reviewsCount: number;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  imageUrl: string;
+  duration?: string; 
+  level?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+  description: string;
+  curriculum?: Module[];
+  studentsEnrolled?: number;
+  lastUpdated?: string; 
+  language?: string;
+  certificateAvailable?: boolean;
+  highlights?: string[]; 
+  sellerId?: string; 
+  providerInfo?: {
+    name: string;
+    logoUrl?: string;
+    verified?: boolean;
+  };
+  shortDescription?: string;
+  tags?: string[];
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  lessons: Lesson[];
+  order: number;
+}
+
+export interface Lesson {
+  id:string;
+  title: string;
+  type: 'video' | 'pdf' | 'quiz' | 'text' | 'assignment';
+  duration?: string; 
+  contentUrl?: string; 
+  textContent?: string;
+  order: number;
+  isFreePreview?: boolean;
+}
+
+export interface Review {
+  id: string;
+  courseId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  comment: string;
+  createdAt: string; 
+  helpfulVotes: number;
+  unhelpfulVotes: number;
+}
+
+export type UserRole = 'student' | 'provider' | 'admin';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  avatarUrl?: string;
+  createdAt?: string;
+}
+
+export interface CartItem {
+  course: Course;
+  // quantity is always 1 for courses
+}
+
+export interface WishlistItem {
+  course: Course;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: React.ElementType; // Optional: Lucide icon component
+  subcategories?: Category[];
+}
+
+export interface PaymentOption {
+  id: string;
+  name: string;
+  icon?: React.ElementType;
+}
+
+export interface Certificate {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  studentName: string;
+  issueDate: string;
+  certificateUrl: string;
+}
+
+export interface Order {
+  id: string;
+  userId: string;
+  items: Course[];
+  totalAmount: number;
+  paymentMethod: string;
+  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  orderDate: string;
+  transactionId?: string;
+}
