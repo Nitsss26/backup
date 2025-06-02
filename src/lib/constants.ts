@@ -1,6 +1,6 @@
 
 import type { Category, PaymentOption } from './types';
-import { BookOpen, Briefcase, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, Store } from 'lucide-react'; // Added Store
+import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, Store, Wallet } from 'lucide-react';
 
 export const APP_NAME = "EdTechCart";
 export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
@@ -20,6 +20,7 @@ export const INSTRUCTOR_TYPES = [ // Kept for filter, but "Seller" is the primar
   'Individual Teacher',
   'Verified Educator',
   'Institute',
+  'Coaching Center',
 ];
 
 export const DIFFICULTY_LEVELS: Array<'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels'> = [
@@ -37,6 +38,9 @@ export const LANGUAGES = [
   'German',
   'Mandarin Chinese',
   'Japanese',
+  'Tamil',
+  'Telugu',
+  'Bengali',
 ];
 
 export const SORT_OPTIONS = [
@@ -45,13 +49,14 @@ export const SORT_OPTIONS = [
   { value: 'price_desc', label: 'Price: High to Low' },
   { value: 'rating_desc', label: 'Rating: High to Low' },
   { value: 'newest', label: 'Newest First' },
+  { value: 'popularity', label: 'Popularity (Most Enrolled)'}
 ];
 
 export const PAYMENT_OPTIONS: PaymentOption[] = [
-    { id: 'upi', name: 'UPI' },
-    { id: 'card', name: 'Credit/Debit Card' },
-    { id: 'netbanking', name: 'Net Banking' },
-    { id: 'wallet', name: 'Wallet' },
+    { id: 'upi', name: 'UPI / QR Code', icon: Store }, // Using Store as a generic icon for UPI
+    { id: 'card', name: 'Credit/Debit Card', icon: CreditCard },
+    { id: 'netbanking', name: 'Net Banking', icon: Banknote },
+    { id: 'wallet', name: 'Digital Wallet (PayTM, PhonePe etc.)', icon: Wallet },
 ];
 
 export const FOOTER_LINKS = {
@@ -68,8 +73,8 @@ export const FOOTER_LINKS = {
   ],
   community: [
     { name: 'Blog', href: '/blog' },
-    { name: 'Forums', href: '/forums' }, // Placeholder, actual page not complex
-    { name: 'Sell on EdTechCart', href: '/sell-courses' }, // Changed from /teach
+    { name: 'Forums', href: '/forums' },
+    { name: 'Sell on EdTechCart', href: '/sell-courses' },
   ]
 };
 

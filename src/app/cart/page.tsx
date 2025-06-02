@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -11,8 +12,10 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { placeholderCourses } from '@/lib/placeholder-data';
 import type { Course, CartItem } from '@/lib/types';
-import { X, Tag, Trash2, ShoppingBag } from 'lucide-react';
+import { X, Tag, Trash2, ShoppingBag, Info } from 'lucide-react';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { useAuth } from '@/components/AppProviders'; // Import useAuth
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Import Alert
 
 // Mock cart state
 const initialCartItems: CartItem[] = placeholderCourses.slice(0, 2).map(course => ({ course }));
@@ -21,11 +24,12 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [discountCode, setDiscountCode] = useState('');
   const [isClient, setIsClient] = useState(false);
+  const { user, isLoading: authLoading } = useAuth(); // Get user state
 
   useEffect(() => {
     setIsClient(true);
     // In a real app, fetch cart from localStorage or API
-    setCartItems(initialCartItems); 
+    setCartItems(initialCartItems);
   }, []);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.course.price, 0);
@@ -35,14 +39,13 @@ export default function CartPage() {
   const handleRemoveItem = (courseId: string) => {
     setCartItems(prevItems => prevItems.filter(item => item.course.id !== courseId));
   };
-  
+
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'Shopping Cart' },
   ];
 
-  if (!isClient) {
-    // Render a loading state or skeleton screen on the server
+  if (!isClient || authLoading) {
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
@@ -50,7 +53,7 @@ export default function CartPage() {
           <Breadcrumbs items={breadcrumbItems} />
           <h1 className="text-3xl md:text-4xl font-bold mb-8 font-headline">Shopping Cart</h1>
           <div className="text-center py-12">
-            <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4 animate-pulse" />
             <p className="text-xl text-muted-foreground">Loading your cart...</p>
           </div>
         </main>
@@ -65,7 +68,17 @@ export default function CartPage() {
       <main className="flex-grow container py-8 px-4 md:px-6 bg-slate-50 dark:bg-slate-900">
         <Breadcrumbs items={breadcrumbItems} />
         <h1 className="text-3xl md:text-4xl font-bold mb-8 font-headline">Shopping Cart</h1>
-        
+
+        {!user && cartItems.length > 0 && (
+          <Alert className="mb-6 border-blue-500 bg-blue-50 dark:bg-blue-900/30">
+            <Info className="h-4 w-4 !text-blue-600 dark:!text-blue-400" />
+            <AlertTitle className="font-semibold text-blue-700 dark:text-blue-300">You're Browsing as a Guest</AlertTitle>
+            <AlertDescription className="text-blue-600 dark:text-blue-400">
+              <Link href="/auth/login?redirect=/cart" className="font-medium underline hover:text-blue-700 dark:hover:text-blue-200">Sign in</Link> or <Link href="/auth/register?redirect=/cart" className="font-medium underline hover:text-blue-700 dark:hover:text-blue-200">create an account</Link> to save your cart and proceed to checkout.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {cartItems.length === 0 ? (
           <div className="text-center py-12 bg-background rounded-lg shadow">
             <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
@@ -79,24 +92,24 @@ export default function CartPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
               {cartItems.map(item => (
-                <Card key={item.course.id} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 shadow-sm hover:shadow-md transition-shadow">
+                <Card key={item.course.id} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 shadow-sm hover:shadow-md transition-shadow border">
                   <Image
                     src={item.course.imageUrl}
                     alt={item.course.title}
                     width={160}
                     height={90}
                     className="rounded-md object-cover w-full md:w-40 aspect-video"
-                    data-ai-hint={`${item.course.category} course`}
+                    data-ai-hint={`${item.course.category} course cart item`}
                   />
                   <div className="flex-grow">
                     <Link href={`/courses/${item.course.id}`} className="hover:underline">
                       <h3 className="text-lg font-semibold line-clamp-2">{item.course.title}</h3>
                     </Link>
-                    <p className="text-sm text-muted-foreground">By {item.course.instructor}</p>
+                    <p className="text-sm text-muted-foreground">By {item.course.providerInfo?.name || item.course.instructor}</p>
                     <p className="text-sm text-muted-foreground">{item.course.category}</p>
                   </div>
                   <div className="flex flex-col items-end md:items-center gap-2 md:ml-auto mt-4 md:mt-0">
-                    <p className="text-lg font-semibold">${item.course.price.toFixed(2)}</p>
+                    <p className="text-lg font-semibold">₹{item.course.price.toLocaleString('en-IN')}</p>
                     <Button variant="ghost" size="sm" onClick={() => handleRemoveItem(item.course.id)} className="text-red-500 hover:text-red-700">
                       <Trash2 className="h-4 w-4 mr-1" /> Remove
                     </Button>
@@ -106,19 +119,19 @@ export default function CartPage() {
             </div>
 
             <div className="lg:col-span-1">
-              <Card className="sticky top-24 shadow-lg">
+              <Card className="sticky top-24 shadow-lg border">
                 <CardHeader>
                   <CardTitle className="text-xl font-headline">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Input 
-                      type="text" 
-                      placeholder="Discount code" 
+                    <Input
+                      type="text"
+                      placeholder="Discount code"
                       value={discountCode}
                       onChange={(e) => setDiscountCode(e.target.value)}
                       className="flex-grow"
@@ -130,17 +143,18 @@ export default function CartPage() {
                   {discountAmount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span>-${discountAmount.toFixed(2)}</span>
+                      <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
                     </div>
                   )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toLocaleString('en-IN')}</span>
                   </div>
-                  <Button size="lg" className="w-full" asChild>
-                    <Link href="/checkout">Proceed to Checkout</Link>
+                  <Button size="lg" className="w-full" asChild={user ? true : false} disabled={!user} onClick={!user ? (e) => {e.preventDefault(); router.push('/auth/login?redirect=/checkout')} : undefined}>
+                    {user ? <Link href="/checkout">Proceed to Checkout</Link> : <span>Login to Checkout</span>}
                   </Button>
+                  {!user && <p className="text-xs text-muted-foreground text-center">You need to be logged in to proceed.</p>}
                   <p className="text-xs text-muted-foreground text-center">Secure payment processing.</p>
                 </CardContent>
               </Card>

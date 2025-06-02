@@ -9,16 +9,16 @@ export interface Course {
   originalPrice?: number;
   category: string;
   imageUrl: string;
-  duration?: string; 
+  duration?: string;
   level?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
   description: string;
   curriculum?: Module[];
   studentsEnrolled?: number;
-  lastUpdated?: string; 
+  lastUpdated?: string;
   language?: string;
   certificateAvailable?: boolean;
-  highlights?: string[]; 
-  sellerId?: string; 
+  highlights?: string[];
+  sellerId?: string;
   providerInfo?: { // Enhanced provider/seller information
     name: string;
     logoUrl?: string;
@@ -27,7 +27,8 @@ export interface Course {
   };
   shortDescription?: string;
   tags?: string[];
-  approvalStatus?: 'pending' | 'approved' | 'rejected'; 
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
+  moneyBackGuaranteeDays?: number; // Added for seller option
 }
 
 export interface Module {
@@ -41,8 +42,8 @@ export interface Lesson {
   id:string;
   title: string;
   type: 'video' | 'pdf' | 'quiz' | 'text' | 'assignment';
-  duration?: string; 
-  contentUrl?: string; 
+  duration?: string;
+  contentUrl?: string;
   textContent?: string;
   order: number;
   isFreePreview?: boolean;
@@ -56,10 +57,10 @@ export interface Review {
   userAvatar?: string;
   rating: number;
   comment: string;
-  createdAt: string; 
+  createdAt: string;
   helpfulVotes: number;
   unhelpfulVotes: number;
-  moderationStatus?: 'pending' | 'approved' | 'rejected'; 
+  moderationStatus?: 'pending' | 'approved' | 'rejected';
 }
 
 export type UserRole = 'student' | 'provider' | 'admin';
@@ -73,7 +74,7 @@ export interface User {
   bio?: string; // Added bio field
   createdAt?: string;
   verificationStatus?: 'pending' | 'verified' | 'rejected' | 'unverified'; // Added 'unverified'
-  documentsSubmitted?: boolean; 
+  documentsSubmitted?: boolean;
 }
 
 export interface CartItem {
@@ -88,7 +89,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  icon?: React.ElementType; 
+  icon?: React.ElementType;
   subcategories?: Category[];
 }
 

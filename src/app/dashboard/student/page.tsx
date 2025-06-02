@@ -5,16 +5,16 @@ import Link from "next/link";
 import { placeholderCourses, recentlyViewedCourses, placeholderCertificates, placeholderOrders } from "@/lib/placeholder-data";
 import Image from "next/image";
 import { Progress } from "@/components/ui/progress";
-import { BookOpen, CheckCircle, ShoppingCart, RefreshCw, ArrowRight, LayoutGrid, FileCheck2, Heart, Settings } from "lucide-react";
+import { BookOpen, CheckCircle, ShoppingCart, RefreshCw, ArrowRight, LayoutGrid, FileCheck2, Heart, Settings, PlayCircle } from "lucide-react";
 
 export default function StudentDashboardPage() {
-  const enrolledCourses = placeholderCourses.slice(0, 3).map(course => ({
+  const enrolledCourses = placeholderCourses.filter(c => c.id.includes('course1') || c.id.includes('course3') || c.id.includes('course5') && c.approvalStatus === 'approved').slice(0, 3).map(course => ({
     ...course,
     progress: Math.floor(Math.random() * 100), // mock progress
   }));
-  const completedCertificatesCount = placeholderCertificates.slice(0,2).length;
-  const ordersCount = placeholderOrders.length;
-  const wishlistCount = placeholderCourses.slice(5,8).length; // from wishlist page mock data
+  const completedCertificatesCount = placeholderCertificates.length; // Use actual length
+  const ordersCount = placeholderOrders.filter(o => o.userId === 'user1').length; // Filter for a specific student
+  const wishlistCount = placeholderCourses.filter(c => c.id.includes('course2') || c.id.includes('course4')).length; // Mock wishlist
 
 
   const overviewCards = [
@@ -27,20 +27,20 @@ export default function StudentDashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header Nav is now part of layout for student */}
-      <h1 className="text-3xl font-bold font-headline">Dashboard Overview</h1>
+      <h1 className="text-3xl font-bold font-headline">Welcome to Your Learning Hub!</h1>
+      <p className="text-muted-foreground">Here's a quick overview of your learning activities and progress.</p>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {overviewCards.map(card => (
-            <Card key={card.title} className="shadow-md hover:shadow-lg transition-shadow">
+            <Card key={card.title} className="shadow-md hover:shadow-lg transition-shadow border-l-4 border-primary">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
-                    <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                    <card.icon className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-base font-semibold">{card.title}</CardTitle>
+                    <card.icon className="h-6 w-6 text-primary" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{card.value}</div>
-                    <p className="text-xs text-muted-foreground mb-3">{card.description}</p>
-                    <Button variant="outline" size="xs" asChild className="w-full">
+                    <div className="text-3xl font-bold mb-1">{card.value}</div>
+                    <p className="text-xs text-muted-foreground mb-3 h-8">{card.description}</p> {/* Fixed height for description */}
+                    <Button variant="outline" size="sm" asChild className="w-full hover:bg-primary/10 hover:text-primary">
                         <Link href={card.href}>View {card.title.split(' ')[0]} <ArrowRight className="ml-1 h-3 w-3"/></Link>
                     </Button>
                 </CardContent>
@@ -58,59 +58,68 @@ export default function StudentDashboardPage() {
         {enrolledCourses.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {enrolledCourses.map(course => (
-                <Card key={course.id} className="shadow-sm hover:shadow-lg transition-shadow">
+                <Card key={course.id} className="shadow-sm hover:shadow-lg transition-shadow border flex flex-col">
                 <CardHeader className="p-0">
-                    <Image src={course.imageUrl} alt={course.title} width={400} height={225} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${course.category} online study`}/>
+                    <Image src={course.imageUrl} alt={course.title} width={400} height={225} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${course.category} online student learning`}/>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-4 flex flex-col flex-grow">
                     <h3 className="font-semibold text-lg line-clamp-2 mb-1">{course.title}</h3>
-                    <p className="text-xs text-muted-foreground mb-2">By {course.instructor}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                        <span>Progress</span>
-                        <span>{course.progress}%</span>
+                    <p className="text-xs text-muted-foreground mb-2">By {course.providerInfo?.name || course.instructor}</p>
+                    <div className="mt-auto">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                            <span>Progress</span>
+                            <span>{course.progress}%</span>
+                        </div>
+                        <Progress value={course.progress} className="h-2 mb-3" />
+                        <Button className="w-full" size="sm" asChild>
+                        <Link href={`/courses/${course.id}/learn`}><PlayCircle className="mr-2 h-4 w-4"/>Continue Learning</Link>
+                        </Button>
                     </div>
-                    <Progress value={course.progress} className="h-2 mb-3" />
-                    <Button className="w-full" size="sm" asChild>
-                    <Link href={`/courses/${course.id}/learn`}>Continue Learning</Link>
-                    </Button>
                 </CardContent>
                 </Card>
             ))}
             </div>
         ): (
-             <div className="text-center py-10 border-2 border-dashed rounded-lg">
-                <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">You have no active courses.</p>
-                <Button variant="link" asChild className="mt-2">
-                    <Link href="/courses">Explore Courses to Get Started</Link>
-                </Button>
-            </div>
+             <Card className="text-center py-10 border-2 border-dashed rounded-lg">
+                <CardContent className="flex flex-col items-center">
+                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                    <CardTitle className="text-xl mb-2">No Active Courses</CardTitle>
+                    <CardDescription className="mb-4">Enroll in courses to start your learning adventure.</CardDescription>
+                    <Button variant="default" asChild>
+                        <Link href="/courses">Explore Courses to Get Started</Link>
+                    </Button>
+                </CardContent>
+            </Card>
         )}
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold mb-4 font-headline">Recently Viewed</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {recentlyViewedCourses.map(course => (
-            <Card key={course.id} className="shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="p-0">
-                 <Image src={course.imageUrl} alt={course.title} width={300} height={168} className="rounded-t-md object-cover w-full aspect-video" data-ai-hint={`${course.category} course preview`}/>
-              </CardHeader>
-              <CardContent className="p-3">
-                <h3 className="font-medium text-sm line-clamp-2 mb-1">{course.title}</h3>
-                <p className="text-xs text-muted-foreground mb-2">{course.category}</p>
-                <Button variant="outline" size="xs" className="w-full" asChild>
-                    <Link href={`/courses/${course.id}`}>View Course</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        {recentlyViewedCourses.length === 0 && (
-             <div className="text-center py-10 border-2 border-dashed rounded-lg">
-                <RefreshCw className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No recently viewed courses.</p>
+        <h2 className="text-2xl font-semibold mb-4 font-headline">Recently Viewed Courses</h2>
+        {recentlyViewedCourses.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {recentlyViewedCourses.map(course => (
+                <Card key={course.id} className="shadow-sm hover:shadow-md transition-shadow border">
+                <CardHeader className="p-0">
+                    <Image src={course.imageUrl} alt={course.title} width={300} height={168} className="rounded-t-md object-cover w-full aspect-video" data-ai-hint={`${course.category} course interest`}/>
+                </CardHeader>
+                <CardContent className="p-3">
+                    <h3 className="font-medium text-sm line-clamp-2 mb-1">{course.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">{course.category}</p>
+                    <Button variant="outline" size="xs" className="w-full" asChild>
+                        <Link href={`/courses/${course.id}`}>View Course</Link>
+                    </Button>
+                </CardContent>
+                </Card>
+            ))}
             </div>
+        ) : (
+            <Card className="text-center py-10 border-2 border-dashed rounded-lg">
+                 <CardContent className="flex flex-col items-center">
+                    <RefreshCw className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                    <CardTitle className="text-xl mb-2">No Recently Viewed Courses</CardTitle>
+                    <CardDescription>Start browsing our extensive catalog!</CardDescription>
+                </CardContent>
+            </Card>
         )}
       </section>
     </div>
