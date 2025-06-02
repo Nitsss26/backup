@@ -17,6 +17,7 @@ import { CATEGORIES, DIFFICULTY_LEVELS, LANGUAGES } from '@/lib/constants';
 import { PlusCircle, Trash2, UploadCloud, Loader2, Info, Video, BookCopy, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // Added import
 import { cn } from '@/lib/utils';
 
 const lessonSchema = z.object({
@@ -69,7 +70,7 @@ export default function NewCoursePage() {
       highlights: ["", "", ""],
       curriculum: [{ title: "", order: 1, lessons: [{ title: "", type: "video", order: 1, isFreePreview: false, duration: "" }] }],
       price: 0,
-      moneyBackGuaranteeDays: 0, // Default to 0, seller can opt-in
+      moneyBackGuaranteeDays: 0, 
       freeTrialAvailable: false,
     },
   });
@@ -93,7 +94,7 @@ export default function NewCoursePage() {
       duration: 5000,
     });
     setIsLoading(false);
-    router.push('/dashboard/seller/courses'); // Navigate to manage courses page
+    router.push('/dashboard/seller/courses'); 
   };
   
   const watchCurriculum = watch("curriculum");
