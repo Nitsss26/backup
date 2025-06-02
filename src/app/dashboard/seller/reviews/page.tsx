@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, ThumbsDown, MessageSquareReply } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export default function SellerReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -56,7 +58,7 @@ export default function SellerReviewsPage() {
 
       {filteredReviews.length === 0 ? (
          <div className="text-center py-12 border-2 border-dashed rounded-lg">
-          <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <MessageSquareReply className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h2 className="text-xl font-semibold mb-2">No Reviews Yet</h2>
           <p className="text-muted-foreground mb-4">
             {selectedCourse === "all" ? "You haven't received any reviews for your courses." : "No reviews for this specific course yet."}
