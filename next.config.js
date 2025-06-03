@@ -21,7 +21,13 @@ const nextConfig = {
         hostname: 'img.freepik.com',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co', // ✅ Added this line
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   experimental: {

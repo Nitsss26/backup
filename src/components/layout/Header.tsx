@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store } from 'lucide-react';
+import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserProfileDropdown } from '@/components/UserProfileDropdown';
@@ -11,11 +11,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator, // Added
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import React from 'react';
 import { useAuth } from '@/components/AppProviders'; 
+import { Skeleton } from '@/components/ui/skeleton'; // Added
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -24,6 +26,8 @@ export function Header() {
   const navLinks = [
     { href: '/courses', label: 'Courses', icon: BookOpenText },
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
+    { href: '/about', label: 'About', icon: Store }, // Assuming Store icon is okay for About/Contact for now
+    { href: '/contact', label: 'Contact', icon: Store },
   ];
 
   // Dynamically add dashboard link based on user role
@@ -38,7 +42,8 @@ export function Header() {
     }
   }
   
-  const allNavLinks = dashboardLink ? [...navLinks, dashboardLink] : navLinks;
+  // Links for the mobile menu primarily
+  const allMobileNavLinks = dashboardLink ? [...navLinks, dashboardLink] : navLinks;
 
 
   return (
@@ -65,7 +70,7 @@ export function Header() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          {navLinks.map(link => ( // Use original navLinks here, dashboard link is handled by UserProfileDropdown
+          {navLinks.map(link => ( 
             <Link key={link.href} href={link.href} className="text-foreground/70 hover:text-foreground transition-colors">
               {link.label}
             </Link>
@@ -83,7 +88,24 @@ export function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
-          <UserProfileDropdown />
+          
+          {/* Desktop: Conditional Auth buttons vs UserProfileDropdown */}
+          <div className="hidden md:flex items-center gap-2">
+            {isLoading ? (
+              <Skeleton className="h-9 w-24 rounded-md" />
+            ) : !user ? (
+              <>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/auth/login">Login</Link>
+                </Button>
+                <Button variant="default" size="sm" asChild>
+                  <Link href="/auth/register">Sign Up</Link>
+                </Button>
+              </>
+            ) : (
+              <UserProfileDropdown />
+            )}
+          </div>
           
           {/* Mobile Menu Trigger */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -115,12 +137,33 @@ export function Header() {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {allNavLinks.map(link => ( // Use allNavLinks for mobile menu
+                  {allMobileNavLinks.map(link => ( 
                      <Link key={link.href} href={link.href} className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors text-base" onClick={() => setIsMobileMenuOpen(false)}>
                       <link.icon className="h-5 w-5" />
                       {link.label}
                     </Link>
                   ))}
+                  {/* Add Login/Sign Up if not logged in and not loading */}
+                  {!isLoading && !user && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <Link href="/auth/login" className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors text-base" onClick={() => setIsMobileMenuOpen(false)}>
+                        <LogIn className="h-5 w-5" />
+                        Login
+                      </Link>
+                      <Link href="/auth/register" className="flex items-center gap-2 text-foreground/80 hover:text-foreground transition-colors text-base" onClick={() => setIsMobileMenuOpen(false)}>
+                        <UserPlus className="h-5 w-5" />
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
+                   {isLoading && ( // Show skeleton in mobile menu if auth state is loading
+                    <>
+                      <DropdownMenuSeparator />
+                      <Skeleton className="h-8 w-full rounded-md" />
+                      <Skeleton className="h-8 w-full rounded-md" />
+                    </>
+                  )}
                 </nav>
               </div>
             </SheetContent>

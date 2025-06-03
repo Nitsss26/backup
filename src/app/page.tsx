@@ -7,7 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { placeholderCourses, popularCategories } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
-import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star } from 'lucide-react'; // Added Star
+import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star, GraduationCap } from 'lucide-react'; // Added Star
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -41,15 +41,22 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/20 py-16 md:py-24 lg:py-32">
+        <section className=" py-16 md:py-24 lg:py-32">
           <div className="container grid md:grid-cols-2 items-center gap-12">
-            <div className="space-y-6 text-center md:text-left">
-              <Badge variant="outline" className="border-primary text-primary font-medium py-1 px-3">India's Premier Course Marketplace</Badge>
+            <div className="space-y-7 text-center md:text-left mb-20">
+              {/* <Badge variant="outline" className="border-primary text-primary font-medium py-1 px-3">India's Premier Course Marketplace</Badge> */}
+              <Badge
+  variant="outline"
+  className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/30 transition-all duration-300"
+>
+  <GraduationCap className="h-5 w-5 text-primary" />
+  India's Premier Course Marketplace
+</Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tight text-foreground">
-                Unlock Your Potential with <span className="text-primary">{APP_NAME}</span>
+              Elevate Your Potential with <span className="text-primary">{APP_NAME}</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto md:mx-0">
-                Discover thousands of online courses from top educators and institutions. Learn, grow, and achieve your goals, all in one place.
+                Discover thousands of online courses from top educators and institutions. Learn, grow and achieve your goals, all in one place.
               </p>
               <div className="max-w-xl mx-auto md:mx-0">
                 <SearchBar />
@@ -65,7 +72,7 @@ export default function HomePage() {
             </div>
             <div className="hidden md:flex justify-center">
               <Image
-                src="https://placehold.co/600x500.png"
+                src="/Home.jpg"
                 alt="Diverse group of students learning online, engaging with digital content on various devices, with graphs and icons overlaying."
                 width={600}
                 height={500}
