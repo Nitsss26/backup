@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/StarRating';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Added Avatar imports
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Clock, Users, BarChart2, ShieldCheck } from 'lucide-react';
 
 interface CourseCardProps {
@@ -27,7 +27,7 @@ export function CourseCard({ course }: CourseCardProps) {
             alt={course.title}
             width={600}
             height={400}
-            className="object-cover w-full h-48 group-hover:opacity-90 transition-opacity" // Added group-hover for image
+            className="object-cover w-full h-48 group-hover:opacity-90 transition-opacity"
             data-ai-hint={imageHint}
           />
           {course.providerInfo?.verified && (
@@ -35,7 +35,7 @@ export function CourseCard({ course }: CourseCardProps) {
               <ShieldCheck className="h-3 w-3 mr-1" /> Verified
             </Badge>
           )}
-           {course.level && <Badge variant="secondary" className="absolute top-2 left-2 bg-background/80 text-foreground text-xs">{course.level}</Badge>}
+          {/* Level badge removed as per request */}
         </CardHeader>
       </Link>
       <CardContent className="p-4 flex-grow">

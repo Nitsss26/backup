@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { CourseCard } from '@/components/CourseCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { placeholderCourses, popularCategories } from '@/lib/placeholder-data';
+import { placeholderCourses, popularCategories, featuredCoursesForHomepage } from '@/lib/placeholder-data'; // Import curated featured courses
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
-import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star, GraduationCap } from 'lucide-react'; // Added Star
+import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star, GraduationCap } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,16 +16,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 const getTopCoursesInCategory = (categorySlug: string, count: number) => {
   return placeholderCourses
     .filter(course => course.category.toLowerCase().replace(/\s+/g, '-') === categorySlug && course.approvalStatus === 'approved')
-    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0)) // Primary sort: more students
-    .sort((a, b) => b.rating - a.rating) // Secondary sort: higher rating
+    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0)) 
+    .sort((a, b) => b.rating - a.rating) 
     .slice(0, count);
 };
-
-const featuredCoursesForHomepage = placeholderCourses
-    .filter(c => c.approvalStatus === 'approved')
-    .sort((a,b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0))
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0,4);
 
 export default function HomePage() {
   const topCategoriesForShowcase = [
@@ -39,19 +33,18 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen ">
       <Header />
-      <main className="flex-grow -mt-7">
+      <main className="flex-grow"> {/* Removed -mt-7 to allow header to sit normally */}
         {/* Hero Section */}
-        <section className=" py-16 md:py-24 lg:py-32 bg-secondary/30">
+        <section className="py-16 md:py-24 lg:py-32 bg-secondary/30">
           <div className="container grid md:grid-cols-2 items-center gap-12">
-            <div className="space-y-7 text-center md:text-left mb-20">
-              {/* <Badge variant="outline" className="border-primary text-primary font-medium py-1 px-3">India's Premier Course Marketplace</Badge> */}
+            <div className="space-y-7 text-center md:text-left"> {/* Removed mb-20 */}
               <Badge
-  variant="outline"
-  className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/30 transition-all duration-300"
->
-  <GraduationCap className="h-5 w-5 text-primary" />
-  All-In-One Course Marketplace
-</Badge>
+                variant="outline"
+                className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/10 transition-all duration-300"
+              >
+                <GraduationCap className="h-5 w-5 text-primary" />
+                All-In-One Course Marketplace
+              </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tight text-foreground">
               Elevate Your Potential with <span className="text-primary">{APP_NAME}</span>
               </h1>
@@ -72,7 +65,7 @@ export default function HomePage() {
             </div>
             <div className="hidden md:flex justify-center">
               <Image
-                src="/Home.jpg"
+                src="https://placehold.co/600x500.png"
                 alt="Diverse group of students learning online, engaging with digital content on various devices, with graphs and icons overlaying."
                 width={600}
                 height={500}
@@ -85,37 +78,7 @@ export default function HomePage() {
         </section>
 
         {/* Why Choose Us Section */}
-{/* <section className="py-16 md:py-20 bg-background">
-  <div className="container">
-    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-headline">Why Choose  <span className="text-primary">{APP_NAME}?</span></h2>
-    <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-3xl mx-auto text-lg">
-      We provide a seamless, enriching learning experience with features designed for your success and a marketplace trusted by sellers for its reach and tools.
-    </p>
-    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-      {[
-        { icon: BookOpen, title: "All Major Courses", description: "IIT-JEE, NEET, Government Exams, CS, and more in one place" },
-        { icon: Users, title: "Verified Instructors", description: "Learn from experienced and certified educators" },
-        { icon: Zap, title: "Transparent Reviews", description: "Honest reviews and ratings from real students" },
-        { icon: ShieldCheck, title: "Quality Assured", description: "All courses are reviewed and approved by our experts" },
-      ].map((feature, index) => (
-        <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card">
-          <CardHeader className="items-center pt-6">
-            <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
-               <feature.icon className="h-10 w-10 text-primary" />
-            </div>
-            <CardTitle className="text-xl font-semibold font-headline">{feature.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-6">
-            <p className="text-sm text-muted-foreground px-2">{feature.description}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-</section> */}
-
-        {/* Why Choose Us Section */}
-        {/* <section className="py-16 md:py-20 bg-background">
+        <section className="py-16 md:py-20 bg-background">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-headline">Why {APP_NAME}?</h2>
             <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-3xl mx-auto text-lg">
@@ -125,7 +88,7 @@ export default function HomePage() {
               {[
                 { icon: BookOpen, title: "Vast Course Selection", description: "From IIT-JEE & NEET to Business & Arts, find courses from diverse sellers." },
                 { icon: Users, title: "Expert Sellers & Institutions", description: "Learn from verified individual teachers, renowned institutions, and experienced educators." },
-                { icon: Zap, title: "Flexible Learning Paths", description: "Study at your own pace, on any device. Access materials anytime, anywhere." },
+                { icon: Zap, title: "Flexible Learning Paths", description: "Study at your own pace, on any device. Access materials anytime, anywhere (via seller's platform)." },
                 { icon: ShieldCheck, title: "Quality & Trust Guaranteed", description: "Access high-quality, curated content. Many courses offer certificates upon completion." },
               ].map((feature, index) => (
                 <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card">
@@ -142,10 +105,10 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-        </section> */}
+        </section>
 
         {/* How it Works Section */}
-        {/* <section className="py-16 md:py-20 bg-secondary/30">
+        <section className="py-16 md:py-20 bg-secondary/30">
             <div className="container">
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">How {APP_NAME} Works</h2>
                 <div className="grid md:grid-cols-2 gap-10 items-start">
@@ -187,7 +150,7 @@ export default function HomePage() {
                     </Card>
                 </div>
             </div>
-        </section> */}
+        </section>
 
         {/* Featured Courses Section */}
         <section className="py-16 md:py-20 bg-background">
@@ -195,7 +158,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row justify-between items-center mb-8 md:mb-10">
               <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4 sm:mb-0">Featured Courses</h2>
               <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary/5">
-                <Link href="/courses?sort=popularity">View All Featured <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/courses?sort=popularity">View All Popular Courses <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
             <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -244,7 +207,7 @@ export default function HomePage() {
         <section className="py-16 md:py-20 bg-background">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Explore All Categories</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6"> {/* Changed lg:grid-cols-6 to lg:grid-cols-4 for symmetry */}
               {CATEGORIES.map((category) => (
                 <Link key={category.id} href={`/courses?category=${category.slug}`}>
                   <div className="group bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-2 border-transparent transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1.5 duration-300">
@@ -263,9 +226,9 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">What Our Community Says</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { name: "Priya Sharma", course: "IIT-JEE Crash Course", imageHint: "indian student testimonial glasses learning", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." },
-                { name: "Rohan Mehta", course: "Business Analytics Pro", imageHint: "male professional testimonial formal analytics", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" },
-                { name: "Aisha Khan", course: "Advanced Python Programming", imageHint: "female coder testimonial hijab programming", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." }
+                { name: "Priya Sharma", course: "IIT-JEE Physics: Mechanics & Electrodynamics", imageHint: "indian student testimonial glasses learning", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." },
+                { name: "Rohan Mehta", course: "Full Stack Web Development with React & Node", imageHint: "male professional testimonial formal analytics", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" },
+                { name: "Aisha Khan", course: "NEET Biology: Complete Syllabus Coverage", imageHint: "female coder testimonial hijab programming", text: "Loved the Biology course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." }
               ].map((testimonial, i) => (
                 <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col">
                   <CardContent className="p-6 text-center flex flex-col flex-grow items-center">

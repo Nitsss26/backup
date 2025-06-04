@@ -34,18 +34,18 @@ body {
     --accent-foreground: 217 91% 25%; /* #1D4ED8 - Darker Blue for text on accent */
 
     /* Destructive/Warning/Info colors - using blues and grays */
-    --destructive: 220 15% 45%; /* Slate Gray (same as muted-foreground) for less aggressive "destructive" */
+    --destructive: 220 15% 55%; /* Slate Gray (adjusted for more contrast) */
     --destructive-foreground: 0 0% 100%; 
 
-    --warning: 217 70% 60%; /* Softer blue (info) for warnings */
-    --warning-foreground: 0 0% 100%;
+    --warning: 217 70% 70%; /* Lighter info blue for warnings */
+    --warning-foreground: 217 91% 25%; /* Darker Blue for text on warning */
 
     --info: 217 70% 60%; /* A softer blue for informational messages */
     --info-foreground: 0 0% 100%;
     
-    /* Success can remain green for universal understanding of "verified" or success states */
-    --success: 140 70% 45%; /* #22C55E - Green */
-    --success-foreground: 0 0% 100%;
+    /* Success - Classic Green */
+    --success: 145 63% 42%; /* #22C55E - Vibrant Green */
+    --success-foreground: 0 0% 100%; /* White text on green */
 
 
     --ring: 217 91% 60%; /* #3B82F6 - Standard Blue */
@@ -95,19 +95,18 @@ body {
     --accent-foreground: 222 47% 11%; /* Dark text on accent */
 
     /* Destructive/Warning/Info colors aligned with blue theme for dark mode */
-    --destructive: 215 25% 70%; /* Light Slate Gray (muted-foreground) for dark mode "destructive" */
+    --destructive: 215 25% 60%; /* Adjusted Light Slate Gray for dark mode "destructive" */
     --destructive-foreground: 222 47% 11%; 
 
-    --warning: 217 60% 65%; /* Softer blue (info) for warnings in dark */
+    --warning: 217 60% 70%; /* Softer blue (info) for warnings in dark */
     --warning-foreground: 222 47% 11%;
 
     --info: 217 60% 65%; /* A softer blue for informational messages in dark */
     --info-foreground: 222 47% 11%;
 
-    /* Success can remain green for universal understanding */
-    --success: 140 60% 50%; /* #34D399 - Slightly adjusted Green for dark */
-    --success-foreground: 222 47% 11%;
-
+    /* Success - Classic Green for dark mode */
+    --success: 145 63% 42%; /* #22C55E - Vibrant Green (same as light) */
+    --success-foreground: 0 0% 100%; /* White text on green */
 
     --ring: 217 91% 65%; /* #5D9CEC */
 
@@ -137,3 +136,4 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
