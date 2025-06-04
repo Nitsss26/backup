@@ -1,4 +1,6 @@
 
+"use client"; // Add this directive
+
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { CourseCard } from '@/components/CourseCard';
@@ -13,6 +15,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Filter, Search } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation'; // Import hooks
 
 interface CoursesPageProps {
   searchParams: {
@@ -31,7 +34,7 @@ interface CoursesPageProps {
 }
 
 function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['searchParams']): Course[] {
-  let filtered = [...courses.filter(c => c.approvalStatus === 'approved')]; // Only show approved courses
+  let filtered = [...courses.filter(c => c.approvalStatus === 'approved')];
 
   if (params.q) {
     const query = params.q.toLowerCase();
@@ -39,6 +42,7 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
       c.title.toLowerCase().includes(query) || 
       (c.description && c.description.toLowerCase().includes(query)) ||
       (c.instructor && c.instructor.toLowerCase().includes(query)) ||
+      (c.providerInfo?.name && c.providerInfo.name.toLowerCase().includes(query)) ||
       (c.category && c.category.toLowerCase().includes(query))
     );
   }
@@ -67,10 +71,10 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
   if (params.level) {
     const levels = Array.isArray(params.level) ? params.level : [params.level];
     if (levels.length > 0) {
-       filtered = filtered.filter(c => levels.includes(c.level!));
+       filtered = filtered.filter(c => c.level && levels.includes(c.level));
     }
   }
-
+  
   if (params.instructor) {
     const instructorTypes = Array.isArray(params.instructor) ? params.instructor : [params.instructor];
     if (instructorTypes.length > 0) {
@@ -87,7 +91,10 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
 
   if (params.certification === 'true') {
     filtered = filtered.filter(c => c.certificateAvailable);
+  } else if (params.certification === 'false') {
+    filtered = filtered.filter(c => !c.certificateAvailable);
   }
+
 
   if (params.sort) {
     switch (params.sort) {
@@ -103,7 +110,7 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
       case 'newest': 
         filtered.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
         break;
-      case 'popularity': // Assuming studentsEnrolled indicates popularity
+      case 'popularity':
         filtered.sort((a,b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0));
         break;
     }
@@ -113,7 +120,11 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
 }
 
 
-export default async function CoursesPage({ searchParams }: CoursesPageProps) {
+export default function CoursesPage({ searchParams }: CoursesPageProps) { // Remove async
+  const router = useRouter(); // Use hook
+  const pathname = usePathname(); // Use hook
+  const currentSearchParams = useNextSearchParams(); // Use hook to get current search params for constructing new URL
+
   const page = parseInt(searchParams.page || '1', 10);
   
   const filteredAndSortedCourses = applyFiltersAndSort(placeholderCourses, searchParams);
@@ -151,7 +162,7 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
              'All Courses'}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Showing {paginatedCourses.length} of {totalCourses} courses.
+            Showing {paginatedCourses.length > 0 ? ((page - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(page * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
           </p>
         </div>
 
@@ -180,11 +191,17 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
               <p className="text-sm text-muted-foreground">
                 {totalCourses} courses found
               </p>
-              <Select defaultValue={searchParams.sort || 'relevance'} onValueChange={(value) => {
-                 const params = new URLSearchParams(searchParams.toString());
-                 if (value === 'relevance') params.delete('sort');
-                 else params.set('sort', value);
-                 router.push(`${pathname}?${params.toString()}`);
+              <Select 
+                defaultValue={searchParams.sort || 'relevance'} 
+                onValueChange={(value) => {
+                  const params = new URLSearchParams(currentSearchParams.toString()); // Use current search params from hook
+                  if (value === 'relevance') {
+                    params.delete('sort');
+                  } else {
+                    params.set('sort', value);
+                  }
+                  params.set('page', '1'); // Reset to page 1 on sort change
+                  router.push(`${pathname}?${params.toString()}`);
               }}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by" />
@@ -227,4 +244,3 @@ export default async function CoursesPage({ searchParams }: CoursesPageProps) {
     </div>
   );
 }
-
