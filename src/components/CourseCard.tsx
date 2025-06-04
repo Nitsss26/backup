@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/StarRating';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'; // Added Avatar imports
 import { Clock, Users, BarChart2, ShieldCheck } from 'lucide-react';
 
 interface CourseCardProps {
@@ -15,6 +16,7 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   const categorySlug = course.category.toLowerCase().replace(/\s+/g, '-');
   const imageHint = `${categorySlug} course content`;
+  const providerNameInitial = course.providerInfo?.name ? course.providerInfo.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : "P";
 
   return (
     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
@@ -29,7 +31,7 @@ export function CourseCard({ course }: CourseCardProps) {
             data-ai-hint={imageHint}
           />
           {course.providerInfo?.verified && (
-            <Badge variant="default" className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white text-xs px-1.5 py-0.5 border-none">
+            <Badge variant="success" className="absolute top-2 right-2 text-xs px-1.5 py-0.5 border-none">
               <ShieldCheck className="h-3 w-3 mr-1" /> Verified
             </Badge>
           )}
@@ -42,8 +44,16 @@ export function CourseCard({ course }: CourseCardProps) {
           <CardTitle className="text-lg font-semibold leading-tight mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
             {course.title}
           </CardTitle>
-          <p className="text-xs text-muted-foreground mb-2">By {course.providerInfo?.name || course.instructor}</p>
         </Link>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+          {course.providerInfo?.logoUrl && (
+            <Avatar className="h-5 w-5 border">
+              <AvatarImage src={course.providerInfo.logoUrl} alt={course.providerInfo.name} data-ai-hint="seller logo small course card"/>
+              <AvatarFallback className="text-xs">{providerNameInitial}</AvatarFallback>
+            </Avatar>
+          )}
+          <span>By {course.providerInfo?.name || course.instructor}</span>
+        </div>
         <div className="flex items-center mb-3">
           <StarRating rating={course.rating} size={16} />
           <span className="ml-2 text-xs text-muted-foreground">({course.reviewsCount} reviews)</span>
