@@ -37,11 +37,11 @@ export default function HomePage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen ">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow -mt-7">
         {/* Hero Section */}
-        <section className=" py-16 md:py-24 lg:py-32">
+        <section className=" py-16 md:py-24 lg:py-32 bg-secondary/30">
           <div className="container grid md:grid-cols-2 items-center gap-12">
             <div className="space-y-7 text-center md:text-left mb-20">
               {/* <Badge variant="outline" className="border-primary text-primary font-medium py-1 px-3">India's Premier Course Marketplace</Badge> */}
@@ -50,13 +50,13 @@ export default function HomePage() {
   className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/30 transition-all duration-300"
 >
   <GraduationCap className="h-5 w-5 text-primary" />
-  India's Premier Course Marketplace
+  All-In-One Course Marketplace
 </Badge>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tight text-foreground">
               Elevate Your Potential with <span className="text-primary">{APP_NAME}</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto md:mx-0">
-                Discover thousands of online courses from top educators and institutions. Learn, grow and achieve your goals, all in one place.
+                Compare and enroll in the best online courses from top educators and institutions. We bring top courses from across the web to one place.
               </p>
               <div className="max-w-xl mx-auto md:mx-0">
                 <SearchBar />
@@ -85,7 +85,37 @@ export default function HomePage() {
         </section>
 
         {/* Why Choose Us Section */}
-        <section className="py-16 md:py-20 bg-background">
+{/* <section className="py-16 md:py-20 bg-background">
+  <div className="container">
+    <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-headline">Why Choose  <span className="text-primary">{APP_NAME}?</span></h2>
+    <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-3xl mx-auto text-lg">
+      We provide a seamless, enriching learning experience with features designed for your success and a marketplace trusted by sellers for its reach and tools.
+    </p>
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {[
+        { icon: BookOpen, title: "All Major Courses", description: "IIT-JEE, NEET, Government Exams, CS, and more in one place" },
+        { icon: Users, title: "Verified Instructors", description: "Learn from experienced and certified educators" },
+        { icon: Zap, title: "Transparent Reviews", description: "Honest reviews and ratings from real students" },
+        { icon: ShieldCheck, title: "Quality Assured", description: "All courses are reviewed and approved by our experts" },
+      ].map((feature, index) => (
+        <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card">
+          <CardHeader className="items-center pt-6">
+            <div className="p-4 bg-primary/10 rounded-full mb-4 inline-block">
+               <feature.icon className="h-10 w-10 text-primary" />
+            </div>
+            <CardTitle className="text-xl font-semibold font-headline">{feature.title}</CardTitle>
+          </CardHeader>
+          <CardContent className="pb-6">
+            <p className="text-sm text-muted-foreground px-2">{feature.description}</p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+</section> */}
+
+        {/* Why Choose Us Section */}
+        {/* <section className="py-16 md:py-20 bg-background">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-headline">Why {APP_NAME}?</h2>
             <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-3xl mx-auto text-lg">
@@ -112,10 +142,10 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* How it Works Section */}
-        <section className="py-16 md:py-20 bg-secondary/30">
+        {/* <section className="py-16 md:py-20 bg-secondary/30">
             <div className="container">
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">How {APP_NAME} Works</h2>
                 <div className="grid md:grid-cols-2 gap-10 items-start">
@@ -157,7 +187,7 @@ export default function HomePage() {
                     </Card>
                 </div>
             </div>
-        </section>
+        </section> */}
 
         {/* Featured Courses Section */}
         <section className="py-16 md:py-20 bg-background">

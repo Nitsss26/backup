@@ -47,7 +47,7 @@ export function Header() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-secondary/30 backdrop-blur supports-[backdrop-filter]:bg-secondary/30">
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <GraduationCap className="h-7 w-7 text-primary" />
@@ -78,11 +78,11 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:block relative w-full max-w-xs">
-            <Input type="search" placeholder="Search courses..." className="pl-10" />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="hidden sm:block relative w-full max-w-xs mr-3">
+            <Input type="search" placeholder="Search courses..." className="pl-10 border border-blue-400 " />
+            <Search className="absolute left-3 color-blue top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           </div>
-          <Button variant="ghost" size="icon" asChild>
+          <Button className="mr-3" variant="ghost" size="icon" asChild>
             <Link href="/cart">
               <ShoppingCart className="h-5 w-5" />
               <span className="sr-only">Shopping Cart</span>
@@ -90,12 +90,12 @@ export function Header() {
           </Button>
           
           {/* Desktop: Conditional Auth buttons vs UserProfileDropdown */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-3 mr-5">
             {isLoading ? (
               <Skeleton className="h-9 w-24 rounded-md" />
             ) : !user ? (
               <>
-                <Button variant="outline" size="sm" asChild>
+                <Button className='' variant="outline" size="sm" asChild>
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button variant="default" size="sm" asChild>

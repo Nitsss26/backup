@@ -15,6 +15,7 @@ import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, Che
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
 import { Badge } from '@/components/ui/badge';
+import { APP_NAME } from '@/lib/constants'; // Added import
 
 interface CourseDetailPageProps {
   params: { id: string };
@@ -101,7 +102,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     { q: "Is a certificate provided upon completion?", a: course.certificateAvailable ? `Yes, upon successful completion of all modules and assignments, you will receive a shareable certificate for "${course.title}".` : "Currently, this course does not offer a certificate. However, the skills and knowledge gained are highly valuable." },
     { q: "How long will I have access to the course materials?", a: "Access to course materials (videos, PDFs, etc.) is determined by the seller. Typically, sellers grant lifetime access, but please check the specific seller's terms or contact them. EdTechCart is a marketplace and does not host the course content directly." },
     { q: "How do I access the course after purchase?", a: `After you purchase the course on ${APP_NAME}, the seller will provide you with access instructions. This is usually via email and may include links to their learning platform, access codes, or other methods. Please check your email (including spam/junk folders) from the seller.` },
-    { q: "What if I'm not satisfied with the course?", a: course.moneyBackGuaranteeDays ? `This course offers a ${course.moneyBackGuaranteeDays}-day money-back guarantee from the seller. If you're not satisfied, you can request a refund within ${course.moneyBackGuaranteeDays} days of purchase by contacting the seller or through our platform support, subject to our <a href="/terms#refunds" class="text-primary hover:underline">Refund Policy</a>.` : "Refund policies may vary by seller. Please check the seller's specific terms or contact them for details. We encourage sellers to offer fair refund options."}
+    { q: "What if I'm not satisfied with the course?", a: course.moneyBackGuaranteeDays && course.moneyBackGuaranteeDays > 0 ? `This course offers a ${course.moneyBackGuaranteeDays}-day money-back guarantee from the seller. If you're not satisfied, you can request a refund within ${course.moneyBackGuaranteeDays} days of purchase by contacting the seller or through our platform support, subject to our <a href="/terms#refunds" class="text-primary hover:underline">Refund Policy</a>.` : "Refund policies may vary by seller. Please check the seller's specific terms or contact them for details. We encourage sellers to offer fair refund options."}
   ];
 
   return (
