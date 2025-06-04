@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CourseCard } from '@/components/CourseCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data'; // Updated import
+import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data'; // featuredCoursesForHomepage is imported here
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
 import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star, GraduationCap } from 'lucide-react';
@@ -12,17 +12,16 @@ import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-
 export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen ">
       <Header />
-      <main className="flex-grow"> {/* Removed -mt-7 */}
+      <main className="flex-grow">
         {/* Hero Section */}
         <section className=" py-16 md:py-24 lg:py-32 bg-secondary/30">
           <div className="container grid md:grid-cols-2 items-center gap-12">
-            <div className="space-y-7 text-center md:text-left"> {/* Removed mb-20 */}
+            <div className="space-y-7 text-center md:text-left">
               <Badge
                 variant="outline"
                 className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/30 transition-all duration-300"
@@ -210,13 +209,13 @@ export default function HomePage() {
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">What Our Community Says</h2>
            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> 
   {[ 
-    { name: "Priya Sharma", course: "IIT-JEE Crash Course", imageHint: "indian student female happy", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." }, 
-    { name: "Rohan Mehta", course: "Business Analytics Pro", imageHint: "indian student male professional", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" }, 
-    { name: "Aisha Khan", course: "Advanced Python Programming", imageHint: "indian student female coder", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." } 
+    { name: "Priya Sharma", course: "IIT-JEE Crash Course", image: "https://plus.unsplash.com/premium_photo-1682089810582-f7b200217b67?w=100&h=100&fit=crop&crop=face&auto=format", imageHint: "indian student female happy", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." }, 
+    { name: "Rohan Mehta", course: "Business Analytics Pro", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face", imageHint: "indian student male professional", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" }, 
+    { name: "Aisha Khan", course: "Advanced Python Programming", image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&h=100&fit=crop&crop=face", imageHint: "indian student female coder", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." } 
   ].map((testimonial, i) => ( 
     <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col"> 
       <CardContent className="p-6 text-center flex flex-col flex-grow items-center"> 
-      <Image src={`https://placehold.co/100x100.png`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover" data-ai-hint={testimonial.imageHint}/> 
+      <Image src={testimonial.image} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover" data-ai-hint={testimonial.imageHint}/> 
       <div className="flex mb-3"> 
         {[...Array(5)].map((_, idx) => <Star key={idx} className="h-5 w-5 text-yellow-400" fill="currentColor"/>)} 
       </div> 
@@ -234,4 +233,3 @@ export default function HomePage() {
     </div>
   );
 }
-
