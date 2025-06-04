@@ -1,6 +1,6 @@
 
 import type { Category, PaymentOption } from './types';
-import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, UploadCloud, Wallet } from 'lucide-react'; // Changed Store to UploadCloud for sell-courses
+import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, UploadCloud, Wallet, Camera, Music, Sprout, PenTool } from 'lucide-react';
 
 export const APP_NAME = "EdTechCart";
 export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
@@ -14,9 +14,13 @@ export const CATEGORIES: Category[] = [
   { id: 'arts', name: 'Arts & Humanities', slug: 'arts-humanities', icon: Palette },
   { id: 'lang', name: 'Language Learning', slug: 'language-learning', icon: LanguagesIcon },
   { id: 'personal-dev', name: 'Personal Development', slug: 'personal-development', icon: PersonStanding },
+  { id: 'photo-video', name: 'Photography & Video', slug: 'photography-video', icon: Camera },
+  { id: 'music-arts', name: 'Music & Performing Arts', slug: 'music-performing-arts', icon: Music },
+  { id: 'health-fitness', name: 'Health & Fitness', slug: 'health-fitness', icon: Sprout },
+  { id: 'design-illustration', name: 'Design & Illustration', slug: 'design-illustration', icon: PenTool },
 ];
 
-export const INSTRUCTOR_TYPES = [ // Kept for filter, but "Seller" is the primary term now
+export const INSTRUCTOR_TYPES = [ 
   'Individual Teacher',
   'Verified Educator',
   'Institute',
@@ -53,7 +57,7 @@ export const SORT_OPTIONS = [
 ];
 
 export const PAYMENT_OPTIONS: PaymentOption[] = [
-    { id: 'upi', name: 'UPI / QR Code', icon: Wallet }, // Using Store as a generic icon for UPI
+    { id: 'upi', name: 'UPI / QR Code', icon: Wallet }, 
     { id: 'card', name: 'Credit/Debit Card', icon: CreditCard },
     { id: 'netbanking', name: 'Net Banking', icon: Banknote },
     { id: 'wallet', name: 'Digital Wallet (PayTM, PhonePe etc.)', icon: Wallet },
@@ -74,7 +78,7 @@ export const FOOTER_LINKS = {
   community: [
     { name: 'Blog', href: '/blog' },
     { name: 'Forums', href: '/forums' },
-    { name: 'Sell on EdTechCart', href: '/sell-courses' }, // Updated link
+    { name: 'Sell on EdTechCart', href: '/sell-courses' }, 
   ]
 };
 

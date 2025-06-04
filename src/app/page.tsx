@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CourseCard } from '@/components/CourseCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { placeholderCourses, popularCategories, featuredCoursesForHomepage } from '@/lib/placeholder-data'; // Import curated featured courses
+import { placeholderCourses, popularCategories, featuredCoursesForHomepage } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
 import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star, GraduationCap } from 'lucide-react';
@@ -33,11 +33,11 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen ">
       <Header />
-      <main className="flex-grow"> {/* Removed -mt-7 to allow header to sit normally */}
+      <main className="flex-grow">
         {/* Hero Section */}
         <section className="py-16 md:py-24 lg:py-32 bg-secondary/30">
           <div className="container grid md:grid-cols-2 items-center gap-12">
-            <div className="space-y-7 text-center md:text-left"> {/* Removed mb-20 */}
+            <div className="space-y-7 text-center md:text-left">
               <Badge
                 variant="outline"
                 className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/10 transition-all duration-300"
@@ -207,7 +207,7 @@ export default function HomePage() {
         <section className="py-16 md:py-20 bg-background">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Explore All Categories</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6"> {/* Changed lg:grid-cols-6 to lg:grid-cols-4 for symmetry */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
               {CATEGORIES.map((category) => (
                 <Link key={category.id} href={`/courses?category=${category.slug}`}>
                   <div className="group bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-2 border-transparent transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1.5 duration-300">
