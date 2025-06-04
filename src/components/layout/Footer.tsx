@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="bg-muted/50 border-t">
       <div className="container py-12 px-4 md:px-6">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <div>
+          <div className='ml-5'>
             <Link href="/" className="flex items-center gap-2 mb-4">
               <GraduationCap className="h-8 w-8 text-primary" />
               <span className="font-bold text-2xl text-primary">{APP_NAME}</span>
@@ -25,7 +25,7 @@ export function Footer() {
             </div>
           </div>
           
-          <div>
+          <div className='ml-20'>
             <h3 className="text-lg font-semibold mb-3">Company</h3>
             <ul className="space-y-2 text-sm">
               {FOOTER_LINKS.company.map(link => (
@@ -38,7 +38,7 @@ export function Footer() {
             </ul>
           </div>
 
-          <div>
+          <div className='ml-5'>
             <h3 className="text-lg font-semibold mb-3">For Sellers</h3>
             <ul className="space-y-2 text-sm">
                  <li>
@@ -59,7 +59,7 @@ export function Footer() {
             </ul>
           </div>
           
-          <div>
+          <div className='ml-5'>
             <h3 className="text-lg font-semibold mb-3">Support</h3>
             <ul className="space-y-2 text-sm">
               {FOOTER_LINKS.support.map(link => (

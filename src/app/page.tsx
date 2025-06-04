@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CourseCard } from '@/components/CourseCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { placeholderCourses, popularCategories, featuredCoursesForHomepage } from '@/lib/placeholder-data';
+import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data'; // Updated import
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
 import { ArrowRight, BookOpen, CheckCircle, Users, Zap, ShieldCheck, TrendingUp, Award, Lightbulb, BarChart3, Store, UploadCloud, SearchIcon, Star, GraduationCap } from 'lucide-react';
@@ -13,34 +13,19 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 
-const getTopCoursesInCategory = (categorySlug: string, count: number) => {
-  return placeholderCourses
-    .filter(course => course.category.toLowerCase().replace(/\s+/g, '-') === categorySlug && course.approvalStatus === 'approved')
-    .sort((a, b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0)) 
-    .sort((a, b) => b.rating - a.rating) 
-    .slice(0, count);
-};
-
 export default function HomePage() {
-  const topCategoriesForShowcase = [
-    CATEGORIES.find(c => c.slug === 'computer-science'),
-    CATEGORIES.find(c => c.slug === 'business-finance'),
-    CATEGORIES.find(c => c.slug === 'iit-jee'),
-    CATEGORIES.find(c => c.slug === 'personal-development')
-  ].filter(Boolean) as typeof CATEGORIES;
-
 
   return (
     <div className="flex flex-col min-h-screen ">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow"> {/* Removed -mt-7 */}
         {/* Hero Section */}
-        <section className="py-16 md:py-24 lg:py-32 bg-secondary/30">
+        <section className=" py-16 md:py-24 lg:py-32 bg-secondary/30">
           <div className="container grid md:grid-cols-2 items-center gap-12">
-            <div className="space-y-7 text-center md:text-left">
+            <div className="space-y-7 text-center md:text-left"> {/* Removed mb-20 */}
               <Badge
                 variant="outline"
-                className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/10 transition-all duration-300"
+                className="inline-flex items-center gap-2 border-2 border-primary text-primary font-headline font-semibold text-base py-2 px-4 rounded-full shadow-md hover:shadow-lg hover:bg-primary/30 transition-all duration-300"
               >
                 <GraduationCap className="h-5 w-5 text-primary" />
                 All-In-One Course Marketplace
@@ -88,7 +73,7 @@ export default function HomePage() {
               {[
                 { icon: BookOpen, title: "Vast Course Selection", description: "From IIT-JEE & NEET to Business & Arts, find courses from diverse sellers." },
                 { icon: Users, title: "Expert Sellers & Institutions", description: "Learn from verified individual teachers, renowned institutions, and experienced educators." },
-                { icon: Zap, title: "Flexible Learning Paths", description: "Study at your own pace, on any device. Access materials anytime, anywhere (via seller's platform)." },
+                { icon: Zap, title: "Flexible Learning Paths", description: "Study at your own pace, on any device. Access materials anytime, anywhere." },
                 { icon: ShieldCheck, title: "Quality & Trust Guaranteed", description: "Access high-quality, curated content. Many courses offer certificates upon completion." },
               ].map((feature, index) => (
                 <Card key={index} className="text-center hover:shadow-xl transition-shadow duration-300 border-t-4 border-primary bg-card">
@@ -158,7 +143,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row justify-between items-center mb-8 md:mb-10">
               <h2 className="text-3xl md:text-4xl font-bold font-headline mb-4 sm:mb-0">Featured Courses</h2>
               <Button variant="outline" asChild className="border-primary text-primary hover:bg-primary/5">
-                <Link href="/courses?sort=popularity">View All Popular Courses <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                <Link href="/courses?sort=popularity">View All Featured <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
             </div>
             <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -173,29 +158,28 @@ export default function HomePage() {
         <section className="py-16 md:py-20 bg-secondary/30">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">Top Courses by Category</h2>
-            {topCategoriesForShowcase.map(category => {
-              if (!category) return null;
-              const courses = getTopCoursesInCategory(category.slug, 4);
+            {topCategoryShowcaseData.map(categoryData => {
+              const categoryDetails = CATEGORIES.find(c => c.slug === categoryData.categorySlug);
               return (
-              <div key={category.id} className="mb-12 last:mb-0">
+              <div key={categoryData.categorySlug} className="mb-12 last:mb-0">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 md:mb-8">
                   <h3 className="text-2xl font-semibold flex items-center mb-2 sm:mb-0">
-                    {category.icon && <category.icon className="h-8 w-8 text-primary mr-3" />} {category.name}
+                    {categoryDetails?.icon && <categoryDetails.icon className="h-8 w-8 text-primary mr-3" />} {categoryData.categoryName}
                   </h3>
                   <Button variant="link" asChild className="text-primary self-start sm:self-center hover:text-primary/80">
-                    <Link href={`/courses?category=${category.slug}`}>View all in {category.name} <ArrowRight className="ml-1 h-4 w-4" /></Link>
+                    <Link href={`/courses?category=${categoryData.categorySlug}`}>View all in {categoryData.categoryName} <ArrowRight className="ml-1 h-4 w-4" /></Link>
                   </Button>
                 </div>
-                {courses.length > 0 ? (
+                {categoryData.courses.length > 0 ? (
                   <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {courses.map(course => (
+                    {categoryData.courses.map(course => (
                       <CourseCard key={course.id} course={course} />
                     ))}
                   </div>
                 ) : (
                     <div className="col-span-full text-center text-muted-foreground py-8 flex flex-col items-center bg-card rounded-lg shadow">
                         <Image src="https://placehold.co/300x200.png" alt="Empty category illustration" width={300} height={200} className="rounded-md mb-4" data-ai-hint="empty category education"/>
-                        <p>More courses in {category.name} coming soon!</p>
+                        <p>More courses in {categoryData.categoryName} coming soon!</p>
                     </div>
                 )}
               </div>
@@ -210,7 +194,7 @@ export default function HomePage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
               {CATEGORIES.map((category) => (
                 <Link key={category.id} href={`/courses?category=${category.slug}`}>
-                  <div className="group bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-2 border-transparent transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1.5 duration-300">
+                  <div className="group bg-card p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl hover:border-primary border-2 border-sky-200 transition-all text-center aspect-square flex flex-col justify-center items-center transform hover:-translate-y-1.5 duration-300">
                     {category.icon && <category.icon className="h-10 w-10 md:h-12 md:w-12 text-primary mb-3 group-hover:scale-110 transition-transform" />}
                     <h3 className="text-sm md:text-base font-semibold group-hover:text-primary transition-colors line-clamp-2">{category.name}</h3>
                   </div>
@@ -224,25 +208,25 @@ export default function HomePage() {
         <section className="py-16 md:py-20 bg-secondary/30">
           <div className="container">
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 md:mb-16 font-headline">What Our Community Says</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                { name: "Priya Sharma", course: "IIT-JEE Physics: Mechanics & Electrodynamics", imageHint: "indian student testimonial glasses learning", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." },
-                { name: "Rohan Mehta", course: "Full Stack Web Development with React & Node", imageHint: "male professional testimonial formal analytics", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" },
-                { name: "Aisha Khan", course: "NEET Biology: Complete Syllabus Coverage", imageHint: "female coder testimonial hijab programming", text: "Loved the Biology course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." }
-              ].map((testimonial, i) => (
-                <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col">
-                  <CardContent className="p-6 text-center flex flex-col flex-grow items-center">
-                  <Image src={`https://placehold.co/100x100.png`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover" data-ai-hint={testimonial.imageHint} />
-                  <div className="flex mb-3">
-                    {[...Array(5)].map((_, idx) => <Star key={idx} className="h-5 w-5 text-yellow-400" fill="currentColor"/>)}
-                  </div>
-                  <blockquote className="text-muted-foreground italic mb-4 text-sm leading-relaxed flex-grow">"{testimonial.text}"</blockquote>
-                  <p className="font-semibold mt-auto text-foreground">{testimonial.name}</p>
-                  <p className="text-xs text-primary">{testimonial.course}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"> 
+  {[ 
+    { name: "Priya Sharma", course: "IIT-JEE Crash Course", imageHint: "indian student female happy", text: "The IIT-JEE course was intense but so well-structured! The mock tests were a game-changer. EdTechCart made finding it easy." }, 
+    { name: "Rohan Mehta", course: "Business Analytics Pro", imageHint: "indian student male professional", text: "Upgraded my analytics skills significantly. The seller provided excellent support through the platform. User-friendly!" }, 
+    { name: "Aisha Khan", course: "Advanced Python Programming", imageHint: "indian student female coder", text: "Loved the Python course! The content was up-to-date, and I could learn at my own pace. Highly recommend this marketplace." } 
+  ].map((testimonial, i) => ( 
+    <Card key={i} className="shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card flex flex-col"> 
+      <CardContent className="p-6 text-center flex flex-col flex-grow items-center"> 
+      <Image src={`https://placehold.co/100x100.png`} alt={testimonial.name} width={100} height={100} className="rounded-full mx-auto mb-5 border-4 border-primary/50 p-1 object-cover" data-ai-hint={testimonial.imageHint}/> 
+      <div className="flex mb-3"> 
+        {[...Array(5)].map((_, idx) => <Star key={idx} className="h-5 w-5 text-yellow-400" fill="currentColor"/>)} 
+      </div> 
+      <blockquote className="text-muted-foreground italic mb-4 text-sm leading-relaxed flex-grow">"{testimonial.text}"</blockquote> 
+      <p className="font-semibold mt-auto text-foreground">{testimonial.name}</p> 
+      <p className="text-xs text-primary">{testimonial.course}</p> 
+      </CardContent> 
+    </Card> 
+  ))} 
+</div>
           </div>
         </section>
       </main>
@@ -250,3 +234,4 @@ export default function HomePage() {
     </div>
   );
 }
+
