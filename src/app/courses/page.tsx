@@ -1,5 +1,5 @@
 
-"use client"; // Add this directive
+"use client"; 
 
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -15,25 +15,24 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Filter, Search } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation'; // Import hooks
+import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation';
 
-interface CoursesPageProps {
-  searchParams: {
-    q?: string;
-    category?: string | string[];
-    minPrice?: string;
-    maxPrice?: string;
-    rating?: string | string[];
-    level?: string | string[];
-    instructor?: string | string[]; // This will be instructor type
-    language?: string | string[];
-    certification?: string;
-    sort?: string;
-    page?: string;
-  };
+// Define a type for the parsed search params object
+interface ParsedSearchParams {
+  q?: string;
+  category?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  rating?: number[];
+  level?: string[];
+  instructor?: string[];
+  language?: string[];
+  certification?: boolean;
+  sort?: string;
+  page?: number;
 }
 
-function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['searchParams']): Course[] {
+function applyFiltersAndSort(courses: Course[], params: ParsedSearchParams): Course[] {
   let filtered = [...courses.filter(c => c.approvalStatus === 'approved')];
 
   if (params.q) {
@@ -47,52 +46,35 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
     );
   }
 
-  if (params.category) {
-    const categories = Array.isArray(params.category) ? params.category : [params.category];
-    if (categories.length > 0) {
-       filtered = filtered.filter(c => categories.includes(c.category.toLowerCase().replace(/\s+/g, '-')));
-    }
+  if (params.category && params.category.length > 0) {
+    filtered = filtered.filter(c => params.category!.includes(c.category.toLowerCase().replace(/\s+/g, '-')));
   }
   
   if (params.minPrice) {
-    filtered = filtered.filter(c => c.price >= parseFloat(params.minPrice!));
+    filtered = filtered.filter(c => c.price >= params.minPrice!);
   }
   if (params.maxPrice) {
-    filtered = filtered.filter(c => c.price <= parseFloat(params.maxPrice!));
+    filtered = filtered.filter(c => c.price <= params.maxPrice!);
   }
 
-  if (params.rating) {
-    const ratings = (Array.isArray(params.rating) ? params.rating : [params.rating]).map(Number);
-    if (ratings.length > 0) {
-      filtered = filtered.filter(c => ratings.some(r => c.rating >= r));
-    }
+  if (params.rating && params.rating.length > 0) {
+    filtered = filtered.filter(c => params.rating!.some(r => c.rating >= r));
   }
   
-  if (params.level) {
-    const levels = Array.isArray(params.level) ? params.level : [params.level];
-    if (levels.length > 0) {
-       filtered = filtered.filter(c => c.level && levels.includes(c.level));
-    }
+  if (params.level && params.level.length > 0) {
+     filtered = filtered.filter(c => c.level && params.level!.includes(c.level));
   }
   
-  if (params.instructor) {
-    const instructorTypes = Array.isArray(params.instructor) ? params.instructor : [params.instructor];
-    if (instructorTypes.length > 0) {
-      filtered = filtered.filter(c => c.providerInfo?.type && instructorTypes.includes(c.providerInfo.type));
-    }
+  if (params.instructor && params.instructor.length > 0) {
+    filtered = filtered.filter(c => c.providerInfo?.type && params.instructor!.includes(c.providerInfo.type));
   }
   
-  if (params.language) {
-    const languages = Array.isArray(params.language) ? params.language : [params.language];
-    if (languages.length > 0) {
-       filtered = filtered.filter(c => c.language && languages.includes(c.language));
-    }
+  if (params.language && params.language.length > 0) {
+     filtered = filtered.filter(c => c.language && params.language!.includes(c.language));
   }
 
-  if (params.certification === 'true') {
+  if (params.certification === true) {
     filtered = filtered.filter(c => c.certificateAvailable);
-  } else if (params.certification === 'false') {
-    filtered = filtered.filter(c => !c.certificateAvailable);
   }
 
 
@@ -120,14 +102,29 @@ function applyFiltersAndSort(courses: Course[], params: CoursesPageProps['search
 }
 
 
-export default function CoursesPage({ searchParams }: CoursesPageProps) { // Remove async
-  const router = useRouter(); // Use hook
-  const pathname = usePathname(); // Use hook
-  const currentSearchParams = useNextSearchParams(); // Use hook to get current search params for constructing new URL
+export default function CoursesPage() {
+  const router = useRouter(); 
+  const pathname = usePathname(); 
+  const currentSearchParams = useNextSearchParams(); 
 
-  const page = parseInt(searchParams.page || '1', 10);
+  // Construct ParsedSearchParams object from currentSearchParams
+  const parsedParams: ParsedSearchParams = {
+    q: currentSearchParams.get('q') || undefined,
+    category: currentSearchParams.getAll('category') || [],
+    minPrice: currentSearchParams.has('minPrice') ? Number(currentSearchParams.get('minPrice')) : undefined,
+    maxPrice: currentSearchParams.has('maxPrice') ? Number(currentSearchParams.get('maxPrice')) : undefined,
+    rating: currentSearchParams.getAll('rating').map(Number) || [],
+    level: currentSearchParams.getAll('level') || [],
+    instructor: currentSearchParams.getAll('instructor') || [],
+    language: currentSearchParams.getAll('language') || [],
+    certification: currentSearchParams.get('certification') === 'true' || undefined,
+    sort: currentSearchParams.get('sort') || undefined,
+    page: parseInt(currentSearchParams.get('page') || '1', 10),
+  };
   
-  const filteredAndSortedCourses = applyFiltersAndSort(placeholderCourses, searchParams);
+  const page = parsedParams.page || 1;
+  
+  const filteredAndSortedCourses = applyFiltersAndSort(placeholderCourses, parsedParams);
   
   const totalCourses = filteredAndSortedCourses.length;
   const totalPages = Math.ceil(totalCourses / ITEMS_PER_PAGE);
@@ -136,9 +133,8 @@ export default function CoursesPage({ searchParams }: CoursesPageProps) { // Rem
     page * ITEMS_PER_PAGE
   );
 
-  const currentCategoryParams = Array.isArray(searchParams.category) ? searchParams.category : (searchParams.category ? [searchParams.category] : []);
-  const currentCategoryName = currentCategoryParams.length > 0 
-    ? currentCategoryParams[0].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+  const currentCategoryName = parsedParams.category && parsedParams.category.length > 0 
+    ? parsedParams.category[0].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
     : undefined;
 
   const breadcrumbItems = [
@@ -157,7 +153,7 @@ export default function CoursesPage({ searchParams }: CoursesPageProps) { // Rem
         <Breadcrumbs items={breadcrumbItems} />
         <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold font-headline">
-            {searchParams.q ? `Search results for "${searchParams.q}"` : 
+            {parsedParams.q ? `Search results for "${parsedParams.q}"` : 
              currentCategoryName ? `${currentCategoryName} Courses` : 
              'All Courses'}
           </h1>
@@ -192,15 +188,15 @@ export default function CoursesPage({ searchParams }: CoursesPageProps) { // Rem
                 {totalCourses} courses found
               </p>
               <Select 
-                defaultValue={searchParams.sort || 'relevance'} 
+                value={parsedParams.sort || 'relevance'} 
                 onValueChange={(value) => {
-                  const params = new URLSearchParams(currentSearchParams.toString()); // Use current search params from hook
+                  const params = new URLSearchParams(currentSearchParams.toString()); 
                   if (value === 'relevance') {
                     params.delete('sort');
                   } else {
                     params.set('sort', value);
                   }
-                  params.set('page', '1'); // Reset to page 1 on sort change
+                  params.set('page', '1'); 
                   router.push(`${pathname}?${params.toString()}`);
               }}>
                 <SelectTrigger className="w-[180px]">
@@ -244,3 +240,4 @@ export default function CoursesPage({ searchParams }: CoursesPageProps) { // Rem
     </div>
   );
 }
+
