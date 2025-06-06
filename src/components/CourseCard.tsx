@@ -31,9 +31,18 @@ export function CourseCard({ course }: CourseCardProps) {
             data-ai-hint={imageHint}
           />
           {course.providerInfo?.verified && (
-            <Badge variant="success" className="absolute top-2 right-2 text-xs px-1.5 py-0.5 border-none">
-              <ShieldCheck className="h-3 w-3 mr-1" /> Verified
-            </Badge>
+            <Badge
+            variant="success"
+            className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 text-xs font-semibold tracking-wide text-white bg-green-600 border border-green-700 rounded-full shadow-md hover:bg-green-700 hover:shadow-lg transition-all duration-200 ease-in-out"
+            aria-label="Verified Provider"
+            title="This provider has been verified for authenticity and quality"
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            Verified
+          </Badge>
+            // <Badge variant="success" className="absolute top-2 right-2 text-xs px-1.5 py-0.5 border-none bg-green">
+            //   <ShieldCheck className="h-3 w-3 mr-1" /> Verified
+            // </Badge>
           )}
           {/* Level badge removed as per request */}
         </CardHeader>

@@ -40,6 +40,41 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'static.pw.live',
+        pathname: '/**', // Allow all paths under this domain
+      },
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.vedantu.store',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '5.imimg.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'campustechnology.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pbs.twimg.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
     ],
   },
   experimental: {
