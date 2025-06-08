@@ -102,6 +102,11 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
       console.warn(`⚠️ Seller ID ${courseData.sellerId} for course "${courseData.title}" not found in userMap. Skipping seller link.`);
     }
 
+    let languageForDb = courseData.language ? courseData.language.toLowerCase() : 'english';
+    if (languageForDb === 'mandarin chinese') {
+      languageForDb = 'chinese-simplified';
+    }
+
     const course = new CourseModel({
       ...courseData,
       _id: new mongoose.Types.ObjectId(),
@@ -118,7 +123,7 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
       reviewsCount: courseData.reviewsCount || 0,
       // Ensure all required fields from ICourse are present
       shortDescription: courseData.shortDescription || 'Default short description if missing.',
-      language: courseData.language || 'English',
+      language: languageForDb,
       providerInfo: courseData.providerInfo || { name: courseData.instructor, verified: false },
       lastUpdated: courseData.lastUpdated ? new Date(courseData.lastUpdated) : new Date(),
       createdAt: courseData.createdAt ? new Date(courseData.createdAt) : new Date(),
