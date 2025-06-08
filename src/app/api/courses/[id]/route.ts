@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
   try {
     const course = await CourseModel.findById(id)
-      .populate('seller', 'name avatarUrl verificationStatus bio') // Populate more seller details
+      .populate('seller', 'name avatarUrl verificationStatus bio providerInfo.websiteUrl') // Populate more seller details
       .lean(); 
       
     if (!course) {
@@ -40,8 +40,12 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
+    // IMPORTANT: Add authentication and authorization checks here
+    // For example, ensure only the course owner or an admin can update
     const body = await request.json();
-    // Add robust validation before updating
+    // Add robust validation for the body (e.g., using Zod)
+    // const validatedData = courseUpdateSchema.parse(body);
+
     const updatedCourse = await CourseModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }).lean();
     if (!updatedCourse) {
       return NextResponse.json({ message: 'Course not found for update' }, { status: 404 });
@@ -49,6 +53,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(updatedCourse);
   } catch (error: any) {
     console.error(`Failed to update course ${id}:`, error);
+     if (error.name === 'ZodError') {
+      return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
+    }
     return NextResponse.json({ message: 'Failed to update course', error: error.message, errors: error.errors }, { status: 400 });
   }
 }
@@ -62,11 +69,14 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
+    // IMPORTANT: Add authentication and authorization checks here
+    // For example, ensure only the course owner or an admin can delete
     const deletedCourse = await CourseModel.findByIdAndDelete(id).lean();
     if (!deletedCourse) {
       return NextResponse.json({ message: 'Course not found for deletion' }, { status: 404 });
     }
     // Consider additional cleanup: e.g., removing related reviews, order items, etc.
+    // This might involve more complex logic or be handled by database triggers/ Mongoose middleware if configured.
     return NextResponse.json({ message: 'Course deleted successfully' });
   } catch (error) {
     console.error(`Failed to delete course ${id}:`, error);
