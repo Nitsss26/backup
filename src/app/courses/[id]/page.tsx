@@ -89,12 +89,12 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         return;
       }
       try {
-        const response = await axios.get<Course>(`https://localhost:9002/api/courses/${params.id}`);
+        const response = await axios.get<Course>(`http://10.88.0.3:3000/api/courses/${params.id}`);
         setCourse(response.data);
         // For now, reviews and related courses can still come from placeholders or be fetched separately
         setReviews(getReviewsByCourseId(params.id)); 
         // Fetch related courses (simplified for now)
-        const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+        const allCoursesResponse = await axios.get<{courses: Course[]}>(`http://10.88.0.3:3000/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
         setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
 
       } catch (err: any) {
