@@ -12,22 +12,39 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   await dbConnect();
   const { id } = params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
+  console.log(`🔵 [/api/courses/[id]] Attempting to fetch course. Received ID: '${id}', type: ${typeof id}`);
+
+  if (!id || typeof id !== 'string') {
+    console.error('🔴 [/api/courses/[id]] Course ID is missing, null, undefined, or not a string. Value:', id);
+    return NextResponse.json({ message: 'Course ID is required and must be a string.' }, { status: 400 });
+  }
+
+  if (id.length < 12 || !/^[0-9a-fA-F]{24}$/.test(id) || !mongoose.Types.ObjectId.isValid(id) ) {
+    console.error(`🔴 [/api/courses/[id]] Invalid course ID format: '${id}'. It is not a valid MongoDB ObjectId.`);
+    return NextResponse.json({ message: `Invalid course ID format provided: ${id}` }, { status: 400 });
   }
 
   try {
+    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}')`);
     const course = await CourseModel.findById(id)
       .populate('seller', 'name avatarUrl verificationStatus bio providerInfo.websiteUrl')
-      .lean(); 
-      
+      .lean();
+
     if (!course) {
+      console.warn(`🟡 [/api/courses/[id]] Course not found for ID: ${id}`);
       return NextResponse.json({ message: 'Course not found' }, { status: 404 });
     }
+    console.log(`🟢 [/api/courses/[id]] Successfully fetched course: ${course.title}`);
     return NextResponse.json(course);
   } catch (error) {
-    console.error(`Failed to fetch course ${id}:`, error);
-    return NextResponse.json({ message: 'Failed to fetch course', error: (error as Error).message }, { status: 500 });
+    const err = error as Error;
+    console.error(`🔴 [/api/courses/[id]] Failed to fetch course ${id}:`, err);
+    return NextResponse.json({
+      message: 'Failed to fetch course due to a server error.',
+      errorName: err.name,
+      errorMessage: err.message,
+      // errorStack: err.stack // Potentially too verbose for client, but good for server logs
+    }, { status: 500 });
   }
 }
 
@@ -40,10 +57,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    // TODO: Add authentication and authorization checks here
     const body = await request.json();
-    // TODO: Add robust validation for the body (e.g., using Zod)
-
     const updatedCourse = await CourseModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }).lean();
     if (!updatedCourse) {
       return NextResponse.json({ message: 'Course not found for update' }, { status: 404 });
@@ -51,9 +65,6 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(updatedCourse);
   } catch (error: any) {
     console.error(`Failed to update course ${id}:`, error);
-    // if (error.name === 'ZodError') {
-    //   return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
-    // }
     return NextResponse.json({ message: 'Failed to update course', error: error.message, errors: error.errors }, { status: 400 });
   }
 }
@@ -67,7 +78,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    // TODO: Add authentication and authorization checks here
     const deletedCourse = await CourseModel.findByIdAndDelete(id).lean();
     if (!deletedCourse) {
       return NextResponse.json({ message: 'Course not found for deletion' }, { status: 404 });
