@@ -298,7 +298,40 @@ export default function CourseDetailPage() {
                     </span>
                   </CardHeader>
                   <CardContent>
-                    <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
+                  // Replace the curriculum mapping section (around line 302-303) with this:
+
+<Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
+  {course.curriculum?.sort((a,b) => a.order - b.order).map((module, index) => {
+    // Create a unique key that handles undefined/null ids
+    const moduleKey = module.id ? String(module.id) : `module-${index}-${module.title?.replace(/\s+/g, '-').toLowerCase() || 'untitled'}`;
+    const accordionValue = module.id ? String(module.id) : `mod-${index}`;
+    
+    return (
+      <AccordionItem 
+        value={accordionValue} 
+        key={moduleKey} 
+        className="border-b last:border-b-0"
+      >
+        <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10 text-foreground">
+          <div className="flex justify-between w-full items-center">
+            <span className="text-left font-semibold">Module {index + 1}: {module.title}</span>
+            <span className="text-xs text-muted-foreground font-normal ml-2 shrink-0">{module.lessons?.length || 0} lessons</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pt-1 pb-1 px-2">
+          {module.lessons?.sort((a,b) => a.order - b.order).map((lesson, lessonIndex) => {
+            // Also fix lesson keys to ensure uniqueness
+            const lessonKey = lesson.id ? String(lesson.id) : `lesson-${index}-${lessonIndex}-${lesson.title?.replace(/\s+/g, '-').toLowerCase() || 'untitled'}`;
+            return (
+              <CurriculumItem key={lessonKey} item={lesson} />
+            );
+          })}
+        </AccordionContent>
+      </AccordionItem>
+    );
+  })}
+</Accordion>
+                    {/* <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
                       {course.curriculum?.sort((a,b) => a.order - b.order).map((module, index) => (
                         <AccordionItem value={String(module.id) || `mod-${index}`} key={String(module.id) || `mod-key-${index}`} className="border-b last:border-b-0">
                           <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10 text-foreground">
@@ -314,7 +347,7 @@ export default function CourseDetailPage() {
                           </AccordionContent>
                         </AccordionItem>
                       ))}
-                    </Accordion>
+                    </Accordion> */}
                      {(!course.curriculum || course.curriculum.length === 0) && <p className="text-muted-foreground text-center py-6">Curriculum details are not yet available for this course.</p>}
                   </CardContent>
                 </Card>

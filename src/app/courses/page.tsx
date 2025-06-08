@@ -40,16 +40,18 @@ export default function CoursesPage() {
   const fetchCourses = useCallback(async (params: URLSearchParams) => {
     setIsLoading(true);
     setError(null);
+    console.log(`[CoursesPage] Fetching courses with params: ${params.toString()}`);
     try {
       const response = await axios.get<ApiResponse>(`/api/courses?${params.toString()}`);
+      console.log("[CoursesPage] API Response Data:", response.data);
       setCourses(response.data.courses);
       setTotalPages(response.data.totalPages);
       setCurrentPage(response.data.currentPage);
       setTotalCourses(response.data.totalCourses);
-    } catch (err) {
-      console.error("Failed to fetch courses:", err);
-      setError("Failed to load courses. Please try again later.");
-      setCourses([]); // Clear courses on error
+    } catch (err: any) {
+      console.error("[CoursesPage] Failed to fetch courses:", err);
+      setError(err.response?.data?.message || err.message || "Failed to load courses. Please try again later.");
+      setCourses([]); 
     } finally {
       setIsLoading(false);
     }
@@ -126,11 +128,13 @@ export default function CoursesPage() {
             </Sheet>
           </div>
           
-          <div className="hidden md:block">
-            <FilterSidebar />
+          <div className="hidden md:block w-72 lg:w-80 shrink-0">
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2"> {/* Header h-16 (4rem) + 2rem margin = 6rem */}
+                <FilterSidebar />
+            </div>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0"> {/* Added min-w-0 for flex child overflow fix */}
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-muted-foreground">
                 {!isLoading && !error ? `${totalCourses} courses found` : isLoading ? 'Loading...' : ''}
@@ -192,3 +196,4 @@ export default function CoursesPage() {
     </div>
   );
 }
+    

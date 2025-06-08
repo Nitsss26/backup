@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,68 +14,70 @@ import { X } from 'lucide-react';
 
 const MAX_PRICE = 15000; // Max price for slider
 
+interface FiltersState {
+  categories: string[];
+  priceRange: [number, number];
+  ratings: number[];
+  difficultyLevels: string[];
+  instructorTypes: string[];
+  languages: string[];
+  certification: boolean;
+}
+
+const getDefaultFilters = (searchParams: URLSearchParams): FiltersState => {
+  return {
+    categories: searchParams.getAll('category') || [],
+    priceRange: [
+      Number(searchParams.get('minPrice')) || 0,
+      Number(searchParams.get('maxPrice')) || MAX_PRICE,
+    ],
+    ratings: searchParams.getAll('rating').map(Number) || [],
+    difficultyLevels: searchParams.getAll('level') || [],
+    instructorTypes: searchParams.getAll('instructor') || [],
+    languages: searchParams.getAll('language') || [],
+    certification: searchParams.get('certification') === 'true' || false,
+  };
+};
+
+
 export function FilterSidebar() {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const currentSearchParams = useSearchParams();
 
-  const [filters, setFilters] = useState(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    return {
-      categories: params.getAll('category') || [],
-      priceRange: [
-        Number(params.get('minPrice')) || 0,
-        Number(params.get('maxPrice')) || MAX_PRICE,
-      ],
-      ratings: params.getAll('rating').map(Number) || [],
-      difficultyLevels: params.getAll('level') || [],
-      instructorTypes: params.getAll('instructor') || [],
-      languages: params.getAll('language') || [],
-      certification: params.get('certification') === 'true' || false,
-    };
-  });
+  const [filters, setFilters] = useState<FiltersState>(() => getDefaultFilters(currentSearchParams));
+  const [activeAccordionItems, setActiveAccordionItems] = useState<string[]>(['categories', 'price', 'ratings']);
+
 
   useEffect(() => {
-    // This effect ensures that if the URL is changed directly (e.g., browser back/forward),
-    // the filter UI updates to reflect the current URL parameters.
-    const params = new URLSearchParams(searchParams.toString());
-    setFilters({
-      categories: params.getAll('category') || [],
-      priceRange: [
-        Number(params.get('minPrice')) || 0,
-        Number(params.get('maxPrice')) || MAX_PRICE,
-      ],
-      ratings: params.getAll('rating').map(Number) || [],
-      difficultyLevels: params.getAll('level') || [],
-      instructorTypes: params.getAll('instructor') || [],
-      languages: params.getAll('language') || [],
-      certification: params.get('certification') === 'true' || false,
-    });
-  }, [searchParams]);
+    // Update local filter state if URL searchParams change (e.g., browser back/forward, direct URL edit)
+    setFilters(getDefaultFilters(currentSearchParams));
+  }, [currentSearchParams]);
 
 
-  const handleFilterChange = (type: keyof typeof filters, value: any) => {
+  const handleFilterChange = useCallback((type: keyof FiltersState, value: any) => {
     setFilters(prev => {
       let newValues;
       if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(type)) {
-        const currentValues = prev[type as keyof Omit<typeof filters, 'priceRange' | 'certification'>] as string[] | number[];
-        if ((currentValues as any[]).includes(value)) {
-          newValues = (currentValues as any[]).filter(item => item !== value);
+        const currentValues = prev[type as Exclude<keyof FiltersState, 'priceRange' | 'certification'>];
+        if (currentValues.includes(value as never)) { // Type assertion
+          newValues = currentValues.filter(item => item !== value);
         } else {
-          newValues = [...currentValues, value];
+          newValues = [...currentValues, value as never]; // Type assertion
         }
         return { ...prev, [type]: newValues };
       }
       return { ...prev, [type]: value };
     });
-  };
+  }, []);
   
-  const applyFilters = () => {
-    const params = new URLSearchParams(); // Start with fresh params
+  const applyFilters = useCallback(() => {
+    const params = new URLSearchParams();
     
-    // Preserve existing 'q' and 'sort' if they exist
-    if (searchParams.has('q')) params.set('q', searchParams.get('q')!);
-    if (searchParams.has('sort')) params.set('sort', searchParams.get('sort')!);
+    const qParam = currentSearchParams.get('q');
+    if (qParam) params.set('q', qParam);
+    const sortParam = currentSearchParams.get('sort');
+    if (sortParam) params.set('sort', sortParam);
 
     filters.categories.forEach(cat => params.append('category', cat));
     filters.ratings.forEach(r => params.append('rating', String(r)));
@@ -88,25 +90,26 @@ export function FilterSidebar() {
     
     if (filters.certification) params.set('certification', 'true');
 
-    // Reset page to 1 when filters change
-    params.set('page', '1');
+    params.set('page', '1'); // Reset page to 1 when filters change
     
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+  }, [filters, router, pathname, currentSearchParams]);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     const params = new URLSearchParams();
-    if (searchParams.has('q')) params.set('q', searchParams.get('q')!);
-    if (searchParams.has('sort')) params.set('sort', searchParams.get('sort')!);
+    const qParam = currentSearchParams.get('q');
+    if (qParam) params.set('q', qParam);
+    const sortParam = currentSearchParams.get('sort');
+    if (sortParam) params.set('sort', sortParam);
     params.set('page', '1');
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    // State update will be handled by useEffect listening to searchParams
-  };
+    // The useEffect listening to currentSearchParams will reset the local `filters` state.
+  }, [router, pathname, currentSearchParams]);
   
   const ratingOptions = [5, 4, 3, 2, 1];
 
   return (
-    <aside className="w-full md:w-72 lg:w-80 space-y-6 p-4 border rounded-lg shadow-sm bg-card">
+    <aside className="w-full space-y-6 p-4 border rounded-lg shadow-sm bg-card">
       <div className="flex justify-between items-center">
         <h3 className="text-xl font-semibold font-headline">Filters</h3>
         <Button variant="ghost" size="sm" onClick={resetFilters} className="text-primary hover:text-primary/80">
@@ -114,7 +117,12 @@ export function FilterSidebar() {
         </Button>
       </div>
 
-      <Accordion type="multiple" defaultValue={['categories', 'price', 'ratings']} className="w-full">
+      <Accordion 
+        type="multiple" 
+        value={activeAccordionItems}
+        onValueChange={setActiveAccordionItems}
+        className="w-full"
+      >
         <AccordionItem value="categories">
           <AccordionTrigger className="text-base font-medium">Category</AccordionTrigger>
           <AccordionContent className="space-y-2 pt-2 max-h-60 overflow-y-auto">
@@ -124,8 +132,9 @@ export function FilterSidebar() {
                   id={`cat-${category.id}`}
                   checked={filters.categories.includes(category.slug)}
                   onCheckedChange={() => handleFilterChange('categories', category.slug)}
+                  aria-label={category.name}
                 />
-                <Label htmlFor={`cat-${category.id}`} className="font-normal text-sm">{category.name}</Label>
+                <Label htmlFor={`cat-${category.id}`} className="font-normal text-sm cursor-pointer">{category.name}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -135,13 +144,13 @@ export function FilterSidebar() {
           <AccordionTrigger className="text-base font-medium">Price Range (₹)</AccordionTrigger>
           <AccordionContent className="space-y-3 pt-3">
             <Slider
-              defaultValue={[0, MAX_PRICE]}
               min={0}
               max={MAX_PRICE}
-              step={100} // Adjusted step for INR
+              step={500} 
               value={filters.priceRange}
               onValueChange={(value) => handleFilterChange('priceRange', value)}
               className="my-4"
+              aria-label="Price range slider"
             />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>₹{filters.priceRange[0].toLocaleString('en-IN')}</span>
@@ -159,8 +168,9 @@ export function FilterSidebar() {
                   id={`rating-${rating}`}
                   checked={filters.ratings.includes(rating)}
                   onCheckedChange={() => handleFilterChange('ratings', rating)}
+                  aria-label={`${rating} stars and up`}
                 />
-                <Label htmlFor={`rating-${rating}`} className="font-normal text-sm flex items-center">
+                <Label htmlFor={`rating-${rating}`} className="font-normal text-sm flex items-center cursor-pointer">
                   <StarRating rating={rating} size={14} /> 
                   <span className="ml-1.5">&amp; Up</span>
                 </Label>
@@ -178,8 +188,9 @@ export function FilterSidebar() {
                   id={`level-${level}`}
                   checked={filters.difficultyLevels.includes(level)}
                   onCheckedChange={() => handleFilterChange('difficultyLevels', level)}
+                  aria-label={level}
                 />
-                <Label htmlFor={`level-${level}`} className="font-normal text-sm">{level}</Label>
+                <Label htmlFor={`level-${level}`} className="font-normal text-sm cursor-pointer">{level}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -191,11 +202,12 @@ export function FilterSidebar() {
             {LANGUAGES.map(lang => ( 
               <div key={lang} className="flex items-center space-x-2">
                 <Checkbox
-                  id={`lang-${lang}`}
+                  id={`lang-${lang.toLowerCase().replace(/\s+/g, '-')}`}
                   checked={filters.languages.includes(lang)}
                   onCheckedChange={() => handleFilterChange('languages', lang)}
+                  aria-label={lang}
                 />
-                <Label htmlFor={`lang-${lang}`} className="font-normal text-sm">{lang}</Label>
+                <Label htmlFor={`lang-${lang.toLowerCase().replace(/\s+/g, '-')}`} className="font-normal text-sm cursor-pointer">{lang}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -210,8 +222,9 @@ export function FilterSidebar() {
                   id={`instructor-${type.replace(/\s+/g, '-')}`}
                   checked={filters.instructorTypes.includes(type)}
                   onCheckedChange={() => handleFilterChange('instructorTypes', type)}
+                  aria-label={type}
                 />
-                <Label htmlFor={`instructor-${type.replace(/\s+/g, '-')}`} className="font-normal text-sm">{type}</Label>
+                <Label htmlFor={`instructor-${type.replace(/\s+/g, '-')}`} className="font-normal text-sm cursor-pointer">{type}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -219,22 +232,23 @@ export function FilterSidebar() {
 
         <AccordionItem value="certification">
           <AccordionTrigger className="text-base font-medium">Certification</AccordionTrigger>
-          <AccordionContent className="pt-2">
+          <AccordionContent className="pt-3"> {/* Added pt-3 for spacing */}
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="certification"
                 checked={filters.certification}
                 onCheckedChange={(checked) => handleFilterChange('certification', Boolean(checked))}
+                aria-label="Certificate available"
               />
-              <Label htmlFor="certification" className="font-normal text-sm">Certificate Available</Label>
+              <Label htmlFor="certification" className="font-normal text-sm cursor-pointer">Certificate Available</Label>
             </div>
           </AccordionContent>
         </AccordionItem>
 
       </Accordion>
 
-      <Button onClick={applyFilters} className="w-full">Apply Filters</Button>
+      <Button onClick={applyFilters} className="w-full mt-6">Apply Filters</Button>
     </aside>
   );
 }
-
+    
