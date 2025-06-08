@@ -1,6 +1,6 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
+import dbConnect from '../../../lib/dbConnect'; // Changed to relative path
 import CourseModel, { type ICourse } from '@/models/Course';
 import { ITEMS_PER_PAGE } from '@/lib/constants';
 
@@ -10,14 +10,14 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const page = parseInt(searchParams.get('page') || '1', 10);
   const limit = parseInt(searchParams.get('limit') || String(ITEMS_PER_PAGE), 10);
-  const sortOption = searchParams.get('sort') || 'relevance'; // Default sort
+  const sortOption = searchParams.get('sort') || 'relevance';
   const searchQuery = searchParams.get('q');
   const categories = searchParams.getAll('category');
   const minPrice = searchParams.get('minPrice');
   const maxPrice = searchParams.get('maxPrice');
-  const ratings = searchParams.getAll('rating').map(Number);
+  const ratings = searchParams.getAll('rating').map(Number).filter(r => r > 0);
   const levels = searchParams.getAll('level');
-  const instructorTypes = searchParams.getAll('instructor'); // Maps to providerInfo.type
+  const instructorTypes = searchParams.getAll('instructor');
   const languages = searchParams.getAll('language');
   const certification = searchParams.get('certification');
 
@@ -28,20 +28,15 @@ export async function GET(request: NextRequest) {
       query.$text = { $search: searchQuery };
     }
     if (categories.length > 0) {
-      // Assuming category slugs are passed in URL and match 'slug' field in Category collection
-      // For now, we'll assume categories are passed as full names for direct match in Course.category
-      // A more robust solution would be to fetch Category ObjectId by slug/name then query Course.category by ObjectId
       query.category = { $in: categories.map(cat => new RegExp(cat.split('-').join(' '), 'i')) };
     }
-    if (minPrice) {
-      query.price = { ...query.price, $gte: Number(minPrice) };
-    }
-    if (maxPrice) {
-      query.price = { ...query.price, $lte: Number(maxPrice) };
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
     }
     if (ratings.length > 0) {
-      // If multiple ratings are selected, find courses with rating >= min of selected ratings
-      query.rating = { $gte: Math.min(...ratings.filter(r => r > 0)) }; 
+      query.rating = { $gte: Math.min(...ratings) };
     }
     if (levels.length > 0) {
       query.level = { $in: levels };
@@ -58,26 +53,16 @@ export async function GET(request: NextRequest) {
 
     let sort: any = {};
     switch (sortOption) {
-      case 'price_asc':
-        sort.price = 1;
-        break;
-      case 'price_desc':
-        sort.price = -1;
-        break;
-      case 'rating_desc':
-        sort.rating = -1;
-        break;
-      case 'newest':
-        sort.lastUpdated = -1; 
-        break;
-      case 'popularity':
-        sort.studentsEnrolledCount = -1;
-        break;
-      default: 
+      case 'price_asc': sort.price = 1; break;
+      case 'price_desc': sort.price = -1; break;
+      case 'rating_desc': sort.rating = -1; break;
+      case 'newest': sort.lastUpdated = -1; break;
+      case 'popularity': sort.studentsEnrolledCount = -1; break;
+      default:
         if (searchQuery) {
           sort.score = { $meta: 'textScore' };
         } else {
-          sort.lastUpdated = -1; // Default sort if no search query and no specific sort
+          sort.lastUpdated = -1; // Default sort if no search query
         }
         break;
     }
@@ -86,8 +71,8 @@ export async function GET(request: NextRequest) {
       .sort(sort)
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate('seller', 'name avatarUrl verificationStatus') 
-      .lean(); 
+      .populate('seller', 'name avatarUrl verificationStatus')
+      .lean();
 
     const totalCourses = await CourseModel.countDocuments(query);
 
@@ -106,13 +91,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   await dbConnect();
   try {
-    // IMPORTANT: Add authentication and authorization checks here
-    // For example, ensure only verified sellers can create courses
+    // TODO: Add authentication and authorization checks here
     const body = await request.json();
+    // TODO: Add robust validation for the body (e.g., using Zod)
     
-    // Add validation for the body (e.g., using Zod)
-    // const validatedData = courseSchema.parse(body); // Assuming you have a Zod schema for course creation
-
     const newCourse = new CourseModel({
       ...body,
       approvalStatus: 'pending', // New courses should default to pending approval
@@ -122,10 +104,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(newCourse, { status: 201 });
   } catch (error: any) {
     console.error('Failed to create course:', error);
-    // Handle Zod validation errors specifically if used
-    if (error.name === 'ZodError') {
-      return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
-    }
+    // if (error.name === 'ZodError') {
+    //   return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
+    // }
     return NextResponse.json({ message: 'Failed to create course', error: error.message }, { status: 400 });
   }
 }

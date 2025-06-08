@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/dbConnect';
+import dbConnect from '../../../lib/dbConnect'; // Changed to relative path
 import CategoryModel from '@/models/Category';
 
 export async function GET() {
