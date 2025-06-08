@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import UserModel from '../src/models/User';
@@ -270,16 +271,28 @@ const seedCertificates = async (userMap: Map<string, mongoose.Types.ObjectId>, c
 const seedCategories = async () => {
   console.log("🗂️  Seeding categories...");
   let count = 0;
+  let newCategories = 0;
+  let updatedCategories = 0;
+
   for (const categoryData of CATEGORIES) {
     try {
-      const category = new CategoryModel({ name: categoryData.name, slug: categoryData.slug });
-      await category.save();
+      const result = await CategoryModel.findOneAndUpdate(
+        { slug: categoryData.slug }, // find a document with this slug
+        { $set: { name: categoryData.name, slug: categoryData.slug } }, // update name and slug
+        { upsert: true, new: true, setDefaultsOnInsert: true } // options: upsert, return new doc, set defaults
+      );
       count++;
+      if (result && result.createdAt?.getTime() === result.updatedAt?.getTime()) { // Crude check for new vs updated
+          newCategories++;
+      } else {
+          updatedCategories++;
+      }
     } catch (error: any) {
-      if (error.code !== 11000) console.error(`🔴 Error seeding category ${categoryData.name}:`, error);
+      // Only log if it's not a general error during update that might be complex (not just duplicate)
+      console.error(`🔴 Error upserting category ${categoryData.name}:`, error);
     }
   }
-  console.log(`🗂️  Seeded ${count} categories.`);
+  console.log(`🗂️  Processed ${count} categories from constants. Added: ${newCategories}, Updated: ${updatedCategories}.`);
 };
 
 const seedLookups = async () => {
@@ -305,14 +318,17 @@ const seedLookups = async () => {
   
   for (const lookup of lookupData) {
     try {
-      const newLookup = new LookupModel(lookup);
-      await newLookup.save();
+      await LookupModel.findOneAndUpdate(
+        { type: lookup.type, value: lookup.value },
+        { $set: lookup },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
       count++;
     } catch (error: any) {
-      if (error.code !== 11000) console.error(`🔴 Error seeding lookup ${lookup.type} - ${lookup.value}:`, error);
+      console.error(`🔴 Error upserting lookup ${lookup.type} - ${lookup.value}:`, error);
     }
   }
-  console.log(`🏷️  Seeded ${count} lookup items.`);
+  console.log(`🏷️  Processed/Seeded ${count} lookup items.`);
 };
 
 const seedSortOptions = async () => {
@@ -320,14 +336,17 @@ const seedSortOptions = async () => {
   let count = 0;
   for (const option of SORT_OPTIONS) {
     try {
-      const newSortOption = new SortOptionModel(option);
-      await newSortOption.save();
+      await SortOptionModel.findOneAndUpdate(
+        { value: option.value },
+        { $set: option },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
       count++;
     } catch (error: any) {
-      if (error.code !== 11000) console.error(`🔴 Error seeding sort option ${option.label}:`, error);
+      console.error(`🔴 Error upserting sort option ${option.label}:`, error);
     }
   }
-  console.log(`↕️  Seeded ${count} sort options.`);
+  console.log(`↕️  Processed/Seeded ${count} sort options.`);
 };
 
 const seedPaymentOptions = async () => {
@@ -335,14 +354,18 @@ const seedPaymentOptions = async () => {
   let count = 0;
   for (const option of PAYMENT_OPTIONS) {
     try {
-      const newPaymentOption = new PaymentOptionModel({ optionId: option.id, name: option.name });
-      await newPaymentOption.save();
+      await PaymentOptionModel.findOneAndUpdate(
+        { optionId: option.id },
+        { $set: { optionId: option.id, name: option.name } },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
       count++;
-    } catch (error: any) {
-      if (error.code !== 11000) console.error(`🔴 Error seeding payment option ${option.name}:`, error);
+    } catch (error: any)
+{
+      console.error(`🔴 Error upserting payment option ${option.name}:`, error);
     }
   }
-  console.log(`💳 Seeded ${count} payment options.`);
+  console.log(`💳 Processed/Seeded ${count} payment options.`);
 };
 
 const seedDatabase = async () => {
