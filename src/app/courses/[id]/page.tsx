@@ -1,5 +1,5 @@
 
-"use client"; // This page now fetches data client-side
+"use client";
 
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
@@ -19,11 +19,13 @@ import { Badge } from '@/components/ui/badge';
 import { APP_NAME, CATEGORIES as STATIC_CATEGORIES } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { placeholderReviews, placeholderCourses as staticRelatedCourses } from '@/lib/placeholder-data'; // For related courses for now
+import { placeholderReviews, placeholderCourses as staticRelatedCourses } from '@/lib/placeholder-data';
+import { useParams } from 'next/navigation'; // Import useParams
 
-interface CourseDetailPageProps {
-  params: { id: string };
-}
+// CourseDetailPageProps no longer needs params explicitly
+// interface CourseDetailPageProps {
+//   params: { id: string };
+// }
 
 // Helper to get review by course ID (from static data for now)
 const getReviewsByCourseId = (courseId: string): ReviewType[] => staticRelatedCourses.length > 0 ? placeholderReviews.filter(r => r.courseId === courseId) : [];
@@ -72,7 +74,10 @@ function CurriculumItem({ item }: { item: Lesson }) {
   );
 }
 
-export default function CourseDetailPage({ params }: CourseDetailPageProps) {
+export default function CourseDetailPage() { // Removed params from props
+  const params = useParams<{ id: string }>(); // Use the hook to get params
+  const courseId = params.id; // Extract id from the hook's result
+
   const [course, setCourse] = useState<Course | null>(null);
   const [reviews, setReviews] = useState<ReviewType[]>([]);
   const [relatedCourses, setRelatedCourses] = useState<Course[]>([]);
@@ -83,22 +88,22 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
     const fetchCourseData = async () => {
       setIsLoading(true);
       setError(null);
-      if (!params.id) {
-        setError("Course ID is missing.");
+      if (!courseId) { // Use courseId from useParams()
+        setError("Course ID is missing from URL.");
         setIsLoading(false);
         return;
       }
       try {
-        const response = await axios.get<Course>(`https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/api/courses/${params.id}`);
+        const response = await axios.get<Course>(`/api/courses/${courseId}`);
         setCourse(response.data);
         // For now, reviews and related courses can still come from placeholders or be fetched separately
-        setReviews(getReviewsByCourseId(params.id)); 
+        setReviews(getReviewsByCourseId(courseId)); 
         // Fetch related courses (simplified for now)
-        const allCoursesResponse = await axios.get<{courses: Course[]}>(`https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+        const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
         setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
 
       } catch (err: any) {
-        console.error(`Failed to fetch course ${params.id}:`, err);
+        console.error(`Failed to fetch course ${courseId}:`, err);
         if (err.response && err.response.status === 404) {
             setError("Course not found.");
         } else {
@@ -109,8 +114,18 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
       }
     };
 
-    fetchCourseData();
-  }, [params.id]);
+    if (courseId) { // Check if courseId (from hook) is available
+        fetchCourseData();
+    } else {
+        // This case might occur if useParams() somehow doesn't return id initially,
+        // though it usually should be available if the route matches.
+        // Only set error if not already loading, to avoid race conditions.
+        if (!isLoading) { 
+            setError("Course ID not found in URL parameters.");
+            setIsLoading(false);
+        }
+    }
+  }, [courseId, isLoading]); // Depend on courseId from the hook
 
   if (isLoading) {
     return (
