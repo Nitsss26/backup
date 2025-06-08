@@ -89,14 +89,14 @@ export default function CourseDetailPage() {
         return;
       }
       try {
-        const response = await axios.get<Course>(`/api/courses/${courseId}`);
+        const response = await axios.get<Course>(`https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/api/courses/${courseId}`);
         setCourse(response.data);
         setReviews(getReviewsByCourseId(courseId));
         
         // Fetch related courses (simplified for now)
         // Ensure response.data and response.data.category exist before trying to access them
         if (response.data && response.data.category) {
-            const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+            const allCoursesResponse = await axios.get<{courses: Course[]}>(`https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
             setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
         } else {
             setRelatedCourses([]); // Set to empty if category info is missing to prevent further errors
