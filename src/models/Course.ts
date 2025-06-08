@@ -20,7 +20,7 @@ const LessonSchema: Schema<ILesson> = new Schema({
   textContent: { type: String }, // For text-based lessons
   order: { type: Number, required: true },
   isFreePreview: { type: Boolean, default: false },
-}, { _id: true }); // Use _id for subdocuments by default, or set to false if not needed as separate ID
+}, { _id: true });
 
 interface IModule extends Document {
   title: string;
@@ -41,7 +41,7 @@ export interface IProviderInfo {
   verified?: boolean;
   description?: string;
   websiteUrl?: string;
-  type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator';
+  type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator'; // Made optional
 }
 
 const ProviderInfoSchema: Schema<IProviderInfo> = new Schema({
@@ -50,7 +50,7 @@ const ProviderInfoSchema: Schema<IProviderInfo> = new Schema({
   verified: { type: Boolean, default: false },
   description: { type: String },
   websiteUrl: { type: String },
-  type: { type: String, enum: ['Individual', 'Institute', 'Coaching Center', 'Verified Educator'] },
+  type: { type: String, enum: ['Individual', 'Institute', 'Coaching Center', 'Verified Educator'], required: false }, // Made 'type' not required
 }, { _id: false });
 
 
@@ -91,7 +91,7 @@ const CourseSchema: Schema<ICourse> = new Schema({
   description: { type: String, required: true, trim: true },
   price: { type: Number, required: true, min: 0 },
   originalPrice: { type: Number, min: 0 },
-  category: { type: String, required: true }, // Could be ObjectId ref if categories are a separate collection
+  category: { type: String, required: true },
   level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'All Levels'], required: true },
   language: { type: String, required: true },
   duration: { type: String },
@@ -114,12 +114,13 @@ const CourseSchema: Schema<ICourse> = new Schema({
   lastUpdated: { type: Date, default: Date.now },
 }, { timestamps: true });
 
-// Corrected text index definition
 CourseSchema.index(
-  { title: 'text', description: 'text', tags: 'text' }, // Fields to include in the text index
-  { default_language: 'english' } // Specify default language for the index
+  { title: 'text', description: 'text', tags: 'text' },
+  { default_language: 'english' }
 );
 
 const CourseModel: Model<ICourse> = models.Course || mongoose.model<ICourse>('Course', CourseSchema);
 
 export default CourseModel;
+// Exporting CourseSchema for potential dynamic model compilation if needed in advanced debugging
+export { CourseSchema };
