@@ -71,7 +71,7 @@ function CurriculumItem({ item }: { item: Lesson }) {
 
 export default function CourseDetailPage() {
   const params = useParams();
-  const courseId = params?.id as string; // Ensure courseId is treated as string
+  const courseId = params?.id as string; 
 
   const [course, setCourse] = useState<Course | null>(null);
   const [reviews, setReviews] = useState<ReviewType[]>([]);
@@ -84,28 +84,28 @@ export default function CourseDetailPage() {
       setIsLoading(true);
       setError(null);
       if (!courseId) {
-        setError("Course ID is missing from URL.");
+        setError("Course ID is missing.");
         setIsLoading(false);
         return;
       }
       try {
-        const response = await axios.get<Course>(`https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/api/courses/${courseId}`);
+        const response = await axios.get<Course>(`/api/courses/${courseId}`);
         setCourse(response.data);
         setReviews(getReviewsByCourseId(courseId));
         
-        // Fetch related courses (simplified for now)
-        // Ensure response.data and response.data.category exist before trying to access them
         if (response.data && response.data.category) {
-            const allCoursesResponse = await axios.get<{courses: Course[]}>(`https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+            const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
             setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
         } else {
-            setRelatedCourses([]); // Set to empty if category info is missing to prevent further errors
+            setRelatedCourses([]); 
         }
 
       } catch (err: any) {
         console.error(`Failed to fetch course ${courseId}:`, err);
         if (err.response && err.response.status === 404) {
             setError("Course not found.");
+        } else if (err.name === 'AxiosError' && err.message === 'Network Error') {
+            setError("Network Error: Could not connect to the server. Please check your internet connection or try again later.");
         } else {
             setError("Failed to load course details. Please try again later.");
         }
@@ -117,14 +117,12 @@ export default function CourseDetailPage() {
     if (courseId) {
         fetchCourseData();
     } else {
-        // This case might occur if useParams() somehow doesn't return id initially,
-        // or if the route doesn't match [id]
         if (!isLoading) { 
             setError("Course ID not found in URL parameters.");
             setIsLoading(false);
         }
     }
-  }, [courseId]); // Depend on courseId from the hook
+  }, [courseId, isLoading]); // Added isLoading to dependency array to avoid potential re-fetch loops if error occurs early
 
   if (isLoading) {
     return (
@@ -469,4 +467,6 @@ export default function CourseDetailPage() {
   );
 }
 
+    
+ 
     
