@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -17,10 +18,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        // Updated to use Poppins from CSS variable defined in layout.tsx
-        body: ['var(--font-poppins)', 'sans-serif'],
-        headline: ['var(--font-poppins)', 'sans-serif'],
-        sans: ['var(--font-poppins)', 'sans-serif'], // Make Poppins the default sans-serif
+        // Updated to use Montserrat from CSS variable defined in layout.tsx
+        body: ['var(--font-montserrat)', 'sans-serif'],
+        headline: ['var(--font-montserrat)', 'sans-serif'],
+        sans: ['var(--font-montserrat)', 'sans-serif'], // Make Montserrat the default sans-serif
         code: ['monospace', 'monospace'],
       },
       colors: {
