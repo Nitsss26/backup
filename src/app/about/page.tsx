@@ -1,11 +1,13 @@
 
+"use client";
+
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { APP_NAME } from '@/lib/constants';
 import { Users, Zap, Target } from 'lucide-react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button'; // Added this line
-import Link from 'next/link'; // Link is already imported
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function AboutPage() {
   return (
@@ -69,10 +71,10 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
                 <Button size="lg" asChild>
-                    <Link href="/courses">Explore Courses</Link>
+                    <Link href="/courses"><span>Explore Courses</span></Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                    <Link href="/sell-courses">Become a Seller</Link>
+                    <Link href="/sell-courses"><span>Become a Seller</span></Link>
                 </Button>
             </div>
           </div>
