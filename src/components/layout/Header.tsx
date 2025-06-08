@@ -11,13 +11,14 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator, // Added
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import React from 'react';
 import { useAuth } from '@/components/AppProviders'; 
-import { Skeleton } from '@/components/ui/skeleton'; // Added
+import { Skeleton } from '@/components/ui/skeleton';
+import { ThemeToggleButton } from '@/components/ThemeToggleButton'; // Added ThemeToggleButton
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -26,11 +27,10 @@ export function Header() {
   const navLinks = [
     { href: '/courses', label: 'Courses', icon: BookOpenText },
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
-    { href: '/about', label: 'About', icon: Store }, // Assuming Store icon is okay for About/Contact for now
+    { href: '/about', label: 'About', icon: Store },
     { href: '/contact', label: 'Contact', icon: Store },
   ];
 
-  // Dynamically add dashboard link based on user role
   let dashboardLink = null;
   if (user && !isLoading) {
     if (user.role === 'student') {
@@ -42,7 +42,6 @@ export function Header() {
     }
   }
   
-  // Links for the mobile menu primarily
   const allMobileNavLinks = dashboardLink ? [...navLinks, dashboardLink] : navLinks;
 
 
@@ -54,7 +53,6 @@ export function Header() {
           <span className="font-bold text-xl text-primary">{APP_NAME}</span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -77,20 +75,20 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:block relative w-full max-w-xs mr-3">
+        <div className="flex items-center gap-2 sm:gap-3"> {/* Adjusted gap for smaller screens */}
+          <div className="hidden sm:block relative w-full max-w-xs"> {/* Kept max-w-xs, removed mr-3 as gap will handle */}
             <Input type="search" placeholder="Search courses..." className="pl-10 border border-blue-400 " />
             <Search className="absolute left-3 color-blue top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           </div>
-          <Button className="mr-3" variant="ghost" size="icon" asChild>
+          <ThemeToggleButton /> {/* Added Theme Toggle Button */}
+          <Button variant="ghost" size="icon" asChild>
             <Link href="/cart">
               <ShoppingCart className="h-5 w-5" />
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
           
-          {/* Desktop: Conditional Auth buttons vs UserProfileDropdown */}
-          <div className="hidden md:flex items-center gap-3 mr-5">
+          <div className="hidden md:flex items-center gap-3">
             {isLoading ? (
               <Skeleton className="h-9 w-24 rounded-md" />
             ) : !user ? (
@@ -107,7 +105,6 @@ export function Header() {
             )}
           </div>
           
-          {/* Mobile Menu Trigger */}
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
@@ -143,7 +140,6 @@ export function Header() {
                       {link.label}
                     </Link>
                   ))}
-                  {/* Add Login/Sign Up if not logged in and not loading */}
                   {!isLoading && !user && (
                     <>
                       <DropdownMenuSeparator />
@@ -157,13 +153,19 @@ export function Header() {
                       </Link>
                     </>
                   )}
-                   {isLoading && ( // Show skeleton in mobile menu if auth state is loading
+                   {isLoading && ( 
                     <>
                       <DropdownMenuSeparator />
                       <Skeleton className="h-8 w-full rounded-md" />
                       <Skeleton className="h-8 w-full rounded-md" />
                     </>
                   )}
+                   {user && !isLoading && ( // Show UserProfileDropdown in mobile if logged in
+                     <>
+                      <DropdownMenuSeparator />
+                       <UserProfileDropdown />
+                     </>
+                   )}
                 </nav>
               </div>
             </SheetContent>

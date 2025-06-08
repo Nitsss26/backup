@@ -1,16 +1,22 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Poppins } from 'next/font/google'; // Changed from Inter to Poppins
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import AppProviders from '@/components/AppProviders'; // For context, theme, etc.
+import AppProviders from '@/components/AppProviders';
+import { ThemeProvider } from "@/components/ThemeProvider"; // Added ThemeProvider
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+// Configure Poppins font
+const poppins = Poppins({ 
+  subsets: ['latin'], 
+  weight: ['300', '400', '500', '600', '700', '800'], // Added weights
+  variable: '--font-poppins' // Define CSS variable
+});
 
 export const metadata: Metadata = {
   title: 'EdTechCart - All-in-One Marketplace for Online Courses',
   description: 'Discover, compare, and enroll in the best online courses from top educators.',
   icons: {
-    icon: '/favicon.ico', // Placeholder, actual favicon not generated
+    icon: '/favicon.ico',
   }
 };
 
@@ -21,16 +27,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        {/* Google Fonts link already present for Inter, no change needed based on instruction to NOT use next/font package for additional fonts.
-            If other fonts were requested, their <link> tags would go here.
-        */}
-      </head>
-      <body className={`${inter.variable} font-body antialiased flex flex-col min-h-screen`}>
-        <AppProviders>
-          {children}
-          <Toaster />
-        </AppProviders>
+      <body className={`${poppins.variable} font-body antialiased flex flex-col min-h-screen`}>
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+          <AppProviders>
+            {children}
+            <Toaster />
+          </AppProviders>
+        </ThemeProvider>
       </body>
     </html>
   );
