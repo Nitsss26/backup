@@ -1,4 +1,6 @@
 
+"use client"; // This page now fetches data client-side
+
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -7,21 +9,27 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { StarRating } from '@/components/ui/StarRating';
-import { getCourseById, getReviewsByCourseId, placeholderCourses, placeholderReviews } from '@/lib/placeholder-data';
-import type { Course, Review, Module as CurriculumModule, Lesson } from '@/lib/types';
+import type { Course, Review as ReviewType, Module as CurriculumModule, Lesson } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star, CalendarCheck, Video, BookCopy, RadioTower, Briefcase, FileSignature, Gift } from 'lucide-react';
+import { Clock, BarChart2, Users, Award, Download, Tv, FileText, HelpCircle, CheckCircle, ShoppingCart, Heart, PlayCircle, ShieldCheck, Star, CalendarCheck, Video, BookCopy, RadioTower, Briefcase, FileSignature, Gift, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { CourseCard } from '@/components/CourseCard';
 import { Badge } from '@/components/ui/badge';
-import { APP_NAME } from '@/lib/constants'; // Added import
+import { APP_NAME, CATEGORIES as STATIC_CATEGORIES } from '@/lib/constants';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { placeholderReviews, placeholderCourses as staticRelatedCourses } from '@/lib/placeholder-data'; // For related courses for now
 
 interface CourseDetailPageProps {
   params: { id: string };
 }
 
-function ReviewCard({ review }: { review: Review }) {
+// Helper to get review by course ID (from static data for now)
+const getReviewsByCourseId = (courseId: string): ReviewType[] => staticRelatedCourses.length > 0 ? placeholderReviews.filter(r => r.courseId === courseId) : [];
+
+
+function ReviewCard({ review }: { review: ReviewType }) {
   return (
     <Card className="mb-4 border shadow-sm bg-background">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
@@ -52,7 +60,6 @@ function CurriculumItem({ item }: { item: Lesson }) {
   else if (item.type === 'quiz') IconComponent = HelpCircle;
   else if (item.type === 'assignment') IconComponent = FileSignature;
 
-
   return (
     <div className="flex justify-between items-center py-3.5 px-2 border-b last:border-b-0 hover:bg-muted/30 rounded-sm transition-colors">
       <div className="flex items-center gap-3">
@@ -65,19 +72,65 @@ function CurriculumItem({ item }: { item: Lesson }) {
   );
 }
 
-
 export default function CourseDetailPage({ params }: CourseDetailPageProps) {
-  const course = getCourseById(params.id);
-  const reviews = course ? getReviewsByCourseId(params.id) : [];
-  const relatedCourses = placeholderCourses.filter(c => c.category === course?.category && c.id !== course?.id && c.approvalStatus === 'approved').slice(0,3);
+  const [course, setCourse] = useState<Course | null>(null);
+  const [reviews, setReviews] = useState<ReviewType[]>([]);
+  const [relatedCourses, setRelatedCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchCourseData = async () => {
+      setIsLoading(true);
+      setError(null);
+      if (!params.id) {
+        setError("Course ID is missing.");
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.get<Course>(`/api/courses/${params.id}`);
+        setCourse(response.data);
+        // For now, reviews and related courses can still come from placeholders or be fetched separately
+        setReviews(getReviewsByCourseId(params.id)); 
+        // Fetch related courses (simplified for now)
+        const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+        setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
 
-  if (!course) {
+      } catch (err: any) {
+        console.error(`Failed to fetch course ${params.id}:`, err);
+        if (err.response && err.response.status === 404) {
+            setError("Course not found.");
+        } else {
+            setError("Failed to load course details. Please try again later.");
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourseData();
+  }, [params.id]);
+
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <main className="container py-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-lg text-muted-foreground">Loading course details...</p>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !course) {
     return (
       <>
         <Header />
         <main className="container py-8 text-center">
-          <h1 className="text-2xl font-bold">Course not found</h1>
+          <h1 className="text-2xl font-bold text-destructive">{error || "Course not found"}</h1>
           <Link href="/courses" className="text-primary hover:underline mt-4 inline-block">
             Back to courses
           </Link>
@@ -119,7 +172,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         <div className="flex items-center gap-1">
                            <StarRating rating={course.rating} size={18} /> <span className="ml-1">({course.reviewsCount} ratings)</span>
                         </div>
-                        <span>{course.studentsEnrolled?.toLocaleString()} students</span>
+                        <span>{course.studentsEnrolledCount?.toLocaleString()} students</span>
                         <Badge variant="secondary" className="bg-yellow-400 text-slate-900 font-medium">{course.level}</Badge>
                     </div>
                     <p className="text-sm text-blue-100">Sold by <Link href="#seller-section" className="font-semibold hover:underline text-white">{course.providerInfo?.name || course.instructor}</Link></p>
@@ -133,7 +186,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                 <div className="hidden md:block md:col-span-1 row-start-1 md:row-start-auto">
                      <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
                         <CardHeader className="p-0">
-                            <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course promotional cover art detail page`}/>
+                            <Image src={course.imageUrl || `https://placehold.co/600x338.png?text=${encodeURIComponent(course.title)}`} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course promotional cover art detail page`}/>
                         </CardHeader>
                         <CardContent className="p-5 space-y-3">
                             <div className="text-3xl font-bold text-primary">₹{course.price.toLocaleString('en-IN')}
@@ -201,7 +254,6 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                 </Card>
             )}
 
-
             <Tabs defaultValue="curriculum" className="w-full mb-8">
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6 mx-auto max-w-3xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
                 <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
@@ -219,22 +271,22 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                         <CardDescription className="mt-1">Explore the modules and lessons in this course.</CardDescription>
                     </div>
                     <span className="text-sm text-muted-foreground whitespace-nowrap mt-2 md:mt-0">
-                        {course.curriculum?.length || 0} modules &bull; {course.curriculum?.reduce((acc, mod) => acc + mod.lessons.length, 0) || 0} lessons &bull; {course.duration} total
+                        {course.curriculum?.length || 0} modules &bull; {course.curriculum?.reduce((acc, mod) => acc + (mod.lessons?.length || 0), 0) || 0} lessons &bull; {course.duration} total
                     </span>
                   </CardHeader>
                   <CardContent>
-                    <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [course.curriculum[0].id] : []} className="w-full">
+                    <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
                       {course.curriculum?.sort((a,b) => a.order - b.order).map((module, index) => (
-                        <AccordionItem value={module.id} key={module.id} className="border-b last:border-b-0">
+                        <AccordionItem value={String(module.id) || `mod-${index}`} key={String(module.id) || `mod-key-${index}`} className="border-b last:border-b-0">
                           <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10 text-foreground">
                             <div className="flex justify-between w-full items-center">
                                 <span className="text-left font-semibold">Module {index + 1}: {module.title}</span>
-                                <span className="text-xs text-muted-foreground font-normal ml-2 shrink-0">{module.lessons.length} lessons</span>
+                                <span className="text-xs text-muted-foreground font-normal ml-2 shrink-0">{module.lessons?.length || 0} lessons</span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="pt-1 pb-1 px-2">
-                            {module.lessons.sort((a,b) => a.order - b.order).map(lesson => (
-                              <CurriculumItem key={lesson.id} item={lesson} />
+                            {module.lessons?.sort((a,b) => a.order - b.order).map(lesson => (
+                              <CurriculumItem key={String(lesson.id) || `lesson-key-${lesson.title}`} item={lesson} />
                             ))}
                           </AccordionContent>
                         </AccordionItem>
@@ -275,8 +327,8 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                     </CardHeader>
                     <CardContent className="flex flex-col md:flex-row items-start gap-6">
                         <Avatar className="h-28 w-28 md:h-36 md:w-36 border-2 border-primary p-1">
-                            <AvatarImage src={course.providerInfo?.logoUrl || `https://placehold.co/150x150/EBF4FF/3B82F6?text=${(course.providerInfo?.name || course.instructor).split(' ').map(n=>n[0]).join('')}`} alt={course.providerInfo?.name || course.instructor} data-ai-hint="seller logo instructor profile picture school university"/>
-                            <AvatarFallback>{(course.providerInfo?.name || course.instructor).split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+                            <AvatarImage src={course.providerInfo?.logoUrl || `https://placehold.co/150x150/EBF4FF/3B82F6?text=${(course.providerInfo?.name || course.instructor || 'S').split(' ').map(n=>n[0]).join('')}`} alt={course.providerInfo?.name || course.instructor} data-ai-hint="seller logo instructor profile picture school university"/>
+                            <AvatarFallback>{(course.providerInfo?.name || course.instructor || 'S').split(' ').map(n=>n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                             <h3 className="text-xl font-bold text-primary">{course.providerInfo?.name || course.instructor}</h3>
@@ -289,10 +341,11 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                                 {course.providerInfo?.description || `Experienced professional in ${course.category}. Passionate about sharing knowledge and helping students succeed.`}
                             </p>
                             <div className="flex flex-wrap gap-x-6 gap-y-3 mt-4 text-sm border-t pt-4">
-                                <div className="flex items-center gap-1.5 text-muted-foreground"><Star className="h-4 w-4 text-yellow-400 fill-yellow-400" /> {course.rating} Seller Rating</div>
-                                <div className="flex items-center gap-1.5 text-muted-foreground"><Award className="h-4 w-4 text-primary" /> {course.reviewsCount} Course Reviews on Platform</div>
-                                <div className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4 text-primary" /> {course.studentsEnrolled?.toLocaleString()} Students on Platform</div>
-                                <div className="flex items-center gap-1.5 text-muted-foreground"><Briefcase className="h-4 w-4 text-primary" /> {placeholderCourses.filter(c => c.sellerId === course.sellerId).length} Courses Listed</div>
+                                <div className="flex items-center gap-1.5 text-muted-foreground"><Star className="h-4 w-4 text-yellow-400 fill-yellow-400" /> {course.rating} Seller Rating (Platform Avg.)</div>
+                                <div className="flex items-center gap-1.5 text-muted-foreground"><Award className="h-4 w-4 text-primary" /> {course.reviewsCount} Course Reviews</div>
+                                <div className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4 text-primary" /> {course.studentsEnrolledCount?.toLocaleString()} Total Students on Course</div>
+                                {/* Add actual seller course count later */}
+                                {/* <div className="flex items-center gap-1.5 text-muted-foreground"><Briefcase className="h-4 w-4 text-primary" /> X Courses Listed</div> */}
                             </div>
                              <Button variant="outline" size="sm" className="mt-6" disabled>View Seller Store (Coming Soon)</Button>
                         </div>
@@ -312,7 +365,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
                   </CardHeader>
                   <CardContent>
                     {reviews.length > 0 ? (
-                      reviews.slice(0, 5).map(review => <ReviewCard key={review.id} review={review} />)
+                      reviews.slice(0, 5).map(review => <ReviewCard key={String(review._id) || review.id} review={review} />)
                     ) : (
                       <p className="text-muted-foreground py-6 text-center">No reviews yet for this course. Be the first to share your experience!</p>
                     )}
@@ -347,12 +400,10 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
           </div>
 
           <div className="lg:col-span-1">
-            {/* Sticky Price Card for Desktop - already present if md:block is effective for the main card */}
-            {/* This one is specifically for mobile or when the main one isn't sticky */}
             <div className="lg:hidden mt-8 md:mt-0"> 
                  <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
                     <CardHeader className="p-0 md:hidden">
-                         <Image src={course.imageUrl} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course mobile cover art detail page`}/>
+                         <Image src={course.imageUrl || `https://placehold.co/600x338.png?text=${encodeURIComponent(course.title)}`} alt={course.title} width={600} height={338} className="rounded-t-lg object-cover w-full aspect-video" data-ai-hint={`${imageHint} course mobile cover art detail page`}/>
                     </CardHeader>
                     <CardContent className="p-5 space-y-3">
                         <div className="text-3xl font-bold text-primary">₹{course.price.toLocaleString('en-IN')}
@@ -391,7 +442,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
               <h2 className="text-2xl font-bold mb-6 font-headline text-foreground">Related Courses</h2>
               <div className="grid grid-cols-1 gap-6">
                 {relatedCourses.map((relCourse) => (
-                  <CourseCard key={relCourse.id} course={relCourse} />
+                  <CourseCard key={String(relCourse._id) || relCourse.id} course={relCourse} />
                 ))}
               </div>
             </section>

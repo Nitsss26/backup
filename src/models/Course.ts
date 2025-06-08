@@ -100,7 +100,7 @@ const CourseSchema: Schema<ICourse> = new Schema({
   certificateAvailable: { type: Boolean, default: false },
   highlights: [{ type: String }],
   curriculum: [ModuleSchema],
-  seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  seller: { type: Schema.Types.ObjectId, ref: 'User' },
   studentsEnrolledCount: { type: Number, default: 0, min: 0 },
   rating: { type: Number, default: 0, min: 0, max: 5 },
   reviewsCount: { type: Number, default: 0, min: 0 },

@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import UserModel from '../src/models/User';
@@ -44,6 +43,38 @@ if (!MONGODB_URI) {
 
 console.log("🌱 Starting database seed process...");
 
+// Language mapping function to convert to MongoDB-supported language codes
+// Only using languages that are supported in MongoDB Community Edition
+const getMongoLanguageCode = (language: string): string => {
+  const langMap: { [key: string]: string } = {
+    'english': 'english',
+    'spanish': 'spanish', 
+    'french': 'french',
+    'german': 'german',
+    'italian': 'italian',
+    'portuguese': 'portuguese',
+    'russian': 'russian',
+    'dutch': 'dutch',
+    'danish': 'danish',
+    'finnish': 'finnish',
+    'norwegian': 'norwegian',
+    'swedish': 'swedish',
+    'turkish': 'turkish',
+    // Languages not supported in Community Edition - fallback to English
+    'chinese': 'english',
+    'mandarin chinese': 'english',
+    'chinese-simplified': 'english',
+    'japanese': 'english',
+    'korean': 'english',
+    'hindi': 'english',
+    'hi': 'english',
+    'arabic': 'english'
+  };
+
+  const normalizedLang = language.toLowerCase().trim();
+  return langMap[normalizedLang] || 'english'; // Default to English if language not found
+};
+
 const connectDB = async () => {
   try {
     if (mongoose.connection.readyState >= 1) {
@@ -81,7 +112,7 @@ const seedUsers = async () => {
     const user = new UserModel({
       ...userData,
       _id: new mongoose.Types.ObjectId(), 
-      password: 'password123', // IMPORTANT: In a real app, hash passwords securely (e.g., using bcrypt)
+      password: 'password123', 
       verificationStatus: userData.verificationStatus || 'unverified',
       documentsSubmitted: userData.documentsSubmitted || false,
       notificationPreferences: userData.notificationPreferences || { courseUpdates: true, promotions: false, platformAnnouncements: true },
@@ -115,22 +146,8 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
       console.warn(`⚠️ Seller ID ${courseData.sellerId} for course "${courseData.title}" not found in userMap. Skipping seller link.`);
     }
 
-    let languageForDb: string;
-    const rawLanguage = courseData.language || 'english';
-    const lowerCaseRawLanguage = rawLanguage.toLowerCase().trim();
-
-    if (lowerCaseRawLanguage === 'mandarin chinese') {
-      languageForDb = 'chinese-simplified';
-    } else if (lowerCaseRawLanguage === 'hindi') {
-      languageForDb = 'hindi'; // Store as 'hindi' (lowercase) for MongoDB text index
-    } else {
-      languageForDb = lowerCaseRawLanguage;
-    }
-    
-    if (!languageForDb) { // Fallback, though courseData.language || 'english' should prevent this
-        languageForDb = 'english';
-    }
-
+    // Use the proper language mapping function
+    const languageForDb = getMongoLanguageCode(courseData.language || 'english');
 
     const course = new CourseModel({
       ...courseData,
@@ -183,7 +200,8 @@ const seedReviews = async (userMap: Map<string, mongoose.Types.ObjectId>, course
         await review.save();
         count++;
       } catch (error: any) {
-        if (error.code !== 11000) { // Mute duplicate key errors during seeding for reviews
+        // Mute duplicate key errors during seeding for reviews (a user can review a course only once)
+        if (error.code !== 11000) {
             console.error(`🔴 Error seeding review for course ${reviewData.courseId} by user ${reviewData.userId}:`, error);
         }
       }
@@ -268,29 +286,30 @@ const seedLookups = async () => {
   console.log("🏷️  Seeding lookups (instructor types, difficulty levels, languages)...");
   let count = 0;
   
-  const lookupDataConfig = [
-    { type: 'INSTRUCTOR_TYPE', values: INSTRUCTOR_TYPES },
-    { type: 'DIFFICULTY_LEVEL', values: DIFFICULTY_LEVELS },
-    { type: 'LANGUAGE', values: LANGUAGES },
-  ];
+  // Create a function to get display language values for lookups (different from MongoDB language codes)
+  const getDisplayLanguageValue = (language: string): string => {
+    const langMap: { [key: string]: string } = {
+      'mandarin chinese': 'chinese-simplified',
+      'hindi': 'hindi', // Keep as hindi for display purposes
+    };
+    
+    const normalizedLang = language.toLowerCase().trim();
+    return langMap[normalizedLang] || language.toLowerCase();
+  };
 
-  for (const config of lookupDataConfig) {
-    for (const value of config.values) {
-      let dbValue = value.toLowerCase().trim();
-      if (config.type === 'LANGUAGE') {
-        if (dbValue === 'mandarin chinese') {
-          dbValue = 'chinese-simplified';
-        } else if (dbValue === 'hindi') {
-          dbValue = 'hindi'; // Ensure 'hindi' (lowercase) for lookup storage
-        }
-      }
-      try {
-        const newLookup = new LookupModel({ type: config.type, value: dbValue });
-        await newLookup.save();
-        count++;
-      } catch (error: any) {
-        if (error.code !== 11000) console.error(`🔴 Error seeding lookup ${config.type} - ${value}:`, error);
-      }
+  const lookupData = [
+    ...INSTRUCTOR_TYPES.map(value => ({ type: 'INSTRUCTOR_TYPE', value })),
+    ...DIFFICULTY_LEVELS.map(value => ({ type: 'DIFFICULTY_LEVEL', value })),
+    ...LANGUAGES.map(value => ({ type: 'LANGUAGE', value: getDisplayLanguageValue(value) })),
+  ];
+  
+  for (const lookup of lookupData) {
+    try {
+      const newLookup = new LookupModel(lookup);
+      await newLookup.save();
+      count++;
+    } catch (error: any) {
+      if (error.code !== 11000) console.error(`🔴 Error seeding lookup ${lookup.type} - ${lookup.value}:`, error);
     }
   }
   console.log(`🏷️  Seeded ${count} lookup items.`);
@@ -331,11 +350,13 @@ const seedDatabase = async () => {
   
   await clearDatabase(); 
 
+  // Seed new lookup collections first
   await seedCategories();
   await seedLookups();
   await seedSortOptions();
   await seedPaymentOptions();
 
+  // Then seed existing data
   const userMap = await seedUsers();
   const courseMap = await seedCourses(userMap);
   await seedReviews(userMap, courseMap);

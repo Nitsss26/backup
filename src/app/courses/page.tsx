@@ -7,135 +7,81 @@ import { CourseCard } from '@/components/CourseCard';
 import { FilterSidebar } from '@/components/FilterSidebar';
 import { PaginationControls } from '@/components/PaginationControls';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { placeholderCourses } from '@/lib/placeholder-data';
 import type { Course } from '@/lib/types';
-import { ITEMS_PER_PAGE, SORT_OPTIONS } from '@/lib/constants';
+import { ITEMS_PER_PAGE, SORT_OPTIONS, CATEGORIES as STATIC_CATEGORIES } from '@/lib/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Filter, Search } from 'lucide-react';
+import { Filter, Search, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams as useNextSearchParams } from 'next/navigation';
+import { useEffect, useState, useCallback } from 'react';
+import axios from 'axios';
 
-// Define a type for the parsed search params object
-interface ParsedSearchParams {
-  q?: string;
-  category?: string[];
-  minPrice?: number;
-  maxPrice?: number;
-  rating?: number[];
-  level?: string[];
-  instructor?: string[];
-  language?: string[];
-  certification?: boolean;
-  sort?: string;
-  page?: number;
+interface ApiResponse {
+  courses: Course[];
+  totalPages: number;
+  currentPage: number;
+  totalCourses: number;
 }
-
-function applyFiltersAndSort(courses: Course[], params: ParsedSearchParams): Course[] {
-  let filtered = [...courses.filter(c => c.approvalStatus === 'approved')];
-
-  if (params.q) {
-    const query = params.q.toLowerCase();
-    filtered = filtered.filter(c => 
-      c.title.toLowerCase().includes(query) || 
-      (c.description && c.description.toLowerCase().includes(query)) ||
-      (c.instructor && c.instructor.toLowerCase().includes(query)) ||
-      (c.providerInfo?.name && c.providerInfo.name.toLowerCase().includes(query)) ||
-      (c.category && c.category.toLowerCase().includes(query))
-    );
-  }
-
-  if (params.category && params.category.length > 0) {
-    filtered = filtered.filter(c => params.category!.includes(c.category.toLowerCase().replace(/\s+/g, '-')));
-  }
-  
-  if (params.minPrice) {
-    filtered = filtered.filter(c => c.price >= params.minPrice!);
-  }
-  if (params.maxPrice) {
-    filtered = filtered.filter(c => c.price <= params.maxPrice!);
-  }
-
-  if (params.rating && params.rating.length > 0) {
-    filtered = filtered.filter(c => params.rating!.some(r => c.rating >= r));
-  }
-  
-  if (params.level && params.level.length > 0) {
-     filtered = filtered.filter(c => c.level && params.level!.includes(c.level));
-  }
-  
-  if (params.instructor && params.instructor.length > 0) {
-    filtered = filtered.filter(c => c.providerInfo?.type && params.instructor!.includes(c.providerInfo.type));
-  }
-  
-  if (params.language && params.language.length > 0) {
-     filtered = filtered.filter(c => c.language && params.language!.includes(c.language));
-  }
-
-  if (params.certification === true) {
-    filtered = filtered.filter(c => c.certificateAvailable);
-  }
-
-
-  if (params.sort) {
-    switch (params.sort) {
-      case 'price_asc':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price_desc':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating_desc':
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'newest': 
-        filtered.sort((a, b) => new Date(b.lastUpdated || 0).getTime() - new Date(a.lastUpdated || 0).getTime());
-        break;
-      case 'popularity':
-        filtered.sort((a,b) => (b.studentsEnrolled || 0) - (a.studentsEnrolled || 0));
-        break;
-    }
-  }
-
-  return filtered;
-}
-
 
 export default function CoursesPage() {
   const router = useRouter(); 
   const pathname = usePathname(); 
   const currentSearchParams = useNextSearchParams(); 
 
-  // Construct ParsedSearchParams object from currentSearchParams
-  const parsedParams: ParsedSearchParams = {
-    q: currentSearchParams.get('q') || undefined,
-    category: currentSearchParams.getAll('category') || [],
-    minPrice: currentSearchParams.has('minPrice') ? Number(currentSearchParams.get('minPrice')) : undefined,
-    maxPrice: currentSearchParams.has('maxPrice') ? Number(currentSearchParams.get('maxPrice')) : undefined,
-    rating: currentSearchParams.getAll('rating').map(Number) || [],
-    level: currentSearchParams.getAll('level') || [],
-    instructor: currentSearchParams.getAll('instructor') || [],
-    language: currentSearchParams.getAll('language') || [],
-    certification: currentSearchParams.get('certification') === 'true' || undefined,
-    sort: currentSearchParams.get('sort') || undefined,
-    page: parseInt(currentSearchParams.get('page') || '1', 10),
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCourses, setTotalCourses] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCourses = useCallback(async (params: URLSearchParams) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get<ApiResponse>(`/api/courses?${params.toString()}`);
+      setCourses(response.data.courses);
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.currentPage);
+      setTotalCourses(response.data.totalCourses);
+    } catch (err) {
+      console.error("Failed to fetch courses:", err);
+      setError("Failed to load courses. Please try again later.");
+      setCourses([]); // Clear courses on error
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(currentSearchParams.toString());
+    if (!params.has('page')) {
+      params.set('page', '1');
+    }
+    if (!params.has('limit')) {
+      params.set('limit', String(ITEMS_PER_PAGE));
+    }
+    fetchCourses(params);
+  }, [currentSearchParams, fetchCourses]);
+
+  const handleSortChange = (value: string) => {
+    const params = new URLSearchParams(currentSearchParams.toString()); 
+    if (value === 'relevance') {
+      params.delete('sort');
+    } else {
+      params.set('sort', value);
+    }
+    params.set('page', '1'); 
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
   
-  const page = parsedParams.page || 1;
-  
-  const filteredAndSortedCourses = applyFiltersAndSort(placeholderCourses, parsedParams);
-  
-  const totalCourses = filteredAndSortedCourses.length;
-  const totalPages = Math.ceil(totalCourses / ITEMS_PER_PAGE);
-  const paginatedCourses = filteredAndSortedCourses.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
-
-  const currentCategoryName = parsedParams.category && parsedParams.category.length > 0 
-    ? parsedParams.category[0].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') 
+  const currentCategorySlug = currentSearchParams.get('category');
+  const currentCategoryName = currentCategorySlug 
+    ? STATIC_CATEGORIES.find(c => c.slug === currentCategorySlug)?.name 
     : undefined;
+  const searchQuery = currentSearchParams.get('q');
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -143,6 +89,8 @@ export default function CoursesPage() {
   ];
   if (currentCategoryName) {
     breadcrumbItems.push({ label: currentCategoryName });
+  } else if (searchQuery) {
+    breadcrumbItems.push({ label: `Search: "${searchQuery}"` });
   }
 
 
@@ -153,17 +101,18 @@ export default function CoursesPage() {
         <Breadcrumbs items={breadcrumbItems} />
         <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold font-headline">
-            {parsedParams.q ? `Search results for "${parsedParams.q}"` : 
+            {searchQuery ? `Search results for "${searchQuery}"` : 
              currentCategoryName ? `${currentCategoryName} Courses` : 
              'All Courses'}
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Showing {paginatedCourses.length > 0 ? ((page - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(page * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
-          </p>
+          {!isLoading && !error && (
+            <p className="text-muted-foreground mt-2">
+              Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Mobile Filter Trigger */}
           <div className="md:hidden mb-4">
             <Sheet>
               <SheetTrigger asChild>
@@ -177,7 +126,6 @@ export default function CoursesPage() {
             </Sheet>
           </div>
           
-          {/* Desktop Filter Sidebar */}
           <div className="hidden md:block">
             <FilterSidebar />
           </div>
@@ -185,20 +133,11 @@ export default function CoursesPage() {
           <div className="flex-1">
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-muted-foreground">
-                {totalCourses} courses found
+                {!isLoading && !error ? `${totalCourses} courses found` : isLoading ? 'Loading...' : ''}
               </p>
               <Select 
-                value={parsedParams.sort || 'relevance'} 
-                onValueChange={(value) => {
-                  const params = new URLSearchParams(currentSearchParams.toString()); 
-                  if (value === 'relevance') {
-                    params.delete('sort');
-                  } else {
-                    params.set('sort', value);
-                  }
-                  params.set('page', '1'); 
-                  router.push(`${pathname}?${params.toString()}`);
-              }}>
+                value={currentSearchParams.get('sort') || 'relevance'} 
+                onValueChange={handleSortChange}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -212,10 +151,21 @@ export default function CoursesPage() {
               </Select>
             </div>
 
-            {paginatedCourses.length > 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center items-center py-16">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              </div>
+            ) : error ? (
+              <div className="text-center py-16 text-destructive-foreground bg-destructive/10 rounded-lg shadow-sm p-6">
+                <Search className="h-16 w-16 mx-auto mb-4 text-destructive"/>
+                <h2 className="text-2xl font-semibold mb-2">Error Loading Courses</h2>
+                <p className="text-sm mb-6">{error}</p>
+                <Button onClick={() => fetchCourses(new URLSearchParams(currentSearchParams.toString()))}>Try Again</Button>
+              </div>
+            ) : courses.length > 0 ? (
               <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paginatedCourses.map((course) => (
-                  <CourseCard key={course.id} course={course} />
+                {courses.map((course) => (
+                  <CourseCard key={course._id || course.id} course={course} />
                 ))}
               </div>
             ) : (
@@ -227,12 +177,14 @@ export default function CoursesPage() {
               </div>
             )}
 
-            <PaginationControls
-              currentPage={page}
-              totalPages={totalPages}
-              hasNextPage={page * ITEMS_PER_PAGE < totalCourses}
-              hasPrevPage={page > 1}
-            />
+            {!isLoading && !error && totalCourses > 0 && (
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                hasNextPage={currentPage * ITEMS_PER_PAGE < totalCourses}
+                hasPrevPage={currentPage > 1}
+              />
+            )}
           </div>
         </div>
       </main>
@@ -240,4 +192,3 @@ export default function CoursesPage() {
     </div>
   );
 }
-
