@@ -114,7 +114,11 @@ const CourseSchema: Schema<ICourse> = new Schema({
   lastUpdated: { type: Date, default: Date.now },
 }, { timestamps: true });
 
-CourseSchema.index({ title: 'text', description: 'text', tags: 'text', category: 1 }); // For text search and filtering
+// Corrected text index definition
+CourseSchema.index(
+  { title: 'text', description: 'text', tags: 'text' }, // Fields to include in the text index
+  { default_language: 'english' } // Specify default language for the index
+);
 
 const CourseModel: Model<ICourse> = models.Course || mongoose.model<ICourse>('Course', CourseSchema);
 
