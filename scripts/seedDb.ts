@@ -6,10 +6,10 @@ import CourseModel from '../src/models/Course';
 import ReviewModel from '../src/models/Review';
 import OrderModel from '../src/models/Order';
 import CertificateModel from '../src/models/Certificate';
-import CategoryModel from '../src/models/Category'; // New import
-import LookupModel from '../src/models/Lookup'; // New import
-import SortOptionModel from '../src/models/SortOption'; // New import
-import PaymentOptionModel from '../src/models/PaymentOption'; // New import
+import CategoryModel from '../src/models/Category';
+import LookupModel from '../src/models/Lookup';
+import SortOptionModel from '../src/models/SortOption';
+import PaymentOptionModel from '../src/models/PaymentOption';
 
 import { 
   placeholderUsers, 
@@ -21,7 +21,7 @@ import {
   topCategoryShowcaseData
 } from '../src/lib/placeholder-data';
 
-import { // Importing constants to seed from
+import {
   CATEGORIES,
   INSTRUCTOR_TYPES,
   DIFFICULTY_LEVELS,
@@ -66,10 +66,10 @@ const clearDatabase = async () => {
   await ReviewModel.deleteMany({});
   await OrderModel.deleteMany({});
   await CertificateModel.deleteMany({});
-  await CategoryModel.deleteMany({}); 
-  await LookupModel.deleteMany({}); 
-  await SortOptionModel.deleteMany({}); 
-  await PaymentOptionModel.deleteMany({}); 
+  await CategoryModel.deleteMany({});
+  await LookupModel.deleteMany({});
+  await SortOptionModel.deleteMany({});
+  await PaymentOptionModel.deleteMany({});
   console.log("🗑️  Database cleared.");
 };
 
@@ -81,7 +81,7 @@ const seedUsers = async () => {
     const user = new UserModel({
       ...userData,
       _id: new mongoose.Types.ObjectId(), 
-      password: 'password123', 
+      password: 'password123', // IMPORTANT: In a real app, hash passwords securely (e.g., using bcrypt)
       verificationStatus: userData.verificationStatus || 'unverified',
       documentsSubmitted: userData.documentsSubmitted || false,
       notificationPreferences: userData.notificationPreferences || { courseUpdates: true, promotions: false, platformAnnouncements: true },
@@ -115,17 +115,20 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
       console.warn(`⚠️ Seller ID ${courseData.sellerId} for course "${courseData.title}" not found in userMap. Skipping seller link.`);
     }
 
-    // Standardize language for MongoDB text index compatibility
-    let languageForDb = 'english'; // Default value if courseData.language is undefined
-    if (courseData.language) {
-        const lowerCaseLanguage = courseData.language.toLowerCase();
-        if (lowerCaseLanguage === 'hindi') {
-            languageForDb = 'hindi'; // MongoDB expects 'hindi' (lowercase)
-        } else if (lowerCaseLanguage === 'mandarin chinese') {
-            languageForDb = 'chinese-simplified';
-        } else {
-            languageForDb = lowerCaseLanguage; // Store other languages as lowercase
-        }
+    let languageForDb: string;
+    const rawLanguage = courseData.language || 'english';
+    const lowerCaseRawLanguage = rawLanguage.toLowerCase().trim();
+
+    if (lowerCaseRawLanguage === 'mandarin chinese') {
+      languageForDb = 'chinese-simplified';
+    } else if (lowerCaseRawLanguage === 'hindi') {
+      languageForDb = 'hindi'; // Store as 'hindi' (lowercase) for MongoDB text index
+    } else {
+      languageForDb = lowerCaseRawLanguage;
+    }
+    
+    if (!languageForDb) { // Fallback, though courseData.language || 'english' should prevent this
+        languageForDb = 'english';
     }
 
 
@@ -180,7 +183,7 @@ const seedReviews = async (userMap: Map<string, mongoose.Types.ObjectId>, course
         await review.save();
         count++;
       } catch (error: any) {
-        if (error.code !== 11000) {
+        if (error.code !== 11000) { // Mute duplicate key errors during seeding for reviews
             console.error(`🔴 Error seeding review for course ${reviewData.courseId} by user ${reviewData.userId}:`, error);
         }
       }
@@ -264,27 +267,30 @@ const seedCategories = async () => {
 const seedLookups = async () => {
   console.log("🏷️  Seeding lookups (instructor types, difficulty levels, languages)...");
   let count = 0;
-  const lookupData = [
-    ...INSTRUCTOR_TYPES.map(value => ({ type: 'INSTRUCTOR_TYPE', value })),
-    ...DIFFICULTY_LEVELS.map(value => ({ type: 'DIFFICULTY_LEVEL', value })),
-    ...LANGUAGES.map(value => {
-      const lcValue = value.toLowerCase();
-      let dbValue = lcValue;
-      if (lcValue === 'hindi') {
-        dbValue = 'hindi'; // Ensure 'hindi' (lowercase) for lookups as well
-      } else if (lcValue === 'mandarin chinese') {
-        dbValue = 'chinese-simplified';
-      }
-      return { type: 'LANGUAGE', value: dbValue };
-    }),
+  
+  const lookupDataConfig = [
+    { type: 'INSTRUCTOR_TYPE', values: INSTRUCTOR_TYPES },
+    { type: 'DIFFICULTY_LEVEL', values: DIFFICULTY_LEVELS },
+    { type: 'LANGUAGE', values: LANGUAGES },
   ];
-  for (const lookup of lookupData) {
-    try {
-      const newLookup = new LookupModel(lookup);
-      await newLookup.save();
-      count++;
-    } catch (error: any) {
-      if (error.code !== 11000) console.error(`🔴 Error seeding lookup ${lookup.type} - ${lookup.value}:`, error);
+
+  for (const config of lookupDataConfig) {
+    for (const value of config.values) {
+      let dbValue = value.toLowerCase().trim();
+      if (config.type === 'LANGUAGE') {
+        if (dbValue === 'mandarin chinese') {
+          dbValue = 'chinese-simplified';
+        } else if (dbValue === 'hindi') {
+          dbValue = 'hindi'; // Ensure 'hindi' (lowercase) for lookup storage
+        }
+      }
+      try {
+        const newLookup = new LookupModel({ type: config.type, value: dbValue });
+        await newLookup.save();
+        count++;
+      } catch (error: any) {
+        if (error.code !== 11000) console.error(`🔴 Error seeding lookup ${config.type} - ${value}:`, error);
+      }
     }
   }
   console.log(`🏷️  Seeded ${count} lookup items.`);
@@ -313,14 +319,12 @@ const seedPaymentOptions = async () => {
       const newPaymentOption = new PaymentOptionModel({ optionId: option.id, name: option.name });
       await newPaymentOption.save();
       count++;
-    } catch (error: any)
-     {
+    } catch (error: any) {
       if (error.code !== 11000) console.error(`🔴 Error seeding payment option ${option.name}:`, error);
     }
   }
   console.log(`💳 Seeded ${count} payment options.`);
 };
-
 
 const seedDatabase = async () => {
   await connectDB();
@@ -333,7 +337,7 @@ const seedDatabase = async () => {
   await seedPaymentOptions();
 
   const userMap = await seedUsers();
-  const courseMap = await seedCourses(userMap); // This needs to be error-free
+  const courseMap = await seedCourses(userMap);
   await seedReviews(userMap, courseMap);
   await seedOrders(userMap, courseMap);
   await seedCertificates(userMap, courseMap);
@@ -349,4 +353,3 @@ seedDatabase().catch(error => {
   mongoose.disconnect();
   process.exit(1);
 });
-
