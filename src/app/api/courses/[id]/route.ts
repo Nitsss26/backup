@@ -25,21 +25,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}') with population`);
-    const course = await CourseModel.findById(id)
-      .populate('seller', 'name avatarUrl verificationStatus bio') // Simplified populate
-      .lean();
+    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}').lean() without populate`);
+    const course = await CourseModel.findById(id).lean();
 
     if (!course) {
       console.warn(`🟡 [/api/courses/[id]] Course not found for ID: ${id}`);
       return NextResponse.json({ message: 'Course not found' }, { status: 404 });
     }
+    
+    // If findById worked, we can try to populate seller info later or rely on denormalized providerInfo
     console.log(`🟢 [/api/courses/[id]] Successfully fetched course: ${course.title}`);
+    if (course.seller) {
+        console.log(`[CourseDetailAPI] Course found. Seller ID: ${course.seller}. ProviderInfo from Course doc:`, course.providerInfo);
+    }
     return NextResponse.json(course);
   } catch (error) {
     const err = error as Error;
     console.error(`🔴 [/api/courses/[id]] Failed to fetch course ${id}:`, err);
-    // Log the full error object if possible, or specific properties
     console.error(`🔴 [/api/courses/[id]] Full error object:`, JSON.stringify(err, Object.getOwnPropertyNames(err)));
     return NextResponse.json({
       message: 'Failed to fetch course due to a server error.',

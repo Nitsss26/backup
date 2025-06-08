@@ -81,48 +81,55 @@ export default function CourseDetailPage() {
 
   useEffect(() => {
     const fetchCourseData = async () => {
-      setIsLoading(true);
-      setError(null);
       if (!courseId) {
-        setError("Course ID is missing.");
+        setError("Course ID is missing from URL.");
         setIsLoading(false);
         return;
       }
+      console.log(`[CourseDetailPage] Attempting to fetch course with ID: ${courseId}`);
+      setIsLoading(true);
+      setError(null);
+
       try {
         const response = await axios.get<Course>(`/api/courses/${courseId}`);
         setCourse(response.data);
-        setReviews(getReviewsByCourseId(courseId));
+        setReviews(getReviewsByCourseId(courseId)); // Still placeholder
         
         if (response.data && response.data.category) {
-            const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
-            setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
+            const relatedCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+            // Ensure response.data._id is used for comparison if available
+            const currentCourseId = response.data._id || response.data.id;
+            setRelatedCourses(relatedCoursesResponse.data.courses.filter(c => c._id !== currentCourseId).slice(0,3));
         } else {
             setRelatedCourses([]); 
         }
-
       } catch (err: any) {
-        console.error(`Failed to fetch course ${courseId}:`, err);
-        if (err.response && err.response.status === 404) {
-            setError("Course not found.");
-        } else if (err.name === 'AxiosError' && err.message === 'Network Error') {
-            setError("Network Error: Could not connect to the server. Please check your internet connection or try again later.");
+        console.error(`[CourseDetailPage] Failed to fetch course ${courseId}:`, err);
+        console.error("[CourseDetailPage] Full Axios error object:", JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+        if (err.response) {
+          console.error("[CourseDetailPage] Server Error Response Data:", err.response.data);
+          console.error("[CourseDetailPage] Server Error Response Status:", err.response.status);
+          if (err.response.status === 404) {
+            setError(`Course not found (ID: ${courseId}). Please check the ID or if the course exists.`);
+          } else if (err.response.status === 400) {
+            setError(err.response.data?.message || `Invalid request for course ID: ${courseId}. Please ensure the ID format is correct.`);
+          } else {
+            setError(err.response.data?.message || `Server error ${err.response.status} while fetching course. Please try again later.`);
+          }
+        } else if (err.request) {
+          console.error("[CourseDetailPage] No response received:", err.request);
+          setError("Network Error: No response received from server. Please check your connection and try again.");
         } else {
-            setError("Failed to load course details. Please try again later.");
+          console.error("[CourseDetailPage] Axios setup error:", err.message);
+          setError(`An error occurred: ${err.message}. Please try refreshing the page.`);
         }
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (courseId) {
-        fetchCourseData();
-    } else {
-        if (!isLoading) { 
-            setError("Course ID not found in URL parameters.");
-            setIsLoading(false);
-        }
-    }
-  }, [courseId, isLoading]); // Added isLoading to dependency array to avoid potential re-fetch loops if error occurs early
+    fetchCourseData();
+  }, [courseId]);
 
   if (isLoading) {
     return (
@@ -142,9 +149,13 @@ export default function CourseDetailPage() {
       <>
         <Header />
         <main className="container py-8 text-center">
-          <h1 className="text-2xl font-bold text-destructive">{error || "Course not found"}</h1>
+          <h1 className="text-2xl font-bold text-destructive mb-4">{error || "Course data could not be loaded."}</h1>
+          <p className="text-muted-foreground mb-6">
+            The course you are looking for might not exist, or there was an issue retrieving its details.
+            Please check the URL, ensure the Course ID is correct, or try again later.
+          </p>
           <Link href="/courses" className="text-primary hover:underline mt-4 inline-block">
-            Back to courses
+            Back to All Courses
           </Link>
         </main>
         <Footer />
@@ -466,7 +477,3 @@ export default function CourseDetailPage() {
     </div>
   );
 }
-
-    
- 
-    
