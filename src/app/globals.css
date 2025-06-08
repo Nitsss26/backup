@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 body {
-  font-family: var(--font-montserrat), sans-serif; /* Use the CSS variable for Montserrat */
+  font-family: var(--font-poppins), sans-serif; /* Use the CSS variable for Poppins */
 }
 
 @layer base {

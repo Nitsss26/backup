@@ -1,16 +1,16 @@
 
 import type { Metadata } from 'next';
-import { Montserrat } from 'next/font/google'; // Changed from Poppins to Montserrat
+import { Poppins } from 'next/font/google'; // Changed back to Poppins
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import AppProviders from '@/components/AppProviders';
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-// Configure Montserrat font
-const montserrat = Montserrat({ 
+// Configure Poppins font
+const poppins = Poppins({ 
   subsets: ['latin'], 
-  weight: ['300', '400', '500', '600', '700', '800'], // Common weights for Montserrat
-  variable: '--font-montserrat' // Define CSS variable
+  weight: ['300', '400', '500', '600', '700', '800'], // Common weights for Poppins
+  variable: '--font-poppins' // Define CSS variable
 });
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${montserrat.variable} font-body antialiased flex flex-col min-h-screen`}>
+      <body className={`${poppins.variable} font-body antialiased flex flex-col min-h-screen`}>
         <ThemeProvider
             attribute="class"
             defaultTheme="system"
