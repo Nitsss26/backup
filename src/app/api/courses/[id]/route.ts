@@ -25,9 +25,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}')`);
+    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}') with population`);
     const course = await CourseModel.findById(id)
-      .populate('seller', 'name avatarUrl verificationStatus bio providerInfo.websiteUrl')
+      .populate('seller', 'name avatarUrl verificationStatus bio') // Simplified populate
       .lean();
 
     if (!course) {
@@ -39,11 +39,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     const err = error as Error;
     console.error(`🔴 [/api/courses/[id]] Failed to fetch course ${id}:`, err);
+    // Log the full error object if possible, or specific properties
+    console.error(`🔴 [/api/courses/[id]] Full error object:`, JSON.stringify(err, Object.getOwnPropertyNames(err)));
     return NextResponse.json({
       message: 'Failed to fetch course due to a server error.',
       errorName: err.name,
       errorMessage: err.message,
-      // errorStack: err.stack // Potentially too verbose for client, but good for server logs
     }, { status: 500 });
   }
 }
