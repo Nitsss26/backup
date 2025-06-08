@@ -80,6 +80,7 @@ const nextConfig = {
   experimental: {
     allowedDevOrigins: [
         'https://6000-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev',
+        'https://9003-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev', // Added new origin with port 9003
         // Add other origins if needed, e.g., http://localhost:XXXX if you also run/test locally
     ]
   }
