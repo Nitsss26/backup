@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { placeholderCourses } from '@/lib/placeholder-data';
 import type { Course, CartItem } from '@/lib/types';
-import { PAYMENT_OPTIONS } from '@/lib/constants';
+import { PAYMENT_OPTIONS, APP_NAME } from '@/lib/constants';
 import { ChevronRight, CreditCard, Lock, ShoppingBag, UserCircleIcon } from 'lucide-react';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import Image from 'next/image';
@@ -40,13 +40,19 @@ export default function CheckoutPage() {
   const handleNextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
   const handlePrevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
-  const handleSubmitOrder = () => {
-    console.log("Order submitted with payment method:", paymentMethod);
+  const handleSubmitOrder = async () => {
+    console.log("Order submitted with payment method:", paymentMethod, "Total:", total);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
     toast({
       title: "Order Placed Successfully!",
-      description: "Your courses are now available in your dashboard.",
+      description: "Your courses are now being processed. You will receive access instructions from the sellers shortly. Check your purchased courses in your dashboard.",
+      variant: "success",
+      duration: 7000,
     });
-    router.push('/dashboard/student/courses');
+    router.push('/dashboard/student/courses'); // Navigate to student's purchased courses page
   };
 
   const breadcrumbItems = [
@@ -71,13 +77,13 @@ export default function CheckoutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow container py-8 px-4 md:px-6 bg-slate-50 dark:bg-slate-900">
+      <main className="flex-grow container py-8 px-4 md:px-6 bg-muted/30 dark:bg-muted/10">
         <Breadcrumbs items={breadcrumbItems} />
         <h1 className="text-3xl md:text-4xl font-bold mb-8 font-headline">Secure Checkout</h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <Card className="shadow-lg border">
+            <Card className="shadow-lg border bg-card">
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl font-headline">
@@ -188,7 +194,7 @@ export default function CheckoutPage() {
                     <p className="text-sm text-muted-foreground">Payment Method: {PAYMENT_OPTIONS.find(p => p.id === paymentMethod)?.name}</p>
                     <div className="flex justify-between mt-6">
                       <Button variant="outline" onClick={handlePrevStep}>Back</Button>
-                      <Button onClick={handleSubmitOrder} size="lg" className="bg-green-600 hover:bg-green-700">
+                      <Button onClick={handleSubmitOrder} size="lg" className="bg-success hover:bg-success/90 text-success-foreground">
                         <Lock className="mr-2 h-4 w-4" /> Place Order & Pay
                       </Button>
                     </div>
@@ -200,7 +206,7 @@ export default function CheckoutPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="sticky top-24 shadow-lg border">
+            <Card className="sticky top-24 shadow-lg border bg-card">
               <CardHeader>
                 <CardTitle className="text-xl font-headline flex items-center"><ShoppingBag className="mr-2 h-5 w-5 text-primary"/>Order Summary</CardTitle>
               </CardHeader>
@@ -226,13 +232,13 @@ export default function CheckoutPage() {
                 </div>
               </CardContent>
             </Card>
-             <Card className="mt-6 shadow-md border">
+             <Card className="mt-6 shadow-md border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-lg font-headline flex items-center"><Lock className="mr-2 h-4 w-4 text-green-500"/>Secure Payment</CardTitle>
+                    <CardTitle className="text-lg font-headline flex items-center"><Lock className="mr-2 h-4 w-4 text-success"/>Secure Payment</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <p className="text-xs text-muted-foreground">All transactions are encrypted and processed securely. We respect your privacy.</p>
-                    <img src="https://placehold.co/300x50.png?text=Secure+Payment+Gateways" alt="Secure payment badges" className="mt-2" data-ai-hint="payment security badges"/>
+                    <Image src="https://placehold.co/300x50.png" alt="Secure payment badges" width={300} height={50} className="mt-2" data-ai-hint="payment security badges logos"/>
                 </CardContent>
             </Card>
           </div>

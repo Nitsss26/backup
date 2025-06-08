@@ -20,15 +20,15 @@ export function StudentDashboardHeaderNav({ navItems, user }: StudentDashboardHe
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
 
   // Filter items specifically for student dashboard main navigation (excluding profile if it's marked as shared)
-  const studentMainLinks = navItems.filter(item => !item.isShared || pathname === item.href);
+  const studentMainLinks = navItems.filter(item => !item.isShared);
 
 
   return (
-    <div className="bg-card border-b sticky top-16 md:top-0 z-40"> {/* Adjusted top for main header */}
-      <div className="container px-4 md:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+    <div className="bg-card border-b sticky top-16 z-40"> {/* Ensure it's below the main site header */}
+      <div className="container px-4 md:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
         <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 border-2 border-primary p-0.5">
-                <AvatarImage src={user?.avatarUrl} alt={user?.name} data-ai-hint="student avatar icon dashboard"/>
+                <AvatarImage src={user?.avatarUrl} alt={user?.name || "Student"} data-ai-hint="student avatar icon dashboard"/>
                 <AvatarFallback>{userInitial}</AvatarFallback>
             </Avatar>
             <div>
@@ -38,10 +38,7 @@ export function StudentDashboardHeaderNav({ navItems, user }: StudentDashboardHe
         </div>
         <nav className="flex items-center space-x-1 md:space-x-2 flex-wrap justify-center">
           {studentMainLinks.map((item) => {
-            // For Overview, exact match. For others, startsWith. Profile is exact.
-            const isActive = item.href === '/dashboard/student' ? pathname === item.href :
-                             item.href === '/dashboard/profile' ? pathname === item.href :
-                             pathname.startsWith(item.href);
+            const isActive = pathname === item.href || (item.href !== '/dashboard/student' && pathname.startsWith(item.href));
             return (
               <Button
                 key={item.href}
@@ -49,7 +46,7 @@ export function StudentDashboardHeaderNav({ navItems, user }: StudentDashboardHe
                 variant={isActive ? 'default' : 'ghost'}
                 size="sm"
                 className={cn(
-                  "text-sm px-2 py-1 md:px-3 md:py-1.5 h-auto md:h-9", // smaller padding for mobile
+                  "text-sm px-2 py-1 md:px-3 md:py-1.5 h-auto md:h-9", 
                   isActive && "font-semibold"
                 )}
               >
@@ -60,6 +57,21 @@ export function StudentDashboardHeaderNav({ navItems, user }: StudentDashboardHe
               </Button>
             );
           })}
+           {/* Explicitly add Profile Settings link here, as it's managed by the main sidebar in other contexts */}
+           <Button
+              asChild
+              variant={pathname === '/dashboard/profile' ? 'default' : 'ghost'}
+              size="sm"
+              className={cn(
+                "text-sm px-2 py-1 md:px-3 md:py-1.5 h-auto md:h-9",
+                pathname === '/dashboard/profile' && "font-semibold"
+              )}
+            >
+              <Link href="/dashboard/profile">
+                <Settings className="mr-1 md:mr-2 h-4 w-4" />
+                <span className="inline md:inline">Profile Settings</span>
+              </Link>
+            </Button>
         </nav>
       </div>
     </div>

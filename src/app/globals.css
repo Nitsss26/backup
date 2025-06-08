@@ -9,56 +9,53 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 222 47% 11%; /* #0F172A - Dark Slate Blue */
+    --background: 0 0% 100%; /* White */
+    --foreground: 224 71% 4%; /* Dark Blue-Gray (almost black) */
 
-    --muted: 220 60% 97%; /* #F0F5FA - Very Light Blue */
+    --muted: 220 60% 97%; /* #F0F5FA - Very Light Blue-Gray */
     --muted-foreground: 220 15% 45%; /* #64748B - Slate Gray */
 
-    --popover: 0 0% 100%; /* #FFFFFF */
-    --popover-foreground: 222 47% 11%; /* #0F172A */
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 224 71% 4%;
 
-    --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 222 47% 11%; /* #0F172A */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 224 71% 4%;
 
-    --border: 217 91% 88%; /* #BDDDFD - Light Sky Blue Border */
-    --input: 217 91% 92%; /* #D6E9FE - Lighter Sky Blue Input */
+    --border: 217 33% 88%; /* #D1DCEB - Light Grayish Blue Border */
+    --input: 217 33% 92%; /* #E0E7F1 - Very Light Grayish Blue Input */
 
     --primary: 217 91% 60%; /* #3B82F6 - Standard Blue */
     --primary-foreground: 0 0% 100%; /* White for text on primary */
 
-    --secondary: 217 91% 95%; /* #EBF4FF - Very Light Blue (Secondary Background) */
+    --secondary: 220 60% 97%; /* #F0F5FA - Very Light Blue-Gray (Secondary Background) */
     --secondary-foreground: 217 91% 45%; /* #2563EB - Medium Blue (Text on Secondary) */
 
     --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
     --accent-foreground: 217 91% 25%; /* #1D4ED8 - Darker Blue for text on accent */
+    
+    --destructive: 0 84.2% 60.2%; /* Red */
+    --destructive-foreground: 0 0% 98%; /* Light text on red */
 
-    /* Destructive/Warning/Info colors - using blues and grays */
-    --destructive: 220 15% 55%; /* Slate Gray (adjusted for more contrast) */
-    --destructive-foreground: 0 0% 100%; 
-
-    --warning: 217 70% 70%; /* Lighter info blue for warnings */
-    --warning-foreground: 217 91% 25%; /* Darker Blue for text on warning */
+    --warning: 38 92% 50%; /* Yellow/Orange */
+    --warning-foreground: 48 96% 6%; /* Dark text on warning */
 
     --info: 217 70% 60%; /* A softer blue for informational messages */
     --info-foreground: 0 0% 100%;
     
-    /* Success - Classic Green */
     --success: 145 63% 42%; /* #22C55E - Vibrant Green */
     --success-foreground: 0 0% 100%; /* White text on green */
-
 
     --ring: 217 91% 60%; /* #3B82F6 - Standard Blue */
     --radius: 0.5rem;
 
-    /* Chart colors - keeping blues */
+    /* Chart colors */
     --chart-1: 217 91% 60%; /* Primary Blue */
     --chart-2: 217 80% 70%; /* Lighter Blue */
-    --chart-3: 217 70% 50%; /* Darker Blue */
-    --chart-4: 217 60% 80%; /* Very Light Blue */
-    --chart-5: 217 50% 40%; /* Deep Blue */
+    --chart-3: 190 70% 50%; /* Teal/Cyan complement */
+    --chart-4: 240 50% 65%; /* Lavender complement */
+    --chart-5: 30 80% 60%;  /* Orange complement */
 
-    /* Sidebar variables aligned with main theme */
+    /* Sidebar variables */
     --sidebar-background: var(--background);
     --sidebar-foreground: var(--foreground);
     --sidebar-primary: var(--primary);
@@ -70,53 +67,52 @@ body {
   }
 
   .dark {
-    --background: 222 47% 11%; /* #0F172A - Dark Slate Blue */
+    --background: 224 71% 4%; /* Dark Blue-Gray (almost black) */
     --foreground: 210 40% 98%; /* #FAFAFA - Off White */
 
     --muted: 222 40% 20%; /* #26324A - Darker Muted Blue */
     --muted-foreground: 215 25% 70%; /* #A0AEC0 - Light Slate Gray */
 
-    --popover: 222 47% 11%; /* #0F172A */
-    --popover-foreground: 210 40% 98%; /* #FAFAFA */
+    --popover: 224 71% 8%; /* Slightly lighter than background */
+    --popover-foreground: 210 40% 98%;
 
-    --card: 222 47% 15%; /* #1E293B - Darker Card Blue */
-    --card-foreground: 210 40% 98%; /* #FAFAFA */
+    --card: 224 71% 9%; /* #111827 - Darker Card Blue-Gray */
+    --card-foreground: 210 40% 98%;
 
-    --border: 217 33% 35%; /* #4A5E8A - Darker Muted Blue Border */
-    --input: 217 33% 30%; /* #3A4C7A - Even Darker Input Blue */
+    --border: 217 33% 25%; /* #303F60 - Dark Muted Blue Border */
+    --input: 217 33% 20%; /* #26324A - Even Darker Input Blue */
 
     --primary: 217 91% 65%; /* #5D9CEC - Brighter Blue for dark mode */
     --primary-foreground: 222 47% 11%; /* Dark text on primary for contrast */
 
-    --secondary: 217 33% 25%; /* #303F60 - Dark Secondary Background */
+    --secondary: 222 40% 15%; /* #1A2333 - Dark Secondary Background */
     --secondary-foreground: 210 40% 90%; /* #E2E8F0 - Lighter text on secondary */
 
     --accent: 217 91% 70%; /* #79B6F9 - Lighter Accent Blue */
     --accent-foreground: 222 47% 11%; /* Dark text on accent */
 
-    /* Destructive/Warning/Info colors aligned with blue theme for dark mode */
-    --destructive: 215 25% 60%; /* Adjusted Light Slate Gray for dark mode "destructive" */
-    --destructive-foreground: 222 47% 11%; 
+    --destructive: 0 72% 51%; /* Brighter Red for dark mode */
+    --destructive-foreground: 0 0% 98%;
 
-    --warning: 217 60% 70%; /* Softer blue (info) for warnings in dark */
-    --warning-foreground: 222 47% 11%;
-
-    --info: 217 60% 65%; /* A softer blue for informational messages in dark */
+    --warning: 45 93% 58%; /* Brighter Yellow/Orange for dark mode */
+    --warning-foreground: 48 96% 6%;
+    
+    --info: 217 80% 70%; /* Brighter info blue */
     --info-foreground: 222 47% 11%;
 
-    /* Success - Classic Green for dark mode */
-    --success: 145 63% 42%; /* #22C55E - Vibrant Green (same as light) */
-    --success-foreground: 0 0% 100%; /* White text on green */
+    --success: 140 60% 50%; /* Brighter Green for dark mode */
+    --success-foreground: 0 0% 98%;
 
     --ring: 217 91% 65%; /* #5D9CEC */
 
+    /* Chart colors - ensure good contrast in dark mode */
     --chart-1: 217 91% 65%;
     --chart-2: 217 80% 75%;
-    --chart-3: 217 70% 55%;
-    --chart-4: 217 60% 85%;
-    --chart-5: 217 50% 45%;
+    --chart-3: 190 60% 60%;
+    --chart-4: 240 50% 75%;
+    --chart-5: 30 70% 70%;
     
-    /* Sidebar variables aligned with main theme for dark mode */
+    /* Sidebar variables */
     --sidebar-background: var(--background);
     --sidebar-foreground: var(--foreground);
     --sidebar-primary: var(--primary);
@@ -136,4 +132,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
