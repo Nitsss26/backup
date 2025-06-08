@@ -89,7 +89,7 @@ export default function CourseDetailPage({ params }: CourseDetailPageProps) {
         return;
       }
       try {
-        const response = await axios.get<Course>(`/api/courses/${params.id}`);
+        const response = await axios.get<Course>(`https://localhost:9002/api/courses/${params.id}`);
         setCourse(response.data);
         // For now, reviews and related courses can still come from placeholders or be fetched separately
         setReviews(getReviewsByCourseId(params.id)); 

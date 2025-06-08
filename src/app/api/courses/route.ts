@@ -13,8 +13,8 @@ interface ApiResponse {
 
 export async function GET(request: NextRequest) {
   console.log('🟢 [/api/courses] GET request received');
-  let query: any = { approvalStatus: 'approved' }; // Initialize query here to be in scope for catch block
-  let sort: any = {}; // Initialize sort here
+  let query: any = { approvalStatus: 'approved' }; 
+  let sort: any = {}; 
 
   try {
     await dbConnect();
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || String(ITEMS_PER_PAGE), 10);
     const sortOption = searchParams.get('sort') || 'relevance';
-    const searchQuery = searchParams.get('q');
+    const searchQuery = searchParams.get('q'); // Can be null or empty string
     const categories = searchParams.getAll('category');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
     console.log(`🟢 [/api/courses] Parsed Params: page=${page}, limit=${limit}, sort=${sortOption}, q=${searchQuery}, categories=${categories.join(',')}, ratings=${ratings.join(',')}`);
 
     // Build the query object
-    if (searchQuery) {
-      query.$text = { $search: searchQuery };
-      console.log('🟢 [/api/courses] Added text search to query');
+    if (searchQuery && searchQuery.trim() !== '') {
+      query.$text = { $search: searchQuery.trim() };
+      console.log('🟢 [/api/courses] Added text search to query for:', searchQuery.trim());
     }
     if (categories.length > 0) {
       query.category = { $in: categories.map(cat => new RegExp(cat.split('-').join(' '), 'i')) };
@@ -77,7 +77,8 @@ export async function GET(request: NextRequest) {
     console.log('🟢 [/api/courses] Final Query Object:', JSON.stringify(query));
 
     // Determine sort order
-    if (sortOption === 'relevance' && searchQuery) {
+    if (sortOption === 'relevance' && searchQuery && searchQuery.trim() !== '') {
+      // Only sort by textScore if a text search is active
       sort.score = { $meta: 'textScore' };
     } else if (sortOption === 'price_asc') {
       sort.price = 1;
@@ -87,7 +88,7 @@ export async function GET(request: NextRequest) {
       sort.rating = -1;
     } else if (sortOption === 'popularity') {
       sort.studentsEnrolledCount = -1;
-    } else { // Default to newest (covers 'relevance' without searchQuery and 'newest')
+    } else { // Default to newest if relevance isn't applicable or another sort isn't chosen
       sort.lastUpdated = -1;
     }
     console.log('🟢 [/api/courses] Final Sort Object:', JSON.stringify(sort));
@@ -114,13 +115,13 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('🔴 Failed to fetch courses (API Route /api/courses/route.ts):', error);
-    // Log the state of query and sort at the time of error, if they were defined
+    // Log the state of query and sort at the time of error
     console.error('🔴 Query object at error:', JSON.stringify(query, null, 2));
     console.error('🔴 Sort object at error:', JSON.stringify(sort, null, 2));
     return NextResponse.json({
         message: 'Failed to fetch courses from API.',
         error: error.message,
-        details: error.stack, // Include stack trace for more detailed debugging
+        errorStack: error.stack, // Include stack trace for more detailed debugging
         queryState: query, // Include state of query object
         sortState: sort    // Include state of sort object
     }, { status: 500 });
