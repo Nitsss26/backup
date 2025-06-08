@@ -4,6 +4,8 @@ import { Footer } from '@/components/layout/Footer';
 import { APP_NAME } from '@/lib/constants';
 import { Users, Zap, Target } from 'lucide-react';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button'; // Added this line
+import Link from 'next/link'; // Link is already imported
 
 export default function AboutPage() {
   return (
