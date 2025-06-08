@@ -20,15 +20,10 @@ import { APP_NAME, CATEGORIES as STATIC_CATEGORIES } from '@/lib/constants';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { placeholderReviews, placeholderCourses as staticRelatedCourses } from '@/lib/placeholder-data';
-import { useParams } from 'next/navigation'; // Import useParams
-
-// CourseDetailPageProps no longer needs params explicitly
-// interface CourseDetailPageProps {
-//   params: { id: string };
-// }
+import { useParams } from 'next/navigation';
 
 // Helper to get review by course ID (from static data for now)
-const getReviewsByCourseId = (courseId: string): ReviewType[] => staticRelatedCourses.length > 0 ? placeholderReviews.filter(r => r.courseId === courseId) : [];
+const getReviewsByCourseId = (id: string): ReviewType[] => staticRelatedCourses.length > 0 ? placeholderReviews.filter(r => r.courseId === id) : [];
 
 
 function ReviewCard({ review }: { review: ReviewType }) {
@@ -74,9 +69,9 @@ function CurriculumItem({ item }: { item: Lesson }) {
   );
 }
 
-export default function CourseDetailPage() { // Removed params from props
-  const params = useParams<{ id: string }>(); // Use the hook to get params
-  const courseId = params.id; // Extract id from the hook's result
+export default function CourseDetailPage() {
+  const params = useParams();
+  const courseId = params?.id as string; // Ensure courseId is treated as string
 
   const [course, setCourse] = useState<Course | null>(null);
   const [reviews, setReviews] = useState<ReviewType[]>([]);
@@ -88,7 +83,7 @@ export default function CourseDetailPage() { // Removed params from props
     const fetchCourseData = async () => {
       setIsLoading(true);
       setError(null);
-      if (!courseId) { // Use courseId from useParams()
+      if (!courseId) {
         setError("Course ID is missing from URL.");
         setIsLoading(false);
         return;
@@ -96,11 +91,16 @@ export default function CourseDetailPage() { // Removed params from props
       try {
         const response = await axios.get<Course>(`/api/courses/${courseId}`);
         setCourse(response.data);
-        // For now, reviews and related courses can still come from placeholders or be fetched separately
-        setReviews(getReviewsByCourseId(courseId)); 
+        setReviews(getReviewsByCourseId(courseId));
+        
         // Fetch related courses (simplified for now)
-        const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
-        setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
+        // Ensure response.data and response.data.category exist before trying to access them
+        if (response.data && response.data.category) {
+            const allCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
+            setRelatedCourses(allCoursesResponse.data.courses.filter(c => c._id !== response.data._id).slice(0,3));
+        } else {
+            setRelatedCourses([]); // Set to empty if category info is missing to prevent further errors
+        }
 
       } catch (err: any) {
         console.error(`Failed to fetch course ${courseId}:`, err);
@@ -114,18 +114,17 @@ export default function CourseDetailPage() { // Removed params from props
       }
     };
 
-    if (courseId) { // Check if courseId (from hook) is available
+    if (courseId) {
         fetchCourseData();
     } else {
         // This case might occur if useParams() somehow doesn't return id initially,
-        // though it usually should be available if the route matches.
-        // Only set error if not already loading, to avoid race conditions.
+        // or if the route doesn't match [id]
         if (!isLoading) { 
             setError("Course ID not found in URL parameters.");
             setIsLoading(false);
         }
     }
-  }, [courseId, isLoading]); // Depend on courseId from the hook
+  }, [courseId]); // Depend on courseId from the hook
 
   if (isLoading) {
     return (
@@ -469,3 +468,5 @@ export default function CourseDetailPage() { // Removed params from props
     </div>
   );
 }
+
+    
