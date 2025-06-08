@@ -118,7 +118,10 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
     let languageForDb = courseData.language ? courseData.language.toLowerCase() : 'english';
     if (languageForDb === 'mandarin chinese') {
       languageForDb = 'chinese-simplified';
+    } else if (languageForDb === 'hindi') {
+      languageForDb = 'hi'; // Use ISO 639-1 code for Hindi
     }
+
 
     const course = new CourseModel({
       ...courseData,
@@ -171,7 +174,10 @@ const seedReviews = async (userMap: Map<string, mongoose.Types.ObjectId>, course
         await review.save();
         count++;
       } catch (error: any) {
-        // Mute duplicate key errors during seeding for reviews
+        // Mute duplicate key errors during seeding for reviews (a user can review a course only once)
+        if (error.code !== 11000) {
+            console.error(`🔴 Error seeding review for course ${reviewData.courseId} by user ${reviewData.userId}:`, error);
+        }
       }
     }
   }
@@ -257,7 +263,7 @@ const seedLookups = async () => {
   const lookupData = [
     ...INSTRUCTOR_TYPES.map(value => ({ type: 'INSTRUCTOR_TYPE', value })),
     ...DIFFICULTY_LEVELS.map(value => ({ type: 'DIFFICULTY_LEVEL', value })),
-    ...LANGUAGES.map(value => ({ type: 'LANGUAGE', value })),
+    ...LANGUAGES.map(value => ({ type: 'LANGUAGE', value: value.toLowerCase() === 'mandarin chinese' ? 'chinese-simplified' : value.toLowerCase() === 'hindi' ? 'hi' : value.toLowerCase() })), // Standardize language values here too
   ];
   for (const lookup of lookupData) {
     try {

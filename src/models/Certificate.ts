@@ -22,7 +22,8 @@ const CertificateSchema: Schema<ICertificate> = new Schema({
 }, { timestamps: true });
 
 CertificateSchema.index({ user: 1, course: 1 });
-CertificateSchema.index({ verificationId: 1 });
+// Removed redundant index for verificationId as unique:true already creates it.
+// CertificateSchema.index({ verificationId: 1 }); 
 
 const CertificateModel: Model<ICertificate> = models.Certificate || mongoose.model<ICertificate>('Certificate', CertificateSchema);
 

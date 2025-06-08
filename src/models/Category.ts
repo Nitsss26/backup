@@ -12,7 +12,8 @@ const CategorySchema: Schema<ICategory> = new Schema({
   slug: { type: String, required: true, trim: true, unique: true, lowercase: true },
 }, { timestamps: true });
 
-CategorySchema.index({ slug: 1 });
+// Removed redundant index for slug as unique:true already creates it.
+// CategorySchema.index({ slug: 1 });
 
 const CategoryModel: Model<ICategory> = models.Category || mongoose.model<ICategory>('Category', CategorySchema);
 
