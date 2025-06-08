@@ -6,6 +6,11 @@ import CourseModel from '../src/models/Course';
 import ReviewModel from '../src/models/Review';
 import OrderModel from '../src/models/Order';
 import CertificateModel from '../src/models/Certificate';
+import CategoryModel from '../src/models/Category'; // New import
+import LookupModel from '../src/models/Lookup'; // New import
+import SortOptionModel from '../src/models/SortOption'; // New import
+import PaymentOptionModel from '../src/models/PaymentOption'; // New import
+
 import { 
   placeholderUsers, 
   placeholderCourses, 
@@ -15,10 +20,20 @@ import {
   featuredCoursesForHomepage,
   topCategoryShowcaseData
 } from '../src/lib/placeholder-data';
+
+import { // Importing constants to seed from
+  CATEGORIES,
+  INSTRUCTOR_TYPES,
+  DIFFICULTY_LEVELS,
+  LANGUAGES,
+  SORT_OPTIONS,
+  PAYMENT_OPTIONS
+} from '../src/lib/constants';
+
 import type { User, Course, Review as ReviewType, Order as OrderType, Certificate as CertificateType } from '../src/lib/types';
 
-dotenv.config({ path: '.env.local' }); // Load .env.local first if it exists
-dotenv.config(); // Load .env
+dotenv.config({ path: '.env.local' }); 
+dotenv.config(); 
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://mlrd:mlrddreamscloudtech@cluster0.yzhly.mongodb.net/edtechcart_dev?retryWrites=true&w=majority";
 
@@ -51,6 +66,10 @@ const clearDatabase = async () => {
   await ReviewModel.deleteMany({});
   await OrderModel.deleteMany({});
   await CertificateModel.deleteMany({});
+  await CategoryModel.deleteMany({}); // New
+  await LookupModel.deleteMany({}); // New
+  await SortOptionModel.deleteMany({}); // New
+  await PaymentOptionModel.deleteMany({}); // New
   console.log("🗑️  Database cleared.");
 };
 
@@ -59,13 +78,10 @@ const seedUsers = async () => {
   const userMap = new Map<string, mongoose.Types.ObjectId>();
   
   for (const userData of placeholderUsers) {
-    // In a real app, hash passwords here before saving.
-    // For seeding, we'll assume passwords are not critical or are handled elsewhere.
     const user = new UserModel({
       ...userData,
-      _id: new mongoose.Types.ObjectId(), // Ensure new ObjectId
-      password: 'password123', // Placeholder password - REMOVE FOR PRODUCTION
-      // Ensure all required fields from IUser are present
+      _id: new mongoose.Types.ObjectId(), 
+      password: 'password123', 
       verificationStatus: userData.verificationStatus || 'unverified',
       documentsSubmitted: userData.documentsSubmitted || false,
       notificationPreferences: userData.notificationPreferences || { courseUpdates: true, promotions: false, platformAnnouncements: true },
@@ -85,16 +101,13 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
   console.log("📚 Seeding courses...");
   const courseMap = new Map<string, mongoose.Types.ObjectId>();
   
-  // Combine all course sources
   const allPlaceholderCourses = [
     ...placeholderCourses,
     ...featuredCoursesForHomepage,
     ...topCategoryShowcaseData.flatMap(cat => cat.courses)
   ];
 
-  // Deduplicate courses by ID, giving priority to earlier occurrences (e.g., featured)
   const uniqueCoursesData = Array.from(new Map(allPlaceholderCourses.map(course => [course.id, course])).values());
-
 
   for (const courseData of uniqueCoursesData) {
     const sellerMongoId = userMap.get(courseData.sellerId || '');
@@ -110,7 +123,7 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
     const course = new CourseModel({
       ...courseData,
       _id: new mongoose.Types.ObjectId(),
-      seller: sellerMongoId || undefined, // Use mapped seller ID or leave undefined if not found
+      seller: sellerMongoId || undefined,
       curriculum: courseData.curriculum?.map(mod => ({
         ...mod,
         _id: new mongoose.Types.ObjectId(),
@@ -121,7 +134,6 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
       })),
       studentsEnrolledCount: courseData.studentsEnrolled || 0,
       reviewsCount: courseData.reviewsCount || 0,
-      // Ensure all required fields from ICourse are present
       shortDescription: courseData.shortDescription || 'Default short description if missing.',
       language: languageForDb,
       providerInfo: courseData.providerInfo || { name: courseData.instructor, verified: false },
@@ -131,7 +143,6 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
     await course.save();
     courseMap.set(courseData.id, course._id);
 
-    // If seller exists, add this course to their coursesCreated list
     if (sellerMongoId) {
         await UserModel.findByIdAndUpdate(sellerMongoId, { $addToSet: { coursesCreated: course._id } });
     }
@@ -154,20 +165,14 @@ const seedReviews = async (userMap: Map<string, mongoose.Types.ObjectId>, course
           _id: new mongoose.Types.ObjectId(),
           user: userMongoId,
           course: courseMongoId,
-          moderationStatus: reviewData.moderationStatus || 'approved', // Default to approved for seed
+          moderationStatus: reviewData.moderationStatus || 'approved',
           createdAt: reviewData.createdAt ? new Date(reviewData.createdAt) : new Date(),
         });
         await review.save();
         count++;
       } catch (error: any) {
-        if (error.code === 11000) { // Duplicate key error
-          // console.warn(`⚠️ Skipping duplicate review for course ${reviewData.courseId} by user ${reviewData.userId}.`);
-        } else {
-          // console.error(`🔴 Error seeding review for course ${reviewData.courseId}:`, error);
-        }
+        // Mute duplicate key errors during seeding for reviews
       }
-    } else {
-      // console.warn(`⚠️ Could not find user or course for review ID ${reviewData.id}. User: ${reviewData.userId}, Course: ${reviewData.courseId}`);
     }
   }
   console.log(`🌟 Seeded ${count} reviews.`);
@@ -181,16 +186,13 @@ const seedOrders = async (userMap: Map<string, mongoose.Types.ObjectId>, courseM
     if (userMongoId) {
       const orderItems = orderData.items.map(item => {
         const courseMongoId = courseMap.get(item.id);
-        if (!courseMongoId) {
-          // console.warn(`⚠️ Course ID ${item.id} not found for order ${orderData.id}. Skipping item.`);
-          return null;
-        }
+        if (!courseMongoId) return null;
         return {
           course: courseMongoId,
           priceAtPurchase: item.price,
           titleAtPurchase: item.title,
         };
-      }).filter(item => item !== null) as any[]; // Filter out nulls
+      }).filter(item => item !== null) as any[]; 
 
       if (orderItems.length > 0) {
         const order = new OrderModel({
@@ -202,11 +204,8 @@ const seedOrders = async (userMap: Map<string, mongoose.Types.ObjectId>, courseM
         });
         await order.save();
         count++;
-        // Add this order to the user's orders list
         await UserModel.findByIdAndUpdate(userMongoId, { $addToSet: { orders: order._id } });
       }
-    } else {
-      // console.warn(`⚠️ User ID ${orderData.userId} not found for order ${orderData.id}. Skipping order.`);
     }
   }
   console.log(`🛒 Seeded ${count} orders.`);
@@ -216,7 +215,6 @@ const seedCertificates = async (userMap: Map<string, mongoose.Types.ObjectId>, c
   console.log("📜 Seeding certificates...");
   let count = 0;
   for (const certData of placeholderCertificates) {
-    // Find user by name as placeholder data uses name for studentName in certificates
     const studentUser = placeholderUsers.find(u => u.name === certData.studentName);
     const userMongoId = studentUser ? userMap.get(studentUser.id) : undefined;
     const courseMongoId = courseMap.get(certData.courseId);
@@ -228,24 +226,95 @@ const seedCertificates = async (userMap: Map<string, mongoose.Types.ObjectId>, c
         user: userMongoId,
         course: courseMongoId,
         issueDate: certData.issueDate ? new Date(certData.issueDate) : new Date(),
-        verificationId: new mongoose.Types.ObjectId().toHexString(), // Ensure unique verification ID
+        verificationId: new mongoose.Types.ObjectId().toHexString(),
       });
       await certificate.save();
       count++;
-    } else {
-      // console.warn(`⚠️ Could not find user (${certData.studentName}) or course (${certData.courseId}) for certificate ID ${certData.id}.`);
     }
   }
   console.log(`📜 Seeded ${count} certificates.`);
 };
 
+// New Seeding Functions
+const seedCategories = async () => {
+  console.log("🗂️  Seeding categories...");
+  let count = 0;
+  for (const categoryData of CATEGORIES) {
+    try {
+      const category = new CategoryModel({ name: categoryData.name, slug: categoryData.slug });
+      await category.save();
+      count++;
+    } catch (error: any) {
+      if (error.code !== 11000) console.error(`🔴 Error seeding category ${categoryData.name}:`, error); // Log non-duplicate errors
+    }
+  }
+  console.log(`🗂️  Seeded ${count} categories.`);
+};
+
+const seedLookups = async () => {
+  console.log("🏷️  Seeding lookups (instructor types, difficulty levels, languages)...");
+  let count = 0;
+  const lookupData = [
+    ...INSTRUCTOR_TYPES.map(value => ({ type: 'INSTRUCTOR_TYPE', value })),
+    ...DIFFICULTY_LEVELS.map(value => ({ type: 'DIFFICULTY_LEVEL', value })),
+    ...LANGUAGES.map(value => ({ type: 'LANGUAGE', value })),
+  ];
+  for (const lookup of lookupData) {
+    try {
+      const newLookup = new LookupModel(lookup);
+      await newLookup.save();
+      count++;
+    } catch (error: any) {
+      if (error.code !== 11000) console.error(`🔴 Error seeding lookup ${lookup.type} - ${lookup.value}:`, error);
+    }
+  }
+  console.log(`🏷️  Seeded ${count} lookup items.`);
+};
+
+const seedSortOptions = async () => {
+  console.log("↕️  Seeding sort options...");
+  let count = 0;
+  for (const option of SORT_OPTIONS) {
+    try {
+      const newSortOption = new SortOptionModel(option);
+      await newSortOption.save();
+      count++;
+    } catch (error: any) {
+      if (error.code !== 11000) console.error(`🔴 Error seeding sort option ${option.label}:`, error);
+    }
+  }
+  console.log(`↕️  Seeded ${count} sort options.`);
+};
+
+const seedPaymentOptions = async () => {
+  console.log("💳 Seeding payment options...");
+  let count = 0;
+  for (const option of PAYMENT_OPTIONS) {
+    try {
+      const newPaymentOption = new PaymentOptionModel({ optionId: option.id, name: option.name });
+      await newPaymentOption.save();
+      count++;
+    } catch (error: any)
+     {
+      if (error.code !== 11000) console.error(`🔴 Error seeding payment option ${option.name}:`, error);
+    }
+  }
+  console.log(`💳 Seeded ${count} payment options.`);
+};
+
+
 const seedDatabase = async () => {
   await connectDB();
   
-  // WARNING: This will delete all existing data in these collections!
-  // Comment out if you don't want to clear the database on every seed.
   await clearDatabase(); 
 
+  // Seed new lookup collections first
+  await seedCategories();
+  await seedLookups();
+  await seedSortOptions();
+  await seedPaymentOptions();
+
+  // Then seed existing data
   const userMap = await seedUsers();
   const courseMap = await seedCourses(userMap);
   await seedReviews(userMap, courseMap);
