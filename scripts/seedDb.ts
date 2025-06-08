@@ -66,10 +66,10 @@ const clearDatabase = async () => {
   await ReviewModel.deleteMany({});
   await OrderModel.deleteMany({});
   await CertificateModel.deleteMany({});
-  await CategoryModel.deleteMany({}); // New
-  await LookupModel.deleteMany({}); // New
-  await SortOptionModel.deleteMany({}); // New
-  await PaymentOptionModel.deleteMany({}); // New
+  await CategoryModel.deleteMany({}); 
+  await LookupModel.deleteMany({}); 
+  await SortOptionModel.deleteMany({}); 
+  await PaymentOptionModel.deleteMany({}); 
   console.log("🗑️  Database cleared.");
 };
 
@@ -115,11 +115,17 @@ const seedCourses = async (userMap: Map<string, mongoose.Types.ObjectId>) => {
       console.warn(`⚠️ Seller ID ${courseData.sellerId} for course "${courseData.title}" not found in userMap. Skipping seller link.`);
     }
 
-    let languageForDb = courseData.language ? courseData.language.toLowerCase() : 'english';
-    if (languageForDb === 'mandarin chinese') {
-      languageForDb = 'chinese-simplified';
-    } else if (languageForDb === 'hindi') {
-      languageForDb = 'hi'; // Use ISO 639-1 code for Hindi
+    // Standardize language for MongoDB text index compatibility
+    let languageForDb = 'english'; // Default value if courseData.language is undefined
+    if (courseData.language) {
+        const lowerCaseLanguage = courseData.language.toLowerCase();
+        if (lowerCaseLanguage === 'hindi') {
+            languageForDb = 'hindi'; // MongoDB expects 'hindi' (lowercase)
+        } else if (lowerCaseLanguage === 'mandarin chinese') {
+            languageForDb = 'chinese-simplified';
+        } else {
+            languageForDb = lowerCaseLanguage; // Store other languages as lowercase
+        }
     }
 
 
@@ -174,7 +180,6 @@ const seedReviews = async (userMap: Map<string, mongoose.Types.ObjectId>, course
         await review.save();
         count++;
       } catch (error: any) {
-        // Mute duplicate key errors during seeding for reviews (a user can review a course only once)
         if (error.code !== 11000) {
             console.error(`🔴 Error seeding review for course ${reviewData.courseId} by user ${reviewData.userId}:`, error);
         }
@@ -241,7 +246,6 @@ const seedCertificates = async (userMap: Map<string, mongoose.Types.ObjectId>, c
   console.log(`📜 Seeded ${count} certificates.`);
 };
 
-// New Seeding Functions
 const seedCategories = async () => {
   console.log("🗂️  Seeding categories...");
   let count = 0;
@@ -251,7 +255,7 @@ const seedCategories = async () => {
       await category.save();
       count++;
     } catch (error: any) {
-      if (error.code !== 11000) console.error(`🔴 Error seeding category ${categoryData.name}:`, error); // Log non-duplicate errors
+      if (error.code !== 11000) console.error(`🔴 Error seeding category ${categoryData.name}:`, error);
     }
   }
   console.log(`🗂️  Seeded ${count} categories.`);
@@ -263,7 +267,16 @@ const seedLookups = async () => {
   const lookupData = [
     ...INSTRUCTOR_TYPES.map(value => ({ type: 'INSTRUCTOR_TYPE', value })),
     ...DIFFICULTY_LEVELS.map(value => ({ type: 'DIFFICULTY_LEVEL', value })),
-    ...LANGUAGES.map(value => ({ type: 'LANGUAGE', value: value.toLowerCase() === 'mandarin chinese' ? 'chinese-simplified' : value.toLowerCase() === 'hindi' ? 'hi' : value.toLowerCase() })), // Standardize language values here too
+    ...LANGUAGES.map(value => {
+      const lcValue = value.toLowerCase();
+      let dbValue = lcValue;
+      if (lcValue === 'hindi') {
+        dbValue = 'hindi'; // Ensure 'hindi' (lowercase) for lookups as well
+      } else if (lcValue === 'mandarin chinese') {
+        dbValue = 'chinese-simplified';
+      }
+      return { type: 'LANGUAGE', value: dbValue };
+    }),
   ];
   for (const lookup of lookupData) {
     try {
@@ -314,15 +327,13 @@ const seedDatabase = async () => {
   
   await clearDatabase(); 
 
-  // Seed new lookup collections first
   await seedCategories();
   await seedLookups();
   await seedSortOptions();
   await seedPaymentOptions();
 
-  // Then seed existing data
   const userMap = await seedUsers();
-  const courseMap = await seedCourses(userMap);
+  const courseMap = await seedCourses(userMap); // This needs to be error-free
   await seedReviews(userMap, courseMap);
   await seedOrders(userMap, courseMap);
   await seedCertificates(userMap, courseMap);
@@ -338,3 +349,4 @@ seedDatabase().catch(error => {
   mongoose.disconnect();
   process.exit(1);
 });
+
