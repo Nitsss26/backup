@@ -83,7 +83,7 @@ export default function AdminReviewsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-16">
       <Card className="shadow-xl border-l-4 border-primary">
         <CardHeader className="flex flex-row items-center gap-4">
              <div className="p-3 bg-primary/10 rounded-md">
