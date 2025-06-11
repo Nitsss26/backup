@@ -1,14 +1,14 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { ICourse } from './Course';
-import type { IUser } from './User';
+import type { ICourse } from './Course'; // Ensure this path is correct
+import type { IUser } from './User'; // Ensure this path is correct
 
 export interface ICertificate extends Document {
   course: mongoose.Types.ObjectId | ICourse;
   user: mongoose.Types.ObjectId | IUser;
   issueDate: Date;
-  certificateUrl?: string; // URL to the generated certificate PDF/image
-  verificationId: string; // Unique ID for verifying the certificate
+  certificateUrl?: string; 
+  verificationId: string; 
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,8 +22,6 @@ const CertificateSchema: Schema<ICertificate> = new Schema({
 }, { timestamps: true });
 
 CertificateSchema.index({ user: 1, course: 1 });
-// Removed redundant index for verificationId as unique:true already creates it.
-// CertificateSchema.index({ verificationId: 1 }); 
 
 const CertificateModel: Model<ICertificate> = models.Certificate || mongoose.model<ICertificate>('Certificate', CertificateSchema);
 

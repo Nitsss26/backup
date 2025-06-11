@@ -41,7 +41,7 @@ export interface IProviderInfo {
   verified?: boolean;
   description?: string;
   websiteUrl?: string;
-  type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator'; // Made optional
+  type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator';
 }
 
 const ProviderInfoSchema: Schema<IProviderInfo> = new Schema({
@@ -50,7 +50,7 @@ const ProviderInfoSchema: Schema<IProviderInfo> = new Schema({
   verified: { type: Boolean, default: false },
   description: { type: String },
   websiteUrl: { type: String },
-  type: { type: String, enum: ['Individual', 'Institute', 'Coaching Center', 'Verified Educator'], required: false }, // Made 'type' not required
+  type: { type: String, enum: ['Individual', 'Institute', 'Coaching Center', 'Verified Educator'], required: false },
 }, { _id: false });
 
 
@@ -69,7 +69,7 @@ export interface ICourse extends Document {
   certificateAvailable: boolean;
   highlights: string[];
   curriculum: IModule[];
-  seller: mongoose.Types.ObjectId | IUser; // Reference to User model (seller)
+  seller?: mongoose.Types.ObjectId | IUser; // Made seller optional
   studentsEnrolledCount: number;
   rating: number;
   reviewsCount: number;
@@ -79,7 +79,7 @@ export interface ICourse extends Document {
   freeTrialAvailable: boolean;
   downloadableMaterialsDescription?: string;
   detailedScheduleDescription?: string;
-  providerInfo?: IProviderInfo; // Denormalized for quicker display
+  providerInfo?: IProviderInfo; 
   lastUpdated: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -100,7 +100,7 @@ const CourseSchema: Schema<ICourse> = new Schema({
   certificateAvailable: { type: Boolean, default: false },
   highlights: [{ type: String }],
   curriculum: [ModuleSchema],
-  seller: { type: Schema.Types.ObjectId, ref: 'User' },
+  seller: { type: Schema.Types.ObjectId, ref: 'User' }, // Kept as is, assuming providerInfo is primary for display
   studentsEnrolledCount: { type: Number, default: 0, min: 0 },
   rating: { type: Number, default: 0, min: 0, max: 5 },
   reviewsCount: { type: Number, default: 0, min: 0 },
@@ -110,7 +110,7 @@ const CourseSchema: Schema<ICourse> = new Schema({
   freeTrialAvailable: { type: Boolean, default: false },
   downloadableMaterialsDescription: { type: String, maxlength: 500 },
   detailedScheduleDescription: { type: String, maxlength: 1000 },
-  providerInfo: ProviderInfoSchema,
+  providerInfo: ProviderInfoSchema, // This field holds seller's display name, etc.
   lastUpdated: { type: Date, default: Date.now },
 }, { timestamps: true });
 
@@ -122,5 +122,4 @@ CourseSchema.index(
 const CourseModel: Model<ICourse> = models.Course || mongoose.model<ICourse>('Course', CourseSchema);
 
 export default CourseModel;
-// Exporting CourseSchema for potential dynamic model compilation if needed in advanced debugging
 export { CourseSchema };

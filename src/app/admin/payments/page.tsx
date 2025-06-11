@@ -63,7 +63,7 @@ export default function AdminPaymentsPage() {
 
 
   return (
-    <div className="space-y-8 p-16 max-w-screen-xl mx-auto">
+    <div className="space-y-8 p-16">
        <Card className="shadow-xl border-l-4 border-primary">
         <CardHeader className="flex flex-row items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-md">
@@ -212,7 +212,7 @@ export default function AdminPaymentsPage() {
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center border">
-                <Image src="https://placehold.co/800x400/EBF4FF/3B82F6?text=Payout+Workflow+Diagram" alt="Payout process illustration and workflow diagram" width={800} height={400} className="object-contain" data-ai-hint="financial payout workflow diagram admin interface"/>
+                <Image src="https://i.ibb.co/RT9Kp29R/Screenshot-2025-06-09-075520.png" alt="Payout process illustration and workflow diagram" width={1200} height={800} className="object-contain" data-ai-hint="financial payout workflow diagram admin interface"/>
             </div>
             <p className="text-sm text-muted-foreground">
                 This section allows admins to view pending payouts, schedule bulk payouts (e.g., monthly, bi-weekly),

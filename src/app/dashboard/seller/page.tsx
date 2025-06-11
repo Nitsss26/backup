@@ -59,7 +59,7 @@ export default function SellerDashboardPage() {
   const sellerVerificationStatus = user?.verificationStatus || 'unverified';
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-2">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-lg shadow border-l-4 border-primary">
         <div>
             <h1 className="text-3xl font-bold font-headline text-primary">Seller Dashboard</h1>

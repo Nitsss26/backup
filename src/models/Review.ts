@@ -1,7 +1,7 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { ICourse } from './Course';
-import type { IUser } from './User';
+import type { ICourse } from './Course'; // Ensure this path is correct
+import type { IUser } from './User'; // Ensure this path is correct
 
 export interface IReview extends Document {
   course: mongoose.Types.ObjectId | ICourse;
@@ -25,7 +25,7 @@ const ReviewSchema: Schema<IReview> = new Schema({
   moderationStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
-ReviewSchema.index({ course: 1, user: 1 }, { unique: true }); // User can review a course only once
+ReviewSchema.index({ course: 1, user: 1 }, { unique: true });
 ReviewSchema.index({ course: 1, moderationStatus: 1 });
 
 const ReviewModel: Model<IReview> = models.Review || mongoose.model<IReview>('Review', ReviewSchema);
