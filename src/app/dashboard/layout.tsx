@@ -144,11 +144,11 @@ export default function DashboardLayout({
                 <p className="text-xs text-muted-foreground capitalize">{user.role}</p>
               </SidebarHeader>
               {/* Collapsed view header (Small Avatar) */}
-              <SidebarHeader className="p-2 flex justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300 group-[.w-16]:flex group-[.hover\\:w-64.w-64]:hidden">
-                <Avatar className="h-8 w-8">
+              <SidebarHeader className="p-2 flex justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300 group-[.w-16]:flex">
+                {/* <Avatar className="h-8 w-8">
                   <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint={`${user.role} user avatar small dashboard sidebar icon`} />
                   <AvatarFallback>{userInitial}</AvatarFallback>
-                </Avatar>
+                </Avatar> */}
               </SidebarHeader>
               <SidebarContent className="p-2">
                 <DashboardSidebarNav navItems={activeNavItems} userRole={user.role} />

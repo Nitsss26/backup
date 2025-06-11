@@ -23,6 +23,11 @@ export const useAuth = () => {
   return context;
 };
 
+// Helper to generate a mock ObjectId string (24-char hex)
+const generateMockObjectId = () => {
+  return Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+};
+
 // Mock Auth Provider
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
@@ -60,7 +65,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Other emails will default to student
 
     const mockUser: AppUser = {
-      id: 'user-' + Math.random().toString(36).substring(7),
+      id: generateMockObjectId(), // Use mock ObjectId generator
       name: credentials.email.split('@')[0],
       email: credentials.email,
       role: role,
@@ -100,7 +105,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     const userRole = details.role || 'student';
     const mockUser: AppUser = {
-      id: 'newUser-' + Math.random().toString(36).substring(7),
+      id: generateMockObjectId(), // Use mock ObjectId generator
       name: details.name,
       email: details.email,
       role: userRole,

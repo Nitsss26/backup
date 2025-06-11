@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import VisitEventModel from '@/models/VisitEvent';
 import type { IVisitEvent } from '@/models/VisitEvent'; // Import the interface
+import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
   await dbConnect();
@@ -14,14 +15,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Path is required for visit event' }, { status: 400 });
     }
 
-    const visitEventData: Partial<IVisitEvent> = { // Use Partial for data to be saved
+    const visitEventData: Partial<IVisitEvent> = {
       path,
       sessionId,
-      ipAddress, // Note: Collect IP responsibly
+      ipAddress, 
       userAgent,
     };
-    if (userId) visitEventData.userId = userId; // Add userId if provided
 
+    if (userId) {
+      if (mongoose.Types.ObjectId.isValid(userId)) {
+        visitEventData.userId = new mongoose.Types.ObjectId(userId);
+      } else {
+        console.warn(`[API /api/track/visit] Invalid userId format: ${userId}. Tracking event without user ID.`);
+        // Depending on requirements, you might choose to return a 400 error here instead
+        // return NextResponse.json({ message: 'Invalid User ID format' }, { status: 400 });
+      }
+    }
+    
     const newEvent = new VisitEventModel(visitEventData);
     await newEvent.save();
     

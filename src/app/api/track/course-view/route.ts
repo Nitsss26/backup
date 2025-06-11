@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import CourseViewEventModel from '@/models/CourseViewEvent';
-import type { ICourseViewEvent } from '@/models/CourseViewEvent'; // Import the interface
+import type { ICourseViewEvent } from '@/models/CourseViewEvent'; 
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
@@ -15,13 +15,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Valid Course ID is required' }, { status: 400 });
     }
 
-    const eventData: Partial<ICourseViewEvent> = { // Use Partial for data to be saved
+    const eventData: Partial<ICourseViewEvent> = {
       courseId: new mongoose.Types.ObjectId(courseId),
       source,
       sessionId,
     };
-    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-      eventData.userId = new mongoose.Types.ObjectId(userId);
+
+    if (userId) {
+      if (mongoose.Types.ObjectId.isValid(userId)) {
+        eventData.userId = new mongoose.Types.ObjectId(userId);
+      } else {
+        console.warn(`[API /api/track/course-view] Invalid userId format: ${userId}. Tracking event without user ID.`);
+      }
     }
     
     const newEvent = new CourseViewEventModel(eventData);

@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import UserActionEventModel from '@/models/UserActionEvent';
-import type { IUserActionEvent, UserActionType } from '@/models/UserActionEvent'; // Import the interface and type
+import type { IUserActionEvent, UserActionType } from '@/models/UserActionEvent';
 import mongoose from 'mongoose';
 
 const VALID_ACTION_TYPES: UserActionType[] = ['signup', 'login', 'logout', 'profile_update', 'password_reset_request', 'password_reset_complete', 'add_to_cart', 'remove_from_cart', 'view_cart', 'start_checkout', 'order_completed', 'order_failed'];
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Valid Action Type is required' }, { status: 400 });
     }
 
-    const eventData: Partial<IUserActionEvent> = { // Use Partial for data to be saved
+    const eventData: Partial<IUserActionEvent> = {
       userId: new mongoose.Types.ObjectId(userId),
       actionType: actionType as UserActionType,
       details,
