@@ -16,6 +16,7 @@ import { useAuth } from '@/components/AppProviders';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { APP_NAME } from '@/lib/constants';
 import type { User as AppUser } from '@/lib/types'; // Import AppUser type
+import axios from 'axios'; // Import axios
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -67,6 +68,18 @@ export function AuthForm({ mode }: AuthFormProps) {
         authenticatedUser = await loginAuth({ email: (data as LoginFormValues).email, password: (data as LoginFormValues).password });
         if (authenticatedUser) {
           toast({ title: "Login Successful", description: "Welcome back!" });
+          // Track login action
+          try {
+            await axios.post('/api/track/user-action', {
+              userId: authenticatedUser.id,
+              actionType: 'login',
+              details: { email: authenticatedUser.email },
+              // sessionId: getSessionId(), // Implement getSessionId if you have session tracking
+            });
+          } catch (trackingError) {
+            console.error("Failed to track login action:", trackingError);
+            // Optionally inform the user or log more robustly, but don't block main flow
+          }
         } else {
           throw new Error("Login failed. Please check your credentials.");
         }
@@ -75,6 +88,18 @@ export function AuthForm({ mode }: AuthFormProps) {
         authenticatedUser = await registerAuth({ name: registerData.name, email: registerData.email, password: registerData.password, role: registerData.role });
         if (authenticatedUser) {
           toast({ title: "Registration Successful", description: `Welcome to ${APP_NAME}!` });
+          // Track signup action
+          try {
+            await axios.post('/api/track/user-action', {
+              userId: authenticatedUser.id,
+              actionType: 'signup',
+              details: { email: authenticatedUser.email, role: authenticatedUser.role },
+              // sessionId: getSessionId(), // Implement getSessionId if you have session tracking
+            });
+          } catch (trackingError) {
+            console.error("Failed to track signup action:", trackingError);
+            // Optionally inform the user or log more robustly, but don't block main flow
+          }
         } else {
           throw new Error("Registration failed. Please try again.");
         }
