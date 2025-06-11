@@ -23,7 +23,7 @@ import Link from 'next/link';
 // Removed StudentDashboardHeaderNav import as it's being replaced by the main sidebar for these views
 
 const studentNavItems: NavItem[] = [
-  { href: '/dashboard/student', label: 'Overview', icon: LayoutGrid },
+  { href: '/dashboard/student', label: 'Dashboard', icon: LayoutGrid },
   { href: '/dashboard/student/courses', label: 'My Courses', icon: BookOpen },
   { href: '/dashboard/student/certificates', label: 'Certificates', icon: FileCheck2 },
   { href: '/dashboard/student/wishlist', label: 'Wishlist', icon: Heart },
@@ -156,7 +156,7 @@ export default function DashboardLayout({
               <SidebarFooter className="p-2 mt-auto">
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start group-[.w-16]:justify-center group-[.w-16]:p-2 group-hover:justify-start transition-all duration-300"
+                  className="w-full justify-start items-center group-[.w-16]:justify-center group-[.w-16]:h-8 group-[.w-16]:p-2 group-hover:justify-start transition-all duration-300"
                   onClick={logout}
                 >
                   <LogOut className="mr-2 h-4 w-4 group-[.w-16]:mr-0 group-hover:mr-2 transition-all duration-300" />
@@ -177,5 +177,4 @@ export default function DashboardLayout({
     </SidebarProvider>
   );
 }
-
     
