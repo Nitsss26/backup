@@ -21,10 +21,22 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { placeholderReviews, placeholderCourses as staticRelatedCourses } from '@/lib/placeholder-data';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/components/AppProviders'; // Import useAuth
 
 // Helper to get review by course ID (from static data for now)
 const getReviewsByCourseId = (id: string): ReviewType[] => staticRelatedCourses.length > 0 ? placeholderReviews.filter(r => r.courseId === id) : [];
 
+function getSessionId() {
+  if (typeof window !== 'undefined') {
+    let sessionId = localStorage.getItem('edtechcart_session_id');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('edtechcart_session_id', sessionId);
+    }
+    return sessionId;
+  }
+  return null;
+}
 
 function ReviewCard({ review }: { review: ReviewType }) {
   return (
@@ -72,6 +84,7 @@ function CurriculumItem({ item }: { item: Lesson }) {
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params?.id as string; 
+  const { user } = useAuth(); // Get user from AuthContext
 
   const [course, setCourse] = useState<Course | null>(null);
   const [reviews, setReviews] = useState<ReviewType[]>([]);
@@ -86,29 +99,50 @@ export default function CourseDetailPage() {
         setIsLoading(false);
         return;
       }
-      console.log(`[CourseDetailPage] Attempting to fetch course with ID: ${courseId}`);
+      // console.log(`[CourseDetailPage] Attempting to fetch course with ID: ${courseId}`);
       setIsLoading(true);
       setError(null);
 
       try {
         const response = await axios.get<Course>(`/api/courses/${courseId}`);
-        setCourse(response.data);
+        const fetchedCourse = response.data;
+        setCourse(fetchedCourse);
         setReviews(getReviewsByCourseId(courseId)); // Still placeholder
         
-        if (response.data && response.data.category) {
-            const relatedCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(response.data.category.toLowerCase().replace(/\s+/g, '-'))}`);
-            // Ensure response.data._id is used for comparison if available
-            const currentCourseId = response.data._id || response.data.id;
-            setRelatedCourses(relatedCoursesResponse.data.courses.filter(c => c._id !== currentCourseId).slice(0,3));
+        if (fetchedCourse && fetchedCourse.category) {
+            const relatedCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(fetchedCourse.category.toLowerCase().replace(/\s+/g, '-'))}`);
+            // Ensure fetchedCourse._id is used for comparison if available
+            const currentCourseId = (fetchedCourse as any)._id || fetchedCourse.id;
+            setRelatedCourses(relatedCoursesResponse.data.courses.filter(c => (c as any)._id !== currentCourseId).slice(0,3));
         } else {
             setRelatedCourses([]); 
         }
+
+        // Track course view
+        const sessionId = getSessionId();
+        if (fetchedCourse && sessionId) {
+          try {
+            const courseViewData: { courseId: string; sessionId: string; userId?: string; source: string } = {
+              courseId: fetchedCourse.id, // Use actual ID from fetchedCourse
+              sessionId: sessionId,
+              source: 'course_detail_page',
+            };
+            if (user?.id) {
+              courseViewData.userId = user.id;
+            }
+            // console.log('[CourseDetailPage] Tracking course view:', courseViewData);
+            await axios.post('/api/track/course-view', courseViewData);
+          } catch (trackError) {
+            console.error("Failed to track course view event:", trackError);
+          }
+        }
+
       } catch (err: any) {
-        console.error(`[CourseDetailPage] Failed to fetch course ${courseId}:`, err);
-        console.error("[CourseDetailPage] Full Axios error object:", JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+        // console.error(`[CourseDetailPage] Failed to fetch course ${courseId}:`, err);
+        // console.error("[CourseDetailPage] Full Axios error object:", JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
         if (err.response) {
-          console.error("[CourseDetailPage] Server Error Response Data:", err.response.data);
-          console.error("[CourseDetailPage] Server Error Response Status:", err.response.status);
+          // console.error("[CourseDetailPage] Server Error Response Data:", err.response.data);
+          // console.error("[CourseDetailPage] Server Error Response Status:", err.response.status);
           if (err.response.status === 404) {
             setError(`Course not found (ID: ${courseId}). Please check the ID or if the course exists.`);
           } else if (err.response.status === 400) {
@@ -117,10 +151,10 @@ export default function CourseDetailPage() {
             setError(err.response.data?.message || `Server error ${err.response.status} while fetching course. Please try again later.`);
           }
         } else if (err.request) {
-          console.error("[CourseDetailPage] No response received:", err.request);
+          // console.error("[CourseDetailPage] No response received:", err.request);
           setError("Network Error: No response received from server. Please check your connection and try again.");
         } else {
-          console.error("[CourseDetailPage] Axios setup error:", err.message);
+          // console.error("[CourseDetailPage] Axios setup error:", err.message);
           setError(`An error occurred: ${err.message}. Please try refreshing the page.`);
         }
       } finally {
@@ -129,7 +163,7 @@ export default function CourseDetailPage() {
     };
 
     fetchCourseData();
-  }, [courseId]);
+  }, [courseId, user]); // Added user to dependencies for tracking
 
   if (isLoading) {
     return (
@@ -298,40 +332,7 @@ export default function CourseDetailPage() {
                     </span>
                   </CardHeader>
                   <CardContent>
-                  // Replace the curriculum mapping section (around line 302-303) with this:
-
-<Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
-  {course.curriculum?.sort((a,b) => a.order - b.order).map((module, index) => {
-    // Create a unique key that handles undefined/null ids
-    const moduleKey = module.id ? String(module.id) : `module-${index}-${module.title?.replace(/\s+/g, '-').toLowerCase() || 'untitled'}`;
-    const accordionValue = module.id ? String(module.id) : `mod-${index}`;
-    
-    return (
-      <AccordionItem 
-        value={accordionValue} 
-        key={moduleKey} 
-        className="border-b last:border-b-0"
-      >
-        <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10 text-foreground">
-          <div className="flex justify-between w-full items-center">
-            <span className="text-left font-semibold">Module {index + 1}: {module.title}</span>
-            <span className="text-xs text-muted-foreground font-normal ml-2 shrink-0">{module.lessons?.length || 0} lessons</span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-1 px-2">
-          {module.lessons?.sort((a,b) => a.order - b.order).map((lesson, lessonIndex) => {
-            // Also fix lesson keys to ensure uniqueness
-            const lessonKey = lesson.id ? String(lesson.id) : `lesson-${index}-${lessonIndex}-${lesson.title?.replace(/\s+/g, '-').toLowerCase() || 'untitled'}`;
-            return (
-              <CurriculumItem key={lessonKey} item={lesson} />
-            );
-          })}
-        </AccordionContent>
-      </AccordionItem>
-    );
-  })}
-</Accordion>
-                    {/* <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
+                    <Accordion type="multiple" defaultValue={course.curriculum?.[0]?.id ? [String(course.curriculum[0].id)] : []} className="w-full">
                       {course.curriculum?.sort((a,b) => a.order - b.order).map((module, index) => (
                         <AccordionItem value={String(module.id) || `mod-${index}`} key={String(module.id) || `mod-key-${index}`} className="border-b last:border-b-0">
                           <AccordionTrigger className="hover:no-underline bg-muted/50 dark:bg-muted/20 px-4 py-3.5 rounded-md text-base my-1.5 transition-colors hover:bg-primary/10 text-foreground">
@@ -347,7 +348,7 @@ export default function CourseDetailPage() {
                           </AccordionContent>
                         </AccordionItem>
                       ))}
-                    </Accordion> */}
+                    </Accordion>
                      {(!course.curriculum || course.curriculum.length === 0) && <p className="text-muted-foreground text-center py-6">Curriculum details are not yet available for this course.</p>}
                   </CardContent>
                 </Card>
@@ -498,7 +499,7 @@ export default function CourseDetailPage() {
               <h2 className="text-2xl font-bold mb-6 font-headline text-foreground">Related Courses</h2>
               <div className="grid grid-cols-1 gap-6">
                 {relatedCourses.map((relCourse) => (
-                  <CourseCard key={String(relCourse._id) || relCourse.id} course={relCourse} />
+                  <CourseCard key={String((relCourse as any)._id) || relCourse.id} course={relCourse} />
                 ))}
               </div>
             </section>

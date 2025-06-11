@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import AppProviders from '@/components/AppProviders';
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AnalyticsTracker } from '@/components/AnalyticsTracker'; // Import AnalyticsTracker
 
 // Configure Poppins font
 const poppins = Poppins({ 
@@ -37,6 +38,7 @@ export default function RootLayout({
         >
           <AppProviders>
             {children}
+            <AnalyticsTracker /> {/* Add AnalyticsTracker here */}
             <Toaster />
           </AppProviders>
         </ThemeProvider>
