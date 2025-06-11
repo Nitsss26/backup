@@ -25,7 +25,7 @@ import Link from 'next/link';
 const studentNavItems: NavItem[] = [
   { href: '/dashboard/student', label: 'Dashboard', icon: LayoutGrid },
   { href: '/dashboard/student/courses', label: 'My Courses', icon: BookOpen },
-  { href: '/dashboard/student/certificates', label: 'Certificates', icon: FileCheck2 },
+  // { href: '/dashboard/student/certificates', label: 'Certificates', icon: FileCheck2 },
   { href: '/dashboard/student/wishlist', label: 'Wishlist', icon: Heart },
   { href: '/dashboard/student/orders', label: 'Order History', icon: ShoppingBag },
   { href: '/dashboard/profile', label: 'Profile Settings', icon: Settings, isShared: true },
@@ -153,14 +153,14 @@ export default function DashboardLayout({
               <SidebarContent className="p-2">
                 <DashboardSidebarNav navItems={activeNavItems} userRole={user.role} />
               </SidebarContent>
-              <SidebarFooter className="p-2 mt-auto">
+              <SidebarFooter className="p-2 mb-3">
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start items-center group-[.w-16]:justify-center group-[.w-16]:h-8 group-[.w-16]:p-2 group-hover:justify-start transition-all duration-300"
+                  className="w-full justify-start items-center group-[.w-16]:justify-start group-[.w-16]:h-8 group-[.w-16]:p-2 group-hover:justify-start transition-all duration-300"
                   onClick={logout}
                 >
                   <LogOut className="mr-2 h-4 w-4 group-[.w-16]:mr-0 group-hover:mr-2 transition-all duration-300" />
-                  <span className="opacity-0 group-[.w-16]:hidden group-hover:opacity-100 transition-opacity duration-300">Logout</span>
+                  <span className="opacity-0  group-hover:opacity-100 transition-opacity duration-300">Logout</span>
                 </Button>
               </SidebarFooter>
             </Sidebar>
