@@ -731,7 +731,7 @@ export default function AdminDashboardPage() {
             { label: "Review Moderation", href: "/admin/reviews", icon: MessageSquare, description: "Approve or reject user-submitted reviews.", iconColor: "text-purple-600 dark:text-purple-400" },
             { label: "Financial Reports", href: "/admin/payments", icon: DollarSign, description: "Track revenue, payouts, and transactions.", iconColor: "text-green-600 dark:text-green-400" },
             { label: "Site Content Editor", href: "/admin/content", icon: Edit3, description: "Update static pages, FAQs, and banners.", iconColor: "text-red-600 dark:text-red-400" },
-            { label: "System Analytics", href: "/admin/analytics", icon: BarChartIcon, description: "View platform-wide analytics (Coming Soon).", disabled: true, iconColor: "text-teal-600 dark:text-teal-400" },
+            { label: "System Analytics", href: "/admin/analytics", icon: BarChartIcon, description: "View platform-wide analytics.",  iconColor: "text-teal-600 dark:text-teal-400" },
             { label: "Theme & Appearance", href: "/admin/settings?tab=theme", icon: Palette, description: "Customize platform look and feel.", iconColor: "text-pink-600 dark:text-pink-400" },
             { label: "Platform Settings", href: "/admin/settings", icon: SettingsIcon, description: "Configure core platform functionalities.", iconColor: "text-indigo-600 dark:text-indigo-400" },
           ].map(link => (
