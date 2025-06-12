@@ -18,6 +18,14 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'ineuron.ai',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.ineuron.ai',
+      },
+      {
+        protocol: 'https',
         hostname: 'plus.unsplash.com',
         port: '',
         pathname: '/**',

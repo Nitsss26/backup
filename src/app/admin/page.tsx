@@ -617,7 +617,7 @@ export default function AdminDashboardPage() {
 
   const actionItems = [
     { title: "Seller Verifications", value: pendingSellerVerifications, icon: ShieldCheck, link: "/admin/users?filter=pending_verification", description: "Review new seller applications.", imageHint: "admin verification checkmark user document", iconColor: "text-indigo-300", img: "https://img.freepik.com/premium-vector/set-green-shield-with-white-checkmark-symbolizing-security-protection-verification_100456-19840.jpg" },
-    { title: "Review Moderation", value: placeholderReviews.filter(r => r.moderationStatus === 'pending').length, icon: Eye, link: "/admin/reviews?filter=pending", description: "Manage user-submitted reviews.", imageHint: "admin review moderation eye content", iconColor: "text-indigo-300", img:"https://img.freepik.com/premium-vector/rating-bubble-with-five-gold-stars-3d-icon-red-vote-satisfied-customers_92753-6770.jpg" },
+    { title: "Review Moderation", value: placeholderReviews.filter(r => r.moderationStatus === 'pending').length, icon: Eye, link: "/admin/reviews?filter=pending", description: "Manage user-submitted reviews.", imageHint: "admin review moderation eye content", iconColor: "text-indigo-300", img:"https://img.freepik.com/premium-vector/feedback-giving-rating-customer-satisfaction_7087-1594.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740" },
     { title: "Course Approvals", value: pendingCourseApprovals, icon: ListChecks, link: "/admin/courses?filter=pending_approval", description: "Moderate new course submissions.", imageHint: "admin course approval checklist document", iconColor: "text-indigo-300", img: "https://img.freepik.com/premium-vector/yellow-sign-that-says-check-your-finger-center_1305575-6742.jpg" },
   ];
 

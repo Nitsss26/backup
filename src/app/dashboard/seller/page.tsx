@@ -120,7 +120,7 @@ export default function SellerDashboardPage() {
         </Card>
         <Card className="shadow-md border-l-4 border-accent">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-accent-foreground">Total Students</CardTitle>
+            <CardTitle className="text-sm font-medium ">Total Students</CardTitle>
             <Users className="h-5 w-5 text-accent" />
           </CardHeader>
           <CardContent>
