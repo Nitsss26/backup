@@ -1,22 +1,21 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { placeholderCourses } from '@/lib/placeholder-data';
 import type { Course } from '@/lib/types';
-import { X, PlusCircle, BarChartHorizontalBig, CheckCircle, XCircle, ShoppingCart } from 'lucide-react';
+import { X, PlusCircle, BarChartHorizontalBig, CheckCircle, XCircle, ShoppingCart, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { StarRating } from '@/components/ui/StarRating';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import axios from 'axios'; // Added axios import
 
 const MAX_COMPARE_ITEMS = 4;
 
@@ -34,21 +33,7 @@ interface ComparisonFeature {
 }
 
 const comparisonFeatures: ComparisonFeature[] = [
-  {
-    key: 'imageUrl',
-    label: 'Thumbnail',
-    render: (course: Course) => (
-      <Image
-        src={course.imageUrl || `https://placehold.co/120x67.png`}
-        alt={course.title}
-        width={120}
-        height={67}
-        className="rounded-md object-cover aspect-video mx-auto shadow-sm"
-        data-ai-hint={`${course.category} thumbnail compare`}
-      />
-    ),
-    className: "p-2",
-  },
+  // Removed imageUrl/Thumbnail from here, as it's in the header
   {
     key: 'title',
     label: 'Title',
@@ -110,8 +95,8 @@ const comparisonFeatures: ComparisonFeature[] = [
       <div className="flex flex-col items-center text-center">
         {course.providerInfo?.logoUrl && (
           <Avatar className="h-8 w-8 mb-1 border">
-            <AvatarImage src={course.providerInfo.logoUrl} alt={course.providerInfo.name} />
-            <AvatarFallback className="text-xs">{course.providerInfo.name?.substring(0, 1)}</AvatarFallback>
+            <AvatarImage src={course.providerInfo.logoUrl} alt={course.providerInfo.name || "Provider"} />
+            <AvatarFallback className="text-xs">{(course.providerInfo.name || "P").substring(0, 1)}</AvatarFallback>
           </Avatar>
         )}
         <span className="text-xs line-clamp-2">{course.providerInfo?.name || course.instructor}</span>
@@ -154,11 +139,31 @@ const comparisonFeatures: ComparisonFeature[] = [
 export default function CompareCoursesPage() {
   const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
   const [availableCourses, setAvailableCourses] = useState<Course[]>([]);
+  const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
-    setAvailableCourses(placeholderCourses);
+    const fetchAvailableCourses = async () => {
+      setIsLoadingCourses(true);
+      try {
+        // Fetch courses with a limit for the dropdown
+        const response = await axios.get<{ courses: Course[]; totalCourses: number }>(`/api/courses?limit=100&page=1`);
+        if (response.data && response.data.courses) {
+          setAvailableCourses(response.data.courses);
+        } else {
+          console.error("No courses found in API response for comparison select.");
+          setAvailableCourses([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch courses for comparison select:", error);
+        setAvailableCourses([]);
+      } finally {
+        setIsLoadingCourses(false);
+      }
+    };
+
+    fetchAvailableCourses();
   }, []);
 
   const handleAddCourse = (courseId: string) => {
@@ -216,7 +221,14 @@ export default function CompareCoursesPage() {
               <div key={`slot-${index}`}>
                 {selectedCourses[index] ? (
                   <Card className="min-h-[200px] flex flex-col p-3 shadow-sm border border-primary/40 bg-primary/5">
-                    <Image src={selectedCourses[index].imageUrl || `https://placehold.co/160x90.png`} alt={selectedCourses[index].title} width={160} height={90} className="rounded-md object-cover aspect-video mx-auto mb-2 shadow-sm w-full"/>
+                    <Image 
+                        src={selectedCourses[index].imageUrl || `https://placehold.co/160x90.png`} 
+                        alt={selectedCourses[index].title} 
+                        width={160} 
+                        height={90} 
+                        className="rounded-md object-cover aspect-video mx-auto mb-2 shadow-sm w-full"
+                        data-ai-hint={`${selectedCourses[index].category} course compare slot`}
+                        />
                     <p className="text-xs font-semibold line-clamp-2 text-center text-foreground flex-grow mb-2 h-8">{selectedCourses[index].title}</p>
                     <Button variant="destructive" size="sm" onClick={() => handleRemoveCourse(selectedCourses[index].id)} className="w-full text-destructive-foreground text-xs py-1 h-auto">
                       <X className="h-3.5 w-3.5 mr-1" /> Remove
@@ -224,11 +236,18 @@ export default function CompareCoursesPage() {
                   </Card>
                 ) : (
                   <Card className="border-2 border-dashed border-muted-foreground/30 hover:border-primary/70 transition-all duration-200 ease-in-out min-h-[200px] flex flex-col items-center justify-center p-4 text-center bg-card hover:bg-muted/5 group">
-                    <PlusCircle className="h-10 w-10 text-muted-foreground/50 mb-2 group-hover:text-primary/70 transition-colors" />
+                    {isLoadingCourses ? (
+                       <Loader2 className="h-10 w-10 text-muted-foreground/50 mb-2 animate-spin" />
+                    ) : (
+                       <PlusCircle className="h-10 w-10 text-muted-foreground/50 mb-2 group-hover:text-primary/70 transition-colors" />
+                    )}
                     <p className="text-xs font-medium text-muted-foreground mb-2 group-hover:text-primary/90">Add Course {index + 1}</p>
-                    <Select onValueChange={handleAddCourse} disabled={selectedCourses.length >= MAX_COMPARE_ITEMS}>
+                    <Select 
+                        onValueChange={handleAddCourse} 
+                        disabled={selectedCourses.length >= MAX_COMPARE_ITEMS || isLoadingCourses || availableCourses.length === 0}
+                    >
                       <SelectTrigger className="w-full h-9 text-xs">
-                        <SelectValue placeholder="Select a course" />
+                        <SelectValue placeholder={isLoadingCourses ? "Loading..." : (availableCourses.length === 0 ? "No courses" : "Select a course")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -240,6 +259,7 @@ export default function CompareCoursesPage() {
                               {course.title}
                             </SelectItem>
                           ))}
+                           {availableCourses.length === 0 && !isLoadingCourses && <SelectItem value="no_courses_available" disabled>No courses available for selection.</SelectItem>}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -259,7 +279,14 @@ export default function CompareCoursesPage() {
                   {selectedCourses.map((course) => (
                     <th key={course.id} className="p-3 text-center border-b min-w-[220px] md:min-w-[250px]">
                       <Link href={`/courses/${course.id}`} className="block group">
-                        <Image src={course.imageUrl || `https://placehold.co/120x67.png`} alt={course.title} width={120} height={67} className="rounded-md object-cover aspect-video mx-auto mb-1.5 shadow-sm group-hover:opacity-80 transition-opacity"/>
+                        <Image 
+                            src={course.imageUrl || `https://placehold.co/120x67.png`} 
+                            alt={course.title} 
+                            width={120} 
+                            height={67} 
+                            className="rounded-md object-cover aspect-video mx-auto mb-1.5 shadow-sm group-hover:opacity-80 transition-opacity"
+                            data-ai-hint={`${course.category} compare table thumbnail`}
+                        />
                         <p className="text-xs font-semibold text-primary group-hover:underline line-clamp-2 h-8">{course.title}</p>
                       </Link>
                     </th>
@@ -303,7 +330,14 @@ export default function CompareCoursesPage() {
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">Select at least one course using the slots above to start your side-by-side comparison and find the perfect fit for your learning goals.</p>
-                <Image src="https://placehold.co/400x200/EBF4FF/3B82F6?text=Select+Courses+to+Compare" alt="Illustration for selecting courses to compare" width={400} height={200} className="mx-auto rounded-md shadow-sm" data-ai-hint="comparison chart analytics education" />
+                <Image 
+                    src="https://placehold.co/400x200/EBF4FF/3B82F6?text=Select+Courses+to+Compare" 
+                    alt="Illustration for selecting courses to compare" 
+                    width={400} 
+                    height={200} 
+                    className="mx-auto rounded-md shadow-sm"
+                    data-ai-hint="comparison chart analytics education"
+                />
             </CardContent>
           </Card>
         )}
@@ -312,3 +346,6 @@ export default function CompareCoursesPage() {
     </div>
   );
 }
+
+
+    
