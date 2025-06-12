@@ -134,7 +134,7 @@ export function FilterSidebar() {
                   onCheckedChange={() => handleFilterChange('categories', category.slug)}
                   aria-label={category.name}
                 />
-                <Label htmlFor={`cat-${category.id}`} className="font-normal text-sm cursor-pointer">{category.name}</Label>
+                <Label htmlFor={`cat-${category.id}`} className="font-normal text-sm cursor-pointer break-words">{category.name}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -190,7 +190,7 @@ export function FilterSidebar() {
                   onCheckedChange={() => handleFilterChange('difficultyLevels', level)}
                   aria-label={level}
                 />
-                <Label htmlFor={`level-${level}`} className="font-normal text-sm cursor-pointer">{level}</Label>
+                <Label htmlFor={`level-${level}`} className="font-normal text-sm cursor-pointer break-words">{level}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -207,7 +207,7 @@ export function FilterSidebar() {
                   onCheckedChange={() => handleFilterChange('languages', lang)}
                   aria-label={lang}
                 />
-                <Label htmlFor={`lang-${lang.toLowerCase().replace(/\s+/g, '-')}`} className="font-normal text-sm cursor-pointer">{lang}</Label>
+                <Label htmlFor={`lang-${lang.toLowerCase().replace(/\s+/g, '-')}`} className="font-normal text-sm cursor-pointer break-words">{lang}</Label>
               </div>
             ))}
           </AccordionContent>
@@ -224,7 +224,7 @@ export function FilterSidebar() {
                   onCheckedChange={() => handleFilterChange('instructorTypes', type)}
                   aria-label={type}
                 />
-                <Label htmlFor={`instructor-${type.replace(/\s+/g, '-')}`} className="font-normal text-sm cursor-pointer">{type}</Label>
+                <Label htmlFor={`instructor-${type.replace(/\s+/g, '-')}`} className="font-normal text-sm cursor-pointer break-words">{type}</Label>
               </div>
             ))}
           </AccordionContent>

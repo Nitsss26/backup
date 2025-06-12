@@ -129,7 +129,7 @@ export default function CoursesPage() {
           </div>
           
           <div className="hidden md:block w-72 lg:w-80 shrink-0">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-2"> {/* Header h-16 (4rem) + 2rem margin = 6rem */}
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto"> {/* Removed pr-2 */}
                 <FilterSidebar />
             </div>
           </div>
