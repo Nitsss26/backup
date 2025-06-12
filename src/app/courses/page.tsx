@@ -27,13 +27,17 @@ interface ApiResponse {
 
 const bannerImages = {
   default: 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
-  'iit-jee': 'https://i.ibb.co/XZ47W02/iit-jee-banner-alt.png', // Replace with actual URL
-  'neet': 'https://i.ibb.co/yYXg8xG/neet-banner-alt.png', // Replace with actual URL
-  'gov-exams': 'https://i.ibb.co/SN20B0j/gov-exams-banner-alt.png', // Replace with actual URL
-  'computer-science': 'https://i.ibb.co/mR5jJcv/cs-banner-alt.png', // Replace with actual URL
-  'business-finance': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png', // Example, use unique
-  // Add more mappings for your other 5 categories as needed
+  'iit-jee': 'https://i.ibb.co/XZ47W02/iit-jee-banner-alt.png',
+  'neet': 'https://i.ibb.co/yYXg8xG/neet-banner-alt.png',
+  'gov-exams': 'https://i.ibb.co/SN20B0j/gov-exams-banner-alt.png',
+  'computer-science': 'https://i.ibb.co/mR5jJcv/cs-banner-alt.png',
+  'business-finance': 'https://placehold.co/1200x250/BFDBFE/1E40AF?text=Top+Business+Courses', // Placeholder
+  'arts-humanities': 'https://placehold.co/1200x250/DDD6FE/4338CA?text=Explore+Arts+%26+Humanities', // Placeholder
+  'language-learning': 'https://placehold.co/1200x250/FECACA/B91C1C?text=Learn+A+New+Language', // Placeholder
+  'personal-development': 'https://placehold.co/1200x250/A7F3D0/047857?text=Unlock+Your+Potential', // Placeholder
+  'photography-video': 'https://placehold.co/1200x250/FEF08A/713F12?text=Master+Photography', // Placeholder
 };
+
 
 export default function CoursesPage() {
   const router = useRouter(); 
@@ -82,12 +86,15 @@ export default function CoursesPage() {
     if (categorySlug && bannerImages[categorySlug as keyof typeof bannerImages]) {
       setCurrentBannerUrl(bannerImages[categorySlug as keyof typeof bannerImages]);
     } else if (categorySlug) {
-      // Fallback to a default or random banner if category-specific one isn't mapped
-      // For now, using default if specific not found
-      const availableBanners = Object.values(bannerImages);
-      setCurrentBannerUrl(availableBanners[Math.floor(Math.random() * availableBanners.length)]);
-    } 
-     else {
+      // Fallback if category-specific one isn't mapped - cycle through available specific banners
+      const availableCategoryBanners = Object.entries(bannerImages).filter(([key]) => key !== 'default').map(([,url]) => url);
+      if (availableCategoryBanners.length > 0) {
+        const slugHash = categorySlug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        setCurrentBannerUrl(availableCategoryBanners[slugHash % availableCategoryBanners.length]);
+      } else {
+        setCurrentBannerUrl(bannerImages.default);
+      }
+    } else {
       setCurrentBannerUrl(bannerImages.default);
     }
   }, [currentSearchParams, fetchCourses]);
@@ -141,25 +148,44 @@ export default function CoursesPage() {
           </div>
           
           <div className="hidden md:block w-72 lg:w-80 shrink-0">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto"> {/* Removed pr-2 */}
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
                 <FilterSidebar />
             </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold font-headline">
-                  {searchQuery ? `Search results for "${searchQuery}"` : 
-                  currentCategoryName ? `${currentCategoryName} Courses` : 
-                  'All Courses'}
-                </h1>
-                {!isLoading && !error && (
-                  <p className="text-muted-foreground mt-1 md:mt-2">
-                    Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
-                  </p>
-                )}
+          <div className="flex-1 min-w-0"> {/* Main content area */}
+            {/* Row 1: Page Title */}
+            <div className="mb-4 md:mb-6">
+              <h1 className="text-3xl md:text-4xl font-bold font-headline">
+                {searchQuery ? `Search results for "${searchQuery}"` : 
+                 currentCategoryName ? `${currentCategoryName} Courses` : 
+                 'All Courses'}
+              </h1>
+            </div>
+
+            {/* Row 2: Promotional Banner */}
+            {currentBannerUrl && (
+              <div className="my-6 md:my-8">
+                <Image
+                  key={currentBannerUrl} 
+                  src={currentBannerUrl}
+                  alt="Promotional Banner for Courses"
+                  width={1200} 
+                  height={250} 
+                  className="rounded-lg shadow-lg object-cover w-full h-auto max-h-[200px] md:max-h-[250px]" 
+                  priority
+                  data-ai-hint="promotional course banner advertisement education offers"
+                />
               </div>
+            )}
+
+            {/* Row 3: Course Count & Sort Dropdown */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6">
+              {!isLoading && !error && (
+                <p className="text-muted-foreground mt-1 md:mt-0">
+                  Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
+                </p>
+              )}
               <div className="mt-4 md:mt-0 w-full md:w-auto">
                 <Select 
                   value={currentSearchParams.get('sort') || 'relevance'} 
@@ -178,21 +204,7 @@ export default function CoursesPage() {
               </div>
             </div>
             
-            {currentBannerUrl && (
-              <div className="my-6 md:my-8"> {/* Increased margin for banner */}
-                <Image
-                  key={currentBannerUrl} // Force re-render on URL change for potential transitions
-                  src={currentBannerUrl}
-                  alt="Promotional Banner for Courses"
-                  width={1200} 
-                  height={250} 
-                  className="rounded-lg shadow-lg object-cover w-full h-auto max-h-[200px] md:max-h-[250px]" 
-                  priority
-                  data-ai-hint="promotional course banner advertisement education offers"
-                />
-              </div>
-            )}
-
+            {/* Row 4: Course Grid (or loading/error state) */}
             {isLoading ? (
               <div className="flex justify-center items-center py-16">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
