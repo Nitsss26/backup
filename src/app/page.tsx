@@ -9,6 +9,7 @@ import { Footer } from '@/components/layout/Footer';
 import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { SearchBar } from '@/components/SearchBar';
+import { Input } from '@/components/ui/input'; // Added this import
 import {
   ArrowRight,
   BookOpen,
