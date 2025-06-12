@@ -25,17 +25,23 @@ interface ApiResponse {
   totalCourses: number;
 }
 
+// Define banner images for different categories
 const bannerImages = {
   default: 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
   'iit-jee': 'https://i.ibb.co/XZ47W02/iit-jee-banner-alt.png',
   'neet': 'https://i.ibb.co/yYXg8xG/neet-banner-alt.png',
   'gov-exams': 'https://i.ibb.co/SN20B0j/gov-exams-banner-alt.png',
   'computer-science': 'https://i.ibb.co/mR5jJcv/cs-banner-alt.png',
-  'business-finance': 'https://placehold.co/1200x250/BFDBFE/1E40AF?text=Top+Business+Courses', // Placeholder
-  'arts-humanities': 'https://placehold.co/1200x250/DDD6FE/4338CA?text=Explore+Arts+%26+Humanities', // Placeholder
-  'language-learning': 'https://placehold.co/1200x250/FECACA/B91C1C?text=Learn+A+New+Language', // Placeholder
-  'personal-development': 'https://placehold.co/1200x250/A7F3D0/047857?text=Unlock+Your+Potential', // Placeholder
-  'photography-video': 'https://placehold.co/1200x250/FEF08A/713F12?text=Master+Photography', // Placeholder
+  // Add more mappings for your other categories as needed
+  // Fallback for other categories if not specifically mapped
+  'business-finance': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png', 
+  'arts-humanities': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'language-learning': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'personal-development': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'photography-video': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'music-performing-arts': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'health-fitness': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'design-illustration': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
 };
 
 
@@ -55,10 +61,10 @@ export default function CoursesPage() {
   const fetchCourses = useCallback(async (params: URLSearchParams) => {
     setIsLoading(true);
     setError(null);
-    console.log(`[CoursesPage] Fetching courses with params: ${params.toString()}`);
+    // console.log(`[CoursesPage] Fetching courses with params: ${params.toString()}`);
     try {
       const response = await axios.get<ApiResponse>(`/api/courses?${params.toString()}`);
-      console.log("[CoursesPage] API Response Data:", response.data);
+      // console.log("[CoursesPage] API Response Data:", response.data);
       setCourses(response.data.courses);
       setTotalPages(response.data.totalPages);
       setCurrentPage(response.data.currentPage);
@@ -86,14 +92,10 @@ export default function CoursesPage() {
     if (categorySlug && bannerImages[categorySlug as keyof typeof bannerImages]) {
       setCurrentBannerUrl(bannerImages[categorySlug as keyof typeof bannerImages]);
     } else if (categorySlug) {
-      // Fallback if category-specific one isn't mapped - cycle through available specific banners
-      const availableCategoryBanners = Object.entries(bannerImages).filter(([key]) => key !== 'default').map(([,url]) => url);
-      if (availableCategoryBanners.length > 0) {
-        const slugHash = categorySlug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        setCurrentBannerUrl(availableCategoryBanners[slugHash % availableCategoryBanners.length]);
-      } else {
-        setCurrentBannerUrl(bannerImages.default);
-      }
+      // Fallback to a random banner from the defined ones if category-specific one isn't mapped
+      const availableBannerKeys = Object.keys(bannerImages).filter(k => k !== 'default');
+      const randomBannerKey = availableBannerKeys[Math.floor(Math.random() * availableBannerKeys.length)];
+      setCurrentBannerUrl(bannerImages[randomBannerKey as keyof typeof bannerImages] || bannerImages.default);
     } else {
       setCurrentBannerUrl(bannerImages.default);
     }
@@ -111,10 +113,17 @@ export default function CoursesPage() {
   };
   
   const currentCategorySlug = currentSearchParams.get('category');
-  const currentCategoryName = currentCategorySlug 
-    ? STATIC_CATEGORIES.find(c => c.slug === currentCategorySlug)?.name 
+  const currentCategoryObject = currentCategorySlug 
+    ? STATIC_CATEGORIES.find(c => c.slug === currentCategorySlug)
     : undefined;
+  const currentCategoryName = currentCategoryObject?.name;
   const searchQuery = currentSearchParams.get('q');
+
+  const pageTitle = searchQuery 
+    ? `Search results for "${searchQuery}"` 
+    : currentCategoryName 
+      ? `${currentCategoryName} Courses` 
+      : 'All Courses';
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -153,21 +162,19 @@ export default function CoursesPage() {
             </div>
           </div>
 
-          <div className="flex-1 min-w-0"> {/* Main content area */}
-            {/* Row 1: Page Title */}
+          <div className="flex-1 min-w-0">
+            {/* Page Title */}
             <div className="mb-4 md:mb-6">
               <h1 className="text-3xl md:text-4xl font-bold font-headline">
-                {searchQuery ? `Search results for "${searchQuery}"` : 
-                 currentCategoryName ? `${currentCategoryName} Courses` : 
-                 'All Courses'}
+                {pageTitle}
               </h1>
             </div>
 
-            {/* Row 2: Promotional Banner */}
+            {/* Promotional Banner */}
             {currentBannerUrl && (
-              <div className="my-6 md:my-8">
+              <div className="mb-6 md:mb-8">
                 <Image
-                  key={currentBannerUrl} 
+                  key={currentBannerUrl}
                   src={currentBannerUrl}
                   alt="Promotional Banner for Courses"
                   width={1200} 
@@ -178,33 +185,31 @@ export default function CoursesPage() {
                 />
               </div>
             )}
-
-            {/* Row 3: Course Count & Sort Dropdown */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6">
-              {!isLoading && !error && (
-                <p className="text-muted-foreground mt-1 md:mt-0">
-                  Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
-                </p>
-              )}
-              <div className="mt-4 md:mt-0 w-full md:w-auto">
-                <Select 
-                  value={currentSearchParams.get('sort') || 'relevance'} 
-                  onValueChange={handleSortChange}>
-                  <SelectTrigger className="w-full md:w-[180px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SORT_OPTIONS.map(option => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
             
-            {/* Row 4: Course Grid (or loading/error state) */}
+            {/* Course Count and Sort Options */}
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+              <p className="text-sm text-muted-foreground mb-3 md:mb-0">
+                {!isLoading && !error && (
+                  `Showing ${courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-${Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of ${totalCourses} courses.`
+                )}
+              </p>
+              <Select 
+                value={currentSearchParams.get('sort') || 'relevance'} 
+                onValueChange={handleSortChange}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+
             {isLoading ? (
               <div className="flex justify-center items-center py-16">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
