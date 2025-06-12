@@ -101,6 +101,20 @@ export default function CoursesPage() {
       <Header />
       <main className="flex-grow container py-8 px-4 md:px-6">
         <Breadcrumbs items={breadcrumbItems} />
+        
+        {/* Added Banner Image */}
+        <div className="my-6 rounded-lg overflow-hidden shadow-lg">
+          <Image
+            src="https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png"
+            alt="JEE Main 2025 Results Banner"
+            width={1200}
+            height={250}
+            className="w-full h-auto object-cover"
+            priority
+            data-ai-hint="results exam students"
+          />
+        </div>
+
         <div className="mb-6">
           <h1 className="text-3xl md:text-4xl font-bold font-headline">
             {searchQuery ? `Search results for "${searchQuery}"` : 
@@ -129,12 +143,12 @@ export default function CoursesPage() {
           </div>
           
           <div className="hidden md:block w-72 lg:w-80 shrink-0">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto"> {/* Removed pr-2 */}
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
                 <FilterSidebar />
             </div>
           </div>
 
-          <div className="flex-1 min-w-0"> {/* Added min-w-0 for flex child overflow fix */}
+          <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center mb-6">
               <p className="text-sm text-muted-foreground">
                 {!isLoading && !error ? `${totalCourses} courses found` : isLoading ? 'Loading...' : ''}
