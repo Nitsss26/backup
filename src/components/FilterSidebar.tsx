@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react'; // Added useRef
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -47,30 +47,14 @@ export function FilterSidebar() {
 
   const [filters, setFilters] = useState<FiltersState>(() => getDefaultFilters(currentSearchParams));
   const [activeAccordionItems, setActiveAccordionItems] = useState<string[]>(['categories', 'price', 'ratings']);
+  const isInitialMount = useRef(true); // Ref to track initial mount
 
-
+  // Update local filter state when URL searchParams change (e.g., browser back/forward)
   useEffect(() => {
-    // Update local filter state if URL searchParams change (e.g., browser back/forward, direct URL edit)
     setFilters(getDefaultFilters(currentSearchParams));
   }, [currentSearchParams]);
 
 
-  const handleFilterChange = useCallback((type: keyof FiltersState, value: any) => {
-    setFilters(prev => {
-      let newValues;
-      if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(type)) {
-        const currentValues = prev[type as Exclude<keyof FiltersState, 'priceRange' | 'certification'>];
-        if (currentValues.includes(value as never)) { // Type assertion
-          newValues = currentValues.filter(item => item !== value);
-        } else {
-          newValues = [...currentValues, value as never]; // Type assertion
-        }
-        return { ...prev, [type]: newValues };
-      }
-      return { ...prev, [type]: value };
-    });
-  }, []);
-  
   const applyFilters = useCallback(() => {
     const params = new URLSearchParams();
     
@@ -93,7 +77,40 @@ export function FilterSidebar() {
     params.set('page', '1'); // Reset page to 1 when filters change
     
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [filters, router, pathname, currentSearchParams]);
+  }, [filters, router, pathname, currentSearchParams]); // currentSearchParams needed for q and sort
+
+  const handleFilterChange = useCallback((type: keyof FiltersState, value: any) => {
+    setFilters(prev => {
+      let newValues;
+      if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(type)) {
+        const currentValues = prev[type as Exclude<keyof FiltersState, 'priceRange' | 'certification'>];
+        if (currentValues.includes(value as never)) { 
+          newValues = currentValues.filter(item => item !== value);
+        } else {
+          newValues = [...currentValues, value as never]; 
+        }
+        return { ...prev, [type]: newValues };
+      }
+      return { ...prev, [type]: value };
+    });
+  }, []);
+  
+  // Auto-apply filters when 'filters' state changes, with debounce
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      applyFilters();
+    }, 500); // 500ms debounce
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [filters, applyFilters]);
+
 
   const resetFilters = useCallback(() => {
     const params = new URLSearchParams();
@@ -104,6 +121,10 @@ export function FilterSidebar() {
     params.set('page', '1');
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
     // The useEffect listening to currentSearchParams will reset the local `filters` state.
+    // We also need to reset isInitialMount for the next direct interaction after reset
+    isInitialMount.current = true; 
+    // Set a timeout to flip isInitialMount back to false after the state has likely updated from URL
+    setTimeout(() => { isInitialMount.current = false; }, 100);
   }, [router, pathname, currentSearchParams]);
   
   const ratingOptions = [5, 4, 3, 2, 1];
@@ -232,7 +253,7 @@ export function FilterSidebar() {
 
         <AccordionItem value="certification">
           <AccordionTrigger className="text-base font-medium">Certification</AccordionTrigger>
-          <AccordionContent className="pt-3"> {/* Added pt-3 for spacing */}
+          <AccordionContent className="pt-3"> 
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="certification"
@@ -244,11 +265,8 @@ export function FilterSidebar() {
             </div>
           </AccordionContent>
         </AccordionItem>
-
       </Accordion>
-
-      <Button onClick={applyFilters} className="w-full mt-6">Apply Filters</Button>
+      {/* Apply Filters button removed */}
     </aside>
   );
 }
-    

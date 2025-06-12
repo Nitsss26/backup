@@ -331,7 +331,7 @@ export default function CompareCoursesPage() {
             <CardContent>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">Select at least one course using the slots above to start your side-by-side comparison and find the perfect fit for your learning goals.</p>
                 <Image 
-                    src="https://placehold.co/400x200/EBF4FF/3B82F6?text=Select+Courses+to+Compare" 
+                    src="https://img.freepik.com/free-vector/feedback-loop-concept-illustration_114360-21826.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740" 
                     alt="Illustration for selecting courses to compare" 
                     width={400} 
                     height={200} 
