@@ -2,6 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import dbConnect from '../../../../lib/dbConnect'; // Changed to relative path
 import CourseModel, { type ICourse } from '@/models/Course';
+import type { Course } from '@/lib/types'; // Import frontend Course type
 import mongoose from 'mongoose';
 
 interface RouteParams {
@@ -25,20 +26,55 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}').lean() without populate`);
-    const course = await CourseModel.findById(id).lean();
+    console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}').lean()`);
+    const courseFromDb = await CourseModel.findById(id).populate('seller', 'name avatarUrl verificationStatus bio').lean(); // Added populate for seller
 
-    if (!course) {
+    if (!courseFromDb) {
       console.warn(`🟡 [/api/courses/[id]] Course not found for ID: ${id}`);
       return NextResponse.json({ message: 'Course not found' }, { status: 404 });
     }
     
-    // If findById worked, we can try to populate seller info later or rely on denormalized providerInfo
-    console.log(`🟢 [/api/courses/[id]] Successfully fetched course: ${course.title}`);
-    if (course.seller) {
-        console.log(`[CourseDetailAPI] Course found. Seller ID: ${course.seller}. ProviderInfo from Course doc:`, course.providerInfo);
-    }
-    return NextResponse.json(course);
+    // Map the database model to the frontend Course type
+    const courseForFrontend: Course = {
+      ...(courseFromDb as any), // Spread raw DB data
+      id: courseFromDb._id.toString(), // Ensure 'id' is the string version of '_id'
+      _id: courseFromDb._id.toString(), // Also include _id if type expects it or for consistency
+      sellerId: courseFromDb.seller?._id?.toString(), // Handle populated seller
+      // providerInfo might need mapping if seller object shape differs from providerInfo
+      providerInfo: courseFromDb.providerInfo || (courseFromDb.seller ? { 
+          name: (courseFromDb.seller as any).name || 'Unknown Seller',
+          verified: (courseFromDb.seller as any).verificationStatus === 'verified',
+          logoUrl: (courseFromDb.seller as any).avatarUrl,
+          description: (courseFromDb.seller as any).bio,
+          // type: (courseFromDb.seller as any).role === 'provider' ? ((courseFromDb.seller as any).providerType || 'Individual') : undefined
+      } : { name: 'Unknown Seller', verified: false }),
+      curriculum: Array.isArray(courseFromDb.curriculum) ? courseFromDb.curriculum.map((mod: any) => ({
+        ...mod,
+        id: mod._id?.toString() || mod.id, // Ensure module ID is string
+        lessons: Array.isArray(mod.lessons) ? mod.lessons.map((lesson: any) => ({
+            ...lesson,
+            id: lesson._id?.toString() || lesson.id // Ensure lesson ID is string
+        })) : []
+      })) : [],
+      // Ensure all other fields expected by frontend Course type are present
+      // If some fields in ICourse don't exactly match Course, map them here
+      instructor: (courseFromDb.seller as any)?.name || courseFromDb.instructor || courseFromDb.providerInfo?.name || 'Instructor N/A',
+      shortDescription: courseFromDb.shortDescription || "No short description available.",
+      studentsEnrolledCount: courseFromDb.studentsEnrolledCount || 0,
+      reviewsCount: courseFromDb.reviewsCount || 0,
+      imageUrl: courseFromDb.imageUrl || "https://placehold.co/600x400.png",
+      lastUpdated: courseFromDb.lastUpdated ? new Date(courseFromDb.lastUpdated).toISOString() : new Date().toISOString(),
+      certificateAvailable: courseFromDb.certificateAvailable || false,
+      highlights: courseFromDb.highlights || [],
+      price: courseFromDb.price || 0,
+      rating: courseFromDb.rating || 0,
+      level: courseFromDb.level || 'All Levels',
+      language: courseFromDb.language || 'English',
+    };
+    
+    console.log(`🟢 [/api/courses/[id]] Successfully fetched and mapped course: ${courseForFrontend.title}`);
+    return NextResponse.json(courseForFrontend);
+
   } catch (error) {
     const err = error as Error;
     console.error(`🔴 [/api/courses/[id]] Failed to fetch course ${id}:`, err);
@@ -65,7 +101,33 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (!updatedCourse) {
       return NextResponse.json({ message: 'Course not found for update' }, { status: 404 });
     }
-    return NextResponse.json(updatedCourse);
+    const courseForFrontend: Course = {
+      ...(updatedCourse as any),
+      id: updatedCourse._id.toString(),
+      _id: updatedCourse._id.toString(),
+      sellerId: updatedCourse.seller?._id?.toString(),
+      instructor: (updatedCourse.seller as any)?.name || updatedCourse.instructor || updatedCourse.providerInfo?.name || 'Instructor N/A',
+      shortDescription: updatedCourse.shortDescription || "No short description available.",
+      studentsEnrolledCount: updatedCourse.studentsEnrolledCount || 0,
+      reviewsCount: updatedCourse.reviewsCount || 0,
+      imageUrl: updatedCourse.imageUrl || "https://placehold.co/600x400.png",
+      lastUpdated: updatedCourse.lastUpdated ? new Date(updatedCourse.lastUpdated).toISOString() : new Date().toISOString(),
+      certificateAvailable: updatedCourse.certificateAvailable || false,
+      highlights: updatedCourse.highlights || [],
+      price: updatedCourse.price || 0,
+      rating: updatedCourse.rating || 0,
+      level: updatedCourse.level || 'All Levels',
+      language: updatedCourse.language || 'English',
+       curriculum: Array.isArray(updatedCourse.curriculum) ? updatedCourse.curriculum.map((mod: any) => ({
+        ...mod,
+        id: mod._id?.toString() || mod.id, 
+        lessons: Array.isArray(mod.lessons) ? mod.lessons.map((lesson: any) => ({
+            ...lesson,
+            id: lesson._id?.toString() || lesson.id 
+        })) : []
+      })) : [],
+    };
+    return NextResponse.json(courseForFrontend);
   } catch (error: any) {
     console.error(`Failed to update course ${id}:`, error);
     return NextResponse.json({ message: 'Failed to update course', error: error.message, errors: error.errors }, { status: 400 });
