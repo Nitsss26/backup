@@ -11,7 +11,7 @@ export interface ICourseViewEvent extends Document {
 
 const CourseViewEventSchema: Schema<ICourseViewEvent> = new Schema({
   courseId: { type: Schema.Types.ObjectId, ref: 'Course', required: true, index: true },
-  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true, required: false }, // Explicitly optional
   timestamp: { type: Date, default: Date.now },
   source: { type: String, trim: true },
   sessionId: { type: String, trim: true, index: true },

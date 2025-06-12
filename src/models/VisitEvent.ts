@@ -13,7 +13,7 @@ export interface IVisitEvent extends Document {
 const VisitEventSchema: Schema<IVisitEvent> = new Schema({
   path: { type: String, required: true, trim: true },
   timestamp: { type: Date, default: Date.now },
-  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true, required: false }, // Explicitly optional
   ipAddress: { type: String, trim: true },
   userAgent: { type: String, trim: true },
   sessionId: { type: String, trim: true, index: true },
