@@ -21,6 +21,9 @@ import { useRouter } from 'next/navigation';
 import { useCart, useAuth } from '@/components/AppProviders'; // Import useCart and useAuth
 import axios from 'axios'; // Import axios
 
+const SPECIAL_COURSE_ID = "6845b4b7188aa67dd40937b1"; // Define the special course ID
+const SPECIAL_COURSE_REDIRECT_URL = "https://www.pw.live/iit-jee/class-11/batches/arjuna-jee-2026-700192";
+
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_OPTIONS[0].id);
@@ -65,23 +68,36 @@ export default function CheckoutPage() {
     try {
       const orderData = {
         userId: user.id,
-        items: cartItems.map(item => item.course), // Send full course objects or just IDs as per API needs
+        items: cartItems.map(item => item.course), 
         totalAmount: total,
         paymentMethod: paymentMethod,
-        // Add other necessary details like billing address if your API requires it
       };
 
       const response = await axios.post('/api/orders', orderData);
 
       if (response.status === 201) {
+        const placedOrderItems = response.data.items as Array<{ course: string | { _id: string; id: string } }>;
+        
+        const containsSpecialCourse = placedOrderItems.some(item => {
+            if (typeof item.course === 'string') {
+                return item.course === SPECIAL_COURSE_ID;
+            }
+            return item.course?._id === SPECIAL_COURSE_ID || item.course?.id === SPECIAL_COURSE_ID;
+        });
+
         toast({
           title: "Order Placed Successfully!",
-          description: "Your courses are now being processed. Check your purchased courses in your dashboard.",
+          description: "Your courses are now being processed.",
           variant: "success",
           duration: 7000,
         });
-        clearCart(); // Clear cart after successful order
-        router.push('/dashboard/student/orders'); // Navigate to student's order history
+        clearCart(); 
+
+        if (containsSpecialCourse) {
+          window.location.href = SPECIAL_COURSE_REDIRECT_URL; // Use window.location.href for external redirects
+        } else {
+          router.push('/dashboard/student/orders'); 
+        }
       } else {
         throw new Error(response.data.message || "Failed to place order.");
       }
@@ -103,7 +119,7 @@ export default function CheckoutPage() {
     { label: 'Checkout' },
   ];
 
-  if (!isClient || !user) { // If not client or no user, show loading or redirect (handled by useEffect)
+  if (!isClient || !user) { 
      return (
       <div className="flex flex-col min-h-screen">
         <Header />
