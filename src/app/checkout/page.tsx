@@ -11,48 +11,90 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { placeholderCourses } from '@/lib/placeholder-data';
 import type { Course, CartItem } from '@/lib/types';
 import { PAYMENT_OPTIONS, APP_NAME } from '@/lib/constants';
-import { ChevronRight, CreditCard, Lock, ShoppingBag, UserCircleIcon } from 'lucide-react';
+import { ChevronRight, CreditCard, Lock, ShoppingBag, UserCircleIcon, Loader2 } from 'lucide-react'; // Added Loader2
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-
-// Mock cart items for checkout summary
-const mockCartItems: CartItem[] = placeholderCourses.slice(0, 2).map(course => ({ course }));
+import { useCart, useAuth } from '@/components/AppProviders'; // Import useCart and useAuth
+import axios from 'axios'; // Import axios
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState(PAYMENT_OPTIONS[0].id);
   const [isClient, setIsClient] = useState(false);
+  const [isProcessingOrder, setIsProcessingOrder] = useState(false); // Added state for processing order
   const { toast } = useToast();
   const router = useRouter();
+  const { cartItems, clearCart, subtotal, total } = useCart(); // Use cart context
+  const { user } = useAuth(); // Get user for order creation
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
-
-  const subtotal = mockCartItems.reduce((sum, item) => sum + item.course.price, 0);
-  const total = subtotal;
+    if (!user) {
+      router.push('/auth/login?redirect=/checkout');
+    }
+    if (cartItems.length === 0 && isClient) { // Added isClient check
+        toast({
+            title: "Your cart is empty!",
+            description: "Please add courses to your cart before proceeding to checkout.",
+            variant: "destructive"
+        });
+        router.push('/cart');
+    }
+  }, [user, router, cartItems, toast, isClient]);
 
   const handleNextStep = () => setCurrentStep(prev => Math.min(prev + 1, 3));
   const handlePrevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmitOrder = async () => {
-    console.log("Order submitted with payment method:", paymentMethod, "Total:", total);
+    if (!user) {
+        toast({ title: "Authentication Error", description: "You must be logged in to place an order.", variant: "destructive" });
+        router.push('/auth/login?redirect=/checkout');
+        return;
+    }
+    if (cartItems.length === 0) {
+        toast({ title: "Empty Cart", description: "Your cart is empty. Please add courses.", variant: "destructive" });
+        router.push('/cart');
+        return;
+    }
+    setIsProcessingOrder(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const orderData = {
+        userId: user.id,
+        items: cartItems.map(item => item.course), // Send full course objects or just IDs as per API needs
+        totalAmount: total,
+        paymentMethod: paymentMethod,
+        // Add other necessary details like billing address if your API requires it
+      };
 
-    toast({
-      title: "Order Placed Successfully!",
-      description: "Your courses are now being processed. You will receive access instructions from the sellers shortly. Check your purchased courses in your dashboard.",
-      variant: "success",
-      duration: 7000,
-    });
-    router.push('/dashboard/student/courses'); // Navigate to student's purchased courses page
+      const response = await axios.post('/api/orders', orderData);
+
+      if (response.status === 201) {
+        toast({
+          title: "Order Placed Successfully!",
+          description: "Your courses are now being processed. Check your purchased courses in your dashboard.",
+          variant: "success",
+          duration: 7000,
+        });
+        clearCart(); // Clear cart after successful order
+        router.push('/dashboard/student/orders'); // Navigate to student's order history
+      } else {
+        throw new Error(response.data.message || "Failed to place order.");
+      }
+    } catch (error: any) {
+      console.error("Order submission error:", error);
+      toast({
+        title: "Order Failed",
+        description: error.response?.data?.message || error.message || "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingOrder(false);
+    }
   };
 
   const breadcrumbItems = [
@@ -61,17 +103,30 @@ export default function CheckoutPage() {
     { label: 'Checkout' },
   ];
 
-  if (!isClient) {
+  if (!isClient || !user) { // If not client or no user, show loading or redirect (handled by useEffect)
      return (
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow container py-8 text-center">
-            <ShoppingBag className="h-12 w-12 text-primary animate-pulse mx-auto mb-4" />
+            <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto mb-4" />
             Loading checkout...
         </main>
         <Footer />
       </div>
     );
+  }
+  
+  if (cartItems.length === 0 && isClient) {
+     return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow container py-8 text-center">
+            <ShoppingBag className="h-12 w-12 text-primary mx-auto mb-4" />
+            <p>Your cart is empty. Redirecting...</p>
+        </main>
+        <Footer />
+      </div>
+     )
   }
 
   return (
@@ -103,11 +158,11 @@ export default function CheckoutPage() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" placeholder="Priya Sharma" required/>
+                        <Input id="name" placeholder="Priya Sharma" defaultValue={user.name} required/>
                       </div>
                       <div>
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" type="email" placeholder="you@example.com" required/>
+                        <Input id="email" type="email" placeholder="you@example.com" defaultValue={user.email} required readOnly/>
                       </div>
                     </div>
                     <div>
@@ -173,7 +228,7 @@ export default function CheckoutPage() {
                   <div className="space-y-6">
                     <h3 className="text-lg font-semibold mb-2">Review Your Order</h3>
                     <div className="space-y-3 border rounded-md p-4 bg-background">
-                      {mockCartItems.map(item => (
+                      {cartItems.map(item => (
                         <div key={item.course.id} className="flex justify-between items-center p-2 border-b last:border-b-0">
                            <div className="flex items-center gap-3">
                              <Image src={item.course.imageUrl} alt={item.course.title} width={80} height={45} className="rounded object-cover" data-ai-hint={`${item.course.category} checkout thumbnail`}/>
@@ -193,9 +248,10 @@ export default function CheckoutPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">Payment Method: {PAYMENT_OPTIONS.find(p => p.id === paymentMethod)?.name}</p>
                     <div className="flex justify-between mt-6">
-                      <Button variant="outline" onClick={handlePrevStep}>Back</Button>
-                      <Button onClick={handleSubmitOrder} size="lg" className="bg-success hover:bg-success/90 text-success-foreground">
-                        <Lock className="mr-2 h-4 w-4" /> Place Order & Pay
+                      <Button variant="outline" onClick={handlePrevStep} disabled={isProcessingOrder}>Back</Button>
+                      <Button onClick={handleSubmitOrder} size="lg" className="bg-success hover:bg-success/90 text-success-foreground" disabled={isProcessingOrder}>
+                        {isProcessingOrder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+                        {isProcessingOrder ? "Processing..." : "Place Order & Pay"}
                       </Button>
                     </div>
                     <p className="text-xs text-muted-foreground text-center">By placing your order, you agree to our <Link href="/terms" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy" className="underline hover:text-primary">Privacy Policy</Link>.</p>
@@ -211,7 +267,7 @@ export default function CheckoutPage() {
                 <CardTitle className="text-xl font-headline flex items-center"><ShoppingBag className="mr-2 h-5 w-5 text-primary"/>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {mockCartItems.map(item => (
+                {cartItems.map(item => (
                   <div key={item.course.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
                     <Image src={item.course.imageUrl} alt={item.course.title} width={100} height={56} className="rounded-md object-cover aspect-video" data-ai-hint={`${item.course.category} checkout order summary`}/>
                     <div>

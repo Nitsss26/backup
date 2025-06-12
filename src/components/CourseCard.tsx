@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/StarRating';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Clock, Users, BarChart2, ShieldCheck } from 'lucide-react';
+import { Clock, Users, BarChart2, ShieldCheck, Eye } from 'lucide-react'; // Removed ShoppingCart
+// Removed useCart and useToast as they are no longer needed here
 
 interface CourseCardProps {
   course: Course;
@@ -17,10 +18,12 @@ export function CourseCard({ course }: CourseCardProps) {
   const categorySlug = course.category.toLowerCase().replace(/\s+/g, '-');
   const imageHint = `${categorySlug} course content`;
   const providerNameInitial = course.providerInfo?.name ? course.providerInfo.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : "P";
+  
+  // Removed addToCart, cartItems, toast, handleAddToCart, isInCart
 
   return (
     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
-      <Link href={`/courses/${course.id}`} className="block">
+      <Link href={`/courses/${course.id}`} className="block group">
         <CardHeader className="p-0 relative">
           <Image
             src={course.imageUrl}
@@ -40,11 +43,7 @@ export function CourseCard({ course }: CourseCardProps) {
             <ShieldCheck className="h-3.5 w-3.5" />
             Verified
           </Badge>
-            // <Badge variant="success" className="absolute top-2 right-2 text-xs px-1.5 py-0.5 border-none bg-green">
-            //   <ShieldCheck className="h-3 w-3 mr-1" /> Verified
-            // </Badge>
           )}
-          {/* Level badge removed as per request */}
         </CardHeader>
       </Link>
       <CardContent className="p-4 flex-grow">
@@ -93,9 +92,12 @@ export function CourseCard({ course }: CourseCardProps) {
             </p>
           )}
         </div>
-        <Button size="sm" asChild>
-          <Link href={`/courses/${course.id}`}>View Details</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" asChild>
+                <Link href={`/courses/${course.id}`}><Eye className="mr-1.5 h-4 w-4" />Details</Link>
+            </Button>
+            {/* Removed Add to Cart button from here */}
+        </div>
       </CardFooter>
     </Card>
   );

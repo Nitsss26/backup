@@ -21,7 +21,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { placeholderReviews, placeholderCourses as staticRelatedCourses } from '@/lib/placeholder-data';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/components/AppProviders'; // Import useAuth
+import { useAuth, useCart } from '@/components/AppProviders'; // Import useCart
+import { useToast } from '@/hooks/use-toast'; // Import useToast
 
 // Helper to get review by course ID (from static data for now)
 const getReviewsByCourseId = (id: string): ReviewType[] => staticRelatedCourses.length > 0 ? placeholderReviews.filter(r => r.courseId === id) : [];
@@ -84,7 +85,9 @@ function CurriculumItem({ item }: { item: Lesson }) {
 export default function CourseDetailPage() {
   const params = useParams();
   const courseId = params?.id as string; 
-  const { user } = useAuth(); // Get user from AuthContext
+  const { user } = useAuth(); 
+  const { addToCart, cartItems } = useCart(); // Get cart context
+  const { toast } = useToast(); // Get toast
 
   const [course, setCourse] = useState<Course | null>(null);
   const [reviews, setReviews] = useState<ReviewType[]>([]);
@@ -99,7 +102,6 @@ export default function CourseDetailPage() {
         setIsLoading(false);
         return;
       }
-      // console.log(`[CourseDetailPage] Attempting to fetch course with ID: ${courseId}`);
       setIsLoading(true);
       setError(null);
 
@@ -107,30 +109,27 @@ export default function CourseDetailPage() {
         const response = await axios.get<Course>(`/api/courses/${courseId}`);
         const fetchedCourse = response.data;
         setCourse(fetchedCourse);
-        setReviews(getReviewsByCourseId(courseId)); // Still placeholder
+        setReviews(getReviewsByCourseId(courseId));
         
         if (fetchedCourse && fetchedCourse.category) {
             const relatedCoursesResponse = await axios.get<{courses: Course[]}>(`/api/courses?limit=4&category=${encodeURIComponent(fetchedCourse.category.toLowerCase().replace(/\s+/g, '-'))}`);
-            // Ensure fetchedCourse._id is used for comparison if available
             const currentCourseId = (fetchedCourse as any)._id || fetchedCourse.id;
             setRelatedCourses(relatedCoursesResponse.data.courses.filter(c => (c as any)._id !== currentCourseId).slice(0,3));
         } else {
             setRelatedCourses([]); 
         }
 
-        // Track course view
         const sessionId = getSessionId();
         if (fetchedCourse && sessionId) {
           try {
             const courseViewData: { courseId: string; sessionId: string; userId?: string; source: string } = {
-              courseId: fetchedCourse.id, // Use actual ID from fetchedCourse
+              courseId: fetchedCourse.id, 
               sessionId: sessionId,
               source: 'course_detail_page',
             };
             if (user?.id) {
               courseViewData.userId = user.id;
             }
-            // console.log('[CourseDetailPage] Tracking course view:', courseViewData);
             await axios.post('/api/track/course-view', courseViewData);
           } catch (trackError) {
             console.error("Failed to track course view event:", trackError);
@@ -138,11 +137,7 @@ export default function CourseDetailPage() {
         }
 
       } catch (err: any) {
-        // console.error(`[CourseDetailPage] Failed to fetch course ${courseId}:`, err);
-        // console.error("[CourseDetailPage] Full Axios error object:", JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
         if (err.response) {
-          // console.error("[CourseDetailPage] Server Error Response Data:", err.response.data);
-          // console.error("[CourseDetailPage] Server Error Response Status:", err.response.status);
           if (err.response.status === 404) {
             setError(`Course not found (ID: ${courseId}). Please check the ID or if the course exists.`);
           } else if (err.response.status === 400) {
@@ -151,10 +146,8 @@ export default function CourseDetailPage() {
             setError(err.response.data?.message || `Server error ${err.response.status} while fetching course. Please try again later.`);
           }
         } else if (err.request) {
-          // console.error("[CourseDetailPage] No response received:", err.request);
           setError("Network Error: No response received from server. Please check your connection and try again.");
         } else {
-          // console.error("[CourseDetailPage] Axios setup error:", err.message);
           setError(`An error occurred: ${err.message}. Please try refreshing the page.`);
         }
       } finally {
@@ -163,7 +156,20 @@ export default function CourseDetailPage() {
     };
 
     fetchCourseData();
-  }, [courseId, user]); // Added user to dependencies for tracking
+  }, [courseId, user]);
+
+  const handleAddToCart = () => {
+    if (course) {
+      addToCart(course);
+      toast({
+        title: "Added to Cart!",
+        description: `"${course.title}" has been added to your cart.`,
+      });
+    }
+  };
+
+  const isInCart = course ? cartItems.some(item => item.course.id === course.id) : false;
+
 
   if (isLoading) {
     return (
@@ -249,8 +255,8 @@ export default function CourseDetailPage() {
                             <div className="text-3xl font-bold text-primary">₹{course.price.toLocaleString('en-IN')}
                                 {course.originalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{course.originalPrice.toLocaleString('en-IN')}</span>}
                             </div>
-                            <Button size="lg" className="w-full text-base py-3">
-                                <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
+                            <Button size="lg" className="w-full text-base py-3" onClick={handleAddToCart} disabled={isInCart}>
+                                <ShoppingCart className="mr-2 h-5 w-5" /> {isInCart ? "Added to Cart" : "Add to Cart"}
                             </Button>
                             <Button variant="outline" size="lg" className="w-full text-base py-3">
                                 <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
@@ -401,8 +407,6 @@ export default function CourseDetailPage() {
                                 <div className="flex items-center gap-1.5 text-muted-foreground"><Star className="h-4 w-4 text-yellow-400 fill-yellow-400" /> {course.rating} Seller Rating (Platform Avg.)</div>
                                 <div className="flex items-center gap-1.5 text-muted-foreground"><Award className="h-4 w-4 text-primary" /> {course.reviewsCount} Course Reviews</div>
                                 <div className="flex items-center gap-1.5 text-muted-foreground"><Users className="h-4 w-4 text-primary" /> {course.studentsEnrolledCount?.toLocaleString()} Total Students on Course</div>
-                                {/* Add actual seller course count later */}
-                                {/* <div className="flex items-center gap-1.5 text-muted-foreground"><Briefcase className="h-4 w-4 text-primary" /> X Courses Listed</div> */}
                             </div>
                              <Button variant="outline" size="sm" className="mt-6" disabled>View Seller Store (Coming Soon)</Button>
                         </div>
@@ -466,8 +470,8 @@ export default function CourseDetailPage() {
                         <div className="text-3xl font-bold text-primary">₹{course.price.toLocaleString('en-IN')}
                             {course.originalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{course.originalPrice.toLocaleString('en-IN')}</span>}
                         </div>
-                        <Button size="lg" className="w-full text-base py-3">
-                            <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
+                        <Button size="lg" className="w-full text-base py-3" onClick={handleAddToCart} disabled={isInCart}>
+                            <ShoppingCart className="mr-2 h-5 w-5" /> {isInCart ? "Added to Cart" : "Add to Cart"}
                         </Button>
                         <Button variant="outline" size="lg" className="w-full text-base py-3">
                             <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
