@@ -167,7 +167,7 @@ export function FilterSidebar() {
             <Slider
               min={0}
               max={MAX_PRICE}
-              step={500} 
+              step={100} 
               value={filters.priceRange}
               onValueChange={(value) => handleFilterChange('priceRange', value)}
               className="my-4"
@@ -266,7 +266,8 @@ export function FilterSidebar() {
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-      {/* Apply Filters button removed */}
+      
     </aside>
   );
 }
+

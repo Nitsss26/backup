@@ -1,4 +1,3 @@
-
 "use client"; 
 
 import { Header } from '@/components/layout/Header';
@@ -26,15 +25,20 @@ interface ApiResponse {
 }
 
 // Define banner images for different categories
-const bannerImages: Record<string, string> = {
-  default: 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
-  'iit-jee': 'https://i.ibb.co/XZ47W02/iit-jee-banner-alt.png',
-  'neet': 'https://i.ibb.co/yYXg8xG/neet-banner-alt.png',
-  'gov-exams': 'https://i.ibb.co/SN20B0j/gov-exams-banner-alt.png',
-  'computer-science': 'https://i.ibb.co/mR5jJcv/cs-banner-alt.png',
-  'business-finance': 'https://images.unsplash.com/photo-1554260570-e9689a3418b8?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200', // Example for business
-  'arts-humanities': 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1200', // Example for arts
-  // Add more specific banners as needed
+const bannerImages = {
+  default: 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
+  'iit-jee': 'https://i.ibb.co/60ZpRg0V/Screenshot-2025-06-12-111420.png',
+  'neet': 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
+  'gov-exams': 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
+  'computer-science': 'https://i.ibb.co/gZz6JtBS/Screenshot-2025-06-12-140848-1.png',
+  'business-finance': 'https://i.ibb.co/xSS8JGN2/Screenshot-2025-06-12-113053.png', 
+  'arts-humanities': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'language-learning': 'https://i.ibb.co/qYrHYsWw/Screenshot-2025-06-12-112651.png',
+  'personal-development': 'https://i.ibb.co/rGH1yFCZ/Screenshot-2025-06-12-111947.png',
+  'photography-video': 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
+  'music-performing-arts': 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
+  'health-fitness': 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
+  'design-illustration': 'https://i.ibb.co/vxKT8tvf/341af190d0464079b93c06c26c4ce19b.jpg',
 };
 
 export default function CoursesPage() {
@@ -79,12 +83,12 @@ export default function CoursesPage() {
     fetchCourses(params);
 
     const categorySlug = params.get('category');
-    if (categorySlug && bannerImages[categorySlug]) {
-      setCurrentBannerUrl(bannerImages[categorySlug]);
-    } else if (categorySlug) { // Fallback for unmapped categories if any
+    if (categorySlug && bannerImages[categorySlug as keyof typeof bannerImages]) {
+      setCurrentBannerUrl(bannerImages[categorySlug as keyof typeof bannerImages]);
+    } else if (categorySlug) {
       const availableBannerKeys = Object.keys(bannerImages).filter(k => k !== 'default');
       const randomBannerKey = availableBannerKeys[Math.floor(Math.random() * availableBannerKeys.length)];
-      setCurrentBannerUrl(bannerImages[randomBannerKey] || bannerImages.default);
+      setCurrentBannerUrl(bannerImages[randomBannerKey as keyof typeof bannerImages] || bannerImages.default);
     } else {
       setCurrentBannerUrl(bannerImages.default);
     }
@@ -92,9 +96,9 @@ export default function CoursesPage() {
 
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(currentSearchParams.toString()); 
-    if (value === 'relevance' && params.has('sort')) { // Only remove if 'relevance' is selected and sort exists
+    if (value === 'relevance') {
       params.delete('sort');
-    } else if (value !== 'relevance') {
+    } else {
       params.set('sort', value);
     }
     params.set('page', '1'); 
@@ -124,9 +128,6 @@ export default function CoursesPage() {
     breadcrumbItems.push({ label: `Search: "${searchQuery}"` });
   }
 
-  const startItem = totalCourses > 0 ? (currentPage - 1) * ITEMS_PER_PAGE + 1 : 0;
-  const endItem = totalCourses > 0 ? Math.min(currentPage * ITEMS_PER_PAGE, totalCourses) : 0;
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -150,7 +151,19 @@ export default function CoursesPage() {
           
           {/* Desktop Sidebar */}
           <div className="hidden md:block w-72 lg:w-80 shrink-0">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto no-scrollbar">
+            {/* Page Title above sidebar */}
+            <div className="mb-6">
+              <h1 className="text-3xl md:text-4xl font-bold font-headline">
+                {pageTitle}
+              </h1>
+              {!isLoading && !error && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
+                </p>
+              )}
+            </div>
+            
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
               <FilterSidebar />
             </div>
           </div>
@@ -162,46 +175,33 @@ export default function CoursesPage() {
               <h1 className="text-3xl font-bold font-headline">
                 {pageTitle}
               </h1>
-               {!isLoading && !error && totalCourses > 0 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Showing {startItem}-{endItem} of {totalCourses} courses.
+              {!isLoading && !error && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
                 </p>
               )}
             </div>
 
-            {/* Desktop Page Title */}
-            <div className="hidden md:block mb-4 md:mb-6">
-              <h1 className="text-3xl md:text-4xl font-bold font-headline">
-                {pageTitle}
-              </h1>
-              {!isLoading && !error && totalCourses > 0 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Showing {startItem}-{endItem} of {totalCourses} courses.
-                </p>
-              )}
-            </div>
-            
             {/* Promotional Banner */}
             {currentBannerUrl && (
-              <div className="mb-6 md:mb-8">
+              <div className="mb-6 md:mb-8 -mt-10">
                 <Image
-                  key={currentBannerUrl} // Added key to help React re-render if URL changes
+                  key={currentBannerUrl}
                   src={currentBannerUrl}
                   alt="Promotional Banner for Courses"
                   width={1200} 
-                  height={250} // Adjusted height for better aspect ratio
+                  height={250} 
                   className="rounded-lg shadow-lg object-cover w-full h-auto max-h-[200px] md:max-h-[250px]" 
-                  priority // Consider adding if this is above the fold for LCP
+                  priority
                   data-ai-hint="promotional course banner advertisement education offers"
                 />
               </div>
             )}
             
-            {/* Course Count (redundant due to above text, kept for structure) and Sort Options */}
+            {/* Course Count and Sort Options */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
               <p className="text-sm text-muted-foreground">
-                {/* This specific "X courses found" can be removed if the "Showing X-Y of Z" is preferred */}
-                {!isLoading && !error && totalCourses > 0 && (
+                {!isLoading && !error && (
                   `${totalCourses} courses found`
                 )}
                 {isLoading && "Loading courses..."}
