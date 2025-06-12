@@ -10,34 +10,31 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { placeholderCourses } from '@/lib/placeholder-data';
-import type { Course, CartItem } from '@/lib/types';
+// Removed placeholderCourses import as cart items will come from context
+import type { CartItem } from '@/lib/types';
 import { X, Tag, Trash2, ShoppingBag, Info } from 'lucide-react';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { useAuth } from '@/components/AppProviders'; // Import useAuth
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Import Alert
-
-// Mock cart state
-const initialCartItems: CartItem[] = placeholderCourses.slice(0, 2).map(course => ({ course }));
+import { useAuth, useCart } from '@/components/AppProviders'; // Import useAuth and useCart
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; 
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  // Removed local cartItems state: const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [discountCode, setDiscountCode] = useState('');
   const [isClient, setIsClient] = useState(false);
-  const { user, isLoading: authLoading } = useAuth(); // Get user state
+  const { user, isLoading: authLoading } = useAuth();
+  const { cartItems, removeFromCart, subtotal, total } = useCart(); // Using cartItems directly from context
+  const router = useRouter(); // Initialize useRouter
 
   useEffect(() => {
     setIsClient(true);
-    // In a real app, fetch cart from localStorage or API
-    setCartItems(initialCartItems);
+    // Local state initialization with dummy data removed.
+    // Cart items are now solely from useCart() hook.
   }, []);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.course.price, 0);
-  const discountAmount = discountCode === 'SAVE10' ? subtotal * 0.1 : 0; // Example discount
-  const total = subtotal - discountAmount;
 
   const handleRemoveItem = (courseId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.course.id !== courseId));
+    removeFromCart(courseId); // Only use context's removeFromCart
   };
 
   const breadcrumbItems = [
@@ -140,19 +137,28 @@ export default function CartPage() {
                        <Tag className="h-4 w-4 mr-1"/> Apply
                     </Button>
                   </div>
-                  {discountAmount > 0 && (
+                  {discountCode === 'SAVE10' && subtotal > 0 && ( // Show discount only if applied and valid
                     <div className="flex justify-between text-green-600">
-                      <span>Discount</span>
-                      <span>-₹{discountAmount.toLocaleString('en-IN')}</span>
+                      <span>Discount (SAVE10)</span>
+                      <span>-₹{(subtotal * 0.1).toLocaleString('en-IN')}</span>
                     </div>
                   )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>₹{total.toLocaleString('en-IN')}</span>
+                    <span>₹{(subtotal - (discountCode === 'SAVE10' ? subtotal * 0.1 : 0)).toLocaleString('en-IN')}</span>
                   </div>
-                  <Button size="lg" className="w-full" asChild={user ? true : false} disabled={!user} onClick={!user ? (e) => {e.preventDefault(); router.push('/auth/login?redirect=/checkout')} : undefined}>
-                    {user ? <Link href="/checkout">Proceed to Checkout</Link> : <span>Login to Checkout</span>}
+                  <Button size="lg" className="w-full" 
+                    onClick={() => {
+                        if (!user) {
+                           router.push('/auth/login?redirect=/checkout');
+                        } else {
+                           router.push('/checkout');
+                        }
+                    }}
+                    disabled={!user && cartItems.length === 0} // Keep disabled logic simple
+                  >
+                    {user ? "Proceed to Checkout" : "Login to Checkout"}
                   </Button>
                   {!user && <p className="text-xs text-muted-foreground text-center">You need to be logged in to proceed.</p>}
                   <p className="text-xs text-muted-foreground text-center">Secure payment processing.</p>
