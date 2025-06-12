@@ -102,30 +102,33 @@ export default function CoursesPage() {
       <main className="flex-grow container py-8 px-4 md:px-6">
         <Breadcrumbs items={breadcrumbItems} />
         
-        {/* Added Banner Image */}
-        <div className="my-6 rounded-lg overflow-hidden shadow-lg">
-          <Image
-            src="https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png"
-            alt="JEE Main 2025 Results Banner"
-            width={1200}
-            height={250}
-            className="w-full h-auto object-cover"
-            priority
-            data-ai-hint="results exam students"
-          />
-        </div>
+        <div className="my-6 flex flex-col md:flex-row items-center gap-4 md:gap-8">
+          {/* Banner Image Container */}
+          <div className="w-full md:w-auto md:max-w-[320px] lg:max-w-[450px] flex-shrink-0">
+            <Image
+              src="https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png"
+              alt="JEE Main 2025 Results Banner"
+              width={1200} // Intrinsic width for aspect ratio
+              height={250} // Intrinsic height for aspect ratio
+              className="rounded-lg shadow-lg object-contain w-full h-auto" 
+              priority
+              data-ai-hint="results exam students"
+            />
+          </div>
 
-        <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold font-headline">
-            {searchQuery ? `Search results for "${searchQuery}"` : 
-             currentCategoryName ? `${currentCategoryName} Courses` : 
-             'All Courses'}
-          </h1>
-          {!isLoading && !error && (
-            <p className="text-muted-foreground mt-2">
-              Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
-            </p>
-          )}
+          {/* Title and Description Block */}
+          <div className="flex-grow text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-bold font-headline">
+              {searchQuery ? `Search results for "${searchQuery}"` : 
+               currentCategoryName ? `${currentCategoryName} Courses` : 
+               'All Courses'}
+            </h1>
+            {!isLoading && !error && (
+              <p className="text-muted-foreground mt-2">
+                Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
