@@ -130,7 +130,7 @@ export async function GET(request: NextRequest) {
         .sort(sortOption)
         .skip(skip)
         .limit(limit)
-        .populate('seller', 'name avatarUrl verificationStatus bio')
+        .populate('seller', 'name avatarUrl verificationStatus bio') // Populate seller details
         .lean();
         
       console.log(`🟢 [/api/courses] CourseModel.find successful, courses found: ${coursesFromQuery.length}, skip: ${skip}, limit: ${limit}`);
@@ -146,25 +146,53 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    const coursesToReturn = coursesFromQuery.map(course => ({
-      ...course,
-      id: course._id?.toString(), // Ensure id is string
-      _id: course._id?.toString(),
-      seller: course.seller ? { 
-        id: course.seller._id?.toString(),
-        name: course.seller.name || 'Seller Placeholder', 
-        avatarUrl: course.seller.avatarUrl,
-        verificationStatus: course.seller.verificationStatus,
-        bio: course.seller.bio,
-      } : (course.providerInfo ? { name: course.providerInfo.name } : {name: 'Unknown Seller'}), // Fallback if seller is not populated but providerInfo exists
-      title: course.title || "Untitled Course",
-      category: course.category || "Uncategorized",
-      imageUrl: course.imageUrl || "https://placehold.co/600x400.png",
-      price: course.price === undefined ? 0 : course.price,
-      rating: course.rating === undefined ? 0 : course.rating,
-      reviewsCount: course.reviewsCount === undefined ? 0 : course.reviewsCount,
-      providerInfo: course.providerInfo || { name: course.instructor || "Unknown Seller" }
-    }));
+    const coursesToReturn = coursesFromQuery.map(course => {
+      try {
+        let sellerDisplayInfo: any = { name: 'Unknown Seller' };
+        if (course.seller && typeof course.seller === 'object' && course.seller._id) {
+          // Seller is populated correctly
+          sellerDisplayInfo = {
+            id: course.seller._id.toString(),
+            name: course.seller.name || 'Seller Placeholder',
+            avatarUrl: course.seller.avatarUrl,
+            verificationStatus: course.seller.verificationStatus,
+            bio: course.seller.bio,
+          };
+        } else if (course.providerInfo) {
+          // Fallback to providerInfo if seller is not populated or invalid
+          sellerDisplayInfo = {
+            name: course.providerInfo.name || 'Unknown Seller',
+            logoUrl: course.providerInfo.logoUrl,
+            verified: course.providerInfo.verified,
+            // Note: providerInfo might not have a separate 'id' unless it's the course's sellerId
+            id: course.seller?.toString() || undefined // Attempt to get original sellerId if available
+          };
+        } else if (course.seller) {
+            // If seller is just an ID (not populated)
+            sellerDisplayInfo = { name: 'Seller ID: ' + course.seller.toString(), id: course.seller.toString() };
+        }
+
+
+        return {
+          ...course, // Spread the original lean course document
+          id: course._id?.toString(), // Ensure id is a string
+          _id: course._id?.toString(), // Ensure _id is also stringified
+          seller: sellerDisplayInfo, // Use the processed sellerDisplayInfo
+          title: course.title || "Untitled Course",
+          category: course.category || "Uncategorized",
+          imageUrl: course.imageUrl || "https://placehold.co/600x400.png",
+          price: course.price === undefined ? 0 : course.price,
+          rating: course.rating === undefined ? 0 : course.rating,
+          reviewsCount: course.reviewsCount === undefined ? 0 : course.reviewsCount,
+          // providerInfo is already part of '...course', ensure it has defaults if accessed directly elsewhere
+          providerInfo: course.providerInfo || { name: course.instructor || "Unknown Seller" }
+        };
+      } catch (mapError: any) {
+        console.error(`🔴 [/api/courses] Error processing course in map (ID: ${course._id || 'unknown'}):`, mapError.message, mapError.stack);
+        return null; // Skip this course if it causes an error during mapping
+      }
+    }).filter(course => course !== null) as any[]; // Filter out nulls from mapping errors
+
 
     const totalPages = Math.ceil(totalCourses / limit);
 
@@ -191,9 +219,14 @@ export async function POST(request: NextRequest) {
   await dbConnect();
   try {
     const body = await request.json();
-    if (body.seller && typeof body.seller === 'string') {
+    if (body.seller && typeof body.seller === 'string' && mongoose.Types.ObjectId.isValid(body.seller)) {
         body.seller = new mongoose.Types.ObjectId(body.seller);
+    } else if (body.seller && typeof body.seller === 'string') {
+        // Handle invalid seller ID string, e.g., by unsetting it or logging a warning
+        console.warn(`[API /api/courses POST] Invalid seller ID string received: ${body.seller}. Unsetting seller field.`);
+        delete body.seller; // Or handle as per your application logic
     }
+    
     const newCourse = new CourseModel({
       ...body,
       approvalStatus: 'pending', 
