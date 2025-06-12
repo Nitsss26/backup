@@ -25,6 +25,16 @@ interface ApiResponse {
   totalCourses: number;
 }
 
+const bannerImages = {
+  default: 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
+  'iit-jee': 'https://i.ibb.co/XZ47W02/iit-jee-banner-alt.png', // Replace with actual URL
+  'neet': 'https://i.ibb.co/yYXg8xG/neet-banner-alt.png', // Replace with actual URL
+  'gov-exams': 'https://i.ibb.co/SN20B0j/gov-exams-banner-alt.png', // Replace with actual URL
+  'computer-science': 'https://i.ibb.co/mR5jJcv/cs-banner-alt.png', // Replace with actual URL
+  'business-finance': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png', // Example, use unique
+  // Add more mappings for your other 5 categories as needed
+};
+
 export default function CoursesPage() {
   const router = useRouter(); 
   const pathname = usePathname(); 
@@ -36,6 +46,7 @@ export default function CoursesPage() {
   const [totalCourses, setTotalCourses] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentBannerUrl, setCurrentBannerUrl] = useState<string>(bannerImages.default);
 
   const fetchCourses = useCallback(async (params: URLSearchParams) => {
     setIsLoading(true);
@@ -66,6 +77,19 @@ export default function CoursesPage() {
       params.set('limit', String(ITEMS_PER_PAGE));
     }
     fetchCourses(params);
+
+    const categorySlug = params.get('category');
+    if (categorySlug && bannerImages[categorySlug as keyof typeof bannerImages]) {
+      setCurrentBannerUrl(bannerImages[categorySlug as keyof typeof bannerImages]);
+    } else if (categorySlug) {
+      // Fallback to a default or random banner if category-specific one isn't mapped
+      // For now, using default if specific not found
+      const availableBanners = Object.values(bannerImages);
+      setCurrentBannerUrl(availableBanners[Math.floor(Math.random() * availableBanners.length)]);
+    } 
+     else {
+      setCurrentBannerUrl(bannerImages.default);
+    }
   }, [currentSearchParams, fetchCourses]);
 
   const handleSortChange = (value: string) => {
@@ -102,36 +126,7 @@ export default function CoursesPage() {
       <main className="flex-grow container py-8 px-4 md:px-6">
         <Breadcrumbs items={breadcrumbItems} />
         
-        <div className="my-6 flex flex-col md:flex-row items-center gap-4 md:gap-8">
-          {/* Banner Image Container */}
-          <div className="w-full md:w-auto md:max-w-[320px] lg:max-w-[450px] flex-shrink-0">
-            <Image
-              src="https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png"
-              alt="JEE Main 2025 Results Banner"
-              width={1200} // Intrinsic width for aspect ratio
-              height={250} // Intrinsic height for aspect ratio
-              className="rounded-lg shadow-lg object-contain w-full h-auto" 
-              priority
-              data-ai-hint="results exam students"
-            />
-          </div>
-
-          {/* Title and Description Block */}
-          <div className="flex-grow text-center md:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold font-headline">
-              {searchQuery ? `Search results for "${searchQuery}"` : 
-               currentCategoryName ? `${currentCategoryName} Courses` : 
-               'All Courses'}
-            </h1>
-            {!isLoading && !error && (
-              <p className="text-muted-foreground mt-2">
-                Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-8 mt-6">
           <div className="md:hidden mb-4">
             <Sheet>
               <SheetTrigger asChild>
@@ -146,31 +141,57 @@ export default function CoursesPage() {
           </div>
           
           <div className="hidden md:block w-72 lg:w-80 shrink-0">
-            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto"> {/* Removed pr-2 */}
                 <FilterSidebar />
             </div>
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-sm text-muted-foreground">
-                {!isLoading && !error ? `${totalCourses} courses found` : isLoading ? 'Loading...' : ''}
-              </p>
-              <Select 
-                value={currentSearchParams.get('sort') || 'relevance'} 
-                onValueChange={handleSortChange}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map(option => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold font-headline">
+                  {searchQuery ? `Search results for "${searchQuery}"` : 
+                  currentCategoryName ? `${currentCategoryName} Courses` : 
+                  'All Courses'}
+                </h1>
+                {!isLoading && !error && (
+                  <p className="text-muted-foreground mt-1 md:mt-2">
+                    Showing {courses.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-{Math.min(currentPage * ITEMS_PER_PAGE, totalCourses)} of {totalCourses} courses.
+                  </p>
+                )}
+              </div>
+              <div className="mt-4 md:mt-0 w-full md:w-auto">
+                <Select 
+                  value={currentSearchParams.get('sort') || 'relevance'} 
+                  onValueChange={handleSortChange}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SORT_OPTIONS.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
+            
+            {currentBannerUrl && (
+              <div className="my-6 md:my-8"> {/* Increased margin for banner */}
+                <Image
+                  key={currentBannerUrl} // Force re-render on URL change for potential transitions
+                  src={currentBannerUrl}
+                  alt="Promotional Banner for Courses"
+                  width={1200} 
+                  height={250} 
+                  className="rounded-lg shadow-lg object-cover w-full h-auto max-h-[200px] md:max-h-[250px]" 
+                  priority
+                  data-ai-hint="promotional course banner advertisement education offers"
+                />
+              </div>
+            )}
 
             {isLoading ? (
               <div className="flex justify-center items-center py-16">
