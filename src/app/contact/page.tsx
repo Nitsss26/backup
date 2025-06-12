@@ -42,7 +42,7 @@ export default function ContactPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        <section className="bg-primary/10 py-16 md:py-24">
+        <section className="bg-primary/10 py-16 md:py-8">
           <div className="container text-center">
             <Mail className="h-16 w-16 text-primary mx-auto mb-4" />
             <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">Contact Us</h1>
@@ -54,9 +54,9 @@ export default function ContactPage() {
 
         <section className="py-16">
           <div className="container grid md:grid-cols-2 gap-12 items-start">
-            <div className="bg-card p-8 rounded-lg shadow-lg">
+            <div className="bg-card p-8 pb-14 rounded-lg shadow-lg">
               <h2 className="text-2xl font-bold mb-6 font-headline">Send us a Message</h2>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 ">
                 <div>
                   <Label htmlFor="name">Full Name</Label>
                   <Input id="name" {...register("name")} />
@@ -77,24 +77,35 @@ export default function ContactPage() {
                   <Textarea id="message" rows={5} {...register("message")} />
                   {errors.message && <p className="text-sm text-destructive mt-1">{errors.message.message}</p>}
                 </div>
-                <Button type="submit" className="w-full">Send Message</Button>
+                <Button type="submit" className="w-full mt-20">Send Message</Button>
               </form>
             </div>
             <div className="space-y-8">
+              <div className="flex gap-24">
+
               <div>
                 <h3 className="text-xl font-semibold mb-3 font-headline flex items-center"><Phone className="mr-2 h-5 w-5 text-primary"/> Phone Support</h3>
                 <p className="text-muted-foreground">For urgent inquiries, call us at:</p>
-                <a href="tel:+1234567890" className="text-primary text-lg hover:underline">+1 (234) 567-890</a>
-                <p className="text-xs text-muted-foreground">(Mon-Fri, 9 AM - 6 PM EST)</p>
+                <a href="tel:+917009090762" className="text-primary text-lg hover:underline">+91 700-909-0762</a>
+                <p className="text-xs text-muted-foreground">(Mon-Fri, 9 AM - 11 PM EST)</p>
               </div>
               <div>
                 <h3 className="text-xl font-semibold mb-3 font-headline flex items-center"><MessageSquare className="mr-2 h-5 w-5 text-primary"/> General Inquiries</h3>
                 <p className="text-muted-foreground">Email us directly at:</p>
                 <a href="mailto:support@edtechcart.com" className="text-primary text-lg hover:underline">support@edtechcart.com</a>
               </div>
-              <div className="mt-6">
-                 <Image src="https://placehold.co/500x350.png" alt="Customer support representative illustration" width={500} height={350} className="rounded-lg shadow-md" data-ai-hint="customer support contact" />
               </div>
+              <div className="mt-6">
+  <Image 
+    src="https://img.freepik.com/free-vector/customer-support-illustration_23-2148903319.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740" 
+    alt="Customer support representative illustration" 
+    width={600} 
+    height={500} 
+    className="rounded-lg shadow-md h-[500px] object-cover" 
+    data-ai-hint="customer support contact" 
+  />
+</div>
+          
             </div>
           </div>
         </section>

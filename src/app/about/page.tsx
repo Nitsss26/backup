@@ -16,7 +16,7 @@ export default function AboutPage() {
       <main className="flex-grow">
         <section className="bg-primary/10 py-16 md:py-24">
           <div className="container text-center">
-            <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">About {APP_NAME}</h1>
+            <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4 ">About <span className='text-primary'>{APP_NAME}</span></h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
               {APP_NAME} is your premier destination for discovering and enrolling in high-quality online courses from a diverse range of educators and institutions.
             </p>
@@ -35,7 +35,7 @@ export default function AboutPage() {
               </p>
             </div>
             <div className="flex justify-center">
-              <Image src="https://placehold.co/500x400.png" alt="Diverse group of people collaborating" width={500} height={400} className="rounded-lg shadow-xl" data-ai-hint="teamwork collaboration diverse" />
+              <Image src="https://img.freepik.com/free-vector/online-tutorials-concept_52683-37481.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&w=740" alt="Diverse group of people collaborating" width={500} height={400} className="rounded-lg shadow-xl" data-ai-hint="teamwork collaboration diverse" />
             </div>
           </div>
         </section>
