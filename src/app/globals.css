@@ -161,16 +161,15 @@ body {
 
 
 :root {
-  --primary-blue: #1E3A8A;
-  --secondary-blue: #3B82F6;
-  --accent-gray: #9CA3AF;
-  --highlight-blue: #60A5FA;
-  --bg-dark: #0F172A;
-  --bg-medium: #1E293B;
-  --bg-light: #334155;
-  --text-light: #F3F4F6;
-  --text-muted: #D1D5DB;
-  --gradient-dark: linear-gradient(135deg, #0F172A, #1E293B);
+  --primary-blue: #1E3A8A; /* Main brand color from your logo */
+  --secondary-purple: #7C3AED; /* Softer purple for hover and secondary elements */
+  --accent-teal: #2DD4BF; /* Vibrant teal for banners and buttons */
+  --highlight-gold: #F59E0B; /* Warm gold for discounts and CTAs */
+  --bg-dark: #0F172A; /* Darkest background for main sections */
+  --bg-medium: #1E293B; /* Medium gray for cards and secondary sections */
+  --bg-light: #334155; /* Lighter gray for subtle contrasts */
+  --text-light: #F1F5F9; /* Softer white for readable text */
+  --gradient-dark: linear-gradient(135deg, #0F172A, #1E293B); /* Subtle gradient for sections */
 }
 
 body {
@@ -203,13 +202,19 @@ body {
 
 .hover-lift:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Section Divider */
 .section-divider {
   border-top: 1px solid transparent;
-  border-image: linear-gradient(to right, transparent, #3B82F6, transparent) 1;
+  border-image: linear-gradient(to right, transparent, #7C3AED, transparent) 1;
+}
+
+/* Background Pattern */
+.pattern-bg {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.1) 1px, transparent 0);
+  background-size: 20px 20px;
 }
 
 /* Scrollbar */
@@ -222,9 +227,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-[--secondary-blue] rounded-full;
+  @apply bg-[--primary-blue] rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-[--primary-blue];
+  @apply bg-[--secondary-purple];
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 interface CarouselItem {
   id: string;
+  imageUrl: string;
   title: string;
   description: string;
   ctaText: string;
@@ -43,10 +45,16 @@ export function Carousel({ items }: CarouselProps) {
             transition={{ duration: 0.5 }}
           >
             <div className="relative">
-              <div className="w-full h-96 bg-gray-700" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[--primary-blue]/70 to-transparent flex flex-col justify-center p-8">
+              <Image
+                src={item.imageUrl}
+                alt={item.title}
+                width={1200}
+                height={400}
+                className="w-full h-[400px] object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[--primary-blue]/90 to-transparent flex flex-col justify-center p-8">
                 <motion.h2
-                  className="text-5xl font-bold text-[--text-light]"
+                  className="text-4xl font-bold text-[--text-light]"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
@@ -54,7 +62,7 @@ export function Carousel({ items }: CarouselProps) {
                   {item.title}
                 </motion.h2>
                 <motion.p
-                  className="text-xl font-medium mt-3 text-[--text-muted]"
+                  className="text-lg mt-3 text-gray-200 max-w-md"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
@@ -66,7 +74,7 @@ export function Carousel({ items }: CarouselProps) {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <Button asChild className="mt-6 bg-[--primary-blue] text-white px-8 py-3 rounded-full hover:bg-[--secondary-blue] transition-colors">
+                  <Button asChild className="mt-6 bg-[--highlight-gold] text-black px-8 py-3 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
                     <Link href={item.ctaLink}>{item.ctaText}</Link>
                   </Button>
                 </motion.div>
@@ -79,7 +87,7 @@ export function Carousel({ items }: CarouselProps) {
         {items.map((_, index) => (
           <span
             key={index}
-            className={`w-3 h-3 rounded-full cursor-pointer ${index === currentSlide ? 'bg-[--highlight-blue]' : 'bg-[--accent-gray]'}`}
+            className={`w-3 h-3 rounded-full cursor-pointer ${index === currentSlide ? 'bg-[--highlight-gold]' : 'bg-gray-500'}`}
             onClick={() => goToSlide(index)}
           />
         ))}

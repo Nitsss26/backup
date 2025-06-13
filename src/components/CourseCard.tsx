@@ -104,10 +104,10 @@
 // }
 
 
-// components/CourseCard.tsx
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Star } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { motion } from 'framer-motion';
@@ -117,42 +117,64 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
+  const sellerLogos: { [key: string]: string } = {
+    Udemy: 'https://images.unsplash.com/photo-1700589877598-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30',
+    Coursera: 'https://images.unsplash.com/photo-1700589877599-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30',
+    Unacademy: 'https://images.unsplash.com/photo-1700589877600-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30',
+    'Physics Wallah': 'https://images.unsplash.com/photo-1700589877601-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30',
+    Skillshare: 'https://images.unsplash.com/photo-1700589877602-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30',
+    edX: 'https://images.unsplash.com/photo-1700589877603-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30',
+  };
+
   const providerName = course.providerInfo?.name || course.instructor;
+  const logoSrc = sellerLogos[providerName] || 'https://images.unsplash.com/photo-1700589877598-吐896f9f5b6f?auto=compress&cs=tinysrgb&h=30';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="relative bg-[--bg-light] rounded-xl p-4 hover-lift"
+      className="relative bg-[--bg-medium] rounded-xl p-5 hover-lift shadow-lg"
     >
       <Link href={`/courses/${course.id}`}>
         <div className="relative">
-          <div className="w-full h-40 bg-gray-700 rounded-lg" />
+          <Image
+            src={course.imageUrl}
+            alt={course.title}
+            width={400}
+            height={200}
+            className="w-full h-48 object-cover rounded-lg"
+          />
           {course.originalPrice && (
-            <span className="absolute -top-2 -left-2 bg-[--highlight-blue] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
+            <span className="absolute -top-2 -left-2 bg-[--highlight-gold] text-black text-xs font-bold px-3 py-1 rounded-full shadow-md">
               {Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100)}% OFF
             </span>
           )}
         </div>
-        <div className="flex items-center mt-3">
-          <div className="w-6 h-6 bg-gray-600 rounded-full mr-2" />
-          <p className="text-xs text-[--text-muted]">{providerName}</p>
+        <div className="flex items-center mt-4">
+          <Image
+            src={logoSrc}
+            alt={`${providerName} logo`}
+            width={24}
+            height={24}
+            className="rounded-full mr-2"
+          />
+          <p className="text-sm text-gray-400">{providerName}</p>
         </div>
         <h3 className="text-lg font-semibold mt-2 line-clamp-2 text-[--text-light]">{course.title}</h3>
-        <div className="flex items-center mt-1">
+        <div className="flex items-center mt-2">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`h-4 w-4 ${i < Math.floor(course.rating) ? 'text-[--highlight-blue] fill-current' : 'text-[--accent-gray]'}`}
+              className={`h-4 w-4 ${i < Math.floor(course.rating) ? 'text-[--highlight-gold] fill-current' : 'text-gray-600'}`}
             />
           ))}
-          <span className="text-xs text-[--text-muted] ml-2">({course.reviewsCount})</span>
+          <span className="text-sm text-gray-400 ml-2">({course.reviewsCount})</span>
         </div>
-        <div className="mt-2 flex items-center gap-2">
-          <p className="text-lg font-bold text-[--primary-blue]">₹{course.price}</p>
+        <div className="mt-3 flex items-center gap-2">
+          <p className="text-xl font-bold text-[--primary-blue]">₹{course.price}</p>
           {course.originalPrice && (
-            <p className="text-sm text-[--text-muted] line-through">₹{course.originalPrice}</p>
+            <p className="text-sm text-gray-500 line-through">₹{course.originalPrice}</p>
           )}
         </div>
       </Link>
