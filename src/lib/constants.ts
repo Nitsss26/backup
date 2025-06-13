@@ -63,23 +63,54 @@ export const PAYMENT_OPTIONS: PaymentOption[] = [
     { id: 'wallet', name: 'Digital Wallet (PayTM, PhonePe etc.)', icon: Wallet },
 ];
 
+
 export const FOOTER_LINKS = {
   company: [
-    { name: 'About Us', href: '/about' },
-    { name: 'Careers', href: '/careers' },
-    { name: 'Press', href: '/press' },
-  ],
-  support: [
-    { name: 'Help Center', href: '/help' },
+    { name: 'About', href: '/about' },
     { name: 'Contact Us', href: '/contact' },
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Product List', href: '/courses' },
+  ],
+  buy: [
+    { name: 'Collections', href: '/categories' },
+    { name: 'Activation Guides', href: '/help/guides' },
+  ],
+  help: [
+    { name: 'Create a Ticket', href: '/help/ticket' },
   ],
   community: [
     { name: 'Blog', href: '/blog' },
-    { name: 'Forums', href: '/forums' },
-    { name: 'Sell on EdTechCart', href: '/sell-courses' }, 
-  ]
+    { name: 'Become an Affiliate', href: '/affiliate' },
+  ],
+  business: [
+    { name: 'Sell on EdTechCart', href: '/sell-courses' },
+  ],
 };
+
+export const PLATFORMS = [
+  'Udemy',
+  'Coursera',
+  'Unacademy',
+  'Physics Wallah',
+  'Skillshare',
+  'edX',
+];
+// export const FOOTER_LINKS = {
+//   company: [
+//     { name: 'About Us', href: '/about' },
+//     { name: 'Careers', href: '/careers' },
+//     { name: 'Press', href: '/press' },
+//   ],
+//   support: [
+//     { name: 'Help Center', href: '/help' },
+//     { name: 'Contact Us', href: '/contact' },
+//     { name: 'Privacy Policy', href: '/privacy' },
+//     { name: 'Terms of Service', href: '/terms' },
+//   ],
+//   community: [
+//     { name: 'Blog', href: '/blog' },
+//     { name: 'Forums', href: '/forums' },
+//     { name: 'Sell on EdTechCart', href: '/sell-courses' }, 
+//   ]
+// };
 
 export const ITEMS_PER_PAGE = 12;

@@ -18,6 +18,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'flagcdn.com',
+        pathname: '/**', // Allow all paths under flagcdn.com
+      },
+      {
+        protocol: 'https',
         hostname: 'ineuron.ai',
       },
       {
