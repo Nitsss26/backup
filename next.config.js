@@ -3,7 +3,7 @@
 const nextConfig = {
   /* config options here */
   images: {
-    remotePatterns: [
+    remotePatterns: [ 
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
@@ -12,12 +12,55 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'logowik.com',
+        port: '',
+        pathname: '/**',
+      }, {
+        protocol: 'https',
+        hostname: 'cdn.jsdelivr.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.svgrepo.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'flagcdn.com',
         pathname: '/**', 
+      },   {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+        port: '',
+        pathname: '/**',
+      },{
+        protocol: 'https',
+        hostname: 'yt3.googleusercontent.com',
+        port: '',
+        pathname: '/**',
+      },{
+        protocol: 'https',
+        hostname: 'static.wixstatic.com',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',
         hostname: 'static.uacdn.net',
+        pathname: '/**',
+      },{
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com',
+        port: '',
         pathname: '/**',
       },
       {

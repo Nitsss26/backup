@@ -1,20 +1,23 @@
+
 export const heroSectionData = {
     carouselItems: [
       {
         id: '1',
         imageUrl: 'https://static.uacdn.net/thumbnail/batch/2062d0569a1c46d088682d0e96d20f80.png?q=75&w=640&auto=format%2Ccompress',
-        title: 'Master IIT-JEE Physics',
-        description: 'Ace your IIT-JEE with our comprehensive Physics course!',
+        title: 'Master IIT-JEE Advanced',
+        description: 'Ace your IIT-JEE with our comprehensive course!',
         ctaText: 'Enroll Now',
         ctaLink: '/courses/featured-iitjee-01',
+        dataAiHint: "iitjee online course",
       },
       {
         id: '2',
         imageUrl: 'https://static.pw.live/5eb393ee95fab7468a79d189/ADMIN/14adde5b-4947-433a-9ab2-ad57476ad842.jpg',
         title: 'NEET Biology Bootcamp',
-        description: 'Unlock your potential with this in-depth Biology course!',
+        description: 'Unlock your potential with this in-depth course!',
         ctaText: 'Enroll Now',
         ctaLink: '/courses/featured-neet-01',
+        dataAiHint: "neet medical course",
       },
     ],
     rightBanner: {
@@ -24,12 +27,14 @@ export const heroSectionData = {
       ctaText: 'Pre-Order',
       ctaLink: '/courses/featured-gov-01',
       bgColor: 'bg-[--primary-blue]',
+      dataAiHint: "upsc government exam",
     },
     promoCard: {
       imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&h=400',
       title: 'Special Offer: 50% Off!',
       ctaText: 'Claim Now',
       ctaLink: '/offers/special',
+      dataAiHint: "online learning offer",
     },
     bottomBanners: [
       {
@@ -38,6 +43,7 @@ export const heroSectionData = {
         ctaText: 'Explore',
         ctaLink: '/courses?category=computer-science',
         bgColor: 'bg-[--accent-teal]',
+        dataAiHint: "tech course computer",
       },
       {
         imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&h=200',
@@ -45,6 +51,7 @@ export const heroSectionData = {
         ctaText: 'Explore',
         ctaLink: '/courses?category=business',
         bgColor: 'bg-[--secondary-purple]',
+        dataAiHint: "business finance chart",
       },
       {
         imageUrl: 'https://images.unsplash.com/photo-1501504901893-6c36933fbf59?auto=format&fit=crop&w=400&h=200',
@@ -52,6 +59,7 @@ export const heroSectionData = {
         ctaText: 'Browse',
         ctaLink: '/courses?platform=udemy',
         bgColor: 'bg-[--primary-blue]',
+        dataAiHint: "udemy online learning",
       },
       {
         imageUrl: 'https://images.unsplash.com/photo-1516321165247-7b920a7a9df9?auto=format&fit=crop&w=400&h=200',
@@ -59,6 +67,7 @@ export const heroSectionData = {
         ctaText: 'Browse',
         ctaLink: '/courses?platform=coursera',
         bgColor: 'bg-[--accent-teal]',
+        dataAiHint: "coursera online platform",
       },
     ],
   };

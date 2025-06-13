@@ -1,10 +1,10 @@
 
-"use client"; // Ensure this is at the very top
+"use client";
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion'; // Ensure this import is present
+import { motion } from 'framer-motion';
 
 interface BannerCardProps {
   imageUrl: string;
@@ -13,9 +13,10 @@ interface BannerCardProps {
   ctaText: string;
   ctaLink: string;
   bgColor?: string;
+  dataAiHint?: string;
 }
 
-export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgColor = 'bg-[--primary-blue]' }: BannerCardProps) {
+export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgColor = 'bg-[--primary-blue]', dataAiHint = "banner image" }: BannerCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -24,7 +25,14 @@ export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgC
       className="relative rounded-xl overflow-hidden hover-lift shadow-lg"
     >
       <Link href={ctaLink}>
-        <Image src={imageUrl} alt={title} width={400} height={200} className="w-full h-32 object-cover" />
+        <Image
+          src={imageUrl}
+          alt={title}
+          width={400}
+          height={200}
+          className="w-full h-32 object-cover"
+          data-ai-hint={dataAiHint}
+        />
         <div className={`absolute inset-0 ${bgColor} bg-opacity-80 flex flex-col justify-center p-4`}>
           <h3 className="text-lg font-bold text-[--text-light]">{title}</h3>
           {description && <p className="text-sm mt-1 text-gray-200">{description}</p>}

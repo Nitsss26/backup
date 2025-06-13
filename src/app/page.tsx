@@ -1,5 +1,5 @@
 
-"use client"; 
+"use client";
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -13,16 +13,17 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { Mail } from 'lucide-react';
-import { motion } from 'framer-motion'; 
+import { motion } from 'framer-motion';
 import { heroSectionData } from '@/lib/heroSectionData';
-import { Input } from '@/components/ui/input'; 
-import { useEffect, useState } from 'react'; 
+import { Input } from '@/components/ui/input';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function HomePage() {
   const { carouselItems, rightBanner, promoCard, bottomBanners } = heroSectionData;
-  const [currentSlide, setCurrentSlide] = useState(0); 
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  useEffect(() => { 
+  useEffect(() => {
     if (carouselItems.length === 0) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
@@ -30,15 +31,62 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, [carouselItems.length]);
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+const itemsPerView = 6;
+const platforms = [
+  {
+    name: 'Udemy',
+    ctaLink: '/courses?platform=udemy',
+    logo: 'https://logowik.com/content/uploads/images/udemy-new-20212512.jpg',
+    bgColor: 'bg-[--primary-blue]'
+  }, {
+    name: 'Unacademy',
+    ctaLink: '/courses?platform=Unacademy',
+    logo: 'https://i.pinimg.com/474x/68/a0/42/68a042e75a0fe666c2ef0382ddb3f738.jpg',
+    bgColor: 'bg-[--secondary-purple]'
+  },
+  {
+    name: 'Physics Wallah',
+    ctaLink: '/courses?platform=pw',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Physics_wallah_logo.jpg/800px-Physics_wallah_logo.jpg',
+    bgColor: 'bg-[--accent-teal]'
+  },
 
-  const platforms = [
-    { name: 'Udemy', ctaLink: '/courses?platform=udemy', bgColor: 'bg-[--primary-blue]' },
-    { name: 'Coursera', ctaLink: '/courses?platform=coursera', bgColor: 'bg-[--accent-teal]' },
-    { name: 'Unacademy', ctaLink: '/courses?platform=unacademy', bgColor: 'bg-[--secondary-purple]' },
-    { name: 'Physics Wallah', ctaLink: '/courses?platform=physics-wallah', bgColor: 'bg-[--highlight-gold]' },
-    { name: 'Skillshare', ctaLink: '/courses?platform=skillshare', bgColor: 'bg-[--primary-blue]' },
-    { name: 'edX', ctaLink: '/courses?platform=edx', bgColor: 'bg-[--accent-teal]' },
-  ];
+  {
+    name: 'iNeuron',
+    ctaLink: '/courses?platform=iNeuron',
+    logo: 'https://yt3.googleusercontent.com/w_SOmqeOYbkseR1IR4Sq4hTcxKRld7XgfbCDP-zuSY0SekoJruge26gzmwBsnkOx2GFERpLN2Y8=s900-c-k-c0x00ffffff-no-rj',
+    bgColor: 'bg-[--highlight-gold]'
+  },
+
+  {
+    name: 'Newton School',
+    ctaLink: '/courses?platform=newton-school',
+    logo: 'https://static.wixstatic.com/media/5f869d_42e6e32e5ff64c058963157601b6970d~mv2.jpg/v1/fill/w_300,h_300,al_c,q_80/Newton%20School%20Refer%20and%20Earn.jpg',
+    bgColor: 'bg-[--accent-teal]'
+  },
+  {
+    name: 'Boston Institute',
+    ctaLink: '/courses?platform=BIA',
+    logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0zOURjSw8YRG53pGHP0mWOZqJoB0-QoN3sw&s',
+    bgColor: 'bg-[--secondary-purple]'
+  },  {
+    name: 'Skillshare',
+    ctaLink: '/courses?platform=skillshare',
+    logo: 'https://logowik.com/content/uploads/images/skill-share5249.jpg',
+    bgColor: 'bg-[--primary-blue]'
+  },
+];
+
+  const maxIndex = Math.max(0, platforms.length - itemsPerView);
+
+const goToPrevious = () => {
+  setCurrentIndex(prev => Math.max(0, prev - 1));
+};
+
+const goToNext = () => {
+  setCurrentIndex(prev => Math.min(maxIndex, prev + 1));
+};
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -60,12 +108,14 @@ export default function HomePage() {
                   ctaText={rightBanner.ctaText}
                   ctaLink={rightBanner.ctaLink}
                   bgColor={rightBanner.bgColor}
+                  dataAiHint={rightBanner.dataAiHint}
                 />
                 <PromoCard
                   imageUrl={promoCard.imageUrl}
                   title={promoCard.title}
                   ctaText={promoCard.ctaText}
                   ctaLink={promoCard.ctaLink}
+                  dataAiHint={promoCard.dataAiHint}
                 />
               </div>
             </div>
@@ -79,6 +129,7 @@ export default function HomePage() {
                   ctaText={banner.ctaText}
                   ctaLink={banner.ctaLink}
                   bgColor={banner.bgColor}
+                  dataAiHint={banner.dataAiHint}
                 />
               ))}
             </div>
@@ -103,35 +154,91 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Explore By Platforms */}
-        <section className="py-12 px-6 bg-[--bg-medium] pattern-bg section-divider">
-          <div className="container">
-            <motion.h2
-              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+{/* Explore By Platforms */}
+<section className="py-12 px-6 bg-[--bg-medium] section-divider">
+  <div className="container">
+    <motion.h2
+      className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      Explore By Platforms
+    </motion.h2>
+    
+    <div className="relative">
+      {/* Left Arrow */}
+      <button
+        onClick={goToPrevious}
+        disabled={currentIndex === 0}
+        className={`absolute left-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-[--bg-dark] border border-[--border-color] transition-all duration-300 ${
+          currentIndex === 0
+            ? 'opacity-50 cursor-not-allowed'
+            : 'hover:bg-[--bg-medium] hover:border-[--secondary-purple] shadow-lg'
+        }`}
+      >
+        <ChevronLeft className="w-6 h-6 text-[--text-light]" />
+      </button>
+
+      {/* Platform Cards Container */}
+      <div className="mx-16 overflow-hidden">
+        <div
+          className="flex transition-transform duration-500 ease-in-out gap-4"
+          style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
+        >
+          {platforms.map((platform) => (
+            <div
+              key={platform.name}
+              className="flex-shrink-0 w-1/6 min-w-0"
             >
-              Explore By Platforms
-            </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-              {platforms.map((platform) => (
-                <motion.div
-                  key={platform.name}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="hover-lift"
-                >
-                  <Link href={platform.ctaLink}>
-                    <Button className={`w-full py-4 rounded-lg ${platform.bgColor} text-[--text-light] font-semibold hover:bg-[--secondary-purple] transition-colors shadow-md`}>
-                      {platform.name}
-                    </Button>
-                  </Link>
-                </motion.div>
-              ))}
+              <Link href={platform.ctaLink}>
+                <div className="bg-[--bg-dark] rounded-xl p-6 border border-[--border-color] hover:border-[--secondary-purple] transition-all duration-300 hover:shadow-xl hover:shadow-[--secondary-purple]/20 hover:scale-105 cursor-pointer h-32 flex flex-col items-center justify-center group">
+                  <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                    <img
+                      src={platform.logo}
+                      alt={`${platform.name} logo`}
+                      className="w-full h-full object-contain transition-all duration-300 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="text-[--text-light] text-sm font-medium text-center group-hover:text-[--secondary-purple] transition-colors duration-300">
+                    {platform.name}
+                  </span>
+                </div>
+              </Link>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Arrow */}
+      <button
+        onClick={goToNext}
+        disabled={currentIndex >= maxIndex}
+        className={`absolute right-0 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full bg-[--bg-dark] border border-[--border-color] transition-all duration-300 ${
+          currentIndex >= maxIndex
+            ? 'opacity-50 cursor-not-allowed'
+            : 'hover:bg-[--bg-medium] hover:border-[--secondary-purple] shadow-lg'
+        }`}
+      >
+        <ChevronRight className="w-6 h-6 text-[--text-light]" />
+      </button>
+    </div>
+
+    {/* Dots Indicator */}
+    <div className="flex justify-center mt-6 space-x-2">
+      {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+        <button
+          key={index}
+          onClick={() => setCurrentIndex(index)}
+          className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            index === currentIndex
+              ? 'bg-[--secondary-purple] w-8'
+              : 'bg-[--border-color] hover:bg-[--text-muted]'
+          }`}
+        />
+      ))}
+    </div>
+  </div>
+</section>
 
         {/* Best Selling Courses */}
         <section className="py-12 px-6 bg-[--bg-dark] section-divider">
@@ -425,12 +532,12 @@ export default function HomePage() {
             >
               Get updates on the best courses and exclusive offers!
             </motion.p>
-            <motion.form 
+            <motion.form
               className="flex justify-center space-x-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              onSubmit={(e) => e.preventDefault()} 
+              onSubmit={(e) => e.preventDefault()}
             >
               <div className="relative w-full max-w-md">
                 <Input
