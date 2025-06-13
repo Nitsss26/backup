@@ -1,7 +1,9 @@
 
+"use client"; // Added "use client" directive
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // Ensured this import is present
 
 interface BannerCardProps {
   title: string;
