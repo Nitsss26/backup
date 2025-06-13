@@ -2,6 +2,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
+  images: {
+    domains: ['static.uacdn.net', 'static.pw.live', 'images.unsplash.com'],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -20,7 +23,18 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'flagcdn.com',
         pathname: '/**', // Allow all paths under flagcdn.com
-      },{
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.uacdn.net',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.pw.live',
+        pathname: '/**',
+      },
+      {
         protocol: 'https',
         hostname: 'images.pexels.com',
         pathname: '/**',

@@ -46,7 +46,7 @@ export function Carousel({ items }: CarouselProps) {
           >
             <div className="relative">
               <Image
-                src={item.imageUrl}
+                src='https://i.ibb.co/KpZ53rpH/185479d724064c5ba55d03a5c8ecbb0f.webp'
                 alt={item.title}
                 width={1200}
                 height={400}

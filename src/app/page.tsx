@@ -1,5 +1,5 @@
 
-"use client";
+"use client"; // Added this directive
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -13,58 +13,22 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { Mail } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import { useEffect, useState } from 'react'; // Keep existing react imports
-import Image from 'next/image'; // Keep existing Image import
-import { Badge } from '@/components/ui/badge'; // Keep existing Badge import
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'; // Keep existing Card imports
+import { motion } from 'framer-motion'; // Added this import
+import { heroSectionData } from '@/lib/heroSectionData';
+import { Input } from '@/components/ui/input'; // Added this import
+import { useEffect, useState } from 'react'; // Added for carousel state
 
 export default function HomePage() {
-  const [currentSlide, setCurrentSlide] = useState(0); // Existing state for old carousel
-  const slides = [ // Existing slides for old carousel
-    {
-      title: "Master Python Programming",
-      description: "Become a Python expert with our comprehensive course!",
-      image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-      cta: "Enroll Now",
-      href: "/courses/python",
-    },
-    {
-      title: "Data Science Bootcamp",
-      description: "Unlock the power of data with this hands-on course!",
-      image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
-      cta: "Enroll Now",
-      href: "/courses/data-science",
-    },
-  ];
+  const { carouselItems, rightBanner, promoCard, bottomBanners } = heroSectionData;
+  const [currentSlide, setCurrentSlide] = useState(0); // Added for carousel
 
-  useEffect(() => { // Existing effect for old carousel
+  useEffect(() => { // Added for carousel
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [slides.length]);
+  }, [carouselItems.length]);
 
-
-  const carouselItems = [
-    {
-      id: '1',
-      imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&h=400',
-      title: 'Master IIT-JEE Physics',
-      description: 'Ace your IIT-JEE with our comprehensive Physics course!',
-      ctaText: 'Enroll Now',
-      ctaLink: '/courses/featured-iitjee-01',
-    },
-    {
-      id: '2',
-      imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&h=400',
-      title: 'NEET Biology Bootcamp',
-      description: 'Unlock your potential with this in-depth Biology course!',
-      ctaText: 'Enroll Now',
-      ctaLink: '/courses/featured-neet-01',
-    },
-  ];
 
   const platforms = [
     { name: 'Udemy', ctaLink: '/courses?platform=udemy', bgColor: 'bg-[--primary-blue]' },
@@ -89,51 +53,33 @@ export default function HomePage() {
               </div>
               <div className="w-full md:w-1/4 flex flex-col gap-6">
                 <BannerCard
-                  imageUrl="https://images.unsplash.com/photo-1700589877604-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200"
-                  title="UPSC CSE Prep"
-                  description="Pre-Order Now"
-                  ctaText="Pre-Order"
-                  ctaLink="/courses/featured-gov-01"
-                  bgColor="bg-[--primary-blue]"
+                  imageUrl={rightBanner.imageUrl}
+                  title={rightBanner.title}
+                  description={rightBanner.description}
+                  ctaText={rightBanner.ctaText}
+                  ctaLink={rightBanner.ctaLink}
+                  bgColor={rightBanner.bgColor}
                 />
                 <PromoCard
-                  imageUrl="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&h=400"
-                  title="Special Offer: 50% Off!"
-                  ctaText="Claim Now"
-                  ctaLink="/offers/special"
+                  imageUrl={promoCard.imageUrl}
+                  title={promoCard.title}
+                  ctaText={promoCard.ctaText}
+                  ctaLink={promoCard.ctaLink}
                 />
               </div>
             </div>
             {/* Bottom Row: 4 Banner Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
-              <BannerCard
-                imageUrl="https://images.unsplash.com/photo-1700589877605-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200"
-                title="Tech Courses"
-                ctaText="Explore"
-                ctaLink="/courses?category=computer-science"
-                bgColor="bg-[--accent-teal]"
-              />
-              <BannerCard
-                imageUrl="https://images.unsplash.com/photo-1700589877606-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200"
-                title="Business Courses"
-                ctaText="Explore"
-                ctaLink="/courses?category=business"
-                bgColor="bg-[--secondary-purple]"
-              />
-              <BannerCard
-                imageUrl="https://images.unsplash.com/photo-1700589877607-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200"
-                title="Udemy"
-                ctaText="Browse"
-                ctaLink="/courses?platform=udemy"
-                bgColor="bg-[--primary-blue]"
-              />
-              <BannerCard
-                imageUrl="https://images.unsplash.com/photo-1700589877608-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200"
-                title="Coursera"
-                ctaText="Browse"
-                ctaLink="/courses?platform=coursera"
-                bgColor="bg-[--accent-teal]"
-              />
+              {bottomBanners.map((banner, index) => (
+                <BannerCard
+                  key={index}
+                  imageUrl={banner.imageUrl}
+                  title={banner.title}
+                  ctaText={banner.ctaText}
+                  ctaLink={banner.ctaLink}
+                  bgColor={banner.bgColor}
+                />
+              ))}
             </div>
           </div>
         </section>
@@ -262,6 +208,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Udemy' },
                   rating: 4.8,
                   reviewsCount: 1200,
+                  category: "Computer Science"
                 },
                 {
                   id: 'bundle2',
@@ -271,6 +218,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Coursera' },
                   rating: 4.9,
                   reviewsCount: 1500,
+                  category: "Computer Science"
                 },
                 {
                   id: 'bundle3',
@@ -280,6 +228,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Unacademy' },
                   rating: 4.7,
                   reviewsCount: 900,
+                  category: "Business & Finance"
                 },
                 {
                   id: 'bundle4',
@@ -289,6 +238,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Skillshare' },
                   rating: 4.8,
                   reviewsCount: 1100,
+                  category: "Computer Science"
                 },
                 {
                   id: 'bundle5',
@@ -298,6 +248,7 @@ export default function HomePage() {
                   providerInfo: { name: 'edX' },
                   rating: 4.6,
                   reviewsCount: 800,
+                  category: "Design & Illustration"
                 },
               ].map((bundle) => (
                 <CourseCard key={bundle.id} course={bundle as any} />
@@ -354,6 +305,7 @@ export default function HomePage() {
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.5,
                   reviewsCount: 600,
+                  category: "Add-ons"
                 },
                 {
                   id: 'addon2',
@@ -363,6 +315,7 @@ export default function HomePage() {
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.7,
                   reviewsCount: 400,
+                   category: "Add-ons"
                 },
                 {
                   id: 'addon3',
@@ -372,6 +325,7 @@ export default function HomePage() {
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.6,
                   reviewsCount: 500,
+                   category: "Add-ons"
                 },
                 {
                   id: 'addon4',
@@ -381,6 +335,7 @@ export default function HomePage() {
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.4,
                   reviewsCount: 300,
+                   category: "Add-ons"
                 },
                 {
                   id: 'addon5',
@@ -390,6 +345,7 @@ export default function HomePage() {
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.5,
                   reviewsCount: 450,
+                   category: "Add-ons"
                 },
               ].map((addon) => (
                 <CourseCard key={addon.id} course={addon as any} />
@@ -458,11 +414,12 @@ export default function HomePage() {
             >
               Get updates on the best courses and exclusive offers!
             </motion.p>
-            <motion.div
+            <motion.form // Changed div to form
               className="flex justify-center space-x-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
+              onSubmit={(e) => e.preventDefault()} // Prevent default form submission for now
             >
               <div className="relative w-full max-w-md">
                 <Input
@@ -472,10 +429,10 @@ export default function HomePage() {
                 />
                 <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
-              <Button className="bg-[--primary-blue] text-[--text-light] px-6 py-3 rounded-full font-semibold hover:bg-[--secondary-purple] transition-colors">
+              <Button type="submit" className="bg-[--primary-blue] text-[--text-light] px-6 py-3 rounded-full font-semibold hover:bg-[--secondary-purple] transition-colors">
                 Subscribe
               </Button>
-            </motion.div>
+            </motion.form>
             <motion.p
               className="text-gray-400 mt-4 text-sm"
               initial={{ opacity: 0 }}
@@ -507,6 +464,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Udemy' },
                   rating: 4.8,
                   reviewsCount: 1000,
+                  category: "Subscription"
                 },
                 {
                   id: 'sub2',
@@ -516,6 +474,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Coursera' },
                   rating: 4.7,
                   reviewsCount: 800,
+                  category: "Subscription"
                 },
                 {
                   id: 'sub3',
@@ -525,6 +484,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Unacademy' },
                   rating: 4.6,
                   reviewsCount: 700,
+                  category: "Subscription"
                 },
                 {
                   id: 'sub4',
@@ -534,6 +494,7 @@ export default function HomePage() {
                   providerInfo: { name: 'Skillshare' },
                   rating: 4.5,
                   reviewsCount: 600,
+                  category: "Subscription"
                 },
                 {
                   id: 'sub5',
@@ -543,6 +504,7 @@ export default function HomePage() {
                   providerInfo: { name: 'edX' },
                   rating: 4.6,
                   reviewsCount: 650,
+                  category: "Subscription"
                 },
               ].map((sub) => (
                 <CourseCard key={sub.id} course={sub as any} />
@@ -560,3 +522,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
