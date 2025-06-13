@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ export function Carousel({ items }: CarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
+    if (items.length === 0) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % items.length);
     }, 5000);
@@ -30,8 +32,13 @@ export function Carousel({ items }: CarouselProps) {
   }, [items.length]);
 
   const goToSlide = (index: number) => {
+    if (items.length === 0) return;
     setCurrentSlide(index);
   };
+
+  if (items.length === 0) {
+    return <div className="relative rounded-xl shadow-2xl bg-muted flex items-center justify-center h-[400px]"><p>No carousel items to display.</p></div>;
+  }
 
   return (
     <div className="relative overflow-hidden rounded-xl shadow-2xl">
@@ -46,11 +53,13 @@ export function Carousel({ items }: CarouselProps) {
           >
             <div className="relative">
               <Image
-                src='https://i.ibb.co/KpZ53rpH/185479d724064c5ba55d03a5c8ecbb0f.webp'
+                src={item.imageUrl} // Use item.imageUrl here
                 alt={item.title}
                 width={1200}
                 height={400}
                 className="w-full h-[400px] object-cover"
+                priority={index === 0} // Add priority for the first image
+                data-ai-hint="course promotion banner"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-[--primary-blue]/90 to-transparent flex flex-col justify-center p-8">
                 <motion.h2
@@ -89,6 +98,7 @@ export function Carousel({ items }: CarouselProps) {
             key={index}
             className={`w-3 h-3 rounded-full cursor-pointer ${index === currentSlide ? 'bg-[--highlight-gold]' : 'bg-gray-500'}`}
             onClick={() => goToSlide(index)}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>

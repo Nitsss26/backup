@@ -223,7 +223,37 @@ export const featuredCoursesForHomepage: Course[] = [
     providerInfo: { name: 'Innovate Skill Hub', verified: placeholderUsers.find(u => u.email === 'innovate.skillhub@example.com')?.verificationStatus === 'verified', logoUrl: placeholderUsers.find(u => u.email === 'innovate.skillhub@example.com')?.avatarUrl, type: 'Institute' },
     approvalStatus: 'approved',
     freeTrialAvailable: true,
-  }
+  }, 
+      {
+        id: 'cs-showcase-1',
+        title: 'Machine Learning A-Z™: Python & R',
+        instructor: 'Innovate Skill Hub',
+      //  sellerId: placeholderUsers.find(u => u.email === 'innovate.skillhub@example.com')?.id || 'user8',
+        rating: 4.9,
+        reviewsCount: 3500,
+        price: 3200,
+        originalPrice: 6000,
+        category: "Computer Science",
+        imageUrl: 'https://plus.unsplash.com/premium_photo-1682124651258-410b25fa9dc0?q=80&w=1921&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+       // dataAiHint: "Machine Learning neural network",
+        shortDescription: 'Learn Machine Learning from scratch using Python and R with hands-on projects.',
+        duration: '90 hours total',
+        level: 'Intermediate',
+        description: 'Innovate Skill Hub’s Machine Learning A-Z course covers supervised and unsupervised learning, with practical projects in Python and R.',
+        curriculum: [
+          { id: 'm1is01', title: 'ML Basics', order: 1, lessons: [{ id: 'l1m1is01', title: 'Regression Models', type: 'video', duration: '3h', order: 1 }] },
+          { id: 'm2is01', title: 'Advanced ML', order: 2, lessons: [{ id: 'l1m2is01', title: 'Neural Networks', type: 'video', duration: '3h', order: 1 }] },
+        ],
+        studentsEnrolled: 9000,
+        lastUpdated: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString().split('T')[0],
+        language: 'English',
+        certificateAvailable: true,
+        highlights: ['Hands-on projects', 'Python & R focus', 'Supervised & unsupervised learning', 'Practical applications'],
+        providerInfo: { name: "Innovate Skill Hub", verified: true, logoUrl: placeholderUsers.find(u => u.email === 'innovate.skillhub@example.com')?.avatarUrl || 'https://placehold.co/100x100/EBF4FF/3B82F6?text=IS', type: 'Institute' },
+        approvalStatus: 'approved',
+      //  freeTrialAvailable: true,
+      },
+
 ];
 
 

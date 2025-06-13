@@ -1,5 +1,5 @@
 
-"use client"; // Added this directive
+"use client"; 
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -13,16 +13,17 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
 import { Mail } from 'lucide-react';
-import { motion } from 'framer-motion'; // Added this import
+import { motion } from 'framer-motion'; 
 import { heroSectionData } from '@/lib/heroSectionData';
-import { Input } from '@/components/ui/input'; // Added this import
-import { useEffect, useState } from 'react'; // Added for carousel state
+import { Input } from '@/components/ui/input'; 
+import { useEffect, useState } from 'react'; 
 
 export default function HomePage() {
   const { carouselItems, rightBanner, promoCard, bottomBanners } = heroSectionData;
-  const [currentSlide, setCurrentSlide] = useState(0); // Added for carousel
+  const [currentSlide, setCurrentSlide] = useState(0); 
 
-  useEffect(() => { // Added for carousel
+  useEffect(() => { 
+    if (carouselItems.length === 0) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % carouselItems.length);
     }, 5000);
@@ -94,7 +95,7 @@ export default function HomePage() {
             >
               Recommended For You
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {featuredCoursesForHomepage.slice(0, 5).map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
@@ -142,7 +143,7 @@ export default function HomePage() {
             >
               Best Selling Courses
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {topCategoryShowcaseData
                 .flatMap((cat) => cat.courses)
                 .slice(0, 5)
@@ -198,57 +199,62 @@ export default function HomePage() {
             >
               Best Selling Course Bundles
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {[
                 {
                   id: 'bundle1',
                   title: 'Full Stack Developer Bundle',
                   price: 3999,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877609-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Udemy' },
                   rating: 4.8,
                   reviewsCount: 1200,
-                  category: "Computer Science"
+                  category: "Computer Science",
+                  dataAiHint: "web development code"
                 },
                 {
                   id: 'bundle2',
                   title: 'Data Science Bundle',
                   price: 4499,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877610-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Coursera' },
                   rating: 4.9,
                   reviewsCount: 1500,
-                  category: "Computer Science"
+                  category: "Computer Science",
+                  dataAiHint: "data science charts"
                 },
                 {
                   id: 'bundle3',
                   title: 'Business Mastery Bundle',
                   price: 3499,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877611-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Unacademy' },
                   rating: 4.7,
                   reviewsCount: 900,
-                  category: "Business & Finance"
+                  category: "Business & Finance",
+                  dataAiHint: "business meeting"
                 },
                 {
                   id: 'bundle4',
                   title: 'AI & ML Bundle',
                   price: 5999,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877612-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Skillshare' },
                   rating: 4.8,
                   reviewsCount: 1100,
-                  category: "Computer Science"
+                  category: "Computer Science",
+                  dataAiHint: "artificial intelligence"
                 },
                 {
                   id: 'bundle5',
                   title: 'Design Mastery Bundle',
                   price: 3799,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877613-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'edX' },
                   rating: 4.6,
                   reviewsCount: 800,
-                  category: "Design & Illustration"
+                  category: "Design & Illustration",
+                  dataAiHint: "graphic design tools"
                 },
               ].map((bundle) => (
                 <CourseCard key={bundle.id} course={bundle as any} />
@@ -272,7 +278,7 @@ export default function HomePage() {
             >
               Discover Courses By Category
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {CATEGORIES.slice(0, 7).map((category) => (
                 <CategoryCard
                   key={category.id}
@@ -295,57 +301,62 @@ export default function HomePage() {
             >
               Best Selling Course Add-ons
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {[
                 {
                   id: 'addon1',
                   title: 'Certification Add-on',
                   price: 499,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877614-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.5,
                   reviewsCount: 600,
-                  category: "Add-ons"
+                  category: "Add-ons",
+                  dataAiHint: "certificate document"
                 },
                 {
                   id: 'addon2',
                   title: '1:1 Mentorship',
                   price: 1999,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877615-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.7,
                   reviewsCount: 400,
-                   category: "Add-ons"
+                   category: "Add-ons",
+                   dataAiHint: "mentor teaching student"
                 },
                 {
                   id: 'addon3',
                   title: 'Project Kit',
                   price: 799,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877616-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.6,
                   reviewsCount: 500,
-                   category: "Add-ons"
+                   category: "Add-ons",
+                   dataAiHint: "project tools kit"
                 },
                 {
                   id: 'addon4',
                   title: 'Course Ebook',
                   price: 299,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877617-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.4,
                   reviewsCount: 300,
-                   category: "Add-ons"
+                   category: "Add-ons",
+                   dataAiHint: "ebook digital book"
                 },
                 {
                   id: 'addon5',
                   title: 'Practice Tests',
                   price: 599,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877618-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.5,
                   reviewsCount: 450,
-                   category: "Add-ons"
+                   category: "Add-ons",
+                   dataAiHint: "test exam paper"
                 },
               ].map((addon) => (
                 <CourseCard key={addon.id} course={addon as any} />
@@ -369,7 +380,7 @@ export default function HomePage() {
             >
               Discover By Price
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {[
                 { label: 'Under ₹500', href: '/courses?price=under-500' },
                 { label: 'Under ₹1,000', href: '/courses?price=under-1000' },
@@ -414,12 +425,12 @@ export default function HomePage() {
             >
               Get updates on the best courses and exclusive offers!
             </motion.p>
-            <motion.form // Changed div to form
+            <motion.form 
               className="flex justify-center space-x-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              onSubmit={(e) => e.preventDefault()} // Prevent default form submission for now
+              onSubmit={(e) => e.preventDefault()} 
             >
               <div className="relative w-full max-w-md">
                 <Input
@@ -454,57 +465,62 @@ export default function HomePage() {
             >
               Best Selling Subscriptions
             </motion.h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {[
                 {
                   id: 'sub1',
                   title: 'Udemy Annual Subscription',
                   price: 3999,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877619-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Udemy' },
                   rating: 4.8,
                   reviewsCount: 1000,
-                  category: "Subscription"
+                  category: "Subscription",
+                  dataAiHint: "subscription access pass"
                 },
                 {
                   id: 'sub2',
                   title: 'Coursera Plus - 1 Month',
                   price: 999,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877620-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Coursera' },
                   rating: 4.7,
                   reviewsCount: 800,
-                  category: "Subscription"
+                  category: "Subscription",
+                  dataAiHint: "monthly pass learning"
                 },
                 {
                   id: 'sub3',
                   title: 'Unacademy Plus - 3 Months',
                   price: 2499,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877621-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Unacademy' },
                   rating: 4.6,
                   reviewsCount: 700,
-                  category: "Subscription"
+                  category: "Subscription",
+                  dataAiHint: "education subscription offer"
                 },
                 {
                   id: 'sub4',
                   title: 'Skillshare - 1 Month',
                   price: 799,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877622-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'Skillshare' },
                   rating: 4.5,
                   reviewsCount: 600,
-                  category: "Subscription"
+                  category: "Subscription",
+                  dataAiHint: "creative skills subscription"
                 },
                 {
                   id: 'sub5',
                   title: 'edX Verified Track',
                   price: 1999,
-                  imageUrl: 'https://images.unsplash.com/photo-1700589877623-吐896f9f5b6f?auto=compress&cs=tinysrgb&w=400&h=200',
+                  imageUrl: 'https://placehold.co/400x225.png',
                   providerInfo: { name: 'edX' },
                   rating: 4.6,
                   reviewsCount: 650,
-                  category: "Subscription"
+                  category: "Subscription",
+                  dataAiHint: "verified certificate access"
                 },
               ].map((sub) => (
                 <CourseCard key={sub.id} course={sub as any} />
@@ -522,5 +538,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
