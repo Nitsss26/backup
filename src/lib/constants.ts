@@ -66,26 +66,22 @@ export const PAYMENT_OPTIONS: PaymentOption[] = [
 
 export const FOOTER_LINKS = {
   company: [
-    { name: 'About', href: '/about' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Careers', href: '/careers' },
+    { name: 'Press', href: '/press' },
+  ],
+  support: [
+    { name: 'Help Center', href: '/help' },
     { name: 'Contact Us', href: '/contact' },
-    { name: 'Product List', href: '/courses' },
-  ],
-  buy: [
-    { name: 'Collections', href: '/categories' },
-    { name: 'Activation Guides', href: '/help/guides' },
-  ],
-  help: [
-    { name: 'Create a Ticket', href: '/help/ticket' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Terms of Service', href: '/terms' },
   ],
   community: [
     { name: 'Blog', href: '/blog' },
-    { name: 'Become an Affiliate', href: '/affiliate' },
-  ],
-  business: [
-    { name: 'Sell on EdTechCart', href: '/sell-courses' },
-  ],
+    { name: 'Forums', href: '/forums' },
+    { name: 'Sell on EdTechCart', href: '/sell-courses' }, 
+  ]
 };
-
 export const PLATFORMS = [
   'Udemy',
   'Coursera',

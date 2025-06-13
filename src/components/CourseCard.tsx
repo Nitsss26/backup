@@ -108,7 +108,6 @@
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Star } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { motion } from 'framer-motion';
@@ -118,52 +117,42 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course }: CourseCardProps) {
+  const providerName = course.providerInfo?.name || course.instructor;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="block bg-gray-800 rounded-xl p-4 hover-scale glow-on-hover shadow-lg border border-gray-700"
+      className="relative bg-[--bg-light] rounded-xl p-4 hover-lift"
     >
       <Link href={`/courses/${course.id}`}>
         <div className="relative">
-          <Image
-            src={course.imageUrl || "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=400&auto=format&fit=crop"}
-            alt={course.title}
-            width={400}
-            height={200}
-            className="w-full h-40 object-cover rounded-lg"
-          />
+          <div className="w-full h-40 bg-gray-700 rounded-lg" />
           {course.originalPrice && (
-            <span className="absolute top-3 left-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">
+            <span className="absolute -top-2 -left-2 bg-[--highlight-blue] text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
               {Math.round(((course.originalPrice - course.price) / course.originalPrice) * 100)}% OFF
             </span>
           )}
         </div>
         <div className="flex items-center mt-3">
-          <Image
-            src={course.providerInfo?.logo || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=50&auto=format&fit=crop"}
-            alt={course.providerInfo?.name || course.instructor}
-            width={24}
-            height={24}
-            className="w-6 h-6 rounded-full mr-2"
-          />
-          <p className="text-sm text-gray-400">{course.providerInfo?.name || course.instructor}</p>
+          <div className="w-6 h-6 bg-gray-600 rounded-full mr-2" />
+          <p className="text-xs text-[--text-muted]">{providerName}</p>
         </div>
-        <h3 className="text-lg font-semibold mt-2 line-clamp-2 text-gray-100">{course.title}</h3>
+        <h3 className="text-lg font-semibold mt-2 line-clamp-2 text-[--text-light]">{course.title}</h3>
         <div className="flex items-center mt-1">
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`h-4 w-4 ${i < Math.floor(course.rating) ? 'text-yellow-400 fill-current' : 'text-gray-500'}`}
+              className={`h-4 w-4 ${i < Math.floor(course.rating) ? 'text-[--highlight-blue] fill-current' : 'text-[--accent-gray]'}`}
             />
           ))}
-          <span className="text-sm text-gray-400 ml-2">({course.reviewsCount})</span>
+          <span className="text-xs text-[--text-muted] ml-2">({course.reviewsCount})</span>
         </div>
-        <div className="flex items-center justify-between mt-2">
-          <p className="text-lg font-bold text-cyan-300">₹{course.price}</p>
+        <div className="mt-2 flex items-center gap-2">
+          <p className="text-lg font-bold text-[--primary-blue]">₹{course.price}</p>
           {course.originalPrice && (
-            <p className="text-sm text-gray-500 line-through">₹{course.originalPrice}</p>
+            <p className="text-sm text-[--text-muted] line-through">₹{course.originalPrice}</p>
           )}
         </div>
       </Link>

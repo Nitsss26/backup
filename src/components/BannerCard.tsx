@@ -1,12 +1,9 @@
-"use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 
 interface BannerCardProps {
-  imageUrl: string;
   title: string;
   description?: string;
   ctaText: string;
@@ -14,20 +11,20 @@ interface BannerCardProps {
   bgColor?: string;
 }
 
-export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgColor = 'bg-gradient-to-r from-gray-900 to-indigo-950' }: BannerCardProps) {
+export function BannerCard({ title, description, ctaText, ctaLink, bgColor = 'bg-[--primary-blue]' }: BannerCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="block relative rounded-xl overflow-hidden hover-scale glow-on-hover"
+      className="relative rounded-xl overflow-hidden hover-lift"
     >
-      <Link href={ctaLink}>
-        <Image src={imageUrl} alt={title} width={400} height={200} className="w-full h-40 object-cover" />
+      <Link href={ctaLink} aria-label={`Navigate to ${title}`}>
+        <div className="w-full h-32 bg-gray-700" />
         <div className={`absolute inset-0 ${bgColor} bg-opacity-70 flex flex-col justify-center p-4`}>
-          <h3 className="text-lg font-bold gradient-text">{title}</h3>
-          {description && <p className="text-sm mt-2 text-gray-200">{description}</p>}
-          <Button className="mt-3 shiny-btn text-white px-4 py-1 rounded-full">
+          <h3 className="text-lg font-bold text-[--text-light]">{title}</h3>
+          {description && <p className="text-sm mt-2 text-[--text-muted]">{description}</p>}
+          <Button className="mt-2 bg-[--secondary-blue] text-white px-4 py-1 rounded-full hover:bg-[--primary-blue] transition-colors">
             {ctaText}
           </Button>
         </div>
