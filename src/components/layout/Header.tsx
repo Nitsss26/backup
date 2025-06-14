@@ -79,10 +79,19 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-secondary/30 backdrop-blur supports-[backdrop-filter]:bg-secondary/30">
       <div className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
+        {/* <Link href="/" className="flex items-center gap-2">
           <GraduationCap className="h-7 w-7 text-primary" />
           <span className="font-bold text-xl text-primary">{APP_NAME}</span>
-        </Link>
+        </Link> */}
+<Link href="/" className="flex items-center gap-2">
+  <img
+    src="/logo-dark.png"
+    alt="Logo"
+    width={100}
+    height={100}
+    className="w-100 h-100 object-contain"
+  />
+</Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <DropdownMenu>

@@ -33,12 +33,12 @@ export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgC
           className="w-full h-32 object-cover"
           data-ai-hint={dataAiHint}
         />
-        <div className={`absolute inset-0 ${bgColor} bg-opacity-80 flex flex-col justify-center p-4`}>
+        <div className={`absolute inset-0  flex flex-col justify-center p-4`}>
           <h3 className="text-lg font-bold text-[--text-light]">{title}</h3>
           {description && <p className="text-sm mt-1 text-gray-200">{description}</p>}
-          <Button className="mt-2 bg-[--highlight-gold] text-black px-4 py-1 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
+          {/* <Button className="mt-2 bg-[--highlight-gold] text-black px-4 py-1 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
             {ctaText}
-          </Button>
+          </Button> */}
         </div>
       </Link>
     </motion.div>

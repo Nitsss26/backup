@@ -31,11 +31,11 @@ export function PromoCard({ imageUrl, title, ctaText, ctaLink, dataAiHint = "pro
           className="w-full h-64 object-cover"
           data-ai-hint={dataAiHint}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[--primary-blue]/90 to-transparent flex flex-col justify-end p-6">
+        <div className="absolute inset-0 flex flex-col justify-end p-6">
           <h3 className="text-xl font-bold text-[--text-light]">{title}</h3>
-          <Button className="mt-4 bg-[--highlight-gold] text-black px-6 py-2 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
+          {/* <Button className="mt-4 bg-[--highlight-gold] text-black px-6 py-2 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
             {ctaText}
-          </Button>
+          </Button> */}
         </div>
       </Link>
     </motion.div>

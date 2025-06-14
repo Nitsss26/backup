@@ -2,7 +2,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
+ 
   images: {
+    domains: ['static.uacdn.net', 'static.pw.live', 'images.unsplash.com', 'encrypted-tbn0.gstatic.com'],
     remotePatterns: [ 
       {
         protocol: 'https',
@@ -30,6 +32,32 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'www.svgrepo.com',
+        port: '',
+        pathname: '/**',
+      }, {
+        protocol: 'https',
+        hostname: 'i.postimg.cc',
+        port: '',
+        pathname: '/**',
+      },{
+        protocol: 'https',
+        hostname: 'd2bps9p1kiy4ka.cloudfront.net',
+        port: '',
+        pathname: '/**',
+      },{
+        protocol: 'https',
+        hostname: 'images.geekster.in',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd18qz45wk4tdlr.cloudfront.net',
+        port: '',
+        pathname: '/**',
+      },     {
+        protocol: 'https',
+        hostname: 'store.pw.live',
         port: '',
         pathname: '/**',
       },

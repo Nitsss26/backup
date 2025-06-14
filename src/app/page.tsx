@@ -275,9 +275,9 @@ const goToNext = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
+              <h2 className="text-4xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
               <Button asChild className="mt-4 bg-[--highlight-gold] text-black px-6 py-2 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors">
-                <Link href="/plus">Join Now</Link>
+                <Link className="text-white" href="/plus">Coming Soon!</Link>
               </Button>
             </motion.div>
             <motion.div
@@ -286,7 +286,7 @@ const goToNext = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <ul className="list-disc list-inside">
+              <ul className="list-disc list-inside text-xl">
                 <li>Up to 10% OFF on courses, bundles, and more</li>
                 <li>Access to exclusive sale events</li>
                 <li>Priority pre-order fulfillment</li>
@@ -297,7 +297,7 @@ const goToNext = () => {
         </section>
 
         {/* Best Selling Course Bundles */}
-        <section className="py-12 px-6 bg-[--bg-medium] pattern-bg section-divider">
+        <section className="py-12 px-6 bg-[--bg-medium] section-divider">
           <div className="container">
             <motion.h2
               className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
@@ -312,7 +312,7 @@ const goToNext = () => {
                   id: 'bundle1',
                   title: 'Full Stack Developer Bundle',
                   price: 3999,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://plus.unsplash.com/premium_photo-1682124651258-410b25fa9dc0?q=80&w=1921&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   providerInfo: { name: 'Udemy' },
                   rating: 4.8,
                   reviewsCount: 1200,
@@ -323,7 +323,7 @@ const goToNext = () => {
                   id: 'bundle2',
                   title: 'Data Science Bundle',
                   price: 4499,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://plus.unsplash.com/premium_photo-1681810994162-43dbe0919d3f?q=80&w=2012&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   providerInfo: { name: 'Coursera' },
                   rating: 4.9,
                   reviewsCount: 1500,
@@ -334,7 +334,7 @@ const goToNext = () => {
                   id: 'bundle3',
                   title: 'Business Mastery Bundle',
                   price: 3499,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://plus.unsplash.com/premium_photo-1695449439526-9cebdbfa1a2c?q=80&w=2009&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   providerInfo: { name: 'Unacademy' },
                   rating: 4.7,
                   reviewsCount: 900,
@@ -345,7 +345,7 @@ const goToNext = () => {
                   id: 'bundle4',
                   title: 'AI & ML Bundle',
                   price: 5999,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   providerInfo: { name: 'Skillshare' },
                   rating: 4.8,
                   reviewsCount: 1100,
@@ -356,7 +356,7 @@ const goToNext = () => {
                   id: 'bundle5',
                   title: 'Design Mastery Bundle',
                   price: 3799,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://images.unsplash.com/photo-1601987177651-8edfe6c20009?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
                   providerInfo: { name: 'edX' },
                   rating: 4.6,
                   reviewsCount: 800,
@@ -399,7 +399,7 @@ const goToNext = () => {
         </section>
 
         {/* Best Selling Course Add-ons */}
-        <section className="py-12 px-6 bg-[--bg-medium] pattern-bg section-divider">
+        <section className="py-12 px-6 bg-[--bg-medium] section-divider">
           <div className="container">
             <motion.h2
               className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
@@ -414,7 +414,7 @@ const goToNext = () => {
                   id: 'addon1',
                   title: 'Certification Add-on',
                   price: 499,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://images.geekster.in/ds-coursepage-images/certificate.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.5,
                   reviewsCount: 600,
@@ -425,7 +425,7 @@ const goToNext = () => {
                   id: 'addon2',
                   title: '1:1 Mentorship',
                   price: 1999,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://d18qz45wk4tdlr.cloudfront.net/institute/upscprep/product_images/198/0453f2eb7f774b61b1b819ea25f8b9d7.png',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.7,
                   reviewsCount: 400,
@@ -436,7 +436,7 @@ const goToNext = () => {
                   id: 'addon3',
                   title: 'Project Kit',
                   price: 799,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2F15419cc8-1c0a-4037-8062-8e54ad76b8c6.jpg&w=1920&q=75',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.6,
                   reviewsCount: 500,
@@ -447,7 +447,7 @@ const goToNext = () => {
                   id: 'addon4',
                   title: 'Course Ebook',
                   price: 299,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2Fc67a4b93-2134-4e1b-862a-facc99f02768.png&w=1920&q=75',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.4,
                   reviewsCount: 300,
@@ -458,7 +458,7 @@ const goToNext = () => {
                   id: 'addon5',
                   title: 'Practice Tests',
                   price: 599,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2F9f72134a-ddb0-4003-80a4-d4f3e4551509.png&w=1920&q=75',
                   providerInfo: { name: 'EdTechCart' },
                   rating: 4.5,
                   reviewsCount: 450,
@@ -515,7 +515,7 @@ const goToNext = () => {
         </section>
 
         {/* Newsletter Subscription */}
-        <section className="py-12 px-6 bg-[--bg-medium] pattern-bg section-divider">
+        <section className="py-12 px-6 bg-[--bg-medium] section-divider">
           <div className="container text-center">
             <motion.h2
               className="text-3xl font-bold mb-4 text-[--text-light] fade-in-up"
@@ -578,7 +578,7 @@ const goToNext = () => {
                   id: 'sub1',
                   title: 'Udemy Annual Subscription',
                   price: 3999,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://img.freepik.com/premium-psd/pricing-table-template-website_206192-23.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740',
                   providerInfo: { name: 'Udemy' },
                   rating: 4.8,
                   reviewsCount: 1000,
@@ -589,7 +589,7 @@ const goToNext = () => {
                   id: 'sub2',
                   title: 'Coursera Plus - 1 Month',
                   price: 999,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://img.freepik.com/premium-psd/pricing-table-template-website_206192-23.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740',
                   providerInfo: { name: 'Coursera' },
                   rating: 4.7,
                   reviewsCount: 800,
@@ -600,7 +600,7 @@ const goToNext = () => {
                   id: 'sub3',
                   title: 'Unacademy Plus - 3 Months',
                   price: 2499,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://img.freepik.com/premium-psd/pricing-table-template-website_206192-23.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740',
                   providerInfo: { name: 'Unacademy' },
                   rating: 4.6,
                   reviewsCount: 700,
@@ -611,7 +611,7 @@ const goToNext = () => {
                   id: 'sub4',
                   title: 'Skillshare - 1 Month',
                   price: 799,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://img.freepik.com/premium-psd/pricing-table-template-website_206192-23.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740',
                   providerInfo: { name: 'Skillshare' },
                   rating: 4.5,
                   reviewsCount: 600,
@@ -622,7 +622,7 @@ const goToNext = () => {
                   id: 'sub5',
                   title: 'edX Verified Track',
                   price: 1999,
-                  imageUrl: 'https://placehold.co/400x225.png',
+                  imageUrl: 'https://img.freepik.com/premium-psd/pricing-table-template-website_206192-23.jpg?uid=R120730963&ga=GA1.1.1385959138.1748893744&semt=ais_hybrid&w=740',
                   providerInfo: { name: 'edX' },
                   rating: 4.6,
                   reviewsCount: 650,
