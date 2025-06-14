@@ -54,7 +54,7 @@ const platforms = [
 
   {
     name: 'iNeuron',
-    ctaLink: '/courses?platform=iNeuron',
+    ctaLink: '/ineuron',
     logo: 'https://yt3.googleusercontent.com/w_SOmqeOYbkseR1IR4Sq4hTcxKRld7XgfbCDP-zuSY0SekoJruge26gzmwBsnkOx2GFERpLN2Y8=s900-c-k-c0x00ffffff-no-rj',
     bgColor: 'bg-[--highlight-gold]'
   },
