@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import * as React from "react"; // Added React import
+import { useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -54,16 +55,25 @@ export function FilterSidebar() {
     setFilters(getDefaultFilters(currentSearchParams));
   }, [currentSearchParams]);
 
+  // Debounce function
+  const debounce = <F extends (...args: any[]) => any>(func: F, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: Parameters<F>): Promise<ReturnType<F>> => {
+      return new Promise((resolve) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => resolve(func(...args)), delay);
+      });
+    };
+  };
+
   const applyFiltersToUrl = useCallback((newFiltersState: FiltersState) => {
     const newParams = new URLSearchParams();
 
-    // Preserve 'q' (search query) and 'sort' from the current URL
     const qParam = currentSearchParams.get('q');
     if (qParam) newParams.set('q', qParam);
     const sortParam = currentSearchParams.get('sort');
     if (sortParam) newParams.set('sort', sortParam);
 
-    // Add current filter state to newParams
     newFiltersState.categories.forEach(cat => newParams.append('category', cat));
     newFiltersState.ratings.forEach(r => newParams.append('rating', String(r)));
     newFiltersState.difficultyLevels.forEach(level => newParams.append('level', level));
@@ -75,43 +85,28 @@ export function FilterSidebar() {
     
     if (newFiltersState.certification) newParams.set('certification', 'true');
 
-    newParams.set('page', '1'); // Filter changes always reset to page 1
+    newParams.set('page', '1'); 
     
-    const newUrl = `${pathname}?${newParams.toString()}`;
-    // Only push if the URL actually changes to avoid unnecessary re-renders/fetches
-    // This check might not be strictly necessary if currentSearchParams is stable during the debounce period
-    // but can prevent redundant pushes.
-    if (newUrl !== `${pathname}?${currentSearchParams.toString()}`) {
-       router.push(newUrl, { scroll: false });
+    const currentUrlWithoutPage = `${pathname}?${currentSearchParams.toString().replace(/&?page=\d+/, '')}`;
+    const newUrlWithoutPage = `${pathname}?${newParams.toString().replace(/&?page=\d+/, '')}`;
+
+    if (newUrlWithoutPage !== currentUrlWithoutPage || !currentSearchParams.has('page')) {
+       router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
     }
   }, [router, pathname, currentSearchParams]);
-
-  // Debounce function
-  const debounce = <F extends (...args: any[]) => any>(func: F, delay: number) => {
-    let timeoutId: NodeJS.Timeout;
-    return (...args: Parameters<F>): Promise<ReturnType<F>> => {
-      return new Promise((resolve) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => resolve(func(...args)), delay);
-      });
-    };
-  };
   
   // Memoized debounced version of applyFiltersToUrl
   const debouncedApplyFiltersToUrl = React.useMemo(
       () => debounce(applyFiltersToUrl, 500),
-      [applyFiltersToUrl] // applyFiltersToUrl itself depends on currentSearchParams, router, pathname
+      [applyFiltersToUrl] 
   );
 
   const handleFilterChange = useCallback((type: keyof FiltersState, value: any) => {
-    // Calculate the hypothetical new filter state based on the current 'filters' state
-    // This ensures that even if multiple changes happen quickly, they build upon each other correctly
-    // before the debounced URL update.
-    const newTargetFiltersState = ((currentFiltersState: FiltersState): FiltersState => {
+    const newTargetFiltersState = ((currentLocalFiltersState: FiltersState): FiltersState => {
       let newValues;
       const filterType = type as Exclude<keyof FiltersState, 'priceRange' | 'certification'>;
       if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(filterType)) {
-        const currentArrayValues = currentFiltersState[filterType] as string[] | number[];
+        const currentArrayValues = currentLocalFiltersState[filterType] as string[] | number[];
         const valueExists = currentArrayValues.includes(value as never);
         
         if (valueExists) {
@@ -119,18 +114,15 @@ export function FilterSidebar() {
         } else {
           newValues = [...currentArrayValues, value as never];
         }
-        return { ...currentFiltersState, [type]: newValues };
+        return { ...currentLocalFiltersState, [type]: newValues };
       }
-      // For priceRange and certification
-      return { ...currentFiltersState, [type]: value };
+      return { ...currentLocalFiltersState, [type]: value };
     })(filters); 
 
-    // Update the local UI state immediately for responsiveness
     setFilters(newTargetFiltersState);
-    // Call the debounced function to update the URL
     debouncedApplyFiltersToUrl(newTargetFiltersState);
 
-  }, [filters, debouncedApplyFiltersToUrl, setFilters]); // setFilters is stable
+  }, [filters, debouncedApplyFiltersToUrl, setFilters]);
 
   const resetFilters = useCallback(() => {
       const params = new URLSearchParams();
@@ -140,7 +132,6 @@ export function FilterSidebar() {
       if (sortParam) params.set('sort', sortParam);
       params.set('page', '1');
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
-      // The useEffect listening to currentSearchParams will update the local 'filters' state.
   }, [router, pathname, currentSearchParams]);
   
   const ratingOptions = [5, 4, 3, 2, 1];
@@ -286,4 +277,3 @@ export function FilterSidebar() {
     </aside>
   );
 }
-
