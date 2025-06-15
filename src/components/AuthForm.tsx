@@ -148,7 +148,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               <Shield className="h-12 w-12 text-white" />
             </div>
             <h2 className="text-3xl font-bold mb-4 text-white leading-tight">
-              {isLoginMode ? "Welcome Back to" : "Join"} <span className="text-yellow-300">{APP_NAME}</span>
+              {isLoginMode ? "Welcome Back to" : "Join"} <span className="text-primary">{APP_NAME}</span>
             </h2>
             <p className="text-lg text-white/90 mb-6 leading-relaxed max-w-sm">
               {isLoginMode 

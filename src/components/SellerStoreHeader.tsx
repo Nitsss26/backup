@@ -28,7 +28,7 @@ export function SellerStoreHeader({ name, logo, tagline, bannerImage }: SellerSt
         >
           <Image src={logo} alt={`${name} Logo`} width={80} height={80} className="rounded-full mb-4" />
           <h1 className="text-4xl font-bold text-[--text-light]">{name}</h1>
-          <p className="text-lg text-gray-300 mt-2">{tagline}</p>
+          <p className="text-lg font-semibold text-white mt-2">{tagline}</p>
         </motion.div>
       </div>
     </div>

@@ -446,7 +446,9 @@ export default function CourseDetailPage() {
                         {faqs.map((faq, index) => (
                           <AccordionItem value={`faq-${index}`} key={index}>
                             <AccordionTrigger className="text-base text-left hover:no-underline py-3.5 font-medium text-foreground">{faq.q}</AccordionTrigger>
-                            <AccordionContent className="text-sm pb-3.5 leading-relaxed text-muted-foreground" dangerouslySetInnerHTML={{ __html: faq.a }} />
+                            <AccordionContent className="text-sm pb-3.5 leading-relaxed text-muted-foreground">
+                              <div dangerouslySetInnerHTML={{ __html: faq.a }} />
+                            </AccordionContent>
                           </AccordionItem>
                         ))}
                       </Accordion>
@@ -515,3 +517,5 @@ export default function CourseDetailPage() {
     </div>
   );
 }
+
+    

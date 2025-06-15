@@ -31,7 +31,7 @@ export function SellerStoreBanner({ image, title, ctaText, ctaLink }: SellerStor
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Button asChild className="bg-[--highlight-gold] text-black px-6 py-2 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
+          <Button asChild className="bg-[--highlight-gold] text-black px-6 py-2 rounded-full font-semibold hover:bg-[#5593f7] hover:text-white transition-colors">
             <Link href={ctaLink}>{ctaText}</Link>
           </Button>
         </motion.div>

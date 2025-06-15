@@ -167,6 +167,15 @@ const nextConfig = {
         hostname: 'santrapub.com',
         port: '',
         pathname: '/**',
+      },{
+        protocol: 'https',
+        hostname: 'ineuron.ai',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.ineuron.ai',
+        pathname: '/**',
       },
     ],
   },
