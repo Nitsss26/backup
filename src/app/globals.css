@@ -208,7 +208,7 @@ body {
 /* Section Divider */
 .section-divider {
   border-top: 1px solid transparent;
-  border-image: linear-gradient(to right, transparent, #7C3AED, transparent) 1;
+  border-image: linear-gradient(to right, transparent, #5593f7, transparent) 1;
 }
 
 /* Background Pattern */

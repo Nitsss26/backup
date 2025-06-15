@@ -240,8 +240,8 @@ export default function CourseDetailPage() {
                     </div>
                     <p className="text-sm text-blue-100">Sold by <Link href="#seller-section" className="font-semibold hover:underline text-white">{course.providerInfo?.name || course.instructor}</Link></p>
                     {course.providerInfo?.verified && (
-                        <Badge variant="success" className="text-xs px-2 py-1 border-none">
-                            <ShieldCheck className="h-4 w-4 mr-1.5" /> Verified Seller
+                        <Badge variant="success" className="text-xs px-2 py-1 border-none text-white">
+                            <ShieldCheck className="h-4 w-4 mr-1.5 text-white" /> Verified Seller
                         </Badge>
                     )}
                     <p className="text-xs text-blue-200">Last updated: {new Date(course.lastUpdated || Date.now()).toLocaleDateString()}</p>
@@ -311,7 +311,7 @@ export default function CourseDetailPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="aspect-video bg-muted rounded-lg overflow-hidden border">
-                             <Image src={`https://placehold.co/800x450/EBF4FF/3B82F6?text=Demo+Video+Player+Mockup`} alt="Course Demo Video" width={800} height={450} className="w-full h-full object-cover" data-ai-hint="course demo video player online tutorial"/>
+                             <Image src={course.demoVideoUrl} alt="Course Demo Video" width={800} height={450} className="w-full h-full object-cover" data-ai-hint="course demo video player online tutorial"/>
                         </div>
                     </CardContent>
                 </Card>

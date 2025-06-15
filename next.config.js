@@ -157,6 +157,16 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'pbs.twimg.com',
         pathname: '/**',
+      }, {
+        protocol: 'https',
+        hostname: 'internship.ineuron.ai',
+        port: '',
+        pathname: '/**',
+      }, {
+        protocol: 'https',
+        hostname: 'santrapub.com',
+        port: '',
+        pathname: '/**',
       },
     ],
   },

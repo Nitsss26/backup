@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react'; // Added useRef
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -47,39 +47,55 @@ export function FilterSidebar() {
 
   const [filters, setFilters] = useState<FiltersState>(() => getDefaultFilters(currentSearchParams));
   const [activeAccordionItems, setActiveAccordionItems] = useState<string[]>(['categories', 'price', 'ratings']);
-  const isInitialMount = useRef(true); // Ref to track initial mount
+  const isInitialMount = useRef(true);
 
-  // Update local filter state when URL searchParams change (e.g., browser back/forward)
+  // Update local filter state when URL searchParams change (e.g., browser back/forward, reset)
   useEffect(() => {
     setFilters(getDefaultFilters(currentSearchParams));
   }, [currentSearchParams]);
 
 
-  const applyFilters = useCallback(() => {
-    const params = new URLSearchParams();
-    
-    const qParam = currentSearchParams.get('q');
-    if (qParam) params.set('q', qParam);
-    const sortParam = currentSearchParams.get('sort');
-    if (sortParam) params.set('sort', sortParam);
+  // Effect to apply filters to URL when `filters` state changes (debounced)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
 
-    filters.categories.forEach(cat => params.append('category', cat));
-    filters.ratings.forEach(r => params.append('rating', String(r)));
-    filters.difficultyLevels.forEach(level => params.append('level', level));
-    filters.instructorTypes.forEach(type => params.append('instructor', type));
-    filters.languages.forEach(lang => params.append('language', lang));
+    const handler = setTimeout(() => {
+      const newParams = new URLSearchParams();
 
-    if (filters.priceRange[0] > 0) params.set('minPrice', String(filters.priceRange[0]));
-    if (filters.priceRange[1] < MAX_PRICE) params.set('maxPrice', String(filters.priceRange[1]));
-    
-    if (filters.certification) params.set('certification', 'true');
+      // Preserve 'q' and 'sort' from the current URL
+      // Reading from window.location.search inside timeout to get the latest values if other navigations occurred
+      const latestUrlParams = new URLSearchParams(window.location.search);
+      const qParam = latestUrlParams.get('q');
+      if (qParam) newParams.set('q', qParam);
+      const sortParam = latestUrlParams.get('sort');
+      if (sortParam) newParams.set('sort', sortParam);
 
-    params.set('page', '1'); // Reset page to 1 when filters change
-    
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [filters, router, pathname, currentSearchParams]); // currentSearchParams needed for q and sort
+      // Add current filter state
+      filters.categories.forEach(cat => newParams.append('category', cat));
+      filters.ratings.forEach(r => newParams.append('rating', String(r)));
+      filters.difficultyLevels.forEach(level => newParams.append('level', level));
+      filters.instructorTypes.forEach(type => newParams.append('instructor', type));
+      filters.languages.forEach(lang => newParams.append('language', lang));
+
+      if (filters.priceRange[0] > 0) newParams.set('minPrice', String(filters.priceRange[0]));
+      if (filters.priceRange[1] < MAX_PRICE) newParams.set('maxPrice', String(filters.priceRange[1]));
+      
+      if (filters.certification) newParams.set('certification', 'true');
+
+      newParams.set('page', '1'); // Filter changes always reset to page 1
+      
+      router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(handler);
+  }, [filters, router, pathname]); // Only depends on filters state and stable router/pathname
+
 
   const handleFilterChange = useCallback((type: keyof FiltersState, value: any) => {
+    isInitialMount.current = false; // Any filter interaction means it's not initial mount
     setFilters(prev => {
       let newValues;
       if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(type)) {
@@ -95,35 +111,20 @@ export function FilterSidebar() {
     });
   }, []);
   
-  // Auto-apply filters when 'filters' state changes, with debounce
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
-    }
-
-    const handler = setTimeout(() => {
-      applyFilters();
-    }, 500); // 500ms debounce
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [filters, applyFilters]);
-
 
   const resetFilters = useCallback(() => {
+    isInitialMount.current = true; // Set to true to allow URL to drive state without immediate re-filter
     const params = new URLSearchParams();
+    // Preserve 'q' and 'sort' when resetting filters
     const qParam = currentSearchParams.get('q');
     if (qParam) params.set('q', qParam);
     const sortParam = currentSearchParams.get('sort');
     if (sortParam) params.set('sort', sortParam);
+    
     params.set('page', '1');
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
     // The useEffect listening to currentSearchParams will reset the local `filters` state.
-    // We also need to reset isInitialMount for the next direct interaction after reset
-    isInitialMount.current = true; 
-    // Set a timeout to flip isInitialMount back to false after the state has likely updated from URL
+    // Allow a moment for state to settle before enabling auto-apply again
     setTimeout(() => { isInitialMount.current = false; }, 100);
   }, [router, pathname, currentSearchParams]);
   
@@ -219,7 +220,7 @@ export function FilterSidebar() {
         
         <AccordionItem value="language">
           <AccordionTrigger className="text-base font-medium">Language</AccordionTrigger>
-          <AccordionContent className="space-y-2 pt-2  max-h-60 overflow-y-auto">
+          <AccordionContent className="space-y-2 pt-2 max-h-60 overflow-y-auto">
             {LANGUAGES.map(lang => ( 
               <div key={lang} className="flex items-center space-x-2">
                 <Checkbox
@@ -270,4 +271,3 @@ export function FilterSidebar() {
     </aside>
   );
 }
-

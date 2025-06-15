@@ -3,7 +3,7 @@ export const heroSectionData = {
     carouselItems: [
       {
         id: '1',
-        imageUrl: 'https://i.postimg.cc/85nJ7Snf/Screenshot-2025-06-14-055323.png',
+        imageUrl: '/unb.png',
         title: 'Master IIT-JEE Advanced',
         description: 'Ace your IIT-JEE with our comprehensive course!',
         ctaText: 'Enroll Now',
@@ -12,7 +12,7 @@ export const heroSectionData = {
       },
       {
         id: '2',
-        imageUrl: 'https://i.postimg.cc/3RZDjqJY/Screenshot-2025-06-14-104939-1.png',
+        imageUrl: '/geek.png',
         title: 'NEET Biology Bootcamp',
         description: 'Unlock your potential with this in-depth course!',
         ctaText: 'Enroll Now',
@@ -21,7 +21,7 @@ export const heroSectionData = {
       },
       {
         id: '3',
-        imageUrl: 'https://i.postimg.cc/VNK8jBQ2/Screenshot-2025-06-14-110118.png',
+        imageUrl: '/pb.png',
         title: 'NEET Biology Bootcamp',
         description: 'Unlock your potential with this in-depth course!',
         ctaText: 'Enroll Now',

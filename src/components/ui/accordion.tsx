@@ -1,7 +1,7 @@
 
 "use client"
 
-import * as React from "react"
+import * => React from "react"
 import * as AccordionPrimitive from "@radix-ui/react-accordion"
 import { ChevronDown } from "lucide-react"
 
@@ -48,16 +48,18 @@ const AccordionContent = React.forwardRef<
   <AccordionPrimitive.Content
     ref={ref}
     className={cn(
-      "text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
-      className // Removed overflow-hidden from here
+      "overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down",
+      // Note: The 'className' prop from the parent (e.g., FilterSidebar) is NOT applied here to AccordionPrimitive.Content directly.
+      // It's applied to the inner div below. This is the standard shadcn pattern.
+      // If 'className' included max-h or overflow, applying it here and to the inner div would be problematic.
+      className 
     )}
     {...props}
   >
+    {/* The className from props (e.g., max-h-60, overflow-y-auto) is applied to this inner div. */}
     <div className={cn("pb-4 pt-0", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ))
-
 AccordionContent.displayName = AccordionPrimitive.Content.displayName
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }
-

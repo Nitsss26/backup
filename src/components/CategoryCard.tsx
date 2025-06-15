@@ -16,7 +16,7 @@ export function CategoryCard({ name, slug, bgColor = 'bg-[--bg-light]' }: Catego
       className="hover-lift"
     >
       <Link href={`/courses?category=${slug}`}>
-        <div className={`w-full ${bgColor} text-[--text-light] py-4 rounded-lg text-center font-semibold hover:bg-[--secondary-purple] transition-colors shadow-md`}>
+        <div className={`w-full ${bgColor} text-[--text-light] py-4 rounded-lg text-center font-semibold hover:bg-[#5593f7] transition-colors shadow-md`}>
           {name}
         </div>
       </Link>

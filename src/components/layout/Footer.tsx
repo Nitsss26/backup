@@ -10,10 +10,19 @@ export function Footer() {
       <div className="container py-12 px-4 md:px-6">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className='ml-5'>
-            <Link href="/" className="flex items-center gap-2 mb-4">
+            {/* <Link href="/" className="flex items-center gap-2 mb-4">
               <GraduationCap className="h-8 w-8 text-primary" />
               <span className="font-bold text-2xl text-primary">{APP_NAME}</span>
-            </Link>
+            </Link> */}
+            <Link href="/" className="flex items-center gap-2">
+  <img
+    src="/logoo.png"
+    alt="Logo"
+    width={160}
+    height={160}
+    className="w-100 h-100 object-contain"
+  />
+</Link>
             <p className="text-muted-foreground text-sm">
               Empowering learners and educators worldwide. Discover your next skill with {APP_NAME}.
             </p>

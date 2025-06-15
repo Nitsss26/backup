@@ -119,7 +119,7 @@ export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) =>
 // Curated Featured Courses for Homepage (Specific Order and Content)
 export const featuredCoursesForHomepage: Course[] = [
   {
-    id: 'featured-iitjee-01',
+    id: '6845b4b7188aa67dd4093785',
     title: 'IIT-JEE Physics: Mechanics & Electrodynamics Masterclass',
     instructor: 'Expert Tutors Academy',
     rating: 4.8,
@@ -146,7 +146,7 @@ export const featuredCoursesForHomepage: Course[] = [
     moneyBackGuaranteeDays: 15,
   },
   {
-    id: 'featured-neet-01',
+    id: '6845b4b7188aa67dd4093790',
     title: 'NEET Biology: Complete Syllabus Coverage Course',
     instructor: 'Kaushik Learning Solutions',
     rating: 4.9,
@@ -172,7 +172,7 @@ export const featuredCoursesForHomepage: Course[] = [
     approvalStatus: 'approved',
   },
   {
-    id: 'featured-gov-01',
+    id: '6845b4b7188aa67dd409379b',
     title: 'UPSC CSE Prelims: GS Paper 1 Strategy Course',
     instructor: 'Vidya Mandir Online',
     rating: 4.7,
@@ -198,7 +198,7 @@ export const featuredCoursesForHomepage: Course[] = [
     moneyBackGuaranteeDays: 7,
   },
   {
-    id: 'featured-cs-01',
+    id: '6845b4b7188aa67dd40937a6',
     title: 'Full Stack Web Development Course: React & Node',
     instructor: 'Innovate Skill Hub',
     rating: 4.9,
@@ -225,7 +225,7 @@ export const featuredCoursesForHomepage: Course[] = [
     freeTrialAvailable: true,
   }, 
       {
-        id: 'cs-showcase-1',
+        id: '6845b4b9188aa67dd4093835',
         title: 'Machine Learning A-Z™: Python & R',
         instructor: 'Innovate Skill Hub',
       //  sellerId: placeholderUsers.find(u => u.email === 'innovate.skillhub@example.com')?.id || 'user8',
@@ -420,13 +420,13 @@ export const topCategoryShowcaseData = [
     categorySlug: "iit-jee",
     courses: [
       {
-        id: 'iitjee-showcase-pw',
-        title: 'JEE Physics Ultimate Course',
+        id: '6845b4b7188aa67dd40937b1',
+        title: 'Arjuna JEE 2026',
         instructor: 'Physics Wallah PVT LTD',
        // sellerId: placeholderUsers.find(u => u.email === 'physics.wallah@example.com')?.id || 'user-pw',
-        rating: 4.9,
+        rating: 4.8,
         reviewsCount: 2500,
-        price: 5500,
+        price: 4500,
         originalPrice: 8500,
         category: "IIT-JEE",
         imageUrl: 'https://static.pw.live/5eb393ee95fab7468a79d189/26212ce5-2d50-4060-bc8a-8d59583744de.jpg',
@@ -449,7 +449,7 @@ export const topCategoryShowcaseData = [
         moneyBackGuaranteeDays: 15,
       },
       {
-        id: 'iitjee-showcase-un',
+        id: '6845b4b7188aa67dd40937bc',
         title: 'JEE Chemistry Complete Prep',
         instructor: 'Unacademy JEE',
       //  sellerId: placeholderUsers.find(u => u.email === 'unacademy.jee@example.com')?.id || 'user-un',
@@ -478,7 +478,7 @@ export const topCategoryShowcaseData = [
         moneyBackGuaranteeDays: 15,
       },
       {
-        id: 'iitjee-showcase-ve',
+        id: '6845b4b7188aa67dd40937c7',
         title: 'JEE Maths Advanced Course',
         instructor: 'Vedantu JEE',
        // sellerId: placeholderUsers.find(u => u.email === 'vedantu.jee@example.com')?.id || 'user-ve',
@@ -507,7 +507,7 @@ export const topCategoryShowcaseData = [
         moneyBackGuaranteeDays: 15,
       },
       {
-        id: 'iitjee-showcase-by',
+        id: '6845b4b8188aa67dd40937d2',
         title: 'JEE Full Syllabus Revision',
         instructor: "Byju's Classes",
        // sellerId: placeholderUsers.find(u => u.email === 'byjus.classes@example.com')?.id || 'user-by',
@@ -542,7 +542,7 @@ export const topCategoryShowcaseData = [
     categorySlug: "neet",
     courses: [
       {
-        id: 'neet-showcase-1',
+        id: '6845b4b8188aa67dd40937dd',
         title: 'NEET Biology In-Depth',
         instructor: 'NEET Prep Experts',
        // sellerId: placeholderUsers.find(u => u.email === 'neetprep.experts@example.com')?.id || 'user-np1',
@@ -551,7 +551,7 @@ export const topCategoryShowcaseData = [
         price: 5300,
         originalPrice: 8200,
         category: "NEET",
-        imageUrl: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80',
+        imageUrl: 'https://santrapub.com/cdn/shop/files/NEETBiologyf_1200x1200.jpg?v=1733131563',
         dataAiHint: "NEET biology DNA",
         shortDescription: 'Deep dive into NEET Biology with a focus on Botany and Zoology for top scores.',
         duration: '140 hours total',

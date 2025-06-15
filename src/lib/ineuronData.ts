@@ -1,15 +1,15 @@
 export const ineuronData = {
     sellerInfo: {
       name: 'iNeuron',
-      logo: 'https://images.unsplash.com/photo-1620287346930-58966e72e680?auto=format&fit=crop&w=100&h=100', // Placeholder logo
+      logo: 'https://yt3.googleusercontent.com/w_SOmqeOYbkseR1IR4Sq4hTcxKRld7XgfbCDP-zuSY0SekoJruge26gzmwBsnkOx2GFERpLN2Y8=s900-c-k-c0x00ffffff-no-rj', // Placeholder logo
       tagline: 'Empowering Future Tech Leaders',
-      bannerImage: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&h=400',
+      bannerImage: 'https://internship.ineuron.ai/_next/image?url=%2Fimages%2Fhomepage%2Fhero-mockup.png&w=3840&q=75',
     },
     categories: [
-      { id: 'cat1', name: 'Web Development', slug: 'web-development', image: 'https://images.unsplash.com/photo-1547658719-88a0a6f2cdac?auto=format&fit=crop&w=400&h=200' },
-      { id: 'cat2', name: 'Data Science', slug: 'data-science', image: 'https://images.unsplash.com/photo-1551288049-b1f3a8a4c8d8?auto=format&fit=crop&w=400&h=200' },
-      { id: 'cat3', name: 'Machine Learning', slug: 'machine-learning', image: 'https://images.unsplash.com/photo-1620712943543-bcc4688e5255?auto=format&fit=crop&w=400&h=200' },
-      { id: 'cat4', name: 'Cloud Computing', slug: 'cloud-computing', image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&h=200' },
+      { id: 'cat1', name: '', slug: 'advance-excel', image: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6602577b894c1954dd143bc7.jpg&w=828&q=75' },
+      { id: 'cat2', name: '', slug: 'data-science', image: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6613a058894c1923451545f2.jpg&w=828&q=75' },
+      { id: 'cat3', name: '', slug: 'aws', image: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F65bc94411d54c4d3ba18635b.jpg&w=828&q=75' },
+      { id: 'cat4', name: '', slug: 'data-analytics', image: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6639e1d0894c1956cb179179.jpg&w=828&q=75' },
     ],
     featuredCourses: [
       {

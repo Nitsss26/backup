@@ -77,18 +77,20 @@ export function Header() {
   const cartItemCount = cartItems.length;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-secondary/30 backdrop-blur supports-[backdrop-filter]:bg-secondary/30">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b  bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/10">
+   
+
+     <div className="container flex h-16 items-center justify-between">
         {/* <Link href="/" className="flex items-center gap-2">
           <GraduationCap className="h-7 w-7 text-primary" />
           <span className="font-bold text-xl text-primary">{APP_NAME}</span>
         </Link> */}
 <Link href="/" className="flex items-center gap-2">
   <img
-    src="/logo-dark.png"
+    src="/logoo.png"
     alt="Logo"
-    width={100}
-    height={100}
+    width={160}
+    height={160}
     className="w-100 h-100 object-contain"
   />
 </Link>
@@ -125,7 +127,7 @@ export function Header() {
   <Input 
     type="search" 
     placeholder="Search courses..." 
-    className="pl-5  border border-blue-400" 
+    className="pl-5  border border-blue-400 pr-5" 
   />
   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 </div>
@@ -134,10 +136,10 @@ export function Header() {
             <Input type="search" placeholder="Search courses..." className="pl-5 border border-blue-400 " />
             <Search className="absolute color-blue top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground justify-end" />
           </div> */}
-          <ThemeToggleButton />
+          {/* <ThemeToggleButton /> */}
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link href="/cart">
-              <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="!h-6 !w-6 stroke-white" />
               {cartItemCount > 0 && (
                 <UiBadge 
                   variant="destructive" 
@@ -209,7 +211,7 @@ export function Header() {
                         <LogIn className="h-5 w-5" />
                         Login
                       </Link>
-                      <Link href="/auth/register" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
+                      <Link href="/auth/register" className={`${getMobileNavLinkClasses()} text-white !text-white`} onClick={() => setIsMobileMenuOpen(false)}>
                         <UserPlus className="h-5 w-5" />
                         Sign Up
                       </Link>
