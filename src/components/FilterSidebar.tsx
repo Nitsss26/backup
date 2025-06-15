@@ -47,85 +47,100 @@ export function FilterSidebar() {
 
   const [filters, setFilters] = useState<FiltersState>(() => getDefaultFilters(currentSearchParams));
   const [activeAccordionItems, setActiveAccordionItems] = useState<string[]>(['categories', 'price', 'ratings']);
-  const isInitialMount = useRef(true);
-
-  // Update local filter state when URL searchParams change (e.g., browser back/forward, reset)
+  
+  // Effect to keep the local UI state (filters) in sync with the URL.
+  // This handles browser back/forward, direct URL changes, and updates from pagination.
   useEffect(() => {
     setFilters(getDefaultFilters(currentSearchParams));
   }, [currentSearchParams]);
 
+  const applyFiltersToUrl = useCallback((newFiltersState: FiltersState) => {
+    const newParams = new URLSearchParams();
 
-  // Effect to apply filters to URL when `filters` state changes (debounced)
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
+    // Preserve 'q' (search query) and 'sort' from the current URL
+    const qParam = currentSearchParams.get('q');
+    if (qParam) newParams.set('q', qParam);
+    const sortParam = currentSearchParams.get('sort');
+    if (sortParam) newParams.set('sort', sortParam);
+
+    // Add current filter state to newParams
+    newFiltersState.categories.forEach(cat => newParams.append('category', cat));
+    newFiltersState.ratings.forEach(r => newParams.append('rating', String(r)));
+    newFiltersState.difficultyLevels.forEach(level => newParams.append('level', level));
+    newFiltersState.instructorTypes.forEach(type => newParams.append('instructor', type));
+    newFiltersState.languages.forEach(lang => newParams.append('language', lang));
+
+    if (newFiltersState.priceRange[0] > 0) newParams.set('minPrice', String(newFiltersState.priceRange[0]));
+    if (newFiltersState.priceRange[1] < MAX_PRICE) newParams.set('maxPrice', String(newFiltersState.priceRange[1]));
+    
+    if (newFiltersState.certification) newParams.set('certification', 'true');
+
+    newParams.set('page', '1'); // Filter changes always reset to page 1
+    
+    const newUrl = `${pathname}?${newParams.toString()}`;
+    // Only push if the URL actually changes to avoid unnecessary re-renders/fetches
+    // This check might not be strictly necessary if currentSearchParams is stable during the debounce period
+    // but can prevent redundant pushes.
+    if (newUrl !== `${pathname}?${currentSearchParams.toString()}`) {
+       router.push(newUrl, { scroll: false });
     }
+  }, [router, pathname, currentSearchParams]);
 
-    const handler = setTimeout(() => {
-      const newParams = new URLSearchParams();
-
-      // Preserve 'q' and 'sort' from the current URL
-      // Reading from window.location.search inside timeout to get the latest values if other navigations occurred
-      const latestUrlParams = new URLSearchParams(window.location.search);
-      const qParam = latestUrlParams.get('q');
-      if (qParam) newParams.set('q', qParam);
-      const sortParam = latestUrlParams.get('sort');
-      if (sortParam) newParams.set('sort', sortParam);
-
-      // Add current filter state
-      filters.categories.forEach(cat => newParams.append('category', cat));
-      filters.ratings.forEach(r => newParams.append('rating', String(r)));
-      filters.difficultyLevels.forEach(level => newParams.append('level', level));
-      filters.instructorTypes.forEach(type => newParams.append('instructor', type));
-      filters.languages.forEach(lang => newParams.append('language', lang));
-
-      if (filters.priceRange[0] > 0) newParams.set('minPrice', String(filters.priceRange[0]));
-      if (filters.priceRange[1] < MAX_PRICE) newParams.set('maxPrice', String(filters.priceRange[1]));
-      
-      if (filters.certification) newParams.set('certification', 'true');
-
-      newParams.set('page', '1'); // Filter changes always reset to page 1
-      
-      router.push(`${pathname}?${newParams.toString()}`, { scroll: false });
-    }, 500); // 500ms debounce
-
-    return () => clearTimeout(handler);
-  }, [filters, router, pathname]); // Only depends on filters state and stable router/pathname
-
+  // Debounce function
+  const debounce = <F extends (...args: any[]) => any>(func: F, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: Parameters<F>): Promise<ReturnType<F>> => {
+      return new Promise((resolve) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => resolve(func(...args)), delay);
+      });
+    };
+  };
+  
+  // Memoized debounced version of applyFiltersToUrl
+  const debouncedApplyFiltersToUrl = React.useMemo(
+      () => debounce(applyFiltersToUrl, 500),
+      [applyFiltersToUrl] // applyFiltersToUrl itself depends on currentSearchParams, router, pathname
+  );
 
   const handleFilterChange = useCallback((type: keyof FiltersState, value: any) => {
-    isInitialMount.current = false; // Any filter interaction means it's not initial mount
-    setFilters(prev => {
+    // Calculate the hypothetical new filter state based on the current 'filters' state
+    // This ensures that even if multiple changes happen quickly, they build upon each other correctly
+    // before the debounced URL update.
+    const newTargetFiltersState = ((currentFiltersState: FiltersState): FiltersState => {
       let newValues;
-      if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(type)) {
-        const currentValues = prev[type as Exclude<keyof FiltersState, 'priceRange' | 'certification'>];
-        if (currentValues.includes(value as never)) { 
-          newValues = currentValues.filter(item => item !== value);
+      const filterType = type as Exclude<keyof FiltersState, 'priceRange' | 'certification'>;
+      if (['categories', 'ratings', 'difficultyLevels', 'instructorTypes', 'languages'].includes(filterType)) {
+        const currentArrayValues = currentFiltersState[filterType] as string[] | number[];
+        const valueExists = currentArrayValues.includes(value as never);
+        
+        if (valueExists) {
+          newValues = currentArrayValues.filter(item => item !== value);
         } else {
-          newValues = [...currentValues, value as never]; 
+          newValues = [...currentArrayValues, value as never];
         }
-        return { ...prev, [type]: newValues };
+        return { ...currentFiltersState, [type]: newValues };
       }
-      return { ...prev, [type]: value };
-    });
-  }, []);
-  
+      // For priceRange and certification
+      return { ...currentFiltersState, [type]: value };
+    })(filters); 
+
+    // Update the local UI state immediately for responsiveness
+    setFilters(newTargetFiltersState);
+    // Call the debounced function to update the URL
+    debouncedApplyFiltersToUrl(newTargetFiltersState);
+
+  }, [filters, debouncedApplyFiltersToUrl, setFilters]); // setFilters is stable
 
   const resetFilters = useCallback(() => {
-    isInitialMount.current = true; // Set to true to allow URL to drive state without immediate re-filter
-    const params = new URLSearchParams();
-    // Preserve 'q' and 'sort' when resetting filters
-    const qParam = currentSearchParams.get('q');
-    if (qParam) params.set('q', qParam);
-    const sortParam = currentSearchParams.get('sort');
-    if (sortParam) params.set('sort', sortParam);
-    
-    params.set('page', '1');
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    // The useEffect listening to currentSearchParams will reset the local `filters` state.
-    // Allow a moment for state to settle before enabling auto-apply again
-    setTimeout(() => { isInitialMount.current = false; }, 100);
+      const params = new URLSearchParams();
+      const qParam = currentSearchParams.get('q');
+      if (qParam) params.set('q', qParam);
+      const sortParam = currentSearchParams.get('sort');
+      if (sortParam) params.set('sort', sortParam);
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      // The useEffect listening to currentSearchParams will update the local 'filters' state.
   }, [router, pathname, currentSearchParams]);
   
   const ratingOptions = [5, 4, 3, 2, 1];
@@ -271,3 +286,4 @@ export function FilterSidebar() {
     </aside>
   );
 }
+
