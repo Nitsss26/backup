@@ -43,7 +43,9 @@ export default function HelpCenterPage() {
               {faqs.map((faq, index) => (
                 <AccordionItem value={`item-${index}`} key={index}>
                   <AccordionTrigger className="text-lg text-left hover:no-underline">{faq.q}</AccordionTrigger>
-                  <AccordionContent className="text-base" dangerouslySetInnerHTML={{ __html: faq.a }} />
+                  <AccordionContent className="text-base">
+                    <div dangerouslySetInnerHTML={{ __html: faq.a }} />
+                  </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
