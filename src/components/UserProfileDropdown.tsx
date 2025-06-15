@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -13,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LayoutDashboard, LogIn, LogOut, UserCircle, UserPlus } from 'lucide-react';
-import { useAuth } from '@/components/AppProviders'; // Assuming this hook provides user and logout
+import { useAuth } from '@/components/AppProviders'; 
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function UserProfileDropdown() {
@@ -25,7 +26,6 @@ export function UserProfileDropdown() {
 
   const handleLogout = async () => {
     await logout();
-    // Potentially redirect or show a toast message
   };
 
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
@@ -57,15 +57,19 @@ export function UserProfileDropdown() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href={dashboardLink} className="flex items-center">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                <span>Dashboard</span>
+              <Link href={dashboardLink} className="flex items-center w-full">
+                <span className="flex items-center w-full">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/dashboard/profile" className="flex items-center">
-                <UserCircle className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+              <Link href="/dashboard/profile" className="flex items-center w-full">
+                <span className="flex items-center w-full">
+                  <UserCircle className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -77,15 +81,19 @@ export function UserProfileDropdown() {
         ) : (
           <>
             <DropdownMenuItem asChild>
-              <Link href="/auth/login" className="flex items-center">
-                <LogIn className="mr-2 h-4 w-4" />
-                <span>Login</span>
+              <Link href="/auth/login" className="flex items-center w-full">
+                <span className="flex items-center w-full">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  <span>Login</span>
+                </span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/auth/register" className="flex items-center">
-                <UserPlus className="mr-2 h-4 w-4" />
-                <span>Sign Up</span>
+              <Link href="/auth/register" className="flex items-center w-full">
+                <span className="flex items-center w-full">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  <span>Sign Up</span>
+                </span>
               </Link>
             </DropdownMenuItem>
           </>
