@@ -7,8 +7,8 @@ import CourseModel, {type ICourse} from '@/models/Course'; // For populating cou
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await request.json();
     const { userId, items, totalAmount, paymentMethod, paymentDetails } = body;
 
@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
 
     const savedOrder = await newOrder.save();
 
-    // Add order to user's orders array (optional, depends on if you want two-way linking immediately)
     await UserModel.findByIdAndUpdate(userId, { $addToSet: { orders: savedOrder._id } });
 
     return NextResponse.json(savedOrder, { status: 201 });
@@ -56,15 +55,15 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Failed to create order:', error);
     if (error.name === 'ValidationError') {
-      return NextResponse.json({ message: 'Validation failed', errors: error.errors }, { status: 400 });
+      return NextResponse.json({ message: 'Validation failed: ' + error.message, errors: error.errors }, { status: 400 });
     }
-    return NextResponse.json({ message: 'Failed to create order', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to create order: ' + error.message }, { status: 500 });
   }
 }
 
 export async function GET(request: NextRequest) {
-  await dbConnect();
   try {
+    await dbConnect();
     const searchParams = request.nextUrl.searchParams;
     const userId = searchParams.get('userId');
 
@@ -75,33 +74,31 @@ export async function GET(request: NextRequest) {
     const orders = await OrderModel.find({ user: new mongoose.Types.ObjectId(userId) })
       .populate({
         path: 'items.course',
-        model: CourseModel, // Explicitly provide model for population
-        select: 'title imageUrl category id _id' // Select fields you need for display
+        model: CourseModel, 
+        select: 'title imageUrl category id _id' 
       })
       .sort({ orderDate: -1 })
       .lean();
       
     const transformedOrders = orders.map(order => ({
         ...order,
-        id: order._id.toString(), // Ensure frontend gets string ID
+        id: order._id.toString(), 
         items: order.items.map(item => {
-            const course = item.course as unknown as ICourse; // Cast populated course
+            const course = item.course as unknown as ICourse; 
             return {
                 ...item,
-                // Ensure course is populated and has an id before accessing properties
                 id: course?._id?.toString() || (course as any)?.id?.toString() || null, 
-                title: course?.title || item.titleAtPurchase, // Fallback to titleAtPurchase
-                imageUrl: course?.imageUrl || 'https://placehold.co/100x56.png', // Fallback image
+                title: course?.title || item.titleAtPurchase, 
+                imageUrl: course?.imageUrl || 'https://placehold.co/100x56.png', 
                 category: course?.category || 'N/A',
             };
         })
     }));
 
-
     return NextResponse.json(transformedOrders);
 
   } catch (error: any) {
     console.error('Failed to fetch orders:', error);
-    return NextResponse.json({ message: 'Failed to fetch orders', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to fetch orders: ' + error.message }, { status: 500 });
   }
 }

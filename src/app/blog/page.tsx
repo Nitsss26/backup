@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { APP_NAME } from '@/lib/constants';
@@ -6,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Rss, Edit } from 'lucide-react';
 import Image from 'next/image';
+import { Input } from '@/components/ui/input';
 
 export default function BlogPage() {
   const blogPosts = [

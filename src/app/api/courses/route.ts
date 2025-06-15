@@ -95,33 +95,24 @@ export async function GET(request: NextRequest) {
     let totalCourses = 0;
     let coursesFromQuery: any[] = [];
 
-    try {
-      totalCourses = await CourseModel.countDocuments(queryOptions);
-      
-      let query = CourseModel.find(queryOptions);
-      if (sortParam === 'relevance' && queryOptions.$text) {
-        query = query.select({ score: { $meta: "textScore" } } as any);
-      }
-      
-      coursesFromQuery = await query
-        .sort(sortOption)
-        .skip(skip)
-        .limit(limit)
-        .populate({
-            path: 'seller',
-            model: UserModel, // Explicitly provide the model
-            select: 'name avatarUrl verificationStatus bio'
-        })
-        .lean();
-        
-    } catch (modelError: any) {
-      console.error(`🔴 [/api/courses] Error during CourseModel operations:`, modelError.message, modelError.stack);
-      return NextResponse.json({
-        message: 'Failed to fetch courses due to a database query error.',
-        error: modelError.message,
-      }, { status: 500 });
+    totalCourses = await CourseModel.countDocuments(queryOptions);
+    
+    let query = CourseModel.find(queryOptions);
+    if (sortParam === 'relevance' && queryOptions.$text) {
+      query = query.select({ score: { $meta: "textScore" } } as any);
     }
-
+    
+    coursesFromQuery = await query
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate({
+          path: 'seller',
+          model: UserModel, 
+          select: 'name avatarUrl verificationStatus bio'
+      })
+      .lean();
+        
     const coursesToReturn = coursesFromQuery.map(course => {
       try {
         if (!course || typeof course !== 'object') {
@@ -139,14 +130,13 @@ export async function GET(request: NextRequest) {
             avatarUrl: populatedSeller.avatarUrl,
             verificationStatus: populatedSeller.verificationStatus || 'unverified',
             bio: populatedSeller.bio,
-            // type: populatedSeller.role === 'provider' ? ( (populatedSeller as any).providerType || 'Individual') : 'Individual' // Example of deriving type if needed
           };
         } else if (course.providerInfo && typeof course.providerInfo === 'object') {
           sellerDisplayInfo = {
             name: course.providerInfo.name || 'Seller Name (from ProviderInfo)',
-            avatarUrl: course.providerInfo.logoUrl, // Using logoUrl as avatarUrl
+            avatarUrl: course.providerInfo.logoUrl, 
             verified: course.providerInfo.verified || false,
-            id: course.seller?.toString() || undefined, // Use original seller ObjectId if available
+            id: course.seller?.toString() || undefined, 
             type: course.providerInfo.type || 'Individual',
             description: course.providerInfo.description
           };
@@ -197,17 +187,16 @@ export async function GET(request: NextRequest) {
     console.error('🔴 Failed to fetch courses (API Route /api/courses GET V6):', error);
     console.error('🔴 Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
     return NextResponse.json({
-        message: 'Failed to fetch courses from API (V6). An unexpected server error occurred.',
+        message: 'Failed to fetch courses from API (V6). An unexpected server error occurred: ' + error.message,
         errorName: error.name,
-        errorMessage: error.message,
-        errorStack: error.stack, // Include stack for more details
+        errorStack: error.stack,
     }, { status: 500 });
   }
 }
 
 export async function POST(request: NextRequest) {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await request.json();
     if (body.seller && typeof body.seller === 'string' && !mongoose.Types.ObjectId.isValid(body.seller)) {
         console.warn(`[API /api/courses POST] Invalid seller ID string received: ${body.seller}. Unsetting seller field.`);
@@ -231,7 +220,6 @@ export async function POST(request: NextRequest) {
       }
       return NextResponse.json({ message: 'Mongoose validation failed', errors }, { status: 400 });
     }
-    return NextResponse.json({ message: 'Failed to create course', error: error.message, errorStack: error.stack }, { status: 400 });
+    return NextResponse.json({ message: 'Failed to create course: ' + error.message, errorStack: error.stack }, { status: 500 });
   }
 }
-    

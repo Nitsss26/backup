@@ -6,8 +6,8 @@ import type { ICourseViewEvent } from '@/models/CourseViewEvent';
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await request.json();
     const { courseId, userId, source, sessionId } = body;
 
@@ -35,6 +35,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Course view event tracked successfully', eventId: newEvent._id }, { status: 201 });
   } catch (error: any) {
     console.error('Failed to track course view event:', error);
-    return NextResponse.json({ message: 'Failed to track course view event', error: error.message }, { status: 500 });
+    // Return a 202 to indicate the request was accepted but processing might have an issue,
+    // or a 500 if it's critical. For tracking, often non-critical, so 202 might be okay.
+    // For now, let's stick to 500 for consistency if DB fails.
+    return NextResponse.json({ message: 'Failed to track course view event: ' + error.message }, { status: 500 });
   }
 }

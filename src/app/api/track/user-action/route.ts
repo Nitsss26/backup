@@ -8,8 +8,8 @@ import mongoose from 'mongoose';
 const VALID_ACTION_TYPES: UserActionType[] = ['signup', 'login', 'logout', 'profile_update', 'password_reset_request', 'password_reset_complete', 'add_to_cart', 'remove_from_cart', 'view_cart', 'start_checkout', 'order_completed', 'order_failed'];
 
 export async function POST(request: NextRequest) {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await request.json();
     const { userId, actionType, details, sessionId, ipAddress, userAgent } = body;
 
@@ -35,6 +35,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'User action event tracked successfully', eventId: newEvent._id }, { status: 201 });
   } catch (error: any) {
     console.error('Failed to track user action event:', error);
-    return NextResponse.json({ message: 'Failed to track user action event', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to track user action event: ' + error.message }, { status: 500 });
   }
 }

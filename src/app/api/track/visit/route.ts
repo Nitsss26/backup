@@ -6,8 +6,8 @@ import type { IVisitEvent } from '@/models/VisitEvent'; // Import the interface
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
-  await dbConnect();
   try {
+    await dbConnect();
     const body = await request.json();
     const { path, userId, sessionId, ipAddress, userAgent } = body;
 
@@ -27,8 +27,6 @@ export async function POST(request: NextRequest) {
         visitEventData.userId = new mongoose.Types.ObjectId(userId);
       } else {
         console.warn(`[API /api/track/visit] Invalid userId format: ${userId}. Tracking event without user ID.`);
-        // Depending on requirements, you might choose to return a 400 error here instead
-        // return NextResponse.json({ message: 'Invalid User ID format' }, { status: 400 });
       }
     }
     
@@ -38,6 +36,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'Visit event tracked successfully', eventId: newEvent._id }, { status: 201 });
   } catch (error: any) {
     console.error('Failed to track visit event:', error);
-    return NextResponse.json({ message: 'Failed to track visit event', error: error.message }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to track visit event: ' + error.message }, { status: 500 });
   }
 }

@@ -10,54 +10,49 @@ interface RouteParams {
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  await dbConnect();
   const { id } = params;
-
   console.log(`🔵 [/api/courses/[id]] Attempting to fetch course. Received ID: '${id}', type: ${typeof id}`);
 
-  if (!id || typeof id !== 'string') {
-    console.error('🔴 [/api/courses/[id]] Course ID is missing, null, undefined, or not a string. Value:', id);
-    return NextResponse.json({ message: 'Course ID is required and must be a string.' }, { status: 400 });
-  }
-
-  if (id.length < 12 || !/^[0-9a-fA-F]{24}$/.test(id) || !mongoose.Types.ObjectId.isValid(id) ) {
-    console.error(`🔴 [/api/courses/[id]] Invalid course ID format: '${id}'. It is not a valid MongoDB ObjectId.`);
-    return NextResponse.json({ message: `Invalid course ID format provided: ${id}` }, { status: 400 });
-  }
-
   try {
+    await dbConnect();
+
+    if (!id || typeof id !== 'string') {
+      console.error('🔴 [/api/courses/[id]] Course ID is missing, null, undefined, or not a string. Value:', id);
+      return NextResponse.json({ message: 'Course ID is required and must be a string.' }, { status: 400 });
+    }
+
+    if (id.length < 12 || !/^[0-9a-fA-F]{24}$/.test(id) || !mongoose.Types.ObjectId.isValid(id) ) {
+      console.error(`🔴 [/api/courses/[id]] Invalid course ID format: '${id}'. It is not a valid MongoDB ObjectId.`);
+      return NextResponse.json({ message: `Invalid course ID format provided: ${id}` }, { status: 400 });
+    }
+    
     console.log(`🔄 [/api/courses/[id]] Attempting CourseModel.findById('${id}').lean()`);
-    const courseFromDb = await CourseModel.findById(id).populate('seller', 'name avatarUrl verificationStatus bio').lean(); // Added populate for seller
+    const courseFromDb = await CourseModel.findById(id).populate('seller', 'name avatarUrl verificationStatus bio').lean();
 
     if (!courseFromDb) {
       console.warn(`🟡 [/api/courses/[id]] Course not found for ID: ${id}`);
       return NextResponse.json({ message: 'Course not found' }, { status: 404 });
     }
     
-    // Map the database model to the frontend Course type
     const courseForFrontend: Course = {
-      ...(courseFromDb as any), // Spread raw DB data
-      id: courseFromDb._id.toString(), // Ensure 'id' is the string version of '_id'
-      _id: courseFromDb._id.toString(), // Also include _id if type expects it or for consistency
-      sellerId: courseFromDb.seller?._id?.toString(), // Handle populated seller
-      // providerInfo might need mapping if seller object shape differs from providerInfo
+      ...(courseFromDb as any), 
+      id: courseFromDb._id.toString(), 
+      _id: courseFromDb._id.toString(), 
+      sellerId: courseFromDb.seller?._id?.toString(), 
       providerInfo: courseFromDb.providerInfo || (courseFromDb.seller ? { 
           name: (courseFromDb.seller as any).name || 'Unknown Seller',
           verified: (courseFromDb.seller as any).verificationStatus === 'verified',
           logoUrl: (courseFromDb.seller as any).avatarUrl,
           description: (courseFromDb.seller as any).bio,
-          // type: (courseFromDb.seller as any).role === 'provider' ? ((courseFromDb.seller as any).providerType || 'Individual') : undefined
       } : { name: 'Unknown Seller', verified: false }),
       curriculum: Array.isArray(courseFromDb.curriculum) ? courseFromDb.curriculum.map((mod: any) => ({
         ...mod,
-        id: mod._id?.toString() || mod.id, // Ensure module ID is string
+        id: mod._id?.toString() || mod.id, 
         lessons: Array.isArray(mod.lessons) ? mod.lessons.map((lesson: any) => ({
             ...lesson,
-            id: lesson._id?.toString() || lesson.id // Ensure lesson ID is string
+            id: lesson._id?.toString() || lesson.id 
         })) : []
       })) : [],
-      // Ensure all other fields expected by frontend Course type are present
-      // If some fields in ICourse don't exactly match Course, map them here
       instructor: (courseFromDb.seller as any)?.name || courseFromDb.instructor || courseFromDb.providerInfo?.name || 'Instructor N/A',
       shortDescription: courseFromDb.shortDescription || "No short description available.",
       studentsEnrolledCount: courseFromDb.studentsEnrolledCount || 0,
@@ -88,14 +83,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  await dbConnect();
   const { id } = params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
-  }
-
   try {
+    await dbConnect();
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
+    }
+
     const body = await request.json();
     const updatedCourse = await CourseModel.findByIdAndUpdate(id, body, { new: true, runValidators: true }).lean();
     if (!updatedCourse) {
@@ -130,19 +125,19 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(courseForFrontend);
   } catch (error: any) {
     console.error(`Failed to update course ${id}:`, error);
-    return NextResponse.json({ message: 'Failed to update course', error: error.message, errors: error.errors }, { status: 400 });
+    return NextResponse.json({ message: 'Failed to update course: ' + error.message, errors: error.errors }, { status: error.name === 'ValidationError' ? 400 : 500 });
   }
 }
 
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  await dbConnect();
   const { id } = params;
-
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
-  }
-
   try {
+    await dbConnect();
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json({ message: 'Invalid course ID format' }, { status: 400 });
+    }
+
     const deletedCourse = await CourseModel.findByIdAndDelete(id).lean();
     if (!deletedCourse) {
       return NextResponse.json({ message: 'Course not found for deletion' }, { status: 404 });
@@ -150,6 +145,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ message: 'Course deleted successfully' });
   } catch (error) {
     console.error(`Failed to delete course ${id}:`, error);
-    return NextResponse.json({ message: 'Failed to delete course', error: (error as Error).message }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to delete course: ' + (error as Error).message }, { status: 500 });
   }
 }
