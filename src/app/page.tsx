@@ -33,95 +33,114 @@ export default function HomePage() {
   }, [carouselItems.length]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-const itemsPerView = 6; // This logic remains for the desktop-first carousel behavior
-const platforms = [
-  {
-    name: 'Udemy',
-    ctaLink: '/udemy',
-    logo: 'https://logowik.com/content/uploads/images/udemy-new-20212512.jpg',
-    bgColor: 'bg-[--primary-blue]'
-  },
-  {
-    name: 'Unacademy',
-    ctaLink: '/unacademy',
-    logo: 'https://i.pinimg.com/474x/68/a0/42/68a042e75a0fe666c2ef0382ddb3f738.jpg',
-    bgColor: 'bg-[#5593f7]'
-  },
-  {
-    name: 'Physics Wallah',
-    ctaLink: '/physics-wallah',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Physics_wallah_logo.jpg/800px-Physics_wallah_logo.jpg',
-    bgColor: 'bg-[--accent-teal]'
-  },
-  {
-    name: 'iNeuron',
-    ctaLink: '/ineuron',
-    logo: 'https://yt3.googleusercontent.com/w_SOmqeOYbkseR1IR4Sq4hTcxKRld7XgfbCDP-zuSY0SekoJruge26gzmwBsnkOx2GFERpLN2Y8=s900-c-k-c0x00ffffff-no-rj',
-    bgColor: 'bg-[--highlight-gold]'
-  },
-  {
-    name: 'Newton School',
-    ctaLink: '/newton-school',
-    logo: 'https://static.wixstatic.com/media/5f869d_42e6e32e5ff64c058963157601b6970d~mv2.jpg/v1/fill/w_300,h_300,al_c,q_80/Newton%20School%20Refer%20and%20Earn.jpg',
-    bgColor: 'bg-[--accent-teal]'
-  },
-  {
-    name: 'Boston Institute',
-    ctaLink: '/boston-institute',
-    logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0zOURjSw8YRG53pGHP0mWOZqJoB0-QoN3sw&s',
-    bgColor: 'bg-[#5593f7]'
-  },
-  {
-    name: 'Skillshare',
-    ctaLink: '/skillshare',
-    logo: 'https://logowik.com/content/uploads/images/skill-share5249.jpg',
-    bgColor: 'bg-[--primary-blue]'
-  },
-];
+  const platforms = [
+    {
+      name: 'Udemy',
+      ctaLink: '/udemy',
+      logo: 'https://logowik.com/content/uploads/images/udemy-new-20212512.jpg',
+      bgColor: 'bg-[--primary-blue]'
+    },
+    {
+      name: 'Unacademy',
+      ctaLink: '/unacademy',
+      logo: 'https://i.pinimg.com/474x/68/a0/42/68a042e75a0fe666c2ef0382ddb3f738.jpg',
+      bgColor: 'bg-[#5593f7]'
+    },
+    {
+      name: 'Physics Wallah',
+      ctaLink: '/physics-wallah',
+      logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Physics_wallah_logo.jpg/800px-Physics_wallah_logo.jpg',
+      bgColor: 'bg-[--accent-teal]'
+    },
+    {
+      name: 'iNeuron',
+      ctaLink: '/ineuron',
+      logo: 'https://yt3.googleusercontent.com/w_SOmqeOYbkseR1IR4Sq4hTcxKRld7XgfbCDP-zuSY0SekoJruge26gzmwBsnkOx2GFERpLN2Y8=s900-c-k-c0x00ffffff-no-rj',
+      bgColor: 'bg-[--highlight-gold]'
+    },
+    {
+      name: 'Newton School',
+      ctaLink: '/newton-school',
+      logo: 'https://static.wixstatic.com/media/5f869d_42e6e32e5ff64c058963157601b6970d~mv2.jpg/v1/fill/w_300,h_300,al_c,q_80/Newton%20School%20Refer%20and%20Earn.jpg',
+      bgColor: 'bg-[--accent-teal]'
+    },
+    {
+      name: 'Boston Institute',
+      ctaLink: '/boston-institute',
+      logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0zOURjSw8YRG53pGHP0mWOZqJoB0-QoN3sw&s',
+      bgColor: 'bg-[#5593f7]'
+    },
+    {
+      name: 'Skillshare',
+      ctaLink: '/skillshare',
+      logo: 'https://logowik.com/content/uploads/images/skill-share5249.jpg',
+      bgColor: 'bg-[--primary-blue]'
+    },
+  ];
 
-  const maxIndex = Math.max(0, platforms.length - itemsPerView);
+  // Adjust itemsPerView for different screen sizes for the platform carousel
+  const [platformItemsPerView, setPlatformItemsPerView] = useState(6);
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth < 640) setPlatformItemsPerView(2); // xs
+      else if (window.innerWidth < 768) setPlatformItemsPerView(3); // sm
+      else if (window.innerWidth < 1024) setPlatformItemsPerView(4); // md
+      else if (window.innerWidth < 1280) setPlatformItemsPerView(5); // lg
+      else setPlatformItemsPerView(6); // xl and up
+    };
+    updateItemsPerView();
+    window.addEventListener('resize', updateItemsPerView);
+    return () => window.removeEventListener('resize', updateItemsPerView);
+  }, []);
 
-const goToPrevious = () => {
-  setCurrentIndex(prev => Math.max(0, prev - 1));
-};
 
-const goToNext = () => {
-  setCurrentIndex(prev => Math.min(maxIndex, prev + 1));
-};
+  const maxIndex = Math.max(0, platforms.length - platformItemsPerView);
+
+  const goToPrevious = () => {
+    setCurrentIndex(prev => Math.max(0, prev - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentIndex(prev => Math.min(maxIndex, prev - 1));
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10">
+        <section className="py-6 md:py-8 px-4 sm:px-6 bg-primary/10">
           <div className="container mx-auto">
-            {/* Top Row: Carousel + Right Stack */}
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="w-full md:w-3/4">
+            <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+              <div className="w-full lg:w-3/4">
                 <Carousel items={carouselItems} />
               </div>
-              <div className="w-full md:w-1/4 flex flex-col gap-6">
-                <BannerCard
-                  imageUrl={rightBanner.imageUrl}
-                  title={rightBanner.title}
-                  description={rightBanner.description}
-                  ctaText={rightBanner.ctaText}
-                  ctaLink={rightBanner.ctaLink}
-                  bgColor={rightBanner.bgColor}
-                  dataAiHint={rightBanner.dataAiHint}
-                />
-                <PromoCard
-                  imageUrl={promoCard.imageUrl}
-                  title={promoCard.title}
-                  ctaText={promoCard.ctaText}
-                  ctaLink={promoCard.ctaLink}
-                  dataAiHint={promoCard.dataAiHint}
-                />
+              <div className="w-full lg:w-1/4 flex flex-col gap-4 md:gap-6">
+                <div className="flex-1">
+                    <BannerCard
+                    imageUrl={rightBanner.imageUrl}
+                    title={rightBanner.title}
+                    description={rightBanner.description}
+                    ctaText={rightBanner.ctaText}
+                    ctaLink={rightBanner.ctaLink}
+                    bgColor={rightBanner.bgColor}
+                    dataAiHint={rightBanner.dataAiHint}
+                    className="h-full"
+                    />
+                </div>
+                <div className="flex-1">
+                    <PromoCard
+                    imageUrl={promoCard.imageUrl}
+                    title={promoCard.title}
+                    ctaText={promoCard.ctaText}
+                    ctaLink={promoCard.ctaLink}
+                    dataAiHint={promoCard.dataAiHint}
+                    className="h-full"
+                    />
+                </div>
               </div>
             </div>
-            {/* Bottom Row: 4 Banner Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4 md:mt-6">
               {bottomBanners.map((banner, index) => (
                 <BannerCard
                   key={index}
@@ -131,6 +150,7 @@ const goToNext = () => {
                   ctaLink={banner.ctaLink}
                   bgColor={banner.bgColor}
                   dataAiHint={banner.dataAiHint}
+                  className="h-full" // Make banners fill height of grid cell
                 />
               ))}
             </div>
@@ -141,13 +161,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Recommended For You
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {featuredCoursesForHomepage.slice(0, 5).map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
@@ -159,7 +179,7 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
@@ -170,37 +190,38 @@ const goToNext = () => {
               <button
                 onClick={goToPrevious}
                 disabled={currentIndex === 0}
-                className={`absolute left-0 md:-left-4 top-1/2 -translate-y-1/2 z-10 p-2 md:p-3 rounded-full bg-[--bg-dark] border-2 border-[--border-color] transition-all duration-300 ${
+                className={`absolute left-0 md:-left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 sm:p-2 md:p-3 rounded-full bg-[--bg-dark]/70 border-2 border-[--border-color] transition-all duration-300 ${
                   currentIndex === 0
-                    ? 'opacity-50 cursor-not-allowed'
+                    ? 'opacity-30 cursor-not-allowed'
                     : 'hover:bg-[--bg-medium] hover:border-[#5593f7] hover:shadow-lg hover:shadow-[#5593f7]/20'
                 }`}
               >
-                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-[--text-light]" />
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[--text-light]" />
               </button>
 
-              <div className="mx-8 md:mx-10 lg:mx-12 overflow-hidden relative">
+              <div className="mx-6 sm:mx-8 md:mx-10 lg:mx-12 overflow-hidden relative">
                 <div
                   className="flex transition-transform duration-500 ease-in-out gap-3 sm:gap-4"
                   style={{ 
-                    transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
+                    transform: `translateX(-${currentIndex * (100 / platformItemsPerView)}%)`,
                   }}
                 >
                   {platforms.map((platform) => (
                     <div
                       key={platform.name}
-                      className="flex-shrink-0 w-2/5 min-w-[120px] sm:w-[30%] md:w-1/4 lg:w-1/6" // Responsive widths
+                      className="flex-shrink-0"
+                      style={{ width: `${100 / platformItemsPerView}%`}}
                     >
                       <Link href={platform.ctaLink}>
-                        <div className="bg-[--bg-dark] rounded-xl p-3 sm:p-4 md:p-6 border-2 border-[--border-color] transition-all duration-300 cursor-pointer h-32 sm:h-36 flex flex-col items-center justify-center group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
-                          <div className="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 flex items-center justify-center overflow-visible">
+                        <div className="bg-[--bg-dark] rounded-xl p-2 sm:p-3 md:p-4 border-2 border-[--border-color] transition-all duration-300 cursor-pointer h-24 sm:h-28 md:h-32 flex flex-col items-center justify-center group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
+                          <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mb-1 sm:mb-2 flex items-center justify-center overflow-visible">
                             <img
                               src={platform.logo}
                               alt={`${platform.name} logo`}
                               className="w-full h-full object-contain transition-all duration-300 group-hover:scale-110"
                             />
                           </div>
-                          <span className="text-[--text-light] text-xs sm:text-sm font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight">
+                          <span className="text-[--text-light] text-[10px] sm:text-xs md:text-sm font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight line-clamp-1">
                             {platform.name}
                           </span>
                         </div>
@@ -213,27 +234,27 @@ const goToNext = () => {
               <button
                 onClick={goToNext}
                 disabled={currentIndex >= maxIndex}
-                className={`absolute right-0 md:-right-4 top-1/2 -translate-y-1/2 z-10 p-2 md:p-3 rounded-full bg-[--bg-dark] border-2 border-[--border-color] transition-all duration-300 ${
+                className={`absolute right-0 md:-right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 sm:p-2 md:p-3 rounded-full bg-[--bg-dark]/70 border-2 border-[--border-color] transition-all duration-300 ${
                   currentIndex >= maxIndex
-                    ? 'opacity-50 cursor-not-allowed'
+                    ? 'opacity-30 cursor-not-allowed'
                     : 'hover:bg-[--bg-medium] hover:border-[#5593f7] hover:shadow-lg hover:shadow-[#5593f7]/20'
                 }`}
               >
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-[--text-light]" />
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[--text-light]" />
               </button>
             </div>
 
-            <div className="flex justify-center mt-6 md:mt-8 space-x-2">
-              {Array.from({ length: maxIndex + 1 }).map((_, index) => (
+            <div className="flex justify-center mt-4 md:mt-6 space-x-1.5 sm:space-x-2">
+              {Array.from({ length: Math.ceil(platforms.length / platformItemsPerView) }).map((_, pageIndex) => (
                 <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex
-                      ? 'bg-[#5593f7] w-6 sm:w-8'
-                      : 'bg-[--border-color] w-2 hover:bg-[--text-muted]'
+                  key={pageIndex}
+                  onClick={() => setCurrentIndex(pageIndex)}
+                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
+                    pageIndex === currentIndex
+                      ? 'bg-[#5593f7] w-4 sm:w-6'
+                      : 'bg-[--border-color] w-1.5 sm:w-2 hover:bg-[--text-muted]'
                   }`}
-                  aria-label={`Go to platform slide ${index + 1}`}
+                  aria-label={`Go to platform slide ${pageIndex + 1}`}
                 />
               ))}
             </div>
@@ -244,13 +265,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling JEE/NEET Courses
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {topCategoryShowcaseData
                 .flatMap((cat) => cat.courses)
                 .slice(0, 5)
@@ -261,7 +282,7 @@ const goToNext = () => {
             <div className="text-center mt-6 md:mt-8">
             <Link href="/courses?category=iit-jee&category=neet&page=1" passHref>
               <Button
-                className="bg-[--primary-blue] text-[--text-light] px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
+                className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base"
               >
                 Show All
               </Button>
@@ -272,25 +293,25 @@ const goToNext = () => {
 
         {/* Get Extra Discounts */}
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-gradient-to-r from-[--primary-blue] to-[#5593f7] section-divider">
-          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center rounded-xl p-6 md:p-8">
+          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center rounded-xl p-4 md:p-6 lg:p-8">
             <motion.div
-              className="text-center md:text-left mb-6 md:mb-0"
+              className="text-center md:text-left mb-6 md:mb-0 md:pr-6"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-3xl sm:text-4xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
-              <Button asChild className="mt-4 bg-[--highlight-gold] text-black px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
+              <Button asChild className="mt-4 bg-[--highlight-gold] text-black px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors text-sm sm:text-base">
                 <Link className="text-white" href="/plus">Coming Soon!</Link>
               </Button>
             </motion.div>
             <motion.div
-              className="text-gray-200"
+              className="text-gray-200 md:pl-6"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <ul className="list-disc list-inside text-base sm:text-lg md:text-xl space-y-1">
+              <ul className="list-disc list-inside text-sm sm:text-base md:text-lg space-y-1">
                 <li>Up to 10% OFF on courses, bundles, and more</li>
                 <li>Access to exclusive sale events</li>
                 <li>Priority pre-order fulfillment</li>
@@ -304,13 +325,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Course Bundles
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {[
                 {
                   id: '6845b4b9188aa67dd4093856',
@@ -374,7 +395,7 @@ const goToNext = () => {
             <div className="text-center mt-6 md:mt-8">
             <Link href="/courses" passHref>
               <Button
-                className="bg-[--primary-blue] text-[--text-light] px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
+                className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base"
               >
                 Show All
               </Button>
@@ -387,13 +408,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Discover Courses By Category
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
               {CATEGORIES.slice(0, 7).map((category) => (
                 <CategoryCard
                   key={category.id}
@@ -410,13 +431,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Course Add-ons
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {[
                 {
                   id: 'addon1',
@@ -483,7 +504,7 @@ const goToNext = () => {
               ))}
             </div>
             <div className="text-center mt-6 md:mt-8">
-              <Button className="bg-[--primary-blue] text-[--text-light] px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
+              <Button className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base">
                 Show All
               </Button>
             </div>
@@ -494,13 +515,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Discover By Price
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
               {[
                 { label: 'Under ₹500', href: '/courses?price=under-500' },
                 { label: 'Under ₹1,000', href: '/courses?price=under-1000' },
@@ -517,7 +538,7 @@ const goToNext = () => {
                   className="hover-lift"
                 >
                   <Link href={price.href}>
-                    <Button className="w-full bg-[--bg-light] text-[--text-light] py-3 sm:py-4 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md text-xs sm:text-sm">
+                    <Button className="w-full bg-[--bg-light] text-[--text-light] py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md text-[11px] sm:text-xs md:text-sm whitespace-normal h-auto min-h-[40px] sm:min-h-[48px]">
                       {price.label}
                     </Button>
                   </Link>
@@ -531,14 +552,14 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
           <div className="container mx-auto text-center">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Subscribe to Our Newsletter
             </motion.h2>
             <motion.p
-              className="text-base sm:text-lg text-gray-300 mb-4 sm:mb-6"
+              className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-5"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -546,26 +567,26 @@ const goToNext = () => {
               Get updates on the best courses and exclusive offers!
             </motion.p>
             <motion.form
-              className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0"
+              className="flex flex-col sm:flex-row justify-center items-center sm:space-x-2 space-y-2 sm:space-y-0 max-w-md mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               onSubmit={(e) => e.preventDefault()}
             >
-              <div className="relative w-full max-w-sm sm:max-w-md">
+              <div className="relative w-full">
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full bg-[--bg-light] text-[--text-light] rounded-full py-2.5 sm:py-3 px-4 sm:px-6 pl-10 sm:pl-12 focus:outline-none focus:ring-2 focus:ring-[#5593f7]"
+                  className="w-full bg-[--bg-light] text-[--text-light] rounded-full py-2 sm:py-2.5 px-4 pl-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#5593f7]"
                 />
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
-              <Button type="submit" className="w-full sm:w-auto bg-[--primary-blue] text-[--text-light] px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
+              <Button type="submit" className="w-full sm:w-auto bg-[--primary-blue] text-[--text-light] px-4 py-2 sm:px-5 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base">
                 Subscribe
               </Button>
             </motion.form>
             <motion.p
-              className="text-gray-400 mt-3 sm:mt-4 text-xs sm:text-sm"
+              className="text-gray-400 mt-2 sm:mt-3 text-xs"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -579,13 +600,13 @@ const goToNext = () => {
         <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
           <div className="container mx-auto">
             <motion.h2
-              className="text-2xl sm:text-3xl font-bold mb-6 md:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Subscriptions
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
               {[ {
                   id: 'sub3',
                   title: 'Unacademy Plus - 3 Months',
@@ -672,7 +693,7 @@ const goToNext = () => {
               ))}
             </div>
             <div className="text-center mt-6 md:mt-8">
-              <Button className="bg-[--primary-blue] text-[--text-light] px-6 py-2 sm:px-8 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] hover:text-black-300 transition-colors">
+              <Button className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] hover:text-black-300 transition-colors text-sm sm:text-base">
                 Show All
               </Button>
             </div>

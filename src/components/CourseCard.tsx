@@ -19,77 +19,66 @@ export function CourseCard({ course }: CourseCardProps) {
   const providerNameInitial = course.providerInfo?.name ? course.providerInfo.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : "P";
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
+    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 bg-card">
       <Link href={`/courses/${course.id}`} className="block group">
-        <CardHeader className="p-0 relative">
+        <CardHeader className="p-0 relative aspect-video"> {/* Use aspect-video for responsive image height */}
           <Image
             src={course.imageUrl || "https://placehold.co/600x400.png"}
             alt={course.title}
-            width={600}
-            height={400}
-            className="object-cover w-full h-40 sm:h-48 group-hover:opacity-90 transition-opacity" // Responsive height
+            fill // Use fill to make image cover the aspect ratio container
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" // Adjust sizes for better optimization
+            className="object-cover group-hover:opacity-90 transition-opacity"
             data-ai-hint={imageHint}
           />
-          {/* {course.providerInfo?.verified && (
-            <Badge
-            variant="success"
-            className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 text-xs font-semibold tracking-wide text-white bg-green-600 border border-green-700 rounded-full shadow-md hover:bg-green-700 hover:shadow-lg transition-all duration-200 ease-in-out"
-            aria-label="Verified Provider"
-            title="This provider has been verified for authenticity and quality"
-          >
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Verified
-          </Badge>
-          )} */}
         </CardHeader>
       </Link>
-      <CardContent className="p-3 sm:p-4 flex-grow">
-        <Link href={`/courses/${course.id}`} className="block">
-          <Badge variant="outline" className="mb-1.5 sm:mb-2 text-xs">{course.category}</Badge>
-          <CardTitle className="text-base sm:text-lg font-semibold leading-tight mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
+      <CardContent className="p-3 sm:p-4 flex-grow flex flex-col">
+        <Link href={`/courses/${course.id}`} className="block mb-auto">
+          <Badge variant="outline" className="mb-1 text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2">{course.category}</Badge>
+          <CardTitle className="text-sm sm:text-base font-semibold leading-snug mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
             {course.title}
           </CardTitle>
         </Link>
-        <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground mb-1.5 sm:mb-2">
+        <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground mb-1.5">
           {course.providerInfo?.logoUrl && (
-            <Avatar className="h-4 w-4 sm:h-5 sm:w-5 border">
-              <AvatarImage src={course.providerInfo.logoUrl} alt={course.providerInfo.name} data-ai-hint="seller logo small course card"/>
-              <AvatarFallback className="text-xs">{providerNameInitial}</AvatarFallback>
+            <Avatar className="h-4 w-4 border">
+              <AvatarImage src={course.providerInfo.logoUrl} alt={course.providerInfo.name || 'Provider'} data-ai-hint="seller logo small course card"/>
+              <AvatarFallback className="text-[8px]">{providerNameInitial}</AvatarFallback>
             </Avatar>
           )}
           <span className="truncate">{course.providerInfo?.name || course.instructor}</span>
         </div>
-        <div className="flex items-center mb-2 sm:mb-3">
-          <StarRating rating={course.rating} size={14} /> 
-          <span className="ml-1.5 sm:ml-2 text-xs text-muted-foreground">({course.reviewsCount} reviews)</span>
+        <div className="flex items-center mb-2">
+          <StarRating rating={course.rating} size={12} /> 
+          <span className="ml-1.5 text-[10px] sm:text-xs text-muted-foreground">({course.reviewsCount} reviews)</span>
         </div>
-        <div className="text-xs sm:text-sm text-muted-foreground space-y-1">
+        <div className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 mt-auto"> {/* Ensure this section is pushed down if CardContent is flex-grow */}
           {course.duration && (
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
+            <div className="flex items-center gap-1">
+              <Clock className="h-3 w-3 text-primary/80" />
               <span>{course.duration}</span>
             </div>
           )}
            {course.studentsEnrolled && (
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
+            <div className="flex items-center gap-1">
+              <Users className="h-3 w-3 text-primary/80" />
               <span>{course.studentsEnrolled.toLocaleString()} students</span>
             </div>
           )}
         </div>
       </CardContent>
-      <CardFooter className="p-3 sm:p-4 flex items-center justify-between border-t mt-auto">
+      <CardFooter className="p-2.5 sm:p-3 flex items-center justify-between border-t">
         <div>
-          <p className="text-lg sm:text-xl font-bold text-primary">
+          <p className="text-base sm:text-lg font-bold text-primary">
             ₹{course.price.toLocaleString('en-IN')}
           </p>
           {course.originalPrice && (
-            <p className="text-xs sm:text-sm text-muted-foreground line-through">
+            <p className="text-[10px] sm:text-xs text-muted-foreground line-through">
               ₹{course.originalPrice.toLocaleString('en-IN')}
             </p>
           )}
         </div>
-        <Button size="sm" asChild className="text-xs sm:text-sm px-2.5 py-1 sm:px-3 sm:py-1.5">
+        <Button size="xs" asChild className="text-[10px] sm:text-xs px-2 py-1 h-auto sm:px-3 sm:py-1.5">
           <Link className="text-white" href={`/courses/${course.id}`}>View Details</Link>
         </Button>
       </CardFooter>
