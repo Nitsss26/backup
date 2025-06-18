@@ -1,4 +1,6 @@
 
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Course } from '@/lib/types';
@@ -19,23 +21,23 @@ export function CourseCard({ course }: CourseCardProps) {
   const providerNameInitial = course.providerInfo?.name ? course.providerInfo.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : "P";
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 bg-card">
+    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
       <Link href={`/courses/${course.id}`} className="block group">
-        <CardHeader className="p-0 relative aspect-video"> {/* Use aspect-video for responsive image height */}
+        <CardHeader className="p-0 relative aspect-video">
           <Image
             src={course.imageUrl || "https://placehold.co/600x400.png"}
             alt={course.title}
-            fill // Use fill to make image cover the aspect ratio container
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" // Adjust sizes for better optimization
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover group-hover:opacity-90 transition-opacity"
             data-ai-hint={imageHint}
           />
         </CardHeader>
       </Link>
-      <CardContent className="p-3 sm:p-4 flex-grow flex flex-col">
-        <Link href={`/courses/${course.id}`} className="block mb-auto">
+      <CardContent className="p-2 sm:p-4 flex-grow flex flex-col"> {/* Adjusted padding for smaller screens */}
+        <Link href={`/courses/${course.id}`} className="block mb-auto"> {/* mb-auto to push content down */}
           <Badge variant="outline" className="mb-1 text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2">{course.category}</Badge>
-          <CardTitle className="text-sm sm:text-base font-semibold leading-snug mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
+          <CardTitle className="text-sm sm:text-base font-semibold leading-snug mb-1 line-clamp-2 font-headline hover:text-primary transition-colors h-10 sm:h-auto"> {/* Min height for title consistency */}
             {course.title}
           </CardTitle>
         </Link>
@@ -49,7 +51,7 @@ export function CourseCard({ course }: CourseCardProps) {
           <span className="truncate">{course.providerInfo?.name || course.instructor}</span>
         </div>
         <div className="flex items-center mb-2">
-          <StarRating rating={course.rating} size={12} /> 
+          <StarRating rating={course.rating} size={16} />
           <span className="ml-1.5 text-[10px] sm:text-xs text-muted-foreground">({course.reviewsCount} reviews)</span>
         </div>
         <div className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 mt-auto"> {/* Ensure this section is pushed down if CardContent is flex-grow */}
