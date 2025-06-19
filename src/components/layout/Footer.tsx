@@ -163,7 +163,6 @@
 // //     </footer>
 // //   );
 // // }
-
 import Link from 'next/link';
 import { GraduationCap, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { APP_NAME, FOOTER_LINKS } from '@/lib/constants';
@@ -172,17 +171,17 @@ import { Button } from '@/components/ui/button';
 
 export function Footer() {
   return (
-    <footer className="bg-muted/50 border-t hidden md:block">
+    <footer className="bg-muted/50 border-t md:block hidden">
       <div className="container py-12 px-4 md:px-6">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div className='ml-5'>
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2 mb-4">
               <img
                 src="/logoo.png"
                 alt="Logo"
                 width={160}
                 height={160}
-                className="w-100 h-100 object-contain"
+                className="w-32 h-12 object-contain"
               />
             </Link>
             <p className="text-muted-foreground text-sm">

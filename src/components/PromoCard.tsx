@@ -46,7 +46,6 @@
 //     </motion.div>
 //   );
 // }
-
 "use client";
 
 import Link from 'next/link';
@@ -68,7 +67,7 @@ export function PromoCard({ imageUrl, title, ctaText, ctaLink, dataAiHint = "pro
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="relative rounded-xl overflow-hidden hover-lift shadow-lg w-40 sm:w-full"
+      className="relative rounded-xl overflow-hidden hover-lift shadow-lg"
     >
       <Link href={ctaLink}>
         <Image
@@ -79,7 +78,7 @@ export function PromoCard({ imageUrl, title, ctaText, ctaLink, dataAiHint = "pro
           className="w-full h-32 sm:h-64 object-cover"
           data-ai-hint={dataAiHint}
         />
-        <div className="absolute inset-0 flex flex-col justify-end p-1 sm:p-6">
+        <div className="absolute inset-0 flex flex-col justify-end p-2 sm:p-6">
           <h3 className="text-sm sm:text-xl font-bold text-[--text-light]">{title}</h3>
         </div>
       </Link>

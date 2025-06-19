@@ -76,7 +76,7 @@ export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgC
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="relative rounded-xl overflow-hidden hover-lift shadow-lg w-40 sm:w-full"
+      className="relative rounded-xl overflow-hidden hover-lift shadow-lg"
     >
       <Link href={ctaLink}>
         <Image
@@ -87,7 +87,7 @@ export function BannerCard({ imageUrl, title, description, ctaText, ctaLink, bgC
           className="w-full h-20 sm:h-32 object-cover"
           data-ai-hint={dataAiHint}
         />
-        <div className={`absolute inset-0 ${bgColor} flex flex-col justify-center p-1 sm:p-4`}>
+        <div className={`absolute inset-0 ${bgColor} flex flex-col justify-center p-2 sm:p-4`}>
           <h3 className="text-sm sm:text-lg font-bold text-[--text-light]">{title}</h3>
           {description && <p className="text-xs sm:text-sm mt-1 text-gray-200">{description}</p>}
         </div>

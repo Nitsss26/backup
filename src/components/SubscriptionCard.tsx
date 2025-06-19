@@ -137,7 +137,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
     : "P";
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 w-60 sm:w-72 md:w-full">
+    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
       <a href={subscription.url} className="block group">
         <CardHeader className="p-0 relative">
           <Image
@@ -150,14 +150,14 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
           />
         </CardHeader>
       </a>
-      <CardContent className="p-2 sm:p-4 flex-grow">
+      <CardContent className="p-3 sm:p-4 flex-grow">
         <a href={subscription.url} className="block">
           <Badge variant="outline" className="mb-1 sm:mb-2 text-xs">{subscription.category}</Badge>
-          <CardTitle className="text-sm sm:text-lg font-semibold leading-tight mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
+          <CardTitle className="text-sm sm:text-lg font-semibold leading-tight mb-1 sm:mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
             {subscription.title}
           </CardTitle>
         </a>
-        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground mb-1 sm:mb-2">
+        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-xs text-muted-foreground mb-1 sm:mb-2">
           {subscription.providerInfo?.logoUrl && (
             <Avatar className="h-4 sm:h-5 w-4 sm:w-5 border">
               <AvatarImage src={subscription.providerInfo.logoUrl} alt={subscription.providerInfo.name} data-ai-hint="seller logo small subscription card" />
@@ -166,16 +166,16 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
           )}
           <span>By {subscription.providerInfo?.name || 'Unknown Provider'}</span>
         </div>
-        <div className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-1.5">
+        <div className="text-xs sm:text-sm text-muted-foreground space-y-0.5 sm:space-y-1.5">
           {subscription.duration && (
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <Clock className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-primary/80" />
+              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
               <span>{subscription.duration}</span>
             </div>
           )}
           {subscription.subscribersCount && (
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <Users className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-primary/80" />
+              <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
               <span>{subscription.subscribersCount.toLocaleString()} subscribers</span>
             </div>
           )}

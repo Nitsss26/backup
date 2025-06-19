@@ -414,7 +414,6 @@ export function Header() {
   const { cartItems } = useCart();
   const { theme } = useTheme();
 
-  // Define theme-aware classes
   const getNavLinkClasses = () => {
     return theme === 'light' 
       ? "text-foreground/70 hover:text-foreground transition-colors"
@@ -471,17 +470,17 @@ export function Header() {
             alt="Logo"
             width={160}
             height={160}
-            className="w-24 h-12 object-contain md:w-40 md:h-16"
+            className="w-24 h-10 object-contain md:w-32 md:h-12"
           />
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <DropdownMenu>
-          <Button variant="ghost" className={`${getButtonClasses()} -mr-7`} asChild>
-            <Link href="/">
-              <Home className={getIconClasses()} /> Home
-            </Link>
-          </Button>
+            <Button variant="ghost" className={`${getButtonClasses()} -mr-7`} asChild>
+              <Link href="/">
+                <Home className={getIconClasses()} /> Home
+              </Link>
+            </Button>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className={`flex items-center gap-1 ${getButtonClasses()} -mr-4`}>
                 <LayoutGrid className={getIconClasses()} /> Categories
@@ -503,22 +502,21 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden sm:block relative w-full max-w-xs">
+          <div className="hidden sm:block relative w-full max-w-xs md:max-w-md">
             <Input 
               type="search" 
               placeholder="Search courses..." 
-              className="pl-5 border border-blue-400 pr-5" 
+              className="pl-8 pr-10 border border-blue-400 rounded-full py-1 sm:py-2"
             />
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           </div>
-          {/* Mobile Search Bar */}
-          <div className="sm:hidden relative w-full max-w-[200px]">
+          <div className="sm:hidden relative w-full max-w-xs">
             <Input 
               type="search" 
-              placeholder="Search for courses, gift cards and..." 
-              className="pl-10 pr-10 py-2 border border-blue-400 rounded text-sm text-[--text-light] bg-[--bg-dark]" 
+              placeholder="Search for games, gift cards and ..." 
+              className="pl-8 pr-10 border border-blue-400 rounded-full py-1"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[--text-light]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           </div>
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link href="/cart">
@@ -559,14 +557,19 @@ export function Header() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs p-6">
-              <div className="flex flex-col gap-6">
-                <Link href="/" className="flex items-center gap-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
-                  <GraduationCap className="h-7 w-7 text-primary" />
-                  <span className="font-bold text-xl text-primary">{APP_NAME}</span>
+            <SheetContent side="right" className="w-full max-w-xs p-4">
+              <div className="flex flex-col gap-4">
+                <Link href="/" className="flex items-center gap-2" onClick={() => setIsMobileMenuOpen(false)}>
+                  <img
+                    src="/logoo.png"
+                    alt="Logo"
+                    width={160}
+                    height={160}
+                    className="w-24 h-10 object-contain"
+                  />
                 </Link>
-                <Input type="search" placeholder="Search courses..." />
-                <nav className="flex flex-col gap-4">
+                <Input type="search" placeholder="Search courses..." className="w-full" />
+                <nav className="flex flex-col gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="justify-start flex items-center gap-2 text-base">
@@ -582,7 +585,7 @@ export function Header() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                   {allMobileNavLinks.map(link => ( 
-                     <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
                       <link.icon className="h-5 w-5" />
                       {link.label}
                     </Link>
@@ -600,25 +603,51 @@ export function Header() {
                       </Link>
                     </>
                   )}
-                   {isLoading && ( 
+                  {isLoading && ( 
                     <>
                       <DropdownMenuSeparator />
                       <Skeleton className="h-8 w-full rounded-md" />
                       <Skeleton className="h-8 w-full rounded-md" />
                     </>
                   )}
-                   {user && !isLoading && (
-                     <>
+                  {user && !isLoading && (
+                    <>
                       <DropdownMenuSeparator />
-                       <UserProfileDropdown />
-                     </>
-                   )}
+                      <UserProfileDropdown />
+                    </>
+                  )}
                 </nav>
               </div>
             </SheetContent>
           </Sheet>
         </div>
       </div>
+      <nav className="fixed bottom-0 left-0 w-full bg-[--bg-dark] border-t md:hidden flex justify-around items-center py-2 z-50">
+        <Link href="/" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7]">
+          <Home className="h-5 w-5" />
+          <span className="text-xs">Home</span>
+        </Link>
+        <Link href="/store" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7]">
+          <Store className="h-5 w-5" />
+          <span className="text-xs">Store</span>
+        </Link>
+        <Link href="/cart" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] relative">
+          <ShoppingCart className="h-5 w-5" />
+          {cartItemCount > 0 && (
+            <UiBadge 
+              variant="destructive" 
+              className="absolute -top-2 -right-2 h-4 w-4 p-0 flex items-center justify-center text-[8px] rounded-full bg-primary text-primary-foreground"
+            >
+              {cartItemCount}
+            </UiBadge>
+          )}
+          <span className="text-xs">Cart</span>
+        </Link>
+        <Link href="/categories" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7]">
+          <LayoutGrid className="h-5 w-5" />
+          <span className="text-xs">Categories</span>
+        </Link>
+      </nav>
     </header>
   );
 }
