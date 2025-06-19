@@ -414,6 +414,7 @@ export function Header() {
   const { cartItems } = useCart();
   const { theme } = useTheme();
 
+  // Define theme-aware classes
   const getNavLinkClasses = () => {
     return theme === 'light' 
       ? "text-foreground/70 hover:text-foreground transition-colors"
@@ -462,33 +463,70 @@ export function Header() {
   const cartItemCount = cartItems.length;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-[--bg-dark] text-[--text-light] md:bg-primary/10 md:backdrop-blur supports-[backdrop-filter]:md:bg-primary/10">
-      <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-50 w-full border-b bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/10">
+      <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <img
             src="/logoo.png"
             alt="Logo"
-            width={120}
-            height={120}
-            className="w-20 h-10 sm:w-24 sm:h-12 object-contain"
+            width={160}
+            height={160}
+            className="w-24 h-12 object-contain md:w-40 md:h-16"
           />
         </Link>
+
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <DropdownMenu>
+          <Button variant="ghost" className={`${getButtonClasses()} -mr-7`} asChild>
+            <Link href="/">
+              <Home className={getIconClasses()} /> Home
+            </Link>
+          </Button>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={`flex items-center gap-1 ${getButtonClasses()} -mr-4`}>
+                <LayoutGrid className={getIconClasses()} /> Categories
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {CATEGORIES.map((category) => (
+                <DropdownMenuItem key={category.id} asChild>
+                  <Link className={getNavLinkClasses()} href={`/courses?category=${category.slug}`}>{category.name}</Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {navLinks.map(link => ( 
+            <Link key={link.href} href={link.href} className={getNavLinkClasses()}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="relative w-full max-w-xs md:hidden">
-            <Input
-              type="search"
-              placeholder="Search courses..."
-              className="w-full pl-8 pr-8 py-2 border border-blue-400 rounded-full text-xs sm:text-sm"
+          <div className="hidden sm:block relative w-full max-w-xs">
+            <Input 
+              type="search" 
+              placeholder="Search courses..." 
+              className="pl-5 border border-blue-400 pr-5" 
             />
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+          {/* Mobile Search Bar */}
+          <div className="sm:hidden relative w-full max-w-[200px]">
+            <Input 
+              type="search" 
+              placeholder="Search for courses, gift cards and..." 
+              className="pl-10 pr-10 py-2 border border-blue-400 rounded text-sm text-[--text-light] bg-[--bg-dark]" 
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[--text-light]" />
           </div>
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link href="/cart">
-              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
+              <ShoppingCart className="!h-6 !w-6 stroke-white" />
               {cartItemCount > 0 && (
-                <UiBadge
-                  variant="destructive"
-                  className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground"
+                <UiBadge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground"
                 >
                   {cartItemCount}
                 </UiBadge>
@@ -496,12 +534,13 @@ export function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
+          
           <div className="hidden md:flex items-center gap-3">
             {isLoading ? (
               <Skeleton className="h-9 w-24 rounded-md" />
             ) : !user ? (
               <>
-                <Button className="" variant="outline" size="sm" asChild>
+                <Button className='' variant="outline" size="sm" asChild>
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button variant="default" size="sm" asChild>
@@ -512,6 +551,7 @@ export function Header() {
               <UserProfileDropdown />
             )}
           </div>
+          
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
@@ -519,26 +559,21 @@ export function Header() {
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs p-4">
-              <div className="flex flex-col gap-4">
+            <SheetContent side="right" className="w-full max-w-xs p-6">
+              <div className="flex flex-col gap-6">
                 <Link href="/" className="flex items-center gap-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
-                  <img
-                    src="/logoo.png"
-                    alt="Logo"
-                    width={120}
-                    height={120}
-                    className="w-20 h-10 object-contain"
-                  />
+                  <GraduationCap className="h-7 w-7 text-primary" />
+                  <span className="font-bold text-xl text-primary">{APP_NAME}</span>
                 </Link>
-                <Input type="search" placeholder="Search courses..." className="mb-4" />
-                <nav className="flex flex-col gap-2">
+                <Input type="search" placeholder="Search courses..." />
+                <nav className="flex flex-col gap-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="justify-start flex items-center gap-2 text-sm">
+                      <Button variant="ghost" className="justify-start flex items-center gap-2 text-base">
                         <LayoutGrid className="h-5 w-5" /> Categories
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
+                    <DropdownMenuContent align="start" className="w-56">
                       {CATEGORIES.map((category) => (
                         <DropdownMenuItem key={category.id} asChild>
                           <Link href={`/courses?category=${category.slug}`} onClick={() => setIsMobileMenuOpen(false)}>{category.name}</Link>
@@ -546,8 +581,8 @@ export function Header() {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {allMobileNavLinks.map(link => (
-                    <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
+                  {allMobileNavLinks.map(link => ( 
+                     <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
                       <link.icon className="h-5 w-5" />
                       {link.label}
                     </Link>
@@ -559,25 +594,25 @@ export function Header() {
                         <LogIn className="h-5 w-5" />
                         Login
                       </Link>
-                      <Link href="/auth/register" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
+                      <Link href="/auth/register" className={`${getMobileNavLinkClasses()} text-white !text-white`} onClick={() => setIsMobileMenuOpen(false)}>
                         <UserPlus className="h-5 w-5" />
                         Sign Up
                       </Link>
                     </>
                   )}
-                  {isLoading && (
+                   {isLoading && ( 
                     <>
                       <DropdownMenuSeparator />
                       <Skeleton className="h-8 w-full rounded-md" />
                       <Skeleton className="h-8 w-full rounded-md" />
                     </>
                   )}
-                  {user && !isLoading && (
-                    <>
+                   {user && !isLoading && (
+                     <>
                       <DropdownMenuSeparator />
-                      <UserProfileDropdown />
-                    </>
-                  )}
+                       <UserProfileDropdown />
+                     </>
+                   )}
                 </nav>
               </div>
             </SheetContent>

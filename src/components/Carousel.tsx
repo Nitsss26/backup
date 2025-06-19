@@ -147,7 +147,7 @@ export function Carousel({ items }: CarouselProps) {
   };
 
   if (items.length === 0) {
-    return <div className="relative rounded-xl shadow-2xl bg-muted flex items-center justify-center h-[200px] sm:h-[400px]"><p>No carousel items to display.</p></div>;
+    return <div className="relative rounded-xl shadow-2xl bg-muted flex items-center justify-center h-[400px]"><p>No carousel items to display.</p></div>;
   }
 
   return (
@@ -161,13 +161,13 @@ export function Carousel({ items }: CarouselProps) {
                 alt={item.title}
                 width={1200}
                 height={400}
-                className="w-full h-[200px] sm:h-[400px] object-cover"
+                className="w-full h-[400px] md:h-[400px] object-cover"
                 priority={index === 0}
                 data-ai-hint="course promotion banner"
               />
-              <div className="absolute flex flex-col justify-center p-2 sm:p-8">
+              <div className="absolute flex flex-col justify-center p-4 md:p-8">
                 <motion.h2
-                  className="text-xl sm:text-4xl font-bold text-[--text-light]"
+                  className="text-2xl md:text-4xl font-bold text-[--text-light]"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
@@ -175,7 +175,7 @@ export function Carousel({ items }: CarouselProps) {
                   {item.title}
                 </motion.h2>
                 <motion.p
-                  className="text-sm sm:text-lg mt-1 sm:mt-3 text-gray-200 max-w-md"
+                  className="text-sm md:text-lg mt-2 md:mt-3 text-gray-200 max-w-md"
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
@@ -187,7 +187,7 @@ export function Carousel({ items }: CarouselProps) {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <Button asChild className="mt-2 sm:mt-6 bg-[--highlight-gold] text-black px-3 sm:px-8 py-1 sm:py-3 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
+                  <Button asChild className="mt-2 md:mt-6 bg-[--highlight-gold] text-black px-4 md:px-8 py-2 md:py-3 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
                     <Link href={item.ctaLink}>{item.ctaText}</Link>
                   </Button>
                 </motion.div>
@@ -196,11 +196,11 @@ export function Carousel({ items }: CarouselProps) {
           </div>
         ))}
       </div>
-      <div className="absolute bottom-2 sm:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1 sm:space-x-2">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
         {items.map((_, index) => (
           <span
             key={index}
-            className={`w-2 sm:w-3 h-2 sm:h-3 rounded-full cursor-pointer ${index === currentSlide ? 'bg-[--highlight-gold]' : 'bg-gray-500'}`}
+            className={`w-2 h-2 md:w-3 md:h-3 rounded-full cursor-pointer ${index === currentSlide ? 'bg-[--highlight-gold]' : 'bg-gray-500'}`}
             onClick={() => goToSlide(index)}
             aria-label={`Go to slide ${index + 1}`}
           />

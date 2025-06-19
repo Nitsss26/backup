@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -13,7 +12,7 @@ import { PromoCard } from '@/components/PromoCard';
 import { CategoryCard } from '@/components/CategoryCard';
 import { featuredCoursesForHomepage, topCategoryShowcaseData } from '@/lib/placeholder-data';
 import { CATEGORIES, APP_NAME } from '@/lib/constants';
-import { Mail, Home, Store, ShoppingCart, LayoutGrid } from 'lucide-react'; // Added Home icon
+import { Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { heroSectionData } from '@/lib/heroSectionData';
 import { Input } from '@/components/ui/input';
@@ -33,8 +32,7 @@ export default function HomePage() {
   }, [carouselItems.length]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [platformItemsPerView, setPlatformItemsPerView] = useState(6);
-
+  const itemsPerView = 6;
   const platforms = [
     {
       name: 'Udemy',
@@ -79,22 +77,8 @@ export default function HomePage() {
       bgColor: 'bg-[--primary-blue]'
     },
   ];
-  
-  useEffect(() => {
-    const updateItemsPerView = () => {
-      if (window.innerWidth < 640) setPlatformItemsPerView(2); // xs
-      else if (window.innerWidth < 768) setPlatformItemsPerView(3); // sm
-      else if (window.innerWidth < 1024) setPlatformItemsPerView(4); // md
-      else if (window.innerWidth < 1280) setPlatformItemsPerView(5); // lg
-      else setPlatformItemsPerView(6); // xl and up
-    };
-    updateItemsPerView();
-    window.addEventListener('resize', updateItemsPerView);
-    return () => window.removeEventListener('resize', updateItemsPerView);
-  }, []);
 
-
-  const maxIndex = Math.max(0, platforms.length - platformItemsPerView);
+  const maxIndex = Math.max(0, platforms.length - itemsPerView);
 
   const goToPrevious = () => {
     setCurrentIndex(prev => Math.max(0, prev - 1));
@@ -108,39 +92,35 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow">
-        {/* Hero Section */}
-        <section className="py-6 md:py-8 px-4 sm:px-6 bg-primary/10">
-          <div className="container mx-auto">
-            <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
-              <div className="w-full lg:w-3/4">
+        {/* Hero Section (Matching Driffle’s Layout) */}
+        <section className="py-12 px-6 bg-primary/10 hidden md:block">
+          <div className="container">
+            {/* Top Row: Carousel (75%) + Right Stack (25%) */}
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="w-full md:w-3/4">
                 <Carousel items={carouselItems} />
               </div>
-              <div className="w-full lg:w-1/4 flex flex-col gap-4 md:gap-6">
-                <div className="flex-1">
-                    <BannerCard
-                    imageUrl={rightBanner.imageUrl}
-                    title={rightBanner.title}
-                    description={rightBanner.description}
-                    ctaText={rightBanner.ctaText}
-                    ctaLink={rightBanner.ctaLink}
-                    bgColor={rightBanner.bgColor}
-                    dataAiHint={rightBanner.dataAiHint}
-                    className="h-full"
-                    />
-                </div>
-                <div className="flex-1">
-                    <PromoCard
-                    imageUrl={promoCard.imageUrl}
-                    title={promoCard.title}
-                    ctaText={promoCard.ctaText}
-                    ctaLink={promoCard.ctaLink}
-                    dataAiHint={promoCard.dataAiHint}
-                    className="h-full"
-                    />
-                </div>
+              <div className="w-full md:w-1/4 flex flex-col gap-6">
+                <BannerCard
+                  imageUrl={rightBanner.imageUrl}
+                  title={rightBanner.title}
+                  description={rightBanner.description}
+                  ctaText={rightBanner.ctaText}
+                  ctaLink={rightBanner.ctaLink}
+                  bgColor={rightBanner.bgColor}
+                  dataAiHint={rightBanner.dataAiHint}
+                />
+                <PromoCard
+                  imageUrl={promoCard.imageUrl}
+                  title={promoCard.title}
+                  ctaText={promoCard.ctaText}
+                  ctaLink={promoCard.ctaLink}
+                  dataAiHint={promoCard.dataAiHint}
+                />
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-4 md:mt-6">
+            {/* Bottom Row: 4 Banner Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6">
               {bottomBanners.map((banner, index) => (
                 <BannerCard
                   key={index}
@@ -150,7 +130,46 @@ export default function HomePage() {
                   ctaLink={banner.ctaLink}
                   bgColor={banner.bgColor}
                   dataAiHint={banner.dataAiHint}
-                  className="h-full" 
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Mobile Hero Section */}
+        <section className="py-4 px-4 bg-primary/10 md:hidden">
+          <div className="container">
+            <div className="w-full">
+              <Carousel items={carouselItems} />
+            </div>
+            <div className="flex flex-col gap-4 mt-4">
+              <BannerCard
+                imageUrl={rightBanner.imageUrl}
+                title={rightBanner.title}
+                description={rightBanner.description}
+                ctaText={rightBanner.ctaText}
+                ctaLink={rightBanner.ctaLink}
+                bgColor={rightBanner.bgColor}
+                dataAiHint={rightBanner.dataAiHint}
+              />
+              <PromoCard
+                imageUrl={promoCard.imageUrl}
+                title={promoCard.title}
+                ctaText={promoCard.ctaText}
+                ctaLink={promoCard.ctaLink}
+                dataAiHint={promoCard.dataAiHint}
+              />
+            </div>
+            <div className="flex overflow-x-auto space-x-4 mt-4 pb-2" style={{ scrollBehavior: 'smooth' }}>
+              {bottomBanners.map((banner, index) => (
+                <BannerCard
+                  key={index}
+                  imageUrl={banner.imageUrl}
+                  title={banner.title}
+                  ctaText={banner.ctaText}
+                  ctaLink={banner.ctaLink}
+                  bgColor={banner.bgColor}
+                  dataAiHint={banner.dataAiHint}
                 />
               ))}
             </div>
@@ -158,16 +177,21 @@ export default function HomePage() {
         </section>
 
         {/* Recommended For You */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Recommended For You
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 hidden md:grid">
+              {featuredCoursesForHomepage.slice(0, 5).map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+            <div className="flex overflow-x-auto space-x-4 pb-2 md:hidden">
               {featuredCoursesForHomepage.slice(0, 5).map((course) => (
                 <CourseCard key={course.id} course={course} />
               ))}
@@ -175,53 +199,58 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Explore By Platforms */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-primary/10 section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Explore By Platforms
             </motion.h2>
-            
-            <div className="relative px-0 md:px-4">
+            <div className="relative px-4 hidden md:block">
+              {/* Left Arrow */}
               <button
                 onClick={goToPrevious}
                 disabled={currentIndex === 0}
-                className={`absolute left-0 md:-left-2 top-1/2 -translate-y-1/2 z-10 p-1.5 sm:p-2 md:p-3 rounded-full bg-[--bg-dark]/70 border-2 border-[--border-color] transition-all duration-300 ${
+                className={`absolute left-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-[--bg-dark] border-2 border-[--border-color] transition-all duration-300 ${
                   currentIndex === 0
-                    ? 'opacity-30 cursor-not-allowed'
+                    ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-[--bg-medium] hover:border-[#5593f7] hover:shadow-lg hover:shadow-[#5593f7]/20'
                 }`}
               >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[--text-light]" />
+                <ChevronLeft className="w-6 h-6 text-[--text-light]" />
               </button>
 
-              <div className="mx-6 sm:mx-8 md:mx-10 lg:mx-12 overflow-hidden relative">
+              {/* Platform Cards Container */}
+              <div className="mx-16 overflow-hidden relative">
                 <div
-                  className="flex transition-transform duration-500 ease-in-out gap-3 sm:gap-4"
+                  className="flex transition-transform duration-500 ease-in-out"
                   style={{ 
-                    transform: `translateX(-${currentIndex * (100 / platformItemsPerView)}%)`,
+                    transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
+                    gap: '1rem',
+                    paddingRight: '1rem'
                   }}
                 >
-                  {platforms.map((platform) => (
+                  {platforms.map((platform, index) => (
                     <div
                       key={platform.name}
                       className="flex-shrink-0"
-                      style={{ width: `calc(${100 / platformItemsPerView}% - 1rem)`}} // Adjusted width for gaps
+                      style={{ 
+                        width: `calc(${100 / itemsPerView}% - 1rem)`,
+                        marginRight: index === platforms.length - 1 ? '0' : '1rem'
+                      }}
                     >
                       <Link href={platform.ctaLink}>
-                        <div className="bg-[--bg-dark] rounded-xl p-2 sm:p-3 md:p-4 border-2 border-[--border-color] transition-all duration-300 cursor-pointer h-24 sm:h-28 md:h-32 flex flex-col items-center justify-center group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mb-1 sm:mb-2 flex items-center justify-center overflow-visible">
+                        <div className="bg-[--bg-dark] rounded-xl p-6 border-2 border-[--border-color] transition-all duration-300 cursor-pointer h-36 flex flex-col items-center justify-center group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
+                          <div className="w-16 h-16 mb-3 flex items-center justify-center overflow-visible">
                             <img
                               src={platform.logo}
                               alt={`${platform.name} logo`}
                               className="w-full h-full object-contain transition-all duration-300 group-hover:scale-110"
                             />
                           </div>
-                          <span className="text-[--text-light] text-[10px] sm:text-xs md:text-sm font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight line-clamp-1">
+                          <span className="text-[--text-light] text-sm font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight">
                             {platform.name}
                           </span>
                         </div>
@@ -231,47 +260,64 @@ export default function HomePage() {
                 </div>
               </div>
 
+              {/* Right Arrow */}
               <button
                 onClick={goToNext}
                 disabled={currentIndex >= maxIndex}
-                className={`absolute right-0 md:-right-2 top-1/2 -translate-y-1/2 z-10 p-1.5 sm:p-2 md:p-3 rounded-full bg-[--bg-dark]/70 border-2 border-[--border-color] transition-all duration-300 ${
+                className={`absolute right-0 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full bg-[--bg-dark] border-2 border-[--border-color] transition-all duration-300 ${
                   currentIndex >= maxIndex
-                    ? 'opacity-30 cursor-not-allowed'
+                    ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-[--bg-medium] hover:border-[#5593f7] hover:shadow-lg hover:shadow-[#5593f7]/20'
                 }`}
               >
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[--text-light]" />
+                <ChevronRight className="w-6 h-6 text-[--text-light]" />
               </button>
             </div>
-
-            <div className="flex justify-center mt-4 md:mt-6 space-x-1.5 sm:space-x-2">
-              {Array.from({ length: Math.ceil(platforms.length / platformItemsPerView) }).map((_, pageIndex) => (
+            <div className="flex overflow-x-auto space-x-4 pb-2 md:hidden">
+              {platforms.map((platform, index) => (
+                <Link key={platform.name} href={platform.ctaLink}>
+                  <div className="bg-[--bg-dark] rounded-xl p-4 border-2 border-[--border-color] transition-all duration-300 cursor-pointer flex flex-col items-center justify-center min-w-[140px] h-32 group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
+                    <div className="w-12 h-12 mb-2 flex items-center justify-center overflow-visible">
+                      <img
+                        src={platform.logo}
+                        alt={`${platform.name} logo`}
+                        className="w-full h-full object-contain transition-all duration-300 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className="text-[--text-light] text-xs font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight">
+                      {platform.name}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="flex justify-center mt-8 space-x-2 hidden md:block">
+              {Array.from({ length: maxIndex + 1 }).map((_, index) => (
                 <button
-                  key={pageIndex}
-                  onClick={() => setCurrentIndex(pageIndex)}
-                  className={`h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
-                    pageIndex === currentIndex
-                      ? 'bg-[#5593f7] w-4 sm:w-6'
-                      : 'bg-[--border-color] w-1.5 sm:w-2 hover:bg-[--text-muted]'
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? 'bg-[#5593f7] w-8'
+                      : 'bg-[--border-color] w-2 hover:bg-[--text-muted]'
                   }`}
-                  aria-label={`Go to platform slide ${pageIndex + 1}`}
                 />
               ))}
             </div>
           </div>
         </section>
 
-        {/* Best Selling JEE/NEET Courses */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        {/* Best Selling Courses */}
+        <section className="py-12 px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling JEE/NEET Courses
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 hidden md:grid">
               {topCategoryShowcaseData
                 .flatMap((cat) => cat.courses)
                 .slice(0, 5)
@@ -279,39 +325,48 @@ export default function HomePage() {
                   <CourseCard key={course.id} course={course} />
                 ))}
             </div>
-            <div className="text-center mt-6 md:mt-8">
-            <Link href="/courses?category=iit-jee&category=neet&page=1" passHref>
-              <Button
-                className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base"
-              >
-                Show All
-              </Button>
-            </Link>
+            <div className="flex overflow-x-auto space-x-4 pb-2 md:hidden">
+              {topCategoryShowcaseData
+                .flatMap((cat) => cat.courses)
+                .slice(0, 5)
+                .map((course) => (
+                  <CourseCard key={course.id} course={course} />
+                ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link href="/courses?category=iit-jee&category=neet&page=1" passHref>
+                <Button
+                  asChild
+                  className="bg-[--primary-blue] text-[--text-light] px-8 py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
+                >
+                  <span>Show All</span>
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Get Extra Discounts */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-gradient-to-r from-[--primary-blue] to-[#5593f7] section-divider">
-          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center rounded-xl p-4 md:p-6 lg:p-8">
+        <section className="py-12 px-6 bg-gradient-to-r from-[--primary-blue] to-[#5593f7] section-divider">
+          <div className="container flex flex-col md:flex-row justify-between items-center rounded-xl p-8">
             <motion.div
-              className="text-center md:text-left mb-6 md:mb-0 md:pr-6"
+              className="text-center md:text-left"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
-              <Button asChild className="mt-4 bg-[--highlight-gold] text-black px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors text-sm sm:text-base">
+              <h2 className="text-4xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
+              <Button asChild className="mt-4 bg-[--highlight-gold] text-black px-6 py-2 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors">
                 <Link className="text-white" href="/plus">Coming Soon!</Link>
               </Button>
             </motion.div>
             <motion.div
-              className="text-gray-200 md:pl-6"
+              className="text-gray-200 mt-6 md:mt-0"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <ul className="list-disc list-inside text-sm sm:text-base md:text-lg space-y-1">
+              <ul className="list-disc list-inside text-xl">
                 <li>Up to 10% OFF on courses, bundles, and more</li>
                 <li>Access to exclusive sale events</li>
                 <li>Priority pre-order fulfillment</li>
@@ -322,16 +377,16 @@ export default function HomePage() {
         </section>
 
         {/* Best Selling Course Bundles */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-primary/10 section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Course Bundles
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 hidden md:grid">
               {[
                 {
                   id: '6845b4b9188aa67dd4093856',
@@ -392,29 +447,101 @@ export default function HomePage() {
                 <CourseCard key={bundle.id} course={bundle as any} />
               ))}
             </div>
-            <div className="text-center mt-6 md:mt-8">
-            <Link href="/courses" passHref>
-              <Button
-                className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base"
-              >
-                Show All
-              </Button>
-            </Link>
+            <div className="flex overflow-x-auto space-x-4 pb-2 md:hidden">
+              {[
+                {
+                  id: '6845b4b9188aa67dd4093856',
+                  title: 'Algorithmic Toolbox Bundle',
+                  price: 2500,
+                  imageUrl: 'https://plus.unsplash.com/premium_photo-1682124651258-410b25fa9dc0?q=80&w=1921&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                  providerInfo: { name: 'CodeMasters Institute' },
+                  rating: 4.8,
+                  reviewsCount: 2000,
+                  category: "Computer Science",
+                  dataAiHint: "web development code"
+                },
+                {
+                  id: '6845b4b9188aa67dd409384b',
+                  title: 'Deep Learning Specialization Bundle',
+                  price: 3500,
+                  imageUrl: 'https://plus.unsplash.com/premium_photo-1681810994162-43dbe0919d3f?q=80&w=2012&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                  providerInfo: { name: 'AI Learning Co.' },
+                  rating: 4.6,
+                  reviewsCount: 2600,
+                  category: "Computer Science",
+                  dataAiHint: "data science charts"
+                },
+                {
+                  id: 'bundle3',
+                  title: 'Business Mastery Bundle',
+                  price: 3499,
+                  imageUrl: 'https://plus.unsplash.com/premium_photo-1695449439526-9cebdbfa1a2c?q=80&w=2009&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                  providerInfo: { name: 'Bizgurukul' },
+                  rating: 4.7,
+                  reviewsCount: 900,
+                  category: "Business & Finance",
+                  dataAiHint: "business meeting"
+                },
+                {
+                  id: '6845b4b9188aa67dd4093840',
+                  title: 'Data Structures & Algorithms Bundle',
+                  price: 2800,
+                  imageUrl: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                  providerInfo: { name: 'Skillshare' },
+                  rating: 4.8,
+                  reviewsCount: 2800,
+                  category: "Computer Science",
+                  dataAiHint: "artificial intelligence"
+                },
+                {
+                  id: 'bundle5',
+                  title: 'Design Mastery Bundle',
+                  price: 3799,
+                  imageUrl: 'https://images.unsplash.com/photo-1601987177651-8edfe6c20009?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                  providerInfo: { name: 'edX' },
+                  rating: 4.6,
+                  reviewsCount: 800,
+                  category: "Design & Illustration",
+                  dataAiHint: "graphic design tools"
+                },
+              ].map((bundle) => (
+                <CourseCard key={bundle.id} course={bundle as any} />
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link href="/courses" passHref>
+                <Button
+                  asChild
+                  className="bg-[--primary-blue] text-[--text-light] px-8 py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
+                >
+                  <span>Show All</span>
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
         {/* Discover Courses By Category */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Discover Courses By Category
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 hidden md:grid">
+              {CATEGORIES.slice(0, 7).map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  name={category.name}
+                  slug={category.slug}
+                  bgColor="bg-[--bg-light]"
+                />
+              ))}
+            </div>
+            <div className="flex overflow-x-auto space-x-2 pb-2 md:hidden">
               {CATEGORIES.slice(0, 7).map((category) => (
                 <CategoryCard
                   key={category.id}
@@ -428,16 +555,16 @@ export default function HomePage() {
         </section>
 
         {/* Best Selling Course Add-ons */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-primary/10 section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Course Add-ons
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 hidden md:grid">
               {[
                 {
                   id: 'addon1',
@@ -449,7 +576,7 @@ export default function HomePage() {
                   reviewsCount: 600,
                   category: "Add-ons",
                   dataAiHint: "certificate document",
-                   url:"https://www.geekster.in/courses/full-stack-web-developer/?nextStep=/job-ready-program"
+                  url: "https://www.geekster.in/courses/full-stack-web-developer/?nextStep=/job-ready-program"
                 },
                 {
                   id: 'addon2',
@@ -461,7 +588,7 @@ export default function HomePage() {
                   reviewsCount: 400,
                   category: "Add-ons",
                   dataAiHint: "mentor teaching student",
-                   url:"https://courses.upscprep.com/products/upsc-essential-2026-mentorship/"
+                  url: "https://courses.upscprep.com/products/upsc-essential-2026-mentorship/"
                 },
                 {
                   id: 'addon3',
@@ -473,7 +600,7 @@ export default function HomePage() {
                   reviewsCount: 500,
                   category: "Add-ons",
                   dataAiHint: "project tools kit",
-                   url:"https://store.pw.live/products/curios-jr-science-experiment-kit-6th-class"
+                  url: "https://store.pw.live/products/curios-jr-science-experiment-kit-6th-class"
                 },
                 {
                   id: 'addon4',
@@ -485,7 +612,7 @@ export default function HomePage() {
                   reviewsCount: 300,
                   category: "Add-ons",
                   dataAiHint: "ebook digital book",
-                   url:"https://store.pw.live/products/absolute-advanced-physics-chemistry-mathematics-set-of-3"
+                  url: "https://store.pw.live/products/absolute-advanced-physics-chemistry-mathematics-set-of-3"
                 },
                 {
                   id: 'addon5',
@@ -497,14 +624,80 @@ export default function HomePage() {
                   reviewsCount: 450,
                   category: "Add-ons",
                   dataAiHint: "test exam paper",
-                  url:"https://store.pw.live/products/jee-main-rankers-test-series-2025-"
+                  url: "https://store.pw.live/products/jee-main-rankers-test-series-2025-"
                 },
               ].map((addon) => (
-                 <SubscriptionCard key={addon.id} subscription={addon} />
+                <SubscriptionCard key={addon.id} subscription={addon} />
               ))}
             </div>
-            <div className="text-center mt-6 md:mt-8">
-              <Button className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base">
+            <div className="flex overflow-x-auto space-x-4 pb-2 md:hidden">
+              {[
+                {
+                  id: 'addon1',
+                  title: 'Certification Add-on',
+                  price: 0,
+                  imageUrl: 'https://images.geekster.in/ds-coursepage-images/certificate.png',
+                  providerInfo: { name: 'Geekster' },
+                  rating: 4.5,
+                  reviewsCount: 600,
+                  category: "Add-ons",
+                  dataAiHint: "certificate document",
+                  url: "https://www.geekster.in/courses/full-stack-web-developer/?nextStep=/job-ready-program"
+                },
+                {
+                  id: 'addon2',
+                  title: '1:1 Mentorship',
+                  price: 19999,
+                  imageUrl: 'https://d18qz45wk4tdlr.cloudfront.net/institute/upscprep/product_images/198/0453f2eb7f774b61b1b819ea25f8b9d7.png',
+                  providerInfo: { name: 'UPSC Prep' },
+                  rating: 4.7,
+                  reviewsCount: 400,
+                  category: "Add-ons",
+                  dataAiHint: "mentor teaching student",
+                  url: "https://courses.upscprep.com/products/upsc-essential-2026-mentorship/"
+                },
+                {
+                  id: 'addon3',
+                  title: 'Project Kit',
+                  price: 1480,
+                  imageUrl: 'https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2F15419cc8-1c0a-4037-8062-8e54ad76b8c6.jpg&w=1920&q=75',
+                  providerInfo: { name: 'Physics Wallah' },
+                  rating: 4.6,
+                  reviewsCount: 500,
+                  category: "Add-ons",
+                  dataAiHint: "project tools kit",
+                  url: "https://store.pw.live/products/curios-jr-science-experiment-kit-6th-class"
+                },
+                {
+                  id: 'addon4',
+                  title: 'Course book',
+                  price: 1389,
+                  imageUrl: 'https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2Fc67a4b93-2134-4e1b-862a-facc99f02768.png&w=1920&q=75',
+                  providerInfo: { name: 'Physics Wallah' },
+                  rating: 4.4,
+                  reviewsCount: 300,
+                  category: "Add-ons",
+                  dataAiHint: "ebook digital book",
+                  url: "https://store.pw.live/products/absolute-advanced-physics-chemistry-mathematics-set-of-3"
+                },
+                {
+                  id: 'addon5',
+                  title: 'Practice Tests',
+                  price: 407,
+                  imageUrl: 'https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2F9f72134a-ddb0-4003-80a4-d4f3e4551509.png&w=1920&q=75',
+                  providerInfo: { name: 'Physics Wallah' },
+                  rating: 4.5,
+                  reviewsCount: 450,
+                  category: "Add-ons",
+                  dataAiHint: "test exam paper",
+                  url: "https://store.pw.live/products/jee-main-rankers-test-series-2025-"
+                },
+              ].map((addon) => (
+                <SubscriptionCard key={addon.id} subscription={addon} />
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Button className="bg-[--primary-blue] text-[--text-light] px-8 py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
                 Show All
               </Button>
             </div>
@@ -512,16 +705,16 @@ export default function HomePage() {
         </section>
 
         {/* Discover By Price */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Discover By Price
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 hidden md:grid">
               {[
                 { label: 'Under ₹500', href: '/courses?price=under-500' },
                 { label: 'Under ₹1,000', href: '/courses?price=under-1000' },
@@ -538,7 +731,31 @@ export default function HomePage() {
                   className="hover-lift"
                 >
                   <Link href={price.href}>
-                    <Button className="w-full bg-[--bg-light] text-[--text-light] py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md text-[11px] sm:text-xs md:text-sm whitespace-normal h-auto min-h-[40px] sm:min-h-[48px]">
+                    <Button className="w-full bg-[--bg-light] text-[--text-light] py-4 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md">
+                      {price.label}
+                    </Button>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+            <div className="flex overflow-x-auto space-x-2 pb-2 md:hidden">
+              {[
+                { label: 'Under ₹500', href: '/courses?price=under-500' },
+                { label: 'Under ₹1,000', href: '/courses?price=under-1000' },
+                { label: 'Under ₹2,000', href: '/courses?price=under-2000' },
+                { label: 'Under ₹5,000', href: '/courses?price=under-5000' },
+                { label: 'Under ₹10,000', href: '/courses?price=under-10000' },
+                { label: 'Above ₹10,000', href: '/courses?price=above-10000' },
+              ].map((price) => (
+                <motion.div
+                  key={price.label}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="hover-lift"
+                >
+                  <Link href={price.href}>
+                    <Button className="min-w-[120px] bg-[--bg-light] text-[--text-light] py-2 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md">
                       {price.label}
                     </Button>
                   </Link>
@@ -549,17 +766,17 @@ export default function HomePage() {
         </section>
 
         {/* Newsletter Subscription */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-primary/10 section-divider">
-          <div className="container mx-auto text-center">
+        <section className="py-12 px-6 bg-primary/10 section-divider">
+          <div className="container text-center">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-4 text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Subscribe to Our Newsletter
             </motion.h2>
             <motion.p
-              className="text-sm sm:text-base text-gray-300 mb-4 sm:mb-5"
+              className="text-lg text-gray-300 mb-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -567,26 +784,26 @@ export default function HomePage() {
               Get updates on the best courses and exclusive offers!
             </motion.p>
             <motion.form
-              className="flex flex-col sm:flex-row justify-center items-center sm:space-x-2 space-y-2 sm:space-y-0 max-w-md mx-auto"
+              className="flex justify-center space-x-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               onSubmit={(e) => e.preventDefault()}
             >
-              <div className="relative w-full">
+              <div className="relative w-full max-w-md">
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full bg-[--bg-light] text-[--text-light] rounded-full py-2 sm:py-2.5 px-4 pl-10 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#5593f7]"
+                  className="w-full bg-[--bg-light] text-[--text-light] rounded-full py-3 px-6 pl-12 focus:outline-none focus:ring-2 focus:ring-[#5593f7]"
                 />
-                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
-              <Button type="submit" className="w-full sm:w-auto bg-[--primary-blue] text-[--text-light] px-4 py-2 sm:px-5 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] transition-colors text-sm sm:text-base">
+              <Button type="submit" className="bg-[--primary-blue] text-[--text-light] px-6 py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
                 Subscribe
               </Button>
             </motion.form>
             <motion.p
-              className="text-gray-400 mt-2 sm:mt-3 text-xs"
+              className="text-gray-400 mt-4 text-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -597,17 +814,18 @@ export default function HomePage() {
         </section>
 
         {/* Best Selling Subscriptions */}
-        <section className="py-8 md:py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center text-[--text-light] fade-in-up"
+              className="text-3xl font-bold mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Subscriptions
             </motion.h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-              {[ {
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 hidden md:grid">
+              {[
+                {
                   id: 'sub3',
                   title: 'Unacademy Plus - 3 Months',
                   price: 6250,
@@ -655,7 +873,6 @@ export default function HomePage() {
                   url: "https://www.coursera.org/courseraplus",
                   dataAiHint: "monthly pass learning",
                 },
-              
                 {
                   id: 'sub4',
                   title: 'Skillshare - 1 Month Subscription',
@@ -672,7 +889,7 @@ export default function HomePage() {
                   url: "https://www.skillshare.com/en/membership",
                   dataAiHint: "creative skills subscription",
                 },
-                 {
+                {
                   id: 'sub5',
                   title: 'edX Verified Track Subscription',
                   price: 29999,
@@ -692,8 +909,94 @@ export default function HomePage() {
                 <SubscriptionCard key={sub.id} subscription={sub} />
               ))}
             </div>
-            <div className="text-center mt-6 md:mt-8">
-              <Button className="bg-[--primary-blue] text-[--text-light] px-5 py-2 sm:px-6 sm:py-2.5 rounded-full font-semibold hover:bg-[#5593f7] hover:text-black-300 transition-colors text-sm sm:text-base">
+            <div className="flex overflow-x-auto space-x-4 pb-2 md:hidden">
+              {[
+                {
+                  id: 'sub3',
+                  title: 'Unacademy Plus - 3 Months',
+                  price: 6250,
+                  imageUrl: '/un.jpeg',
+                  providerInfo: {
+                    name: 'Unacademy',
+                    logoUrl: 'https://i.pinimg.com/474x/68/a0/42/68a042e75a0fe666c2ef0382ddb3f738.jpg',
+                    verified: true,
+                  },
+                  category: "Subscription",
+                  duration: "3 Months",
+                  subscribersCount: 700,
+                  url: "https://unacademy.com/goal/upsc-civil-services-examination-ias-preparation/KSCGY/subscribe",
+                  dataAiHint: "education subscription offer",
+                },
+                {
+                  id: 'sub1',
+                  title: 'Udemy Annual Subscription',
+                  price: 8999,
+                  imageUrl: '/ud.png',
+                  providerInfo: {
+                    name: 'Udemy',
+                    logoUrl: 'https://logowik.com/content/uploads/images/udemy-new-20212512.jpg',
+                    verified: true,
+                  },
+                  category: "Subscription",
+                  duration: "12 Months",
+                  subscribersCount: 1000,
+                  url: "https://www.udemy.com/pricing/",
+                  dataAiHint: "subscription access pass",
+                },
+                {
+                  id: 'sub2',
+                  title: 'Coursera Plus - 1 Month Subscription',
+                  price: 4975,
+                  imageUrl: '/c.png',
+                  providerInfo: {
+                    name: 'Coursera',
+                    logoUrl: '/coursera.png',
+                    verified: true,
+                  },
+                  category: "Subscription",
+                  duration: "1 Month",
+                  subscribersCount: 800,
+                  url: "https://www.coursera.org/courseraplus",
+                  dataAiHint: "monthly pass learning",
+                },
+                {
+                  id: 'sub4',
+                  title: 'Skillshare - 1 Month Subscription',
+                  price: 7999,
+                  imageUrl: '/s.png',
+                  providerInfo: {
+                    name: 'Skillshare',
+                    logoUrl: 'https://logowik.com/content/uploads/images/skill-share5249.jpg',
+                    verified: true,
+                  },
+                  category: "Subscription",
+                  duration: "1 Month",
+                  subscribersCount: 600,
+                  url: "https://www.skillshare.com/en/membership",
+                  dataAiHint: "creative skills subscription",
+                },
+                {
+                  id: 'sub5',
+                  title: 'edX Verified Track Subscription',
+                  price: 29999,
+                  imageUrl: 'https://img.freepik.com/premium-psd/pricing-plans-web-elements-website_206192-14.jpg',
+                  providerInfo: {
+                    name: 'edX',
+                    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/EdX_newer_logo.svg/330px-EdX_newer_logo.svg.png',
+                    verified: true,
+                  },
+                  category: "Subscription",
+                  duration: "6 Months",
+                  subscribersCount: 650,
+                  url: "https://campus.edx.org/subscriptions",
+                  dataAiHint: "verified certificate access",
+                },
+              ].map((sub) => (
+                <SubscriptionCard key={sub.id} subscription={sub} />
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Button className="bg-[--primary-blue] text-[--text-light] px-8 py-3 rounded-full font-semibold hover:bg-[#5593f7] hover:text-black-300 transition-colors">
                 Show All
               </Button>
             </div>
@@ -701,25 +1004,25 @@ export default function HomePage() {
         </section>
       </main>
       <Footer />
-      {/* Bottom Navigation for Mobile */}
-      <nav className="fixed bottom-0 left-0 w-full bg-[--bg-dark] border-t border-[--border-color] md:hidden flex justify-around items-center py-2 z-50">
+      {/* Mobile Bottom Navbar */}
+      <div className="fixed bottom-0 left-0 w-full bg-[--bg-dark] border-t border-[--border-color] md:hidden flex justify-around items-center py-2 z-50">
         <Link href="/" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
-          <Home className="h-5 w-5" />
+          <Home className="h-6 w-6" />
           <span className="text-xs">Home</span>
         </Link>
         <Link href="/store" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
-          <Store className="h-5 w-5" />
+          <Store className="h-6 w-6" />
           <span className="text-xs">Store</span>
         </Link>
         <Link href="/cart" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
-          <ShoppingCart className="h-5 w-5" />
+          <ShoppingCart className="h-6 w-6" />
           <span className="text-xs">Cart</span>
         </Link>
-        <Link href="/courses" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
-          <LayoutGrid className="h-5 w-5" />
+        <Link href="/categories" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <LayoutGrid className="h-6 w-6" />
           <span className="text-xs">Categories</span>
         </Link>
-      </nav>
+      </div>
     </div>
   );
 }
