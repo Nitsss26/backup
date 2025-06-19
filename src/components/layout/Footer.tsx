@@ -165,87 +165,30 @@
 // // }
 
 import Link from 'next/link';
-import { GraduationCap, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { GraduationCap, Facebook, Twitter, Linkedin, Instagram, Home, Store, ShoppingCart, LayoutGrid } from 'lucide-react';
 import { APP_NAME, FOOTER_LINKS } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 export function Footer() {
   return (
-    <footer className="bg-muted/50 border-t">
-      <div className="container py-4 sm:py-8 px-2 sm:px-4 md:px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-          <div className='ml-2 sm:ml-5'>
-            <Link href="/" className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-4">
-              <img
-                src="/logoo.png"
-                alt="Logo"
-                width={80}
-                height={80}
-                className="w-16 sm:w-24 h-16 sm:h-24 object-contain"
-              />
-            </Link>
-            <p className="text-muted-foreground text-xs sm:text-sm">
-              Empowering learners and educators worldwide. Discover your next skill with {APP_NAME}.
-            </p>
-            <div className="flex gap-1 sm:gap-2 mt-2 sm:mt-4">
-              <Link href="#" aria-label="Facebook"><Facebook className="h-3 sm:h-5 w-3 sm:w-5 text-muted-foreground hover:text-primary" /></Link>
-              <Link href="#" aria-label="Twitter"><Twitter className="h-3 sm:h-5 w-3 sm:w-5 text-muted-foreground hover:text-primary" /></Link>
-              <Link href="#" aria-label="LinkedIn"><Linkedin className="h-3 sm:h-5 w-3 sm:w-5 text-muted-foreground hover:text-primary" /></Link>
-              <Link href="#" aria-label="Instagram"><Instagram className="h-3 sm:h-5 w-3 sm:w-5 text-muted-foreground hover:text-primary" /></Link>
-            </div>
-          </div>
-          
-          <div className='ml-2 sm:ml-8'>
-            <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">Company</h3>
-            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-              {FOOTER_LINKS.company.map(link => (
-                <li key={link.name}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-primary transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className='ml-2 sm:ml-5'>
-            <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">For Sellers</h3>
-            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-              <li>
-                <Link href="/sell-courses" className="text-muted-foreground hover:text-primary transition-colors">
-                  Sell on {APP_NAME}
-                </Link>
-              </li>
-              <li>
-                <Link href="/help/seller-verification" className="text-muted-foreground hover:text-primary transition-colors">
-                  Seller Verification
-                </Link>
-              </li>
-              <li>
-                <Link href="/help/seller-faq" className="text-muted-foreground hover:text-primary transition-colors">
-                  Seller FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div className='ml-2 sm:ml-5'>
-            <h3 className="text-sm sm:text-lg font-semibold mb-1 sm:mb-2">Support</h3>
-            <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-              {FOOTER_LINKS.support.map(link => (
-                <li key={link.name}>
-                  <Link href={link.href} className="text-muted-foreground hover:text-primary transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div className="mt-4 sm:mt-8 border-t pt-2 sm:pt-4 text-center text-xs sm:text-sm text-muted-foreground">
-          © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
-        </div>
+    <footer className="fixed bottom-0 left-0 w-full z-40 bg-[--bg-dark] border-t border-[--border-color] md:hidden">
+      <div className="container mx-auto flex justify-around items-center py-2 px-2">
+        <Link href="/" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <Home className="h-5 w-5" />
+          <span className="text-xs">Home</span>
+        </Link>
+        <Link href="/courses" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <LayoutGrid className="h-5 w-5" />
+          <span className="text-xs">Store</span>
+        </Link>
+        <Link href="/cart" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <ShoppingCart className="h-5 w-5" />
+          <span className="text-xs">Cart</span>
+        </Link>
+        <Link href="/categories" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <Store className="h-5 w-5" />
+          <span className="text-xs">Categories</span>
+        </Link>
       </div>
     </footer>
   );

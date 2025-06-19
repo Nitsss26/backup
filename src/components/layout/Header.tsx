@@ -385,7 +385,6 @@
 // //   );
 // // }
 
-
 "use client";
 
 import Link from 'next/link';
@@ -415,7 +414,6 @@ export function Header() {
   const { cartItems } = useCart();
   const { theme } = useTheme();
 
-  // Define theme-aware classes
   const getNavLinkClasses = () => {
     return theme === 'light' 
       ? "text-foreground/70 hover:text-foreground transition-colors"
@@ -472,53 +470,25 @@ export function Header() {
             alt="Logo"
             width={80}
             height={80}
-            className="w-16 sm:w-24 h-16 sm:h-24 object-contain"
+            className="w-10 sm:w-14 h-10 sm:h-14 object-contain"
           />
         </Link>
-
-        <nav className="hidden md:flex items-center gap-2 sm:gap-4 text-xs sm:text-sm font-medium">
-          <DropdownMenu>
-            <Button variant="ghost" className={`${getButtonClasses()} -mr-2 sm:-mr-4`} asChild>
-              <Link href="/">
-                <Home className={getIconClasses()} /> Home
-              </Link>
-            </Button>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className={`flex items-center gap-1 ${getButtonClasses()} -mr-2 sm:-mr-4`}>
-                <LayoutGrid className={getIconClasses()} /> Categories
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-32 sm:w-48">
-              {CATEGORIES.map((category) => (
-                <DropdownMenuItem key={category.id} asChild>
-                  <Link className={getNavLinkClasses()} href={`/courses?category=${category.slug}`}>{category.name}</Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {navLinks.map(link => ( 
-            <Link key={link.href} href={link.href} className={getNavLinkClasses()}>
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          <div className="hidden sm:block relative w-full max-w-xs sm:max-w-sm">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="hidden sm:block relative w-full max-w-xs">
             <Input 
               type="search" 
               placeholder="Search courses..." 
-              className="pl-8 pr-8 py-1 sm:py-2 border border-blue-400" 
+              className="pl-8 pr-10 py-1 sm:py-2 border border-blue-400 rounded-full" 
             />
-            <Search className="absolute right-2 top-1/2 -translate-y-1/2 h-3 sm:h-4 w-3 sm:w-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
           </div>
-          <Button variant="ghost" size="icon" asChild className="relative">
+          <Button variant="ghost" size="icon" className="relative">
             <Link href="/cart">
-              <ShoppingCart className="!h-4 sm:!h-6 !w-4 sm:!w-6 stroke-white" />
+              <ShoppingCart className="!h-5 !w-5 sm:!h-6 sm:!w-6 stroke-white" />
               {cartItemCount > 0 && (
                 <UiBadge 
                   variant="destructive" 
-                  className="absolute -top-1 -right-1 h-3 sm:h-5 w-3 sm:w-5 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground"
+                  className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[8px] sm:text-xs rounded-full bg-primary text-primary-foreground"
                 >
                   {cartItemCount}
                 </UiBadge>
@@ -526,13 +496,12 @@ export function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
-          
           <div className="hidden md:flex items-center gap-1 sm:gap-2">
             {isLoading ? (
-              <Skeleton className="h-6 sm:h-9 w-16 sm:w-24 rounded-md" />
+              <Skeleton className="h-7 sm:h-9 w-16 sm:w-24 rounded-md" />
             ) : !user ? (
               <>
-                <Button className='' variant="outline" size="sm" asChild>
+                <Button className="hidden sm:inline-flex" variant="outline" size="sm" asChild>
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button variant="default" size="sm" asChild>
@@ -543,29 +512,33 @@ export function Header() {
               <UserProfileDropdown />
             )}
           </div>
-          
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
-                <Menu className="h-4 sm:h-6 w-4 sm:w-6" />
+                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-full max-w-xs p-2 sm:p-6">
               <div className="flex flex-col gap-2 sm:gap-6">
                 <Link href="/" className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-4" onClick={() => setIsMobileMenuOpen(false)}>
-                  <GraduationCap className="h-5 sm:h-7 w-5 sm:w-7 text-primary" />
-                  <span className="font-bold text-base sm:text-xl text-primary">{APP_NAME}</span>
+                  <img
+                    src="/logoo.png"
+                    alt="Logo"
+                    width={80}
+                    height={80}
+                    className="w-10 sm:w-14 h-10 sm:h-14 object-contain"
+                  />
                 </Link>
-                <Input type="search" placeholder="Search courses..." className="mb-2 sm:mb-4" />
+                <Input type="search" placeholder="Search courses..." className="w-full mb-2 sm:mb-4" />
                 <nav className="flex flex-col gap-2 sm:gap-4">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="justify-start flex items-center gap-1 sm:gap-2 text-base">
-                        <LayoutGrid className="h-4 sm:h-5 w-4 sm:w-5" /> Categories
+                        <LayoutGrid className="h-4 w-4 sm:h-5 sm:w-5" /> Categories
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-32 sm:w-56">
+                    <DropdownMenuContent align="start" className="w-40 sm:w-56">
                       {CATEGORIES.map((category) => (
                         <DropdownMenuItem key={category.id} asChild>
                           <Link href={`/courses?category=${category.slug}`} onClick={() => setIsMobileMenuOpen(false)}>{category.name}</Link>
@@ -575,7 +548,7 @@ export function Header() {
                   </DropdownMenu>
                   {allMobileNavLinks.map(link => ( 
                     <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                      <link.icon className="h-4 sm:h-5 w-4 sm:w-5" />
+                      <link.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                       {link.label}
                     </Link>
                   ))}
@@ -583,11 +556,11 @@ export function Header() {
                     <>
                       <DropdownMenuSeparator />
                       <Link href="/auth/login" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                        <LogIn className="h-4 sm:h-5 w-4 sm:w-5" />
+                        <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
                         Login
                       </Link>
                       <Link href="/auth/register" className={`${getMobileNavLinkClasses()} text-white !text-white`} onClick={() => setIsMobileMenuOpen(false)}>
-                        <UserPlus className="h-4 sm:h-5 w-4 sm:w-5" />
+                        <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
                         Sign Up
                       </Link>
                     </>

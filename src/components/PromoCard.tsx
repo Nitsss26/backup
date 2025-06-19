@@ -68,7 +68,7 @@ export function PromoCard({ imageUrl, title, ctaText, ctaLink, dataAiHint = "pro
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="relative rounded-xl overflow-hidden hover-lift shadow-lg"
+      className="relative rounded-xl overflow-hidden hover-lift shadow-lg w-full sm:w-auto"
     >
       <Link href={ctaLink}>
         <Image
@@ -81,9 +81,6 @@ export function PromoCard({ imageUrl, title, ctaText, ctaLink, dataAiHint = "pro
         />
         <div className="absolute inset-0 flex flex-col justify-end p-1 sm:p-6">
           <h3 className="text-sm sm:text-xl font-bold text-[--text-light]">{title}</h3>
-          {/* <Button className="mt-1 sm:mt-4 bg-[--highlight-gold] text-black px-2 sm:px-6 py-0.5 sm:py-2 rounded-full font-semibold hover:bg-[--secondary-purple] hover:text-white transition-colors">
-            {ctaText}
-          </Button> */}
         </div>
       </Link>
     </motion.div>

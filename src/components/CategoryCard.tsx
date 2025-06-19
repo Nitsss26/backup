@@ -28,9 +28,8 @@
 //     </motion.div>
 //   );
 // }
-
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 interface CategoryCardProps {
   name: string;
@@ -40,15 +39,17 @@ interface CategoryCardProps {
 
 export function CategoryCard({ name, slug, bgColor = 'bg-[--bg-light]' }: CategoryCardProps) {
   return (
-    <div className="w-full">
-      <Link href={`/courses?category=${slug}`} className="block w-full">
-        <Button
-          variant="outline"
-          className={`w-full h-12 sm:h-14 text-xs sm:text-sm font-medium ${bgColor} text-[--text-light] hover:bg-[--primary-blue]/80 hover:text-white transition-colors rounded-lg`}
-        >
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="hover-lift w-32 sm:w-40"
+    >
+      <Link href={`/courses?category=${slug}`}>
+        <div className={`w-full ${bgColor} text-[--text-light] py-2 sm:py-4 rounded-lg text-center font-semibold hover:bg-[#5593f7] transition-colors shadow-md text-xs sm:text-sm`}>
           {name}
-        </Button>
+        </div>
       </Link>
-    </div>
+    </motion.div>
   );
 }

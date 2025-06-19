@@ -138,7 +138,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
     : "P";
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
+    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 w-48 sm:w-56 md:w-64">
       <a href={subscription.url} className="block group">
         <CardHeader className="p-0 relative">
           <Image
@@ -146,20 +146,9 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
             alt={subscription.title}
             width={600}
             height={400}
-            className="object-cover w-full h-32 sm:h-48 group-hover:opacity-90 transition-opacity"
+            className="object-cover w-full h-24 sm:h-32 md:h-48 group-hover:opacity-90 transition-opacity"
             data-ai-hint={imageHint}
           />
-          {/* {subscription.providerInfo?.verified && (
-            <Badge
-              variant="success"
-              className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 text-xs font-semibold tracking-wide text-white bg-green-600 border border-green-700 rounded-full shadow-md hover:bg-green-700 hover:shadow-lg transition-all duration-200 ease-in-out"
-              aria-label="Verified Provider"
-              title="This provider has been verified for authenticity and quality"
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Verified
-            </Badge>
-          )} */}
         </CardHeader>
       </a>
       <CardContent className="p-2 sm:p-4 flex-grow">
@@ -181,13 +170,13 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
         <div className="text-xs sm:text-sm text-muted-foreground space-y-0.5 sm:space-y-1.5">
           {subscription.duration && (
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <Clock className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-primary/80" />
+              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
               <span>{subscription.duration}</span>
             </div>
           )}
           {subscription.subscribersCount && (
             <div className="flex items-center gap-1 sm:gap-1.5">
-              <Users className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-primary/80" />
+              <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
               <span>{subscription.subscribersCount.toLocaleString()} subscribers</span>
             </div>
           )}
@@ -195,7 +184,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
       </CardContent>
       <CardFooter className="p-2 sm:p-4 flex items-center justify-between border-t mt-auto">
         <div>
-          <p className="text-sm sm:text-xl font-bold text-primary">
+          <p className="text-base sm:text-xl font-bold text-primary">
             ₹{subscription.price.toLocaleString('en-IN')}
           </p>
           {subscription.originalPrice && (
