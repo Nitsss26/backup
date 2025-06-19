@@ -21,21 +21,21 @@ export function CourseCard({ course }: CourseCardProps) {
   const providerNameInitial = course.providerInfo?.name ? course.providerInfo.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase() : "P";
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 bg-card">
+    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 w-full">
       <Link href={`/courses/${course.id}`} className="block group">
-        <CardHeader className="p-0 relative aspect-video"> {/* Changed to aspect-video */}
+        <CardHeader className="p-0 relative aspect-video">
           <Image
             src={course.imageUrl || "https://placehold.co/600x400.png"}
             alt={course.title}
-            fill // Use fill for aspect ratio
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" // Responsive sizes
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover group-hover:opacity-90 transition-opacity"
             data-ai-hint={imageHint}
           />
         </CardHeader>
       </Link>
-      <CardContent className="p-2 sm:p-3 flex-grow flex flex-col"> {/* Adjusted padding */}
-        <Link href={`/courses/${course.id}`} className="block mb-auto"> {/* Allow title to take space */}
+      <CardContent className="p-3 sm:p-4 flex-grow flex flex-col">
+        <Link href={`/courses/${course.id}`} className="block mb-auto">
           <Badge variant="outline" className="mb-1 text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2">{course.category}</Badge>
           <CardTitle className="text-sm sm:text-base font-semibold leading-snug mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
             {course.title}
@@ -54,7 +54,7 @@ export function CourseCard({ course }: CourseCardProps) {
           <StarRating rating={course.rating} size={16} />
           <span className="ml-1.5 text-[10px] sm:text-xs text-muted-foreground">({course.reviewsCount} reviews)</span>
         </div>
-        <div className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 mt-auto"> {/* mt-auto to push to bottom */}
+        <div className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 mt-auto">
           {course.duration && (
             <div className="flex items-center gap-1">
               <Clock className="h-3 w-3 text-primary/80" />
@@ -69,7 +69,7 @@ export function CourseCard({ course }: CourseCardProps) {
           )}
         </div>
       </CardContent>
-      <CardFooter className="p-2.5 sm:p-3 flex items-center justify-between border-t"> {/* Adjusted padding */}
+      <CardFooter className="p-2.5 sm:p-3 flex items-center justify-between border-t">
         <div>
           <p className="text-base sm:text-lg font-bold text-primary">
             ₹{course.price.toLocaleString('en-IN')}

@@ -800,14 +800,14 @@ export default function HomePage() {
       <Header />
       <main className="flex-grow">
         {/* Hero Section (Matching Driffle’s Layout) */}
-        <section className="py-4 px-2 sm:px-4 bg-primary/10">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-primary/10">
+          <div className="container">
             {/* Top Row: Carousel (75%) + Right Stack (25%) */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-              <div className="w-full sm:w-3/4">
+            <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+              <div className="w-full md:w-3/4">
                 <Carousel items={carouselItems} />
               </div>
-              <div className="w-full sm:w-1/4 flex flex-col gap-2 sm:gap-4">
+              <div className="w-full md:w-1/4 flex flex-col gap-4 sm:gap-6">
                 <BannerCard
                   imageUrl={rightBanner.imageUrl}
                   title={rightBanner.title}
@@ -827,7 +827,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* Bottom Row: 4 Banner Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mt-2 sm:mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mt-4 sm:mt-6">
               {bottomBanners.map((banner, index) => (
                 <BannerCard
                   key={index}
@@ -844,17 +844,17 @@ export default function HomePage() {
         </section>
 
         {/* Recommended For You */}
-        <section className="py-4 px-2 sm:px-4 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Recommended For You
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
-              <div className="inline-flex gap-2 sm:gap-4">
+            <div className="overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
+              <div className="inline-flex gap-4">
                 {featuredCoursesForHomepage.slice(0, 5).map((course) => (
                   <CourseCard key={course.id} course={course} />
                 ))}
@@ -863,10 +863,10 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="py-4 px-2 sm:px-4 bg-primary/10 section-divider">
-  <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-primary/10 section-divider">
+  <div className="container">
     <motion.h2
-      className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+      className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
@@ -886,7 +886,7 @@ export default function HomePage() {
         <ChevronLeft className="w-4 sm:w-6 h-4 sm:h-6 text-[--text-light]" />
       </button>
 
-      <div className="overflow-x-auto whitespace-nowrap pb-2">
+      <div className="mx-8 sm:mx-16 overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
         <div
           className="inline-flex gap-2 sm:gap-4 transition-transform duration-500 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
@@ -898,7 +898,7 @@ export default function HomePage() {
               style={{ width: `calc(${100 / itemsPerView}% - 0.5rem)` }}
             >
               <Link href={platform.ctaLink}>
-                <div className="bg-[--bg-dark] rounded-xl p-2 sm:p-6 border-2 border-[--border-color] transition-all duration-300 cursor-pointer h-20 sm:h-36 flex flex-col items-center justify-center group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
+                <div className="bg-[--bg-dark] rounded-xl p-2 sm:p-6 border-2 border-[--border-color] transition-all duration-300 cursor-pointer h-24 sm:h-36 flex flex-col items-center justify-center group relative overflow-visible hover:border-[#5593f7] hover:shadow-xl hover:shadow-[#5593f7]/20 hover:scale-[1.02] hover:z-10">
                   <div className="w-10 sm:w-16 h-10 sm:h-16 mb-1 sm:mb-3 flex items-center justify-center overflow-visible">
                     <img
                       src={platform.logo}
@@ -906,7 +906,7 @@ export default function HomePage() {
                       className="w-full h-full object-contain transition-all duration-300 group-hover:scale-110"
                     />
                   </div>
-                  <span className="text-xs sm:text-sm text-[--text-light] font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight">
+                  <span className="text-[--text-light] text-xs sm:text-sm font-medium text-center group-hover:text-[#5593f7] transition-colors duration-300 leading-tight">
                     {platform.name}
                   </span>
                 </div>
@@ -929,7 +929,7 @@ export default function HomePage() {
       </button>
     </div>
 
-    <div className="flex justify-center mt-2 sm:mt-8 space-x-1 sm:space-x-2">
+    <div className="flex justify-center mt-4 sm:mt-8 space-x-1 sm:space-x-2">
       {Array.from({ length: maxIndex + 1 }).map((_, index) => (
         <button
           key={index}
@@ -946,17 +946,17 @@ export default function HomePage() {
 </section>
 
         {/* Best Selling Courses */}
-        <section className="py-4 px-2 sm:px-4 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling JEE/NEET Courses
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
-              <div className="inline-flex gap-2 sm:gap-4">
+            <div className="overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
+              <div className="inline-flex gap-4">
                 {topCategoryShowcaseData
                   .flatMap((cat) => cat.courses)
                   .slice(0, 5)
@@ -965,11 +965,11 @@ export default function HomePage() {
                   ))}
               </div>
             </div>
-            <div className="text-center mt-4 sm:mt-8">
+            <div className="text-center mt-6 sm:mt-8">
               <Link href="/courses?category=iit-jee&category=neet&page=1" passHref>
                 <Button
                   asChild
-                  className="bg-[--primary-blue] text-[--text-light] px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
+                  className="bg-[--primary-blue] text-[--text-light] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
                 >
                   <span>Show All</span>
                 </Button>
@@ -979,21 +979,21 @@ export default function HomePage() {
         </section>
 
         {/* Get Extra Discounts */}
-        <section className="py-4 px-2 sm:px-4 bg-gradient-to-r from-[--primary-blue] to-[#5593f7] section-divider">
-          <div className="container mx-auto flex flex-col sm:flex-row justify-between items-center rounded-xl p-2 sm:p-8">
+        <section className="py-12 px-4 sm:px-6 bg-gradient-to-r from-[--primary-blue] to-[#5593f7] section-divider">
+          <div className="container flex flex-col md:flex-row justify-between items-center rounded-xl p-4 sm:p-8">
             <motion.div
-              className="text-center sm:text-left"
+              className="text-center md:text-left"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
             >
               <h2 className="text-2xl sm:text-4xl font-bold text-[--text-light]">Get Extra Discounts with EdTechCart Plus</h2>
-              <Button asChild className="mt-2 sm:mt-4 bg-[--highlight-gold] text-black px-4 sm:px-6 py-2 sm:py-2 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors">
+              <Button asChild className="mt-4 sm:mt-6 bg-[--highlight-gold] text-black px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:bg-[--text-light] hover:text-[--primary-blue] transition-colors">
                 <Link className="text-white" href="/plus">Coming Soon!</Link>
               </Button>
             </motion.div>
             <motion.div
-              className="text-gray-200 mt-2 sm:mt-0"
+              className="text-gray-200 mt-4 sm:mt-0"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
@@ -1009,17 +1009,17 @@ export default function HomePage() {
         </section>
 
         {/* Best Selling Course Bundles */}
-        <section className="py-4 px-2 sm:px-4 bg-primary/10 section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-primary/10 section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Course Bundles
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
-              <div className="inline-flex gap-2 sm:gap-4">
+            <div className="overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
+              <div className="inline-flex gap-4">
                 {[
                   {
                     id: '6845b4b9188aa67dd4093856',
@@ -1081,11 +1081,11 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="text-center mt-4 sm:mt-8">
+            <div className="text-center mt-6 sm:mt-8">
               <Link href="/courses" passHref>
                 <Button
                   asChild
-                  className="bg-[--primary-blue] text-[--text-light] px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
+                  className="bg-[--primary-blue] text-[--text-light] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors"
                 >
                   <span>Show All</span>
                 </Button>
@@ -1095,16 +1095,16 @@ export default function HomePage() {
         </section>
 
         {/* Discover Courses By Category */}
-        <section className="py-4 px-2 sm:px-4 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Discover Courses By Category
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
+            <div className="overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
               <div className="inline-flex gap-2 sm:gap-4">
                 {CATEGORIES.slice(0, 7).map((category) => (
                   <CategoryCard
@@ -1120,17 +1120,17 @@ export default function HomePage() {
         </section>
 
         {/* Best Selling Course Add-ons */}
-        <section className="py-4 px-2 sm:px-4 bg-primary/10 section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-primary/10 section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Course Add-ons
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
-              <div className="inline-flex gap-2 sm:gap-4">
+            <div className="overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
+              <div className="inline-flex gap-4">
                 {[
                   {
                     id: 'addon1',
@@ -1197,8 +1197,8 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="text-center mt-4 sm:mt-8">
-              <Button className="bg-[--primary-blue] text-[--text-light] px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
+            <div className="text-center mt-6 sm:mt-8">
+              <Button className="bg-[--primary-blue] text-[--text-light] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
                 Show All
               </Button>
             </div>
@@ -1206,56 +1206,54 @@ export default function HomePage() {
         </section>
 
         {/* Discover By Price */}
-        <section className="py-4 px-2 sm:px-4 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Discover By Price
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
-              <div className="inline-flex gap-2 sm:gap-4">
-                {[
-                  { label: 'Under ₹500', href: '/courses?price=under-500' },
-                  { label: 'Under ₹1,000', href: '/courses?price=under-1000' },
-                  { label: 'Under ₹2,000', href: '/courses?price=under-2000' },
-                  { label: 'Under ₹5,000', href: '/courses?price=under-5000' },
-                  { label: 'Under ₹10,000', href: '/courses?price=under-10000' },
-                  { label: 'Above ₹10,000', href: '/courses?price=above-10000' },
-                ].map((price) => (
-                  <motion.div
-                    key={price.label}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="hover-lift"
-                  >
-                    <Link href={price.href}>
-                      <Button className="w-24 sm:w-full bg-[--bg-light] text-[--text-light] py-2 sm:py-4 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md">
-                        {price.label}
-                      </Button>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 sm:gap-4">
+              {[
+                { label: 'Under ₹500', href: '/courses?price=under-500' },
+                { label: 'Under ₹1,000', href: '/courses?price=under-1000' },
+                { label: 'Under ₹2,000', href: '/courses?price=under-2000' },
+                { label: 'Under ₹5,000', href: '/courses?price=under-5000' },
+                { label: 'Under ₹10,000', href: '/courses?price=under-10000' },
+                { label: 'Above ₹10,000', href: '/courses?price=above-10000' },
+              ].map((price) => (
+                <motion.div
+                  key={price.label}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="hover-lift"
+                >
+                  <Link href={price.href}>
+                    <Button className="w-full bg-[--bg-light] text-[--text-light] py-2 sm:py-4 rounded-lg font-semibold hover:bg-[#5593f7] transition-colors shadow-md">
+                      {price.label}
+                    </Button>
+                  </Link>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Newsletter Subscription */}
-        <section className="py-4 px-2 sm:px-4 bg-primary/10 section-divider">
-          <div className="container mx-auto text-center">
+        <section className="py-12 px-4 sm:px-6 bg-primary/10 section-divider">
+          <div className="container text-center">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-2 sm:mb-4 text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Subscribe to Our Newsletter
             </motion.h2>
             <motion.p
-              className="text-sm sm:text-lg text-gray-300 mb-2 sm:mb-6"
+              className="text-sm sm:text-lg text-gray-300 mb-4 sm:mb-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -1263,26 +1261,26 @@ export default function HomePage() {
               Get updates on the best courses and exclusive offers!
             </motion.p>
             <motion.form
-              className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-2"
+              className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               onSubmit={(e) => e.preventDefault()}
             >
-              <div className="relative w-full sm:max-w-md">
+              <div className="relative w-full max-w-xs">
                 <Input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full bg-[--bg-light] text-[--text-light] rounded-full py-2 px-4 sm:py-3 sm:px-6 focus:outline-none focus:ring-2 focus:ring-[#5593f7]"
+                  className="w-full bg-[--bg-light] text-[--text-light] rounded-full py-2 sm:py-3 px-6 pl-10 focus:outline-none focus:ring-2 focus:ring-[#5593f7]"
                 />
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Mail className="w-4 sm:w-5 h-4 sm:h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
               <Button type="submit" className="bg-[--primary-blue] text-[--text-light] px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] transition-colors">
                 Subscribe
               </Button>
             </motion.form>
             <motion.p
-              className="text-gray-400 mt-2 sm:mt-4 text-xs sm:text-sm"
+              className="text-gray-400 mt-4 sm:mt-6 text-xs sm:text-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
@@ -1293,17 +1291,17 @@ export default function HomePage() {
         </section>
 
         {/* Best Selling Subscriptions */}
-        <section className="py-4 px-2 sm:px-4 bg-[--bg-dark] section-divider">
-          <div className="container mx-auto">
+        <section className="py-12 px-4 sm:px-6 bg-[--bg-dark] section-divider">
+          <div className="container">
             <motion.h2
-              className="text-xl sm:text-3xl font-bold mb-4 sm:mb-8 text-center text-[--text-light] fade-in-up"
+              className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 text-center text-[--text-light] fade-in-up"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
               Best Selling Subscriptions
             </motion.h2>
-            <div className="overflow-x-auto whitespace-nowrap pb-2">
-              <div className="inline-flex gap-2 sm:gap-4">
+            <div className="overflow-x-auto whitespace-nowrap pb-4 hide-scrollbar">
+              <div className="inline-flex gap-4">
                 {[
                   {
                     id: 'sub3',
@@ -1390,8 +1388,8 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="text-center mt-4 sm:mt-8">
-              <Button className="bg-[--primary-blue] text-[--text-light] px-4 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] hover:text-black-300 transition-colors">
+            <div className="text-center mt-6 sm:mt-8">
+              <Button className="bg-[--primary-blue] text-[--text-light] px-6 sm:px-8 py-2 sm:py-3 rounded-full font-semibold hover:bg-[#5593f7] hover:text-black-300 transition-colors">
                 Show All
               </Button>
             </div>
@@ -1399,6 +1397,25 @@ export default function HomePage() {
         </section>
       </main>
       <Footer />
+      {/* Bottom Navigation for Mobile */}
+      <nav className="fixed bottom-0 left-0 w-full bg-[--bg-dark] border-t border-[--border-color] md:hidden flex justify-around items-center py-2 z-50">
+        <Link href="/" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <Home className="h-5 w-5" />
+          <span className="text-xs">Home</span>
+        </Link>
+        <Link href="/store" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <Store className="h-5 w-5" />
+          <span className="text-xs">Store</span>
+        </Link>
+        <Link href="/cart" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <ShoppingCart className="h-5 w-5" />
+          <span className="text-xs">Cart</span>
+        </Link>
+        <Link href="/categories" className="flex flex-col items-center text-[--text-light] hover:text-[#5593f7] transition-colors">
+          <LayoutGrid className="h-5 w-5" />
+          <span className="text-xs">Categories</span>
+        </Link>
+      </nav>
     </div>
   );
 }

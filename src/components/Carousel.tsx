@@ -147,7 +147,7 @@ export function Carousel({ items }: CarouselProps) {
   };
 
   if (items.length === 0) {
-    return <div className="relative rounded-xl shadow-2xl bg-muted flex items-center justify-center h-48 sm:h-[400px]"><p className="text-sm sm:text-base">No carousel items to display.</p></div>;
+    return <div className="relative rounded-xl shadow-2xl bg-muted flex items-center justify-center h-[200px] sm:h-[400px]"><p>No carousel items to display.</p></div>;
   }
 
   return (
@@ -161,7 +161,7 @@ export function Carousel({ items }: CarouselProps) {
                 alt={item.title}
                 width={1200}
                 height={400}
-                className="w-full h-48 sm:h-[400px] object-cover"
+                className="w-full h-[200px] sm:h-[400px] object-cover"
                 priority={index === 0}
                 data-ai-hint="course promotion banner"
               />

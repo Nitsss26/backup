@@ -43,7 +43,7 @@ export function CategoryCard({ name, slug, bgColor = 'bg-[--bg-light]' }: Catego
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="hover-lift w-32 sm:w-40"
+      className="hover-lift w-28 sm:w-full"
     >
       <Link href={`/courses?category=${slug}`}>
         <div className={`w-full ${bgColor} text-[--text-light] py-2 sm:py-4 rounded-lg text-center font-semibold hover:bg-[#5593f7] transition-colors shadow-md text-xs sm:text-sm`}>

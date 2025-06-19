@@ -462,33 +462,33 @@ export function Header() {
   const cartItemCount = cartItems.length;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/10">
-      <div className="container flex h-12 sm:h-16 items-center justify-between px-2 sm:px-4">
-        <Link href="/" className="flex items-center gap-1 sm:gap-2">
+    <header className="sticky top-0 z-50 w-full border-b bg-[--bg-dark] text-[--text-light] md:bg-primary/10 md:backdrop-blur supports-[backdrop-filter]:md:bg-primary/10">
+      <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
+        <Link href="/" className="flex items-center gap-2">
           <img
             src="/logoo.png"
             alt="Logo"
-            width={80}
-            height={80}
-            className="w-10 sm:w-14 h-10 sm:h-14 object-contain"
+            width={120}
+            height={120}
+            className="w-20 h-10 sm:w-24 sm:h-12 object-contain"
           />
         </Link>
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="hidden sm:block relative w-full max-w-xs">
-            <Input 
-              type="search" 
-              placeholder="Search courses..." 
-              className="pl-8 pr-10 py-1 sm:py-2 border border-blue-400 rounded-full" 
+          <div className="relative w-full max-w-xs md:hidden">
+            <Input
+              type="search"
+              placeholder="Search courses..."
+              className="w-full pl-8 pr-8 py-2 border border-blue-400 rounded-full text-xs sm:text-sm"
             />
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           </div>
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" asChild className="relative">
             <Link href="/cart">
-              <ShoppingCart className="!h-5 !w-5 sm:!h-6 sm:!w-6 stroke-white" />
+              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" />
               {cartItemCount > 0 && (
-                <UiBadge 
-                  variant="destructive" 
-                  className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[8px] sm:text-xs rounded-full bg-primary text-primary-foreground"
+                <UiBadge
+                  variant="destructive"
+                  className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground"
                 >
                   {cartItemCount}
                 </UiBadge>
@@ -496,12 +496,12 @@ export function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
-          <div className="hidden md:flex items-center gap-1 sm:gap-2">
+          <div className="hidden md:flex items-center gap-3">
             {isLoading ? (
-              <Skeleton className="h-7 sm:h-9 w-16 sm:w-24 rounded-md" />
+              <Skeleton className="h-9 w-24 rounded-md" />
             ) : !user ? (
               <>
-                <Button className="hidden sm:inline-flex" variant="outline" size="sm" asChild>
+                <Button className="" variant="outline" size="sm" asChild>
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button variant="default" size="sm" asChild>
@@ -515,30 +515,30 @@ export function Header() {
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+                <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-full max-w-xs p-2 sm:p-6">
-              <div className="flex flex-col gap-2 sm:gap-6">
-                <Link href="/" className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-4" onClick={() => setIsMobileMenuOpen(false)}>
+            <SheetContent side="right" className="w-full max-w-xs p-4">
+              <div className="flex flex-col gap-4">
+                <Link href="/" className="flex items-center gap-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
                   <img
                     src="/logoo.png"
                     alt="Logo"
-                    width={80}
-                    height={80}
-                    className="w-10 sm:w-14 h-10 sm:h-14 object-contain"
+                    width={120}
+                    height={120}
+                    className="w-20 h-10 object-contain"
                   />
                 </Link>
-                <Input type="search" placeholder="Search courses..." className="w-full mb-2 sm:mb-4" />
-                <nav className="flex flex-col gap-2 sm:gap-4">
+                <Input type="search" placeholder="Search courses..." className="mb-4" />
+                <nav className="flex flex-col gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="justify-start flex items-center gap-1 sm:gap-2 text-base">
-                        <LayoutGrid className="h-4 w-4 sm:h-5 sm:w-5" /> Categories
+                      <Button variant="ghost" className="justify-start flex items-center gap-2 text-sm">
+                        <LayoutGrid className="h-5 w-5" /> Categories
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-40 sm:w-56">
+                    <DropdownMenuContent align="start" className="w-48">
                       {CATEGORIES.map((category) => (
                         <DropdownMenuItem key={category.id} asChild>
                           <Link href={`/courses?category=${category.slug}`} onClick={() => setIsMobileMenuOpen(false)}>{category.name}</Link>
@@ -546,9 +546,9 @@ export function Header() {
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  {allMobileNavLinks.map(link => ( 
+                  {allMobileNavLinks.map(link => (
                     <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                      <link.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <link.icon className="h-5 w-5" />
                       {link.label}
                     </Link>
                   ))}
@@ -556,20 +556,20 @@ export function Header() {
                     <>
                       <DropdownMenuSeparator />
                       <Link href="/auth/login" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                        <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <LogIn className="h-5 w-5" />
                         Login
                       </Link>
-                      <Link href="/auth/register" className={`${getMobileNavLinkClasses()} text-white !text-white`} onClick={() => setIsMobileMenuOpen(false)}>
-                        <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <Link href="/auth/register" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
+                        <UserPlus className="h-5 w-5" />
                         Sign Up
                       </Link>
                     </>
                   )}
-                  {isLoading && ( 
+                  {isLoading && (
                     <>
                       <DropdownMenuSeparator />
-                      <Skeleton className="h-6 sm:h-8 w-full rounded-md" />
-                      <Skeleton className="h-6 sm:h-8 w-full rounded-md" />
+                      <Skeleton className="h-8 w-full rounded-md" />
+                      <Skeleton className="h-8 w-full rounded-md" />
                     </>
                   )}
                   {user && !isLoading && (

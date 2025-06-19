@@ -68,7 +68,7 @@ export function PromoCard({ imageUrl, title, ctaText, ctaLink, dataAiHint = "pro
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="relative rounded-xl overflow-hidden hover-lift shadow-lg w-full sm:w-auto"
+      className="relative rounded-xl overflow-hidden hover-lift shadow-lg w-40 sm:w-full"
     >
       <Link href={ctaLink}>
         <Image
