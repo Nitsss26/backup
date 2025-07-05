@@ -39,7 +39,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full">
       <Header />
       <main className="flex-grow">
         <section className="bg-primary/10 py-16 md:py-8">

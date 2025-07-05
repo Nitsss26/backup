@@ -11,8 +11,8 @@ import Link from 'next/link';
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
+    <div className="flex flex-col min-h-screen w-full">
+      <Header /> 
       <main className="flex-grow">
         <section className="bg-primary/10 py-16 md:py-24">
           <div className="container text-center">

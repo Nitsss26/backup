@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -45,6 +46,7 @@ body {
     /* Success - Classic Green */
     --success: 145 63% 42%; /* #22C55E - Vibrant Green */
     --success-foreground: 0 0% 100%; /* White text on green */
+
 
     --ring: 217 91% 60%; /* #3B82F6 - Standard Blue */
     --radius: 0.5rem;
@@ -139,6 +141,7 @@ body {
   src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 }
 
+
 @keyframes fadeIn {
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -156,16 +159,17 @@ body {
   transform: scale(1.05);
 }
 
+
 :root {
-  --primary-blue: #1E3A8A;
-  --secondary-purple: #7C3AED;
-  --accent-teal: #2DD4BF;
-  --highlight-gold: #F59E0B;
-  --bg-dark: #0F172A;
-  --bg-medium: #1E293B;
-  --bg-light: #334155;
-  --text-light: #F1F5F9;
-  --gradient-dark: linear-gradient(135deg, #0F172A, #1E293B);
+  --primary-blue: #1E3A8A; /* Main brand color from your logo */
+  --secondary-purple: #7C3AED; /* Softer purple for hover and secondary elements */
+  --accent-teal: #2DD4BF; /* Vibrant teal for banners and buttons */
+  --highlight-gold: #F59E0B; /* Warm gold for discounts and CTAs */
+  --bg-dark: #0F172A; /* Darkest background for main sections */
+  --bg-medium: #1E293B; /* Medium gray for cards and secondary sections */
+  --bg-light: #334155; /* Lighter gray for subtle contrasts */
+  --text-light: #F1F5F9; /* Softer white for readable text */
+  --gradient-dark: linear-gradient(135deg, #0F172A, #1E293B); /* Subtle gradient for sections */
 }
 
 body {
@@ -173,6 +177,7 @@ body {
   @apply bg-[--bg-dark] text-[--text-light];
 }
 
+/* Animations */
 .fade-in-up {
   animation: fadeInUp 0.8s ease-out forwards;
 }
@@ -200,18 +205,21 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* Section Divider */
 .section-divider {
   border-top: 1px solid transparent;
   border-image: linear-gradient(to right, transparent, #5593f7, transparent) 1;
 }
 
+/* Background Pattern */
 .pattern-bg {
   background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.1) 1px, transparent 0);
   background-size: 20px 20px;
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -224,17 +232,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-[--secondary-purple];
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-  .overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-  }
-  .inline-flex {
-    padding-bottom: 0.5rem;
-  }
 }

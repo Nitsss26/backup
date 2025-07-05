@@ -1,4 +1,3 @@
-
 // import Image from 'next/image';
 // import Link from 'next/link';
 // import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +21,6 @@
 //   duration?: string;
 //   subscribersCount?: number;
 //   url: string;
-//   dataAiHint?: string;
 // }
 
 // interface SubscriptionCardProps {
@@ -30,76 +28,89 @@
 // }
 
 // export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
-//   const imageHint = subscription.dataAiHint || `${subscription.category} subscription content`;
+//   const categorySlug = subscription.category;
+//   const imageHint = `${categorySlug} subscription content`;
 //   const providerNameInitial = subscription.providerInfo?.name
 //     ? subscription.providerInfo.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
 //     : "P";
 
 //   return (
-//     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 bg-card">
-//       <a href={subscription.url} target="_blank" rel="noopener noreferrer" className="block group">
-//         <CardHeader className="p-0 relative aspect-video">
+//     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
+//       <a href={subscription.url} className="block group">
+//         <CardHeader className="p-0 relative">
 //           <Image
 //             src={subscription.imageUrl || "https://placehold.co/600x400.png"}
 //             alt={subscription.title}
-//             fill
-//             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-//             className="object-cover group-hover:opacity-90 transition-opacity"
+//             width={600}
+//             height={400}
+//             className="object-cover w-full h-48 group-hover:opacity-90 transition-opacity"
 //             data-ai-hint={imageHint}
 //           />
+//           {/* {subscription.providerInfo?.verified && (
+//             <Badge
+//               variant="success"
+//               className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 text-xs font-semibold tracking-wide text-white bg-green-600 border border-green-700 rounded-full shadow-md hover:bg-green-700 hover:shadow-lg transition-all duration-200 ease-in-out"
+//               aria-label="Verified Provider"
+//               title="This provider has been verified for authenticity and quality"
+//             >
+//               <ShieldCheck className="h-3.5 w-3.5" />
+//               Verified
+//             </Badge>
+//           )} */}
 //         </CardHeader>
 //       </a>
-//       <CardContent className="p-3 sm:p-4 flex-grow flex flex-col">
-//         <a href={subscription.url} target="_blank" rel="noopener noreferrer" className="block mb-auto">
-//           <Badge variant="outline" className="mb-1 text-[10px] sm:text-xs px-1.5 py-0.5 sm:px-2">{subscription.category}</Badge>
-//           <CardTitle className="text-sm sm:text-base font-semibold leading-snug mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
+//       <CardContent className="p-4 flex-grow">
+//         <a href={subscription.url} className="block">
+//           <Badge variant="outline" className="mb-2 text-xs">{subscription.category}</Badge>
+//           <CardTitle className="text-lg font-semibold leading-tight mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
 //             {subscription.title}
 //           </CardTitle>
 //         </a>
-//         <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground mb-1.5">
+//         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
 //           {subscription.providerInfo?.logoUrl && (
-//             <Avatar className="h-4 w-4 border">
-//               <AvatarImage src={subscription.providerInfo.logoUrl} alt={subscription.providerInfo.name} data-ai-hint="seller logo small subscription card"/>
-//               <AvatarFallback className="text-[8px]">{providerNameInitial}</AvatarFallback>
+//             <Avatar className="h-5 w-5 border">
+//               <AvatarImage src={subscription.providerInfo.logoUrl} alt={subscription.providerInfo.name} data-ai-hint="seller logo small subscription card" />
+//               <AvatarFallback className="text-xs">{providerNameInitial}</AvatarFallback>
 //             </Avatar>
 //           )}
 //           <span>By {subscription.providerInfo?.name || 'Unknown Provider'}</span>
 //         </div>
-//         <div className="text-[10px] sm:text-xs text-muted-foreground space-y-0.5 mt-auto">
+//         <div className="text-sm text-muted-foreground space-y-1.5">
 //           {subscription.duration && (
-//             <div className="flex items-center gap-1">
-//               <Clock className="h-3 w-3 text-primary/80" />
+//             <div className="flex items-center gap-1.5">
+//               <Clock className="h-3.5 w-3.5 text-primary/80" />
 //               <span>{subscription.duration}</span>
 //             </div>
 //           )}
 //           {subscription.subscribersCount && (
-//             <div className="flex items-center gap-1">
-//               <Users className="h-3 w-3 text-primary/80" />
+//             <div className="flex items-center gap-1.5">
+//               <Users className="h-3.5 w-3.5 text-primary/80" />
 //               <span>{subscription.subscribersCount.toLocaleString()} subscribers</span>
 //             </div>
 //           )}
 //         </div>
 //       </CardContent>
-//       <CardFooter className="p-2.5 sm:p-3 flex items-center justify-between border-t">
+//       <CardFooter className="p-4 flex items-center justify-between border-t mt-auto">
 //         <div>
-//           <p className="text-base sm:text-lg font-bold text-primary">
+//           <p className="text-xl font-bold text-primary">
 //             ₹{subscription.price.toLocaleString('en-IN')}
 //           </p>
 //           {subscription.originalPrice && (
-//             <p className="text-[10px] sm:text-xs text-muted-foreground line-through">
+//             <p className="text-sm text-muted-foreground line-through">
 //               ₹{subscription.originalPrice.toLocaleString('en-IN')}
 //             </p>
 //           )}
 //         </div>
-//         <Button size="xs" asChild className="text-[10px] sm:text-xs px-2 py-1 h-auto sm:px-3 sm:py-1.5">
-//           <a className="text-white" href={subscription.url} target="_blank" rel="noopener noreferrer">View Details</a>
+//         <Button size="sm">
+//           <a className="text-white" href={subscription.url}>View Details</a>
 //         </Button>
 //       </CardFooter>
 //     </Card>
 //   );
 // }
-"use client";
 
+
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -123,13 +134,15 @@ interface Subscription {
   duration?: string;
   subscribersCount?: number;
   url: string;
+  dataAiHint?: string;
 }
 
 interface SubscriptionCardProps {
   subscription: Subscription;
+  isMobile?: boolean;
 }
 
-export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
+export function SubscriptionCard({ subscription, isMobile = false }: SubscriptionCardProps) {
   const categorySlug = subscription.category;
   const imageHint = `${categorySlug} subscription content`;
   const providerNameInitial = subscription.providerInfo?.name
@@ -137,7 +150,7 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
     : "P";
 
   return (
-    <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50">
+    <Card className={`flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 ${isMobile ? 'text-sm min-w-[160px] max-w-[160px] flex-shrink-0' : ''}`}>
       <a href={subscription.url} className="block group">
         <CardHeader className="p-0 relative">
           <Image
@@ -145,55 +158,59 @@ export function SubscriptionCard({ subscription }: SubscriptionCardProps) {
             alt={subscription.title}
             width={600}
             height={400}
-            className="object-cover w-full h-32 sm:h-48 group-hover:opacity-90 transition-opacity"
+            className={`object-cover w-full group-hover:opacity-90 transition-opacity ${isMobile ? 'h-24' : 'h-48'}`}
             data-ai-hint={imageHint}
           />
         </CardHeader>
       </a>
-      <CardContent className="p-3 sm:p-4 flex-grow">
+      <CardContent className={`${isMobile ? 'p-2' : 'p-4'} flex-grow`}>
         <a href={subscription.url} className="block">
-          <Badge variant="outline" className="mb-1 sm:mb-2 text-xs">{subscription.category}</Badge>
-          <CardTitle className="text-sm sm:text-lg font-semibold leading-tight mb-1 sm:mb-1 line-clamp-2 font-headline hover:text-primary transition-colors">
+          <Badge variant="outline" className={`mb-2 text-xs ${isMobile ? 'mb-1' : ''}`}>{subscription.category}</Badge>
+          <CardTitle className={`${isMobile ? 'text-xs' : 'text-lg'} font-semibold leading-tight mb-1 line-clamp-2 font-headline hover:text-primary transition-colors`}>
             {subscription.title}
           </CardTitle>
         </a>
-        <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-xs text-muted-foreground mb-1 sm:mb-2">
+        <div className={`flex items-center gap-2 text-muted-foreground mb-2 ${isMobile ? 'text-xs gap-1' : 'text-xs'}`}>
           {subscription.providerInfo?.logoUrl && (
-            <Avatar className="h-4 sm:h-5 w-4 sm:w-5 border">
+            <Avatar className={`${isMobile ? 'h-3 w-3' : 'h-5 w-5'} border`}>
               <AvatarImage src={subscription.providerInfo.logoUrl} alt={subscription.providerInfo.name} data-ai-hint="seller logo small subscription card" />
               <AvatarFallback className="text-xs">{providerNameInitial}</AvatarFallback>
             </Avatar>
           )}
-          <span>By {subscription.providerInfo?.name || 'Unknown Provider'}</span>
+          <span className={`${isMobile ? 'text-xs truncate' : ''}`}>By {subscription.providerInfo?.name || 'Unknown Provider'}</span>
         </div>
-        <div className="text-xs sm:text-sm text-muted-foreground space-y-0.5 sm:space-y-1.5">
-          {subscription.duration && (
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
-              <span>{subscription.duration}</span>
-            </div>
-          )}
-          {subscription.subscribersCount && (
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary/80" />
-              <span>{subscription.subscribersCount.toLocaleString()} subscribers</span>
-            </div>
-          )}
-        </div>
+        {!isMobile && (
+          <div className="text-sm text-muted-foreground space-y-1.5">
+            {subscription.duration && (
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-primary/80" />
+                <span>{subscription.duration}</span>
+              </div>
+            )}
+            {subscription.subscribersCount && (
+              <div className="flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-primary/80" />
+                <span>{subscription.subscribersCount.toLocaleString()} subscribers</span>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
-      <CardFooter className="p-2 sm:p-4 flex items-center justify-between border-t mt-auto">
+      <CardFooter className={`${isMobile ? 'p-2' : 'p-4'} flex items-center justify-between border-t mt-auto`}>
         <div>
-          <p className="text-base sm:text-xl font-bold text-primary">
+          <p className={`${isMobile ? 'text-sm' : 'text-xl'} font-bold text-primary`}>
             ₹{subscription.price.toLocaleString('en-IN')}
           </p>
           {subscription.originalPrice && (
-            <p className="text-xs sm:text-sm text-muted-foreground line-through">
+            <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-muted-foreground line-through`}>
               ₹{subscription.originalPrice.toLocaleString('en-IN')}
             </p>
           )}
         </div>
-        <Button size="sm">
-          <a className="text-white" href={subscription.url}>View Details</a>
+        <Button size="sm" className={`${isMobile ? 'text-xs px-2 py-1' : ''}`}>
+          <a className="text-white" href={subscription.url}>
+            {isMobile ? 'View' : 'View Details'}
+          </a>
         </Button>
       </CardFooter>
     </Card>

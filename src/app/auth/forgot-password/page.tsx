@@ -43,7 +43,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/20 p-4 md:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/20 p-4 md:p-8 w-full">
       <Card className="w-full max-w-4xl shadow-2xl rounded-xl md:grid md:grid-cols-2 md:gap-0 overflow-hidden border-primary/20">
         <div className="hidden md:block relative">
           <Image

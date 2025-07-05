@@ -8,8 +8,9 @@ export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
 export const CATEGORIES: Category[] = [
   { id: 'iit-jee', name: 'IIT-JEE', slug: 'iit-jee', icon: TestTube2 },
   { id: 'neet', name: 'NEET', slug: 'neet', icon: HeartPulse },
-  { id: 'gov-exams', name: 'Government Exams', slug: 'gov-exams', icon: ShieldCheck },
   { id: 'cs', name: 'Computer Science', slug: 'computer-science', icon: Cpu },
+  { id: 'gov-exams', name: 'Government Exams', slug: 'gov-exams', icon: ShieldCheck },
+  
   { id: 'business', name: 'Business & Finance', slug: 'business-finance', icon: LineChart },
   { id: 'arts', name: 'Arts & Humanities', slug: 'arts-humanities', icon: Palette },
   { id: 'lang', name: 'Language Learning', slug: 'language-learning', icon: LanguagesIcon },

@@ -1,0 +1,655 @@
+// import { useState, useEffect } from 'react';
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+// import { 
+//   Users, 
+//   Activity, 
+//   Clock, 
+//   ShoppingCart, 
+//   TrendingUp, 
+//   Percent, 
+//   MousePointerClick, 
+//   Eye, 
+//   ShoppingBag 
+// } from 'lucide-react';
+// import { Button } from '@/components/ui/button';
+
+// interface KpiCardsProps {
+//   startDate: string;
+//   endDate: string;
+// }
+
+// export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
+//   const [totalUsersData, setTotalUsersData] = useState({
+//     value: '0',
+//     trend: 'No data'
+//   });
+//   const [totalSessionsData, setTotalSessionsData] = useState({
+//     value: '0',
+//     trend: 'No data'
+//   });
+//   const [totalSalesData, setTotalSalesData] = useState({
+//     value: '$0',
+//     trend: 'No data'
+//   });
+//   const [totalEnrollmentsData, setTotalEnrollmentsData] = useState({
+//     value: '0',
+//     trend: 'No data'
+//   });
+//   const [totalEngagementsData, setTotalEngagementsData] = useState({
+//     value: '0',
+//     trend: 'No data'
+//   });
+//   const [avgTimeData, setAvgTimeData] = useState({
+//     value: '0:00',
+//     trend: 'No data'
+//   });
+//   const [impressionsData, setImpressionsData] = useState({
+//     value: '0',
+//     trend: 'No data'
+//   });
+//   const [conversionData, setConversionData] = useState({
+//     value: '0.00%',
+//     trend: 'No data'
+//   });
+
+//   useEffect(() => {
+//     // Fetch Total Users
+//     const fetchTotalUsers = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/totalusers?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.totalUsers) {
+//           setTotalUsersData({
+//             value: data.totalUsers.toLocaleString(),
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching total users:', error);
+//         setTotalUsersData({ value: '0', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Total Sessions
+//     const fetchTotalSessions = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/sessions?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.totalSessions) {
+//           setTotalSessionsData({
+//             value: data.totalSessions.toLocaleString(),
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching total sessions:', error);
+//         setTotalSessionsData({ value: '0', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Total Sales
+//     const fetchTotalSales = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/sales?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.totalSales || data.totalSales === 0) {
+//           setTotalSalesData({
+//             value: `₹${data.totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching total sales:', error);
+//         setTotalSalesData({ value: '$0', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Total Enrollments
+//     const fetchTotalEnrollments = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/enrollments?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.totalEnrollments || data.totalEnrollments === 0) {
+//           setTotalEnrollmentsData({
+//             value: data.totalEnrollments.toLocaleString(),
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching total enrollments:', error);
+//         setTotalEnrollmentsData({ value: '0', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Total Engagements
+//     const fetchTotalEngagements = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/engagements?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.totalEngagements || data.totalEngagements === 0) {
+//           setTotalEngagementsData({
+//             value: data.totalEngagements.toLocaleString(),
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching total engagements:', error);
+//         setTotalEngagementsData({ value: '0', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Avg Time
+//     const fetchAvgTime = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/avg-time?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.avgTime) {
+//           setAvgTimeData({
+//             value: data.avgTime,
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching avg time:', error);
+//         setAvgTimeData({ value: '0:00', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Impressions
+//     const fetchImpressions = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/impressions?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.totalImpressions || data.totalImpressions === 0) {
+//           setImpressionsData({
+//             value: data.totalImpressions.toLocaleString(),
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching impressions:', error);
+//         setImpressionsData({ value: '0', trend: 'No data' });
+//       }
+//     };
+
+//     // Fetch Conversion %
+//     const fetchConversion = async () => {
+//       try {
+//         const response = await fetch(
+//           `/api/analytics/conversion?startDate=${startDate}&endDate=${endDate}`
+//         );
+//         const data = await response.json();
+//         if (data.conversion || data.conversion === 0) {
+//           setConversionData({
+//             value: `${Number(data.conversion).toFixed(2)}%`,
+//             trend: data.increment || 'No data'
+//           });
+//         }
+//       } catch (error) {
+//         console.error('Error fetching conversion:', error);
+//         setConversionData({ value: '0.00%', trend: 'No data' });
+//       }
+//     };
+
+//     fetchTotalUsers();
+//     fetchTotalSessions();
+//     fetchTotalSales();
+//     fetchTotalEnrollments();
+//     fetchTotalEngagements();
+//     fetchAvgTime();
+//     fetchImpressions();
+//     fetchConversion();
+//   }, [startDate, endDate]);
+
+//   return (
+//     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+//       {[
+//         { 
+//           title: 'Total Users', 
+//           value: totalUsersData.value, 
+//           icon: Users, 
+//           color: 'text-blue-500',
+//           trend: totalUsersData.trend
+//         },
+//         { 
+//           title: 'Sessions', 
+//           value: totalSessionsData.value, 
+//           icon: Activity, 
+//           color: 'text-green-500',
+//           trend: totalSessionsData.trend
+//         },
+//         { 
+//           title: 'Sales', 
+//           value: totalSalesData.value, 
+//           icon: ShoppingCart, 
+//           color: 'text-purple-500',
+//           trend: totalSalesData.trend
+//         },
+//         { 
+//           title: 'Enrollments', 
+//           value: totalEnrollmentsData.value, 
+//           icon: TrendingUp, 
+//           color: 'text-cyan-500',
+//           trend: totalEnrollmentsData.trend
+//         },
+//         { 
+//           title: 'Conversion %', 
+//           value: conversionData.value, 
+//           icon: Percent, 
+//           color: 'text-pink-500',
+//           trend: conversionData.trend
+//         },
+//         { 
+//           title: 'Avg Time', 
+//           value: avgTimeData.value, 
+//           icon: Clock, 
+//           color: 'text-yellow-500',
+//           trend: avgTimeData.trend
+//         },
+//         { 
+//           title: 'Engagements', 
+//           value: totalEngagementsData.value, 
+//           icon: MousePointerClick, 
+//           color: 'text-red-500',
+//           trend: totalEngagementsData.trend
+//         },
+//         { 
+//           title: 'Impressions', 
+//           value: impressionsData.value, 
+//           icon: Eye, 
+//           color: 'text-indigo-500',
+//           trend: impressionsData.trend
+//         },
+//         { 
+//           title: 'Cart Count', 
+//           value: '0', 
+//           icon: ShoppingBag, 
+//           color: 'text-orange-500',
+//           trend: 'No data'
+//         },
+//         { 
+//           title: 'Geo Analytics', 
+//           value: '', 
+//           icon: Eye, 
+//           color: 'text-indigo-500',
+//           trend: '',
+//           link: 'https://6000-firebase-studio-1748862865024.cluster-htdgsbmflbdmov5xrjithceibm.cloudworkstations.dev/admin/analytics/geo'
+//         }
+//       ].map((kpi, index) => (
+//         <Card key={index} className="bg-gray-800 border-gray-700">
+//           <CardHeader className="flex flex-row items-center justify-between pb-2">
+//             <CardTitle className="text-sm font-medium text-gray-400">{kpi.title}</CardTitle>
+//             {kpi.link ? (
+//               <Button as="a" href={kpi.link} className="text-indigo-500 hover:text-indigo-400">
+//                 <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+//               </Button>
+//             ) : (
+//               <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+//             )}
+//           </CardHeader>
+//           <CardContent>
+//             <div className="text-2xl font-bold text-white">{kpi.value}</div>
+//             <p className={`text-xs ${kpi.trend.includes('↑') ? 'text-green-500' : kpi.trend.includes('↓') ? 'text-red-500' : 'text-gray-400'} mt-1`}>
+//               {kpi.trend}
+//             </p>
+//           </CardContent>
+//         </Card>
+//       ))}
+//     </div>
+//   );
+// }
+
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Users, 
+  Activity, 
+  Clock, 
+  ShoppingCart, 
+  TrendingUp, 
+  Percent, 
+  MousePointerClick, 
+  Eye, 
+  ShoppingBag 
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface KpiCardsProps {
+  startDate: string;
+  endDate: string;
+}
+
+export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
+  const [totalUsersData, setTotalUsersData] = useState({
+    value: '0',
+    trend: 'No data'
+  });
+  const [totalSessionsData, setTotalSessionsData] = useState({
+    value: '0',
+    trend: 'No data'
+  });
+  const [totalSalesData, setTotalSalesData] = useState({
+    value: '$0',
+    trend: 'No data'
+  });
+  const [totalEnrollmentsData, setTotalEnrollmentsData] = useState({
+    value: '0',
+    trend: 'No data'
+  });
+  const [totalEngagementsData, setTotalEngagementsData] = useState({
+    value: '0',
+    trend: 'No data'
+  });
+  const [avgTimeData, setAvgTimeData] = useState({
+    value: '0:00',
+    trend: 'No data'
+  });
+  const [impressionsData, setImpressionsData] = useState({
+    value: '0',
+    trend: 'No data'
+  });
+  const [conversionData, setConversionData] = useState({
+    value: '0.00%',
+    trend: 'No data'
+  });
+  const [cartCountData, setCartCountData] = useState({
+    value: '0',
+    trend: 'No data'
+  });
+
+  useEffect(() => {
+    // Fetch Total Users
+    const fetchTotalUsers = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/totalusers?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.totalUsers) {
+          setTotalUsersData({
+            value: data.totalUsers.toLocaleString(),
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching total users:', error);
+        setTotalUsersData({ value: '0', trend: 'No data' });
+      }
+    };
+
+    // Fetch Total Sessions
+    const fetchTotalSessions = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/sessions?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.totalSessions) {
+          setTotalSessionsData({
+            value: data.totalSessions.toLocaleString(),
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching total sessions:', error);
+        setTotalSessionsData({ value: '0', trend: 'No data' });
+      }
+    };
+
+    // Fetch Total Sales
+    const fetchTotalSales = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/sales?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.totalSales || data.totalSales === 0) {
+          setTotalSalesData({
+            value: `₹${data.totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching total sales:', error);
+        setTotalSalesData({ value: '$0', trend: 'No data' });
+      }
+    };
+
+    // Fetch Total Enrollments
+    const fetchTotalEnrollments = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/enrollments?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.totalEnrollments || data.totalEnrollments === 0) {
+          setTotalEnrollmentsData({
+            value: data.totalEnrollments.toLocaleString(),
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching total enrollments:', error);
+        setTotalEnrollmentsData({ value: '0', trend: 'No data' });
+      }
+    };
+
+    // Fetch Total Engagements
+    const fetchTotalEngagements = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/engagements?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.totalEngagements || data.totalEngagements === 0) {
+          setTotalEngagementsData({
+            value: data.totalEngagements.toLocaleString(),
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching total engagements:', error);
+        setTotalEngagementsData({ value: '0', trend: 'No data' });
+      }
+    };
+
+    // Fetch Avg Time
+    const fetchAvgTime = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/avg-time?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.avgTime) {
+          setAvgTimeData({
+            value: data.avgTime,
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching avg time:', error);
+        setAvgTimeData({ value: '0:00', trend: 'No data' });
+      }
+    };
+
+    // Fetch Impressions
+    const fetchImpressions = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/impressions?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.totalImpressions || data.totalImpressions === 0) {
+          setImpressionsData({
+            value: data.totalImpressions.toLocaleString(),
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching impressions:', error);
+        setImpressionsData({ value: '0', trend: 'No data' });
+      }
+    };
+
+    // Fetch Conversion %
+    const fetchConversion = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/conversion?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.conversion || data.conversion === 0) {
+          setConversionData({
+            value: `${Number(data.conversion).toFixed(2)}%`,
+            trend: data.increment || 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching conversion:', error);
+        setConversionData({ value: '0.00%', trend: 'No data' });
+      }
+    };
+
+    // Fetch Cart Count
+    const fetchCartCount = async () => {
+      try {
+        const response = await fetch(
+          `/api/analytics/cart-count?startDate=${startDate}&endDate=${endDate}`
+        );
+        const data = await response.json();
+        if (data.cartCount || data.cartCount === 0) {
+          setCartCountData({
+            value: data.cartCount.toLocaleString(),
+            trend: data.percentageChange !== null 
+              ? `${data.trend === 'up' ? '↑' : data.trend === 'down' ? '↓' : '→'} ${Math.abs(data.percentageChange)}%`
+              : 'No data'
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching cart count:', error);
+        setCartCountData({ value: '0', trend: 'No data' });
+      }
+    };
+
+    fetchTotalUsers();
+    fetchTotalSessions();
+    fetchTotalSales();
+    fetchTotalEnrollments();
+    fetchTotalEngagements();
+    fetchAvgTime();
+    fetchImpressions();
+    fetchConversion();
+    fetchCartCount();
+  }, [startDate, endDate]);
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+      {[
+        { 
+          title: 'Total Users', 
+          value: totalUsersData.value, 
+          icon: Users, 
+          color: 'text-blue-500',
+          trend: totalUsersData.trend
+        },
+        { 
+          title: 'Sessions', 
+          value: totalSessionsData.value, 
+          icon: Activity, 
+          color: 'text-green-500',
+          trend: totalSessionsData.trend
+        },
+        { 
+          title: 'Sales', 
+          value: totalSalesData.value, 
+          icon: ShoppingCart, 
+          color: 'text-purple-500',
+          trend: totalSalesData.trend
+        },
+        { 
+          title: 'Enrollments', 
+          value: totalEnrollmentsData.value, 
+          icon: TrendingUp, 
+          color: 'text-cyan-500',
+          trend: totalEnrollmentsData.trend
+        },
+        { 
+          title: 'Conversion %', 
+          value: conversionData.value, 
+          icon: Percent, 
+          color: 'text-pink-500',
+          trend: conversionData.trend
+        },
+        { 
+          title: 'Avg Time', 
+          value: avgTimeData.value, 
+          icon: Clock, 
+          color: 'text-yellow-500',
+          trend: avgTimeData.trend
+        },
+        { 
+          title: 'Engagements', 
+          value: totalEngagementsData.value, 
+          icon: MousePointerClick, 
+          color: 'text-red-500',
+          trend: totalEngagementsData.trend
+        },
+        { 
+          title: 'Impressions', 
+          value: impressionsData.value, 
+          icon: Eye, 
+          color: 'text-indigo-500',
+          trend: impressionsData.trend
+        },
+        { 
+          title: 'Cart Count', 
+          value: cartCountData.value, 
+          icon: ShoppingBag, 
+          color: 'text-orange-500',
+          trend: cartCountData.trend
+        },
+        { 
+          title: 'Geo Analytics', 
+          value: '', 
+          icon: Eye, 
+          color: 'text-indigo-500',
+          trend: '',
+          link: 'http://localhost:9003/admin/analytics/geo'
+        }
+      ].map((kpi, index) => (
+        <Card key={index} className="bg-gray-800 border-gray-700">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-400">{kpi.title}</CardTitle>
+            {kpi.link ? (
+              <Button as="a" href={kpi.link} className="text-indigo-500 hover:text-indigo-400">
+                <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+              </Button>
+            ) : (
+              <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{kpi.value}</div>
+            <p className={`text-xs ${kpi.trend.includes('↑') ? 'text-green-500' : kpi.trend.includes('↓') ? 'text-red-500' : 'text-gray-400'} mt-1`}>
+              {kpi.trend}
+            </p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
