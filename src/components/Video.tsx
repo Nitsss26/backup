@@ -11,13 +11,26 @@ const Video = () => {
   const [isMuted, setIsMuted] = useState([true, true, true, true]);
 
   const handleHover = (index) => {
-    if (videoRefs[index].current) {
-      videoRefs[index].current.play();
-      setIsPlaying((prev) => {
-        const newState = [...prev];
-        newState[index] = true;
-        return newState;
-      });
+    if (videoRefs[index].current && videoRefs[index].current.paused) {
+      const playPromise = videoRefs[index].current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(_ => {
+          setIsPlaying((prev) => {
+            const newState = [...prev];
+            newState[index] = true;
+            return newState;
+          });
+        }).catch(error => {
+          // Autoplay was prevented.
+          // This is a common browser policy. We can ignore this error in a hover-to-play scenario.
+          console.info("Autoplay was prevented by the browser:", error);
+          setIsPlaying((prev) => {
+            const newState = [...prev];
+            newState[index] = false;
+            return newState;
+          });
+        });
+      }
     }
   };
 
