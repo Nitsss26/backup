@@ -1,6 +1,8 @@
 
+
 export interface Course {
   id: string;
+  _id?: string; // Add _id for consistency with API responses
   title: string;
   instructor: string; 
   rating: number;
@@ -24,8 +26,8 @@ export interface Course {
     logoUrl?: string;
     verified?: boolean;
     description?: string; 
-    websiteUrl?: string; // Added for seller platform link
-    type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator'; // Added for instructor type filter
+    websiteUrl?: string;
+    type?: 'Individual' | 'Institute' | 'Coaching Center' | 'Verified Educator';
   };
   shortDescription?: string;
   tags?: string[];
@@ -57,6 +59,7 @@ export interface Lesson {
 
 export interface Review {
   id: string;
+  _id?: string;
   courseId: string;
   userId: string;
   userName: string;
@@ -73,6 +76,7 @@ export type UserRole = 'student' | 'provider' | 'admin';
 
 export interface User {
   id: string;
+  firebaseUid?: string; // Added for Firebase integration
   name: string;
   email: string;
   role: UserRole;
@@ -81,7 +85,7 @@ export interface User {
   createdAt?: string;
   verificationStatus?: 'pending' | 'verified' | 'rejected' | 'unverified'; 
   documentsSubmitted?: boolean;
-  notificationPreferences?: { // Added for profile settings
+  notificationPreferences?: {
     courseUpdates?: boolean;
     promotions?: boolean;
     platformAnnouncements?: boolean;
@@ -116,7 +120,7 @@ export interface Certificate {
   courseTitle: string;
   studentName: string;
   issueDate: string;
-  certificateUrl: string; // This would be a link to a generated PDF or image
+  certificateUrl: string;
 }
 
 export interface Order {
@@ -129,4 +133,3 @@ export interface Order {
   orderDate: string;
   transactionId?: string;
 }
-

@@ -2,9 +2,10 @@
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export interface IUser extends Document {
+  firebaseUid: string; // Added to link with Firebase Auth
   name: string;
   email: string;
-  password?: string; // Optional because we might not fetch it always
+  password?: string; // Kept for potential future use, but will be unused with Firebase
   role: 'student' | 'provider' | 'admin';
   avatarUrl?: string;
   bio?: string;
@@ -24,6 +25,7 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema<IUser> = new Schema({
+  firebaseUid: { type: String, required: true, unique: true, index: true },
   name: { type: String, required: [true, 'Name is required.'] },
   email: { 
     type: String, 
@@ -33,7 +35,7 @@ const UserSchema: Schema<IUser> = new Schema({
     trim: true,
     match: [/.+\@.+\..+/, 'Please fill a valid email address.']
   },
-  password: { type: String, required: [true, 'Password is required.'], select: false }, // select: false means it won't be returned by default
+  password: { type: String, select: false }, // No longer required, but kept for schema stability
   role: { type: String, enum: ['student', 'provider', 'admin'], default: 'student' },
   avatarUrl: { type: String, default: '' },
   bio: { type: String, default: '', maxlength: 500 },
@@ -49,20 +51,6 @@ const UserSchema: Schema<IUser> = new Schema({
   wishlist: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
 }, { timestamps: true });
-
-// TODO: Add pre-save hook for password hashing in a real application
-// UserSchema.pre<IUser>('save', async function(next) {
-//   if (!this.isModified('password') || !this.password) {
-//     return next();
-//   }
-//   try {
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//     next();
-//   } catch (error: any) {
-//     next(error);
-//   }
-// });
 
 const UserModel: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
 
