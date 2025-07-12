@@ -17,11 +17,11 @@ interface AnalyticsEvent {
   sessionId: string;
   path: string;
   timestamp: string;
-  duration: number;
+  duration?: number;
   geoData: GeoData;
   device: 'mobile' | 'tablet' | 'desktop' | 'unknown';
   browser: 'Chrome' | 'Firefox' | 'Other' | 'unknown';
-  trafficSource: 'social_media' | 'organic_search' | 'referral' | 'direct' | 'unknown';
+  referrer: string; // Changed from trafficSource to referrer
   courseId?: string;
   elementType?: 'button' | 'a';
   elementText?: string;
@@ -32,7 +32,6 @@ export function AnalyticsTracker() {
   const pathname = usePathname();
   const params = useParams();
   const startTimeRef = useRef<number | null>(null);
-  const hasTrackedDurationRef = useRef(false);
 
   useEffect(() => {
     if (!pathname) {
@@ -40,24 +39,23 @@ export function AnalyticsTracker() {
       return;
     }
 
-    const sessionId = crypto.randomUUID();
+    const sessionId = localStorage.getItem('sessionId') || crypto.randomUUID();
+    localStorage.setItem('sessionId', sessionId);
+
     let courseId: string | undefined;
     if (params?.id && pathname.startsWith('/courses/') && /^[0-9a-fA-F]{24}$/.test(params.id.toString())) {
       courseId = params.id.toString();
     }
+    
+    // Get referrer once per page load
+    const referrer = document.referrer;
 
-    const getAnalyticsData = async (): Promise<{
-      geoData: GeoData;
-      device: AnalyticsEvent['device'];
-      browser: AnalyticsEvent['browser'];
-      trafficSource: AnalyticsEvent['trafficSource'];
-    }> => {
+    const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer'>> => {
       try {
         const geoRes = await fetch('https://ip-api.com/json', { cache: 'no-store' });
         let geoData: GeoData = { country: 'unknown', city: 'unknown', state: 'unknown', lat: 0, lng: 0 };
         if (geoRes.ok) {
           const data = await geoRes.json();
-          clientLogger.info('AnalyticsTracker: ip-api.com response', { data });
           geoData = {
             country: data.country || 'unknown',
             city: data.city || 'unknown',
@@ -65,146 +63,101 @@ export function AnalyticsTracker() {
             lat: data.lat || 0,
             lng: data.lon || 0,
           };
-        } else {
-          clientLogger.warn('AnalyticsTracker: ip-api.com request failed', { status: geoRes.status });
         }
 
-        const device = /mobile/i.test(navigator.userAgent)
-          ? 'mobile'
-          : /tablet/i.test(navigator.userAgent)
-          ? 'tablet'
-          : 'desktop';
-        const browser = navigator.userAgent.includes('Chrome')
-          ? 'Chrome'
-          : navigator.userAgent.includes('Firefox')
-          ? 'Firefox'
-          : 'Other';
-        const trafficSource = document.referrer.includes('instagram.com')
-          ? 'social_media'
-          : document.referrer.includes('google.com')
-          ? 'organic_search'
-          : document.referrer
-          ? 'referral'
-          : 'direct';
-
-        return { geoData, device, browser, trafficSource };
+        const device = /mobile/i.test(navigator.userAgent) ? 'mobile' : /tablet/i.test(navigator.userAgent) ? 'tablet' : 'desktop';
+        const browser = navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Other';
+        
+        return { geoData, device, browser };
       } catch (geoError) {
         clientLogger.error('AnalyticsTracker: Failed to fetch geo data', { error: (geoError as Error).message });
         return {
           geoData: { country: 'unknown', city: 'unknown', state: 'unknown', lat: 0, lng: 0 },
           device: 'unknown',
           browser: 'unknown',
-          trafficSource: 'unknown',
         };
       }
     };
 
-    const trackEvent = async (event: AnalyticsEvent) => {
+    const trackEvent = async (eventPayload: Partial<AnalyticsEvent> & { type: AnalyticsEvent['type'] }) => {
       try {
-        clientLogger.info('AnalyticsTracker: Sending event', { event });
+        const baseData = await getAnalyticsData();
+        const fullEvent = {
+            ...baseData,
+            ...eventPayload,
+            sessionId,
+            path: pathname,
+            timestamp: new Date().toISOString(),
+            courseId,
+            referrer,
+        };
+        
+        clientLogger.info('AnalyticsTracker: Sending event', { event: fullEvent });
         const response = await fetch('/api/analytics/track', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(event),
+          body: JSON.stringify(fullEvent),
         });
 
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
-
-        clientLogger.info('AnalyticsTracker: Event tracked successfully', {
-          sessionId,
-          path: event.path,
-          type: event.type,
-        });
       } catch (error) {
         clientLogger.error('AnalyticsTracker: Failed to send event', {
           error: (error as Error).message,
-          event,
+          event: eventPayload,
         });
       }
     };
-
+    
+    // Track initial page visit
     startTimeRef.current = Date.now();
-    getAnalyticsData().then((data) => {
-      const event: AnalyticsEvent = {
-        type: 'visit',
-        sessionId,
-        path: pathname,
-        timestamp: new Date().toISOString(),
-        duration: 0,
-        geoData: data.geoData,
-        device: data.device,
-        browser: data.browser,
-        trafficSource: data.trafficSource,
-        courseId,
-      };
-      trackEvent(event);
-    });
+    trackEvent({ type: 'visit' });
 
     const handleClick = async (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (target.tagName === 'BUTTON' || target.tagName === 'A') {
-        const data = await getAnalyticsData();
-        const elementType = target.tagName.toLowerCase() as 'button' | 'a';
-        const elementText = target.textContent?.trim() || 'Unknown';
-        const href = target.getAttribute('href') || undefined;
+      const clickableElement = target.closest('a, button');
+
+      if (clickableElement) {
+        const elementType = clickableElement.tagName.toLowerCase() as 'button' | 'a';
+        const elementText = clickableElement.textContent?.trim() || 'Unknown';
+        const href = clickableElement.getAttribute('href') || undefined;
         let clickCourseId = courseId;
         if (!clickCourseId && href?.startsWith('/courses/')) {
           const match = href.match(/\/courses\/([0-9a-fA-F]{24})/);
           clickCourseId = match?.[1];
         }
 
-        const clickEvent: AnalyticsEvent = {
+        trackEvent({
           type: 'click',
-          sessionId,
-          path: pathname,
-          timestamp: new Date().toISOString(),
-          duration: 0,
-          geoData: data.geoData,
-          device: data.device,
-          browser: data.browser,
-          trafficSource: data.trafficSource,
-          courseId: clickCourseId,
           elementType,
           elementText,
           href,
-        };
-        trackEvent(clickEvent);
+          courseId: clickCourseId
+        });
       }
     };
 
     window.addEventListener('click', handleClick);
 
     const handleBeforeUnload = () => {
-      if (startTimeRef.current && Number.isFinite(startTimeRef.current) && !hasTrackedDurationRef.current) {
+      if (startTimeRef.current) {
         const duration = (Date.now() - startTimeRef.current) / 1000;
-        if (Number.isFinite(duration) && duration >= 0) {
-          hasTrackedDurationRef.current = true;
-          getAnalyticsData().then((data) => {
-            const durationEvent: AnalyticsEvent = {
-              type: 'duration',
-              sessionId,
-              path: pathname,
-              timestamp: new Date().toISOString(),
-              duration,
-              geoData: data.geoData,
-              device: data.device,
-              browser: data.browser,
-              trafficSource: data.trafficSource,
-              courseId,
-            };
-            trackEvent(durationEvent);
-          });
-        }
+        trackEvent({
+          type: 'duration',
+          duration,
+        });
+        startTimeRef.current = null; // Prevent re-tracking
       }
     };
+    
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      handleBeforeUnload(); // Ensure duration is tracked on component unmount (e.g., page navigation)
     };
   }, [pathname, params]);
 
