@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname, useParams } from 'next/navigation';
+import { usePathname, useParams, useSearchParams } from 'next/navigation';
 import clientLogger from '@/lib/clientLogger';
 
 interface GeoData {
@@ -21,7 +21,7 @@ interface AnalyticsEvent {
   geoData: GeoData;
   device: 'mobile' | 'tablet' | 'desktop' | 'unknown';
   browser: 'Chrome' | 'Firefox' | 'Other' | 'unknown';
-  referrer: string; // Changed from trafficSource to referrer
+  referrer: string;
   courseId?: string;
   elementType?: 'button' | 'a';
   elementText?: string;
@@ -31,6 +31,7 @@ interface AnalyticsEvent {
 export function AnalyticsTracker() {
   const pathname = usePathname();
   const params = useParams();
+  const searchParams = useSearchParams();
   const startTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -47,8 +48,8 @@ export function AnalyticsTracker() {
       courseId = params.id.toString();
     }
     
-    // Get referrer once per page load
-    const referrer = document.referrer;
+    // Test referrer override, otherwise use the real one.
+    const referrer = searchParams.get('_ref') || document.referrer;
 
     const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer'>> => {
       try {
@@ -159,7 +160,7 @@ export function AnalyticsTracker() {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       handleBeforeUnload(); // Ensure duration is tracked on component unmount (e.g., page navigation)
     };
-  }, [pathname, params]);
+  }, [pathname, params, searchParams]);
 
   return null;
 }
