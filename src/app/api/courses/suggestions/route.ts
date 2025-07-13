@@ -23,12 +23,12 @@ export async function GET(request: NextRequest) {
         title: { $regex: query, $options: 'i' },
         approvalStatus: 'approved'
       },
-      'title id' // Select only the title and id fields
+      'title' // Select only the title and _id fields (id is virtual)
     )
     .limit(5)
     .lean();
 
-    return NextResponse.json(suggestions);
+    return NextResponse.json(suggestions.map(s => ({...s, id: s._id.toString()})));
 
   } catch (error: any) {
     console.error('🔴 Failed to fetch course suggestions:', error);

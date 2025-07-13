@@ -28,21 +28,20 @@ export function SearchBar({ className, placeholder = "Search for courses..." }: 
   const searchContainerRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    // Sync the search bar with the URL's query parameter on initial load
     const currentQuery = currentSearchParams.get('q') || '';
     setQuery(currentQuery);
   }, [currentSearchParams]);
 
-  // When path changes (e.g., navigation), close suggestions.
   useEffect(() => {
     setSuggestions([]);
   }, [pathname]);
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/courses?q=${encodeURIComponent(query.trim())}`);
-      setSuggestions([]); // Close suggestions on submit
+    const trimmedQuery = query.trim();
+    if (trimmedQuery) {
+      router.push(`/courses?q=${encodeURIComponent(trimmedQuery)}`);
+      setSuggestions([]);
       setIsFocused(false);
     } else {
       router.push('/courses');
@@ -52,6 +51,7 @@ export function SearchBar({ className, placeholder = "Search for courses..." }: 
   const fetchSuggestions = async (searchQuery: string) => {
     if (searchQuery.length < 2) {
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
@@ -66,16 +66,21 @@ export function SearchBar({ className, placeholder = "Search for courses..." }: 
     }
   };
   
-  // Use lodash's debounce to prevent API calls on every keystroke
   const debouncedFetchSuggestions = useCallback(debounce(fetchSuggestions, 300), []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    debouncedFetchSuggestions(newQuery);
+    if (newQuery.length >= 2) {
+      setIsLoading(true); // Show loader immediately
+      debouncedFetchSuggestions(newQuery);
+    } else {
+      setSuggestions([]);
+      debouncedFetchSuggestions.cancel();
+      setIsLoading(false);
+    }
   };
   
-  // Handle clicks outside the search component to close suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
@@ -112,7 +117,7 @@ export function SearchBar({ className, placeholder = "Search for courses..." }: 
 
       {showSuggestions && (
         <div className="absolute top-full mt-2 w-full bg-card border rounded-md shadow-lg z-50 max-h-80 overflow-y-auto">
-          {isLoading ? (
+          {isLoading && suggestions.length === 0 ? (
              <div className="flex items-center justify-center p-4">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
              </div>
