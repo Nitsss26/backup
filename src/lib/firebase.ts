@@ -1,3 +1,4 @@
+
 'use client';
 
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
@@ -77,8 +78,9 @@ const signOut = async () => {
 const setupRecaptcha = (containerId: string) => {
   if (typeof window !== 'undefined') {
     const recaptchaContainer = document.getElementById(containerId);
-    if (recaptchaContainer) {
-        recaptchaContainer.innerHTML = '';
+    if (!recaptchaContainer) {
+      console.error(`reCAPTCHA container with ID '${containerId}' not found in the DOM.`);
+      return null;
     }
     
     // Ensure we don't create multiple verifiers
@@ -102,7 +104,7 @@ const setupRecaptcha = (containerId: string) => {
 const sendOtpToPhone = async (phoneNumber: string): Promise<ConfirmationResult> => {
   const appVerifier = setupRecaptcha('recaptcha-container');
   if (!appVerifier) {
-      throw new Error("reCAPTCHA verifier not initialized.");
+      throw new Error("reCAPTCHA verifier not initialized. Make sure the container element exists.");
   }
   try {
     const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
