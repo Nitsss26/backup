@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -59,8 +60,25 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const [pendingSignUpData, setPendingSignUpData] = useState<SignUpFormValues | null>(null);
   const [otp, setOtp] = useState('');
 
-  const loginForm = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
-  const signUpForm = useForm<SignUpFormValues>({ resolver: zodResolver(signUpSchema), defaultValues: { isSeller: false }});
+  const loginForm = useForm<LoginFormValues>({ 
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    }
+  });
+
+  const signUpForm = useForm<SignUpFormValues>({ 
+    resolver: zodResolver(signUpSchema), 
+    defaultValues: { 
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+      isSeller: false 
+    }
+  });
   
   const roleFromQuery = searchParams.get('role') as 'student' | 'provider' | null;
 
