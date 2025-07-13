@@ -9,8 +9,12 @@ import {
   signOut as firebaseSignOut,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
   type ConfirmationResult,
-  onAuthStateChanged
+  onAuthStateChanged,
+  type User as FirebaseUser
 } from 'firebase/auth';
 
 const firebaseConfig: FirebaseOptions = {
@@ -30,14 +34,46 @@ const googleProvider = new GoogleAuthProvider();
 // --- AUTH FUNCTIONS ---
 
 // Sign in with Google
-const signInWithGoogle = async () => {
+const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
     console.error("Error during Google sign-in:", error);
-    return null;
+    throw error;
   }
+};
+
+// Sign up with Email and Password
+const signUpWithEmailPassword = async (email: string, password: string): Promise<FirebaseUser | null> => {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        return userCredential.user;
+    } catch (error) {
+        console.error("Error signing up with email and password:", error);
+        throw error;
+    }
+};
+
+// Sign in with Email and Password
+const signInWithEmailPasswordHandler = async (email: string, password: string): Promise<FirebaseUser | null> => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return userCredential.user;
+    } catch (error) {
+        console.error("Error signing in with email and password:", error);
+        throw error;
+    }
+}
+
+// Send Email Verification Link
+const sendEmailVerificationLink = async (user: FirebaseUser): Promise<void> => {
+    try {
+        await sendEmailVerification(user);
+    } catch (error) {
+        console.error("Error sending verification email:", error);
+        throw error;
+    }
 };
 
 // Sign out
@@ -50,22 +86,18 @@ const signOut = async () => {
 };
 
 // --- PHONE AUTH FUNCTIONS ---
-
-// Setup reCAPTCHA verifier
 const setupRecaptcha = (containerId: string) => {
   if (typeof window !== 'undefined') {
-    // Ensure the container is empty before creating a new verifier
     const recaptchaContainer = document.getElementById(containerId);
     if (recaptchaContainer) {
         recaptchaContainer.innerHTML = '';
     }
     
-    // Temporarily assign to window to avoid re-initialization errors on HMR
+    // Use a window property to avoid reinitialization on HMR
     if (!(window as any).recaptchaVerifier) {
       (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
         'size': 'invisible',
         'callback': (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
           console.log("reCAPTCHA solved");
         }
       });
@@ -75,25 +107,23 @@ const setupRecaptcha = (containerId: string) => {
   return null;
 };
 
-
 // Send OTP to phone number
-const sendOtpToPhone = async (phoneNumber: string): Promise<ConfirmationResult | null> => {
+const sendOtpToPhone = async (phoneNumber: string): Promise<ConfirmationResult> => {
+  const appVerifier = setupRecaptcha('recaptcha-container');
+  if (!appVerifier) {
+      throw new Error("reCAPTCHA verifier not initialized.");
+  }
   try {
-    const appVerifier = setupRecaptcha('recaptcha-container');
-    if (appVerifier) {
-      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      return confirmationResult;
-    }
-    return null;
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+    return confirmationResult;
   } catch (error) {
     console.error("Error sending OTP:", error);
-    // Handle specific errors like 'auth/invalid-phone-number' if needed
     throw error;
   }
 };
 
 // Verify OTP
-const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string) => {
+const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string): Promise<FirebaseUser> => {
   try {
     const result = await confirmationResult.confirm(otp);
     return result.user;
@@ -106,10 +136,14 @@ const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string) =>
 export { 
   auth, 
   signInWithGoogle, 
+  signUpWithEmailPassword,
+  signInWithEmailPassword as signInWithEmailPassword,
+  sendEmailVerificationLink,
   signOut,
   onAuthStateChanged,
   sendOtpToPhone,
   verifyOtp,
   setupRecaptcha,
-  type ConfirmationResult
+  type ConfirmationResult,
+  type FirebaseUser
 };

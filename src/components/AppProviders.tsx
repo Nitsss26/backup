@@ -4,8 +4,7 @@
 import React, { type ReactNode, useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { SidebarProvider as UISidebarProvider } from '@/components/ui/sidebar';
 import type { User as AppUser, Course, CartItem } from '@/lib/types';
-import { auth, onAuthStateChanged, signOut as firebaseSignOut } from '@/lib/firebase';
-import type { User as FirebaseUser } from 'firebase/auth';
+import { auth, onAuthStateChanged, signOut as firebaseSignOut, type FirebaseUser } from '@/lib/firebase';
 import axios from 'axios';
 
 // --- SIDEBAR CONTEXT ---
@@ -26,6 +25,8 @@ interface LoginParams {
   firebaseUser: FirebaseUser;
   role?: 'student' | 'provider';
   isNewUser?: boolean;
+  name?: string;
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -34,7 +35,6 @@ interface AuthContextType {
   isLoading: boolean;
   login: (params: LoginParams) => Promise<AppUser | null>;
   logout: () => Promise<void>;
-  // Removed register since it's now part of the login flow
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
@@ -54,16 +54,13 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         setFirebaseUser(fbUser);
-        // User is signed in, see if we have them in our DB
         const storedUser = localStorage.getItem('edtechcart_user');
-        if (storedUser) {
+        if (storedUser && JSON.parse(storedUser).firebaseUid === fbUser.uid) {
           setUser(JSON.parse(storedUser));
         } else {
-          // If no local user, fetch from our backend
           await login({ firebaseUser: fbUser });
         }
       } else {
-        // User is signed out
         setUser(null);
         setFirebaseUser(null);
         localStorage.removeItem('edtechcart_user');
@@ -74,17 +71,18 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const login = async ({ firebaseUser, role, isNewUser }: LoginParams): Promise<AppUser | null> => {
+  const login = async ({ firebaseUser, role, name, phone }: LoginParams): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
       const idToken = await firebaseUser.getIdToken();
       
       const response = await axios.post('/api/users', {
-        email: firebaseUser.email || `phone-${firebaseUser.uid}`,
-        name: firebaseUser.displayName || 'New User',
+        email: firebaseUser.email,
+        name: name || firebaseUser.displayName || 'New User',
         avatarUrl: firebaseUser.photoURL,
         firebaseUid: firebaseUser.uid,
-        role: role || 'student', // Default to student on first login
+        role: role,
+        phone: phone || firebaseUser.phoneNumber,
       });
 
       const appUser: AppUser = response.data;
@@ -94,6 +92,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     } catch (error) {
       console.error("Error during app login/sync:", error);
+      // If sync fails, log out the user from Firebase to avoid a broken state
+      await firebaseSignOut(auth);
       return null;
     } finally {
       setIsLoading(false);
