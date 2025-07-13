@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, UserPlus, LogIn, Key, Shield, User, Mail, Smartphone, Check, Building, GraduationCap, ToggleLeft, ToggleRight, Phone } from 'lucide-react';
+import { Loader2, UserPlus, LogIn, Key, Shield, User, Mail, Smartphone, Check, Building, GraduationCap, ToggleLeft, ToggleRight, Phone, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -17,15 +17,14 @@ import { useAuth } from '@/components/AppProviders';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { APP_NAME } from '@/lib/constants';
 import type { User as AppUser } from '@/lib/types';
-import type { ConfirmationResult, User as FirebaseUser } from 'firebase/auth';
+import type { FirebaseUser } from 'firebase/auth';
 import { 
-  sendOtpToPhone, 
-  verifyOtp, 
   signUpWithEmailPassword, 
   sendEmailVerificationLink,
   signInWithEmailPassword
 } from '@/lib/firebase';
 import { Switch } from '@/components/ui/switch';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -55,6 +54,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
 
   const [mode, setMode] = useState(initialMode);
   const [isLoading, setIsLoading] = useState(false);
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   
   const loginForm = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
   const signUpForm = useForm<SignUpFormValues>({ resolver: zodResolver(signUpSchema), defaultValues: { isSeller: false }});
@@ -73,7 +73,12 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
       const firebaseUser = await signInWithEmailPassword(data.email, data.password);
       if (firebaseUser) {
         if (!firebaseUser.emailVerified) {
-          toast({ title: "Email Not Verified", description: "Please check your email for a verification link.", variant: "destructive" });
+          toast({
+            title: "Email Not Verified",
+            description: "Please check your inbox for a verification link.",
+            variant: "destructive"
+          });
+          await sendEmailVerificationLink(firebaseUser); // Resend verification link
           setIsLoading(false);
           return;
         }
@@ -93,26 +98,20 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     try {
       const firebaseUser = await signUpWithEmailPassword(data.email, data.password);
       if (firebaseUser) {
+        // Send verification email
         await sendEmailVerificationLink(firebaseUser);
 
-        const appUser = await login({ 
+        // Sync user to our MongoDB database immediately
+        await login({ 
             firebaseUser, 
             role: data.isSeller ? 'provider' : 'student',
             isNewUser: true,
             name: data.name,
             phone: `+91${data.phone}`,
         });
-
-        if (appUser) {
-            toast({
-                title: "Account Created!",
-                description: "A verification link has been sent to your email. Please verify to complete your registration.",
-                duration: 8000
-            });
-            router.push('/');
-        } else {
-            throw new Error("Could not sync your account with our database.");
-        }
+        
+        // Show success message and guide user to verify email
+        setShowVerificationMessage(true);
       }
     } catch (error: any) {
       toast({ title: "Sign-Up Failed", description: error.message, variant: "destructive" });
@@ -120,6 +119,37 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
       setIsLoading(false);
     }
   };
+
+  if (showVerificationMessage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
+        <Card className="w-full max-w-md shadow-2xl rounded-xl border-primary/20">
+          <CardHeader className="text-center p-6">
+            <Mail className="h-12 w-12 text-green-500 mx-auto mb-4"/>
+            <CardTitle className="text-2xl font-bold font-headline text-primary">Verify Your Email</CardTitle>
+            <CardDescription className="text-base text-muted-foreground mt-2">
+              We've sent a verification link to your email address. Please click the link to activate your account and log in.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Alert variant="info">
+                <Shield className="h-4 w-4" />
+                <AlertTitle>Important!</AlertTitle>
+                <AlertDescription>
+                    You must verify your email before you can log in. If you don't see the email, please check your spam folder.
+                </AlertDescription>
+            </Alert>
+          </CardContent>
+          <CardFooter className="p-6">
+            <Button className="w-full" onClick={() => setMode('login')}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">

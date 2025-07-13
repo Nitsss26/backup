@@ -122,7 +122,7 @@ const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string): P
 export { 
   auth, 
   signUpWithEmailPassword,
-  signInWithEmailPassword as signInWithEmailPassword,
+  signInWithEmailAndPassword,
   sendEmailVerificationLink,
   signOut,
   onAuthStateChanged,
