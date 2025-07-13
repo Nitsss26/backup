@@ -3,7 +3,6 @@
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
 import { 
   getAuth, 
-  signInWithPopup, 
   signOut as firebaseSignOut,
   RecaptchaVerifier,
   signInWithPhoneNumber,
@@ -114,7 +113,9 @@ const sendOtpToPhone = async (phoneNumber: string): Promise<ConfirmationResult> 
     // Resetting reCAPTCHA allows the user to try again.
     if ((window as any).recaptchaVerifier) {
         (window as any).recaptchaVerifier.render().then((widgetId: any) => {
-            (window as any).grecaptcha.reset(widgetId);
+            if((window as any).grecaptcha) {
+                (window as any).grecaptcha.reset(widgetId);
+            }
         });
     }
     throw error;

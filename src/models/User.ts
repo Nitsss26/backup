@@ -1,11 +1,10 @@
-
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export interface IUser extends Document {
   firebaseUid: string;
   name: string;
   email: string;
-  phone?: string; // Added phone number field
+  phone?: string; 
   password?: string;
   role: 'student' | 'provider' | 'admin';
   avatarUrl?: string;
@@ -36,7 +35,7 @@ const UserSchema: Schema<IUser> = new Schema({
     trim: true,
     match: [/.+\@.+\..+/, 'Please fill a valid email address.']
   },
-  phone: { type: String, trim: true, sparse: true }, // Added phone, sparse allows for null/unique values
+  phone: { type: String, trim: true, sparse: true, unique: true }, // Added unique constraint
   password: { type: String, select: false },
   role: { type: String, enum: ['student', 'provider', 'admin'], default: 'student' },
   avatarUrl: { type: String, default: '' },
@@ -53,8 +52,6 @@ const UserSchema: Schema<IUser> = new Schema({
   wishlist: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
 }, { timestamps: true });
-
-UserSchema.index({ phone: 1 }, { unique: true, sparse: true }); // Ensure phone numbers are unique if they exist
 
 const UserModel: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
 

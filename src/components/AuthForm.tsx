@@ -15,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/AppProviders';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { APP_NAME } from '@/lib/constants';
-import type { User as AppUser } from '@/lib/types';
 import type { FirebaseUser, ConfirmationResult } from 'firebase/auth';
 import { 
   signUpWithEmailPassword, 
@@ -54,19 +53,22 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const { toast } = useToast();
 
   const [mode, setMode] = useState(initialMode);
+  const [authStep, setAuthStep] = useState<'details' | 'verifyOtp' | 'verified'>('details');
   const [isLoading, setIsLoading] = useState(false);
-  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
-  
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [pendingSignUpData, setPendingSignUpData] = useState<SignUpFormValues | null>(null);
+  const [otp, setOtp] = useState('');
+
   const loginForm = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
   const signUpForm = useForm<SignUpFormValues>({ resolver: zodResolver(signUpSchema), defaultValues: { isSeller: false }});
   
   const roleFromQuery = searchParams.get('role') as 'student' | 'provider' | null;
 
   useEffect(() => {
-    if (roleFromQuery === 'provider') {
+    if (roleFromQuery === 'provider' && mode === 'register') {
       signUpForm.setValue('isSeller', true);
     }
-  }, [roleFromQuery, signUpForm]);
+  }, [roleFromQuery, mode, signUpForm]);
 
   const onLoginSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setIsLoading(true);
@@ -79,7 +81,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
             description: "Please check your inbox for a verification link.",
             variant: "destructive"
           });
-          await sendEmailVerificationLink(firebaseUser); // Resend verification link
+          await sendEmailVerificationLink(firebaseUser);
           setIsLoading(false);
           return;
         }
@@ -97,57 +99,104 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const onSignUpSubmit: SubmitHandler<SignUpFormValues> = async (data) => {
     setIsLoading(true);
     try {
-      const firebaseUser = await signUpWithEmailPassword(data.email, data.password);
-      if (firebaseUser) {
-        // Send verification email
-        await sendEmailVerificationLink(firebaseUser);
-
-        // Sync user to our MongoDB database immediately
-        await login({ 
-            firebaseUser, 
-            role: data.isSeller ? 'provider' : 'student',
-            isNewUser: true,
-            name: data.name,
-            phone: `+91${data.phone}`,
-        });
-        
-        // Show success message and guide user to verify email
-        setShowVerificationMessage(true);
-      }
+      const phoneNumber = `+91${data.phone}`;
+      const confirmation = await sendOtpToPhone(phoneNumber);
+      setConfirmationResult(confirmation);
+      setPendingSignUpData(data);
+      setAuthStep('verifyOtp');
+      toast({ title: "OTP Sent", description: "Please check your phone for the verification code." });
     } catch (error: any) {
-      toast({ title: "Sign-Up Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Failed to Send OTP", description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (showVerificationMessage) {
+  const onOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp || !confirmationResult || !pendingSignUpData) {
+      toast({ title: "Error", description: "Something went wrong. Please try signing up again.", variant: "destructive" });
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const userCredential = await confirmationResult.confirm(otp);
+      const firebaseUser = userCredential.user;
+
+      if(firebaseUser) {
+          // Now create the user with email and password
+          const { email, password, name, isSeller, phone } = pendingSignUpData;
+          const finalUser = await signUpWithEmailPassword(email, password);
+          if (finalUser) {
+            await sendEmailVerificationLink(finalUser);
+            await login({
+              firebaseUser: finalUser,
+              role: isSeller ? 'provider' : 'student',
+              isNewUser: true,
+              name: name,
+              phone: `+91${phone}`,
+            });
+            setAuthStep('verified');
+          } else {
+             throw new Error("Could not finalize account creation.");
+          }
+      }
+    } catch (error: any) {
+      toast({ title: "OTP Verification Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  if (authStep === 'verified') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
         <Card className="w-full max-w-md shadow-2xl rounded-xl border-primary/20">
           <CardHeader className="text-center p-6">
-            <Mail className="h-12 w-12 text-green-500 mx-auto mb-4"/>
-            <CardTitle className="text-2xl font-bold font-headline text-primary">Verify Your Email</CardTitle>
+            <Check className="h-12 w-12 text-green-500 mx-auto mb-4"/>
+            <CardTitle className="text-2xl font-bold font-headline text-primary">Registration Successful!</CardTitle>
             <CardDescription className="text-base text-muted-foreground mt-2">
-              We've sent a verification link to your email address. Please click the link to activate your account and log in.
+              Your account has been created. A verification link has been sent to your email. Please verify your email to complete the process.
+            </CardDescription>
+          </CardHeader>
+          <CardFooter className="p-6">
+            <Button className="w-full" onClick={() => router.push('/auth/login')}>
+              Proceed to Login
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    );
+  }
+
+  if (authStep === 'verifyOtp') {
+     return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
+         <div id="recaptcha-container" className="fixed bottom-0 right-0"></div>
+        <Card className="w-full max-w-md shadow-2xl rounded-xl border-primary/20">
+          <CardHeader className="text-center p-6 pb-4">
+            <Smartphone className="h-12 w-12 text-primary mx-auto mb-4"/>
+            <CardTitle className="text-2xl font-bold font-headline text-primary">Verify Your Phone</CardTitle>
+            <CardDescription className="text-base text-muted-foreground mt-2">
+              Enter the 6-digit code sent to your mobile number to complete your registration.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Alert variant="info">
-                <Shield className="h-4 w-4" />
-                <AlertTitle>Important!</AlertTitle>
-                <AlertDescription>
-                    You must verify your email before you can log in. If you don't see the email, please check your spam folder.
-                </AlertDescription>
-            </Alert>
+             <form onSubmit={onOtpSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                    <Label htmlFor="otp">Verification Code</Label>
+                    <Input id="otp" type="text" value={otp} onChange={(e) => setOtp(e.target.value)} placeholder="Enter 6-digit OTP" maxLength={6} />
+                </div>
+                 <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+                    {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Check className="mr-2 h-5 w-5"/>}
+                    Verify & Create Account
+                </Button>
+             </form>
           </CardContent>
-          <CardFooter className="p-6">
-            <Button className="w-full" onClick={() => {
-                setShowVerificationMessage(false);
-                setMode('login');
-            }}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
-            </Button>
+           <CardFooter className="flex justify-center p-6 border-t">
+              <Button variant="link" onClick={() => setAuthStep('details')} className="text-muted-foreground text-sm">
+                <ArrowLeft className="h-4 w-4 mr-1"/> Back to details
+              </Button>
           </CardFooter>
         </Card>
       </div>
@@ -249,7 +298,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
                 {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
                 <Button variant="link" onClick={() => {
                   setMode(mode === 'login' ? 'register' : 'login');
-                  setShowVerificationMessage(false); // Reset verification message on mode switch
+                  setAuthStep('details'); 
                   }} className="font-semibold text-primary">
                     {mode === 'login' ? 'Sign Up' : 'Sign In'}
                 </Button>
