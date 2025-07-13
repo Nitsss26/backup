@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -17,11 +16,13 @@ import { useAuth } from '@/components/AppProviders';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { APP_NAME } from '@/lib/constants';
 import type { User as AppUser } from '@/lib/types';
-import type { FirebaseUser } from 'firebase/auth';
+import type { FirebaseUser, ConfirmationResult } from 'firebase/auth';
 import { 
   signUpWithEmailPassword, 
   sendEmailVerificationLink,
-  signInWithEmailPassword
+  signInWithEmailPassword,
+  sendOtpToPhone,
+  verifyOtp,
 } from '@/lib/firebase';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -141,7 +142,10 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
             </Alert>
           </CardContent>
           <CardFooter className="p-6">
-            <Button className="w-full" onClick={() => setMode('login')}>
+            <Button className="w-full" onClick={() => {
+                setShowVerificationMessage(false);
+                setMode('login');
+            }}>
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Login
             </Button>
           </CardFooter>
@@ -150,9 +154,9 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     );
   }
 
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
+       <div id="recaptcha-container" className="fixed bottom-0 right-0"></div>
       <Card className="w-full max-w-md shadow-2xl rounded-xl border-primary/20">
         <CardHeader className="text-center p-6 pb-4">
           <Image src="/logoo.png" alt={APP_NAME} width={150} height={50} className="mx-auto mb-4" />
@@ -243,7 +247,10 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         <CardFooter className="flex justify-center p-6 border-t">
             <p className="text-sm text-muted-foreground">
                 {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
-                <Button variant="link" onClick={() => setMode(mode === 'login' ? 'register' : 'login')} className="font-semibold text-primary">
+                <Button variant="link" onClick={() => {
+                  setMode(mode === 'login' ? 'register' : 'login');
+                  setShowVerificationMessage(false); // Reset verification message on mode switch
+                  }} className="font-semibold text-primary">
                     {mode === 'login' ? 'Sign Up' : 'Sign In'}
                 </Button>
             </p>

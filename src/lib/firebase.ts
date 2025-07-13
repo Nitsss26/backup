@@ -1,4 +1,3 @@
-
 'use client';
 
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
@@ -52,6 +51,9 @@ const signInWithEmailPasswordHandler = async (email: string, password: string): 
         throw error;
     }
 }
+// Exporting the function with a distinct name to avoid conflicts.
+export { signInWithEmailPasswordHandler as signInWithEmailPassword };
+
 
 // Send Email Verification Link
 const sendEmailVerificationLink = async (user: FirebaseUser): Promise<void> => {
@@ -80,14 +82,18 @@ const setupRecaptcha = (containerId: string) => {
         recaptchaContainer.innerHTML = '';
     }
     
-    if (!(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-        'size': 'invisible',
-        'callback': (response: any) => {
-          console.log("reCAPTCHA solved");
-        }
-      });
+    // Ensure we don't create multiple verifiers
+    if ((window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier.clear();
     }
+    
+    (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+      'size': 'invisible',
+      'callback': (response: any) => {
+        console.log("reCAPTCHA solved, ready to send OTP");
+      }
+    });
+    
     return (window as any).recaptchaVerifier;
   }
   return null;
@@ -104,6 +110,13 @@ const sendOtpToPhone = async (phoneNumber: string): Promise<ConfirmationResult> 
     return confirmationResult;
   } catch (error) {
     console.error("Error sending OTP:", error);
+    // This can happen if the phone number is invalid or for other reasons.
+    // Resetting reCAPTCHA allows the user to try again.
+    if ((window as any).recaptchaVerifier) {
+        (window as any).recaptchaVerifier.render().then((widgetId: any) => {
+            (window as any).grecaptcha.reset(widgetId);
+        });
+    }
     throw error;
   }
 };
@@ -122,7 +135,6 @@ const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string): P
 export { 
   auth, 
   signUpWithEmailPassword,
-  signInWithEmailAndPassword,
   sendEmailVerificationLink,
   signOut,
   onAuthStateChanged,
