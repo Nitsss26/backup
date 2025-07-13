@@ -75,44 +75,54 @@ const signOut = async () => {
 };
 
 // --- PHONE AUTH FUNCTIONS ---
-const setupRecaptcha = (containerId: string) => {
+const setupRecaptcha = (containerId: string): RecaptchaVerifier | null => {
   if (typeof window !== 'undefined') {
     const recaptchaContainer = document.getElementById(containerId);
     if (!recaptchaContainer) {
       console.error(`reCAPTCHA container with ID '${containerId}' not found in the DOM.`);
-      return null;
+      // Optionally, create and append the container dynamically if it's missing
+      const newContainer = document.createElement('div');
+      newContainer.id = containerId;
+      document.body.appendChild(newContainer);
+      console.log(`Dynamically created reCAPTCHA container with ID: ${containerId}`);
     }
     
     // Ensure we don't create multiple verifiers
     if ((window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier.clear();
+      // It might be better to just return the existing verifier
+      // or ensure it's cleared and re-created cleanly.
+      return (window as any).recaptchaVerifier;
     }
     
-    (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-      'size': 'invisible',
-      'callback': (response: any) => {
-        console.log("reCAPTCHA solved, ready to send OTP");
-      }
-    });
-    
-    return (window as any).recaptchaVerifier;
+    try {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          console.log("reCAPTCHA solved, ready to send OTP");
+        },
+        'expired-callback': () => {
+            console.warn("reCAPTCHA expired, please try again.");
+            if ((window as any).recaptchaVerifier) {
+                (window as any).recaptchaVerifier.clear();
+            }
+        }
+      });
+      return (window as any).recaptchaVerifier;
+    } catch (error) {
+        console.error("Error creating RecaptchaVerifier:", error);
+        return null;
+    }
   }
   return null;
 };
 
 // Send OTP to phone number
-const sendOtpToPhone = async (phoneNumber: string): Promise<ConfirmationResult> => {
-  const appVerifier = setupRecaptcha('recaptcha-container');
-  if (!appVerifier) {
-      throw new Error("reCAPTCHA verifier not initialized. Make sure the container element exists.");
-  }
+const sendOtpToPhone = async (phoneNumber: string, appVerifier: RecaptchaVerifier): Promise<ConfirmationResult> => {
   try {
     const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
     return confirmationResult;
   } catch (error) {
     console.error("Error sending OTP:", error);
-    // This can happen if the phone number is invalid or for other reasons.
-    // Resetting reCAPTCHA allows the user to try again.
     if ((window as any).recaptchaVerifier) {
         (window as any).recaptchaVerifier.render().then((widgetId: any) => {
             if((window as any).grecaptcha) {

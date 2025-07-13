@@ -23,6 +23,7 @@ import {
   signInWithEmailPassword,
   sendOtpToPhone,
   verifyOtp,
+  setupRecaptcha,
 } from '@/lib/firebase';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -117,8 +118,12 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const onSignUpSubmit: SubmitHandler<SignUpFormValues> = async (data) => {
     setIsLoading(true);
     try {
+      const appVerifier = setupRecaptcha('recaptcha-container');
+      if (!appVerifier) {
+        throw new Error("Could not set up reCAPTCHA. Please ensure the container element exists.");
+      }
       const phoneNumber = `+91${data.phone}`;
-      const confirmation = await sendOtpToPhone(phoneNumber);
+      const confirmation = await sendOtpToPhone(phoneNumber, appVerifier);
       setConfirmationResult(confirmation);
       setPendingSignUpData(data);
       setAuthStep('verifyOtp');
@@ -138,15 +143,19 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     }
     setIsLoading(true);
     try {
-      const userCredential = await confirmationResult.confirm(otp);
-      const firebaseUser = userCredential.user;
-
-      if(firebaseUser) {
-          // Now create the user with email and password
+      // Step 1: Verify the phone OTP. This signs the user into Firebase Phone Auth.
+      const phoneUserCredential = await confirmationResult.confirm(otp);
+      
+      if(phoneUserCredential.user) {
+          // Step 2: Now that phone is verified, create the final account with Email/Password.
           const { email, password, name, isSeller, phone } = pendingSignUpData;
           const finalUser = await signUpWithEmailPassword(email, password);
+          
           if (finalUser) {
+            // Step 3: Send the email verification link.
             await sendEmailVerificationLink(finalUser);
+
+            // Step 4: Create the user in our MongoDB database via our API
             await login({
               firebaseUser: finalUser,
               role: isSeller ? 'provider' : 'student',
@@ -154,9 +163,11 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
               name: name,
               phone: `+91${phone}`,
             });
+
+            // Step 5: Show success and move to the next step in the UI
             setAuthStep('verified');
           } else {
-             throw new Error("Could not finalize account creation.");
+             throw new Error("Could not finalize account creation with email and password.");
           }
       }
     } catch (error: any) {
@@ -190,7 +201,6 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   if (authStep === 'verifyOtp') {
      return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
-         <div id="recaptcha-container" className="fixed bottom-0 right-0"></div>
         <Card className="w-full max-w-md shadow-2xl rounded-xl border-primary/20">
           <CardHeader className="text-center p-6 pb-4">
             <Smartphone className="h-12 w-12 text-primary mx-auto mb-4"/>
