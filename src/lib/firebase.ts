@@ -4,7 +4,6 @@
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
 import { 
   getAuth, 
-  GoogleAuthProvider, 
   signInWithPopup, 
   signOut as firebaseSignOut,
   RecaptchaVerifier,
@@ -29,20 +28,8 @@ const firebaseConfig: FirebaseOptions = {
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
 
 // --- AUTH FUNCTIONS ---
-
-// Sign in with Google
-const signInWithGoogle = async (): Promise<FirebaseUser | null> => {
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
-  } catch (error) {
-    console.error("Error during Google sign-in:", error);
-    throw error;
-  }
-};
 
 // Sign up with Email and Password
 const signUpWithEmailPassword = async (email: string, password: string): Promise<FirebaseUser | null> => {
@@ -93,7 +80,6 @@ const setupRecaptcha = (containerId: string) => {
         recaptchaContainer.innerHTML = '';
     }
     
-    // Use a window property to avoid reinitialization on HMR
     if (!(window as any).recaptchaVerifier) {
       (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
         'size': 'invisible',
@@ -135,7 +121,6 @@ const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string): P
 
 export { 
   auth, 
-  signInWithGoogle, 
   signUpWithEmailPassword,
   signInWithEmailPassword as signInWithEmailPassword,
   sendEmailVerificationLink,

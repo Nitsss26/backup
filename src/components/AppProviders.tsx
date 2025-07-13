@@ -52,7 +52,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
+      if (fbUser && fbUser.emailVerified) { // Only proceed if email is verified
         setFirebaseUser(fbUser);
         const storedUser = localStorage.getItem('edtechcart_user');
         if (storedUser && JSON.parse(storedUser).firebaseUid === fbUser.uid) {
@@ -61,6 +61,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
           await login({ firebaseUser: fbUser });
         }
       } else {
+        // If user is not verified or doesn't exist, treat as logged out
         setUser(null);
         setFirebaseUser(null);
         localStorage.removeItem('edtechcart_user');
@@ -74,7 +75,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async ({ firebaseUser, role, name, phone }: LoginParams): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
-      const idToken = await firebaseUser.getIdToken();
       
       const response = await axios.post('/api/users', {
         email: firebaseUser.email,
@@ -92,7 +92,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     } catch (error) {
       console.error("Error during app login/sync:", error);
-      // If sync fails, log out the user from Firebase to avoid a broken state
       await firebaseSignOut(auth);
       return null;
     } finally {

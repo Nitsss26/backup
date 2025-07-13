@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, UserPlus, LogIn, Phone, Key, Shield, User, Mail, Smartphone, Check, Building, GraduationCap, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Loader2, UserPlus, LogIn, Key, Shield, User, Mail, Smartphone, Check, Building, GraduationCap, ToggleLeft, ToggleRight, Phone } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +19,6 @@ import { APP_NAME } from '@/lib/constants';
 import type { User as AppUser } from '@/lib/types';
 import type { ConfirmationResult, User as FirebaseUser } from 'firebase/auth';
 import { 
-  signInWithGoogle, 
   sendOtpToPhone, 
   verifyOtp, 
   signUpWithEmailPassword, 
@@ -31,7 +30,7 @@ import { Switch } from '@/components/ui/switch';
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().regex(/^\+[1-9]\d{1,14}$/, "Please enter a valid phone number with country code (e.g., +919876543210)."),
+  phone: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit phone number."),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string(),
   isSeller: z.boolean().default(false),
@@ -41,7 +40,7 @@ const signUpSchema = z.object({
 });
 
 const loginSchema = z.object({
-  emailOrPhone: z.string().min(3, "Please enter a valid email or phone number."),
+  email: z.string().email("Please enter a valid email address."),
   password: z.string().min(1, "Password is required."),
 });
 
@@ -71,8 +70,13 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const onLoginSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setIsLoading(true);
     try {
-      const firebaseUser = await signInWithEmailPassword(data.emailOrPhone, data.password);
+      const firebaseUser = await signInWithEmailPassword(data.email, data.password);
       if (firebaseUser) {
+        if (!firebaseUser.emailVerified) {
+          toast({ title: "Email Not Verified", description: "Please check your email for a verification link.", variant: "destructive" });
+          setIsLoading(false);
+          return;
+        }
         await login({ firebaseUser });
         toast({ title: "Login Successful", description: "Welcome back!" });
         router.push(searchParams.get('redirect') || '/');
@@ -91,47 +95,27 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
       if (firebaseUser) {
         await sendEmailVerificationLink(firebaseUser);
 
-        // Now, we'll login this user to MongoDB in an "unverified" state
         const appUser = await login({ 
             firebaseUser, 
             role: data.isSeller ? 'provider' : 'student',
             isNewUser: true,
-            // Pass extra data to store immediately
             name: data.name,
-            phone: data.phone,
+            phone: `+91${data.phone}`,
         });
 
         if (appUser) {
             toast({
                 title: "Account Created!",
-                description: "A verification link has been sent to your email. Please verify to continue.",
+                description: "A verification link has been sent to your email. Please verify to complete your registration.",
                 duration: 8000
             });
-            // Redirect user to a page that tells them to verify their email
-            // Or, you can handle this state in the dashboard directly
-            router.push('/dashboard/profile'); // A good place to show verification status
+            router.push('/');
         } else {
             throw new Error("Could not sync your account with our database.");
         }
       }
     } catch (error: any) {
       toast({ title: "Sign-Up Failed", description: error.message, variant: "destructive" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    try {
-      const firebaseUser = await signInWithGoogle();
-      if (firebaseUser) {
-        await login({ firebaseUser, role: roleFromQuery || 'student' });
-        toast({ title: "Sign In Successful", description: "Welcome!" });
-        router.push(searchParams.get('redirect') || '/');
-      }
-    } catch (error: any) {
-      toast({ title: "Google Sign-In Failed", description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -153,9 +137,9 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
           {mode === 'login' ? (
             <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="emailOrPhone">Email or Phone</Label>
-                <Input id="emailOrPhone" {...loginForm.register('emailOrPhone')} placeholder="you@example.com or +91..." />
-                {loginForm.formState.errors.emailOrPhone && <p className="text-sm text-destructive">{loginForm.formState.errors.emailOrPhone.message}</p>}
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" {...loginForm.register('email')} placeholder="you@example.com" />
+                {loginForm.formState.errors.email && <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>}
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
@@ -168,7 +152,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
                 </Button>
               </div>
               <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
-                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <LogInIcon className="mr-2 h-5 w-5"/>}
+                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <LogIn className="mr-2 h-5 w-5"/>}
                 Sign In
               </Button>
             </form>
@@ -186,7 +170,10 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
               </div>
                <div className="space-y-1.5">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" {...signUpForm.register('phone')} placeholder="+919876543210" />
+                <div className="flex items-center">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm h-10">+91</span>
+                    <Input id="phone" {...signUpForm.register('phone')} placeholder="9876543210" className="rounded-l-none" />
+                </div>
                 {signUpForm.formState.errors.phone && <p className="text-sm text-destructive">{signUpForm.formState.errors.phone.message}</p>}
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -222,18 +209,6 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
               </Button>
             </form>
           )}
-          <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t"></span>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">OR CONTINUE WITH</span>
-              </div>
-          </div>
-          <Button onClick={handleGoogleSignIn} variant="outline" className="w-full h-11 text-base" disabled={isLoading}>
-              <svg role="img" viewBox="0 0 24 24" className="mr-2 h-4 w-4"><path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.02-2.62 3.28-7.84 3.28-4.74 0-8.28-3.91-8.28-8.28s3.54-8.28 8.28-8.28c2.62 0 4.37 1.02 5.31 1.95l2.42-2.42C19.04 1.82 16.33 0 12.48 0 5.88 0 .02 5.88.02 12.48s5.86 12.48 12.46 12.48c3.54 0 6.28-1.18 8.35-3.37 2.15-2.15 2.84-5.22 2.84-7.38 0-.61-.05-.91-.12-1.24h-11.2z"></path></svg>
-               Google
-          </Button>
         </CardContent>
         <CardFooter className="flex justify-center p-6 border-t">
             <p className="text-sm text-muted-foreground">
