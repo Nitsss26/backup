@@ -1,7 +1,8 @@
+
 "use client";
 
 import Link from 'next/link';
-import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus, Book, Home } from 'lucide-react';
+import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus, Book, Home, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserProfileDropdown } from '@/components/UserProfileDropdown';
 import { APP_NAME, CATEGORIES } from '@/lib/constants';
