@@ -22,7 +22,6 @@ import {
   sendEmailVerificationLink,
   signInWithEmailPassword,
   sendOtpToPhone,
-  verifyOtp,
   setupRecaptcha,
 } from '@/lib/firebase';
 import { Switch } from '@/components/ui/switch';
@@ -89,6 +88,11 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     }
   }, [roleFromQuery, mode, signUpForm]);
 
+  // Set up reCAPTCHA verifier as soon as the component mounts
+  useEffect(() => {
+    setupRecaptcha('recaptcha-container');
+  }, []);
+
   const onLoginSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setIsLoading(true);
     try {
@@ -118,12 +122,8 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const onSignUpSubmit: SubmitHandler<SignUpFormValues> = async (data) => {
     setIsLoading(true);
     try {
-      const appVerifier = setupRecaptcha('recaptcha-container');
-      if (!appVerifier) {
-        throw new Error("Could not set up reCAPTCHA. Please ensure the container element exists.");
-      }
       const phoneNumber = `+91${data.phone}`;
-      const confirmation = await sendOtpToPhone(phoneNumber, appVerifier);
+      const confirmation = await sendOtpToPhone(phoneNumber);
       setConfirmationResult(confirmation);
       setPendingSignUpData(data);
       setAuthStep('verifyOtp');
