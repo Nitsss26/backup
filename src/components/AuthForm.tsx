@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, UserPlus, LogIn, Key, Shield, User, Mail, Smartphone, Check, Building, GraduationCap, ToggleLeft, ToggleRight, Phone, ArrowLeft } from 'lucide-react';
+import { Loader2, UserPlus, LogIn, Shield, Building, GraduationCap, Smartphone, Check, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
@@ -88,7 +88,6 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     }
   }, [roleFromQuery, mode, signUpForm]);
 
-  // Set up reCAPTCHA verifier as soon as the component mounts
   useEffect(() => {
     setupRecaptcha('recaptcha-container');
   }, []);
@@ -129,7 +128,13 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
       setAuthStep('verifyOtp');
       toast({ title: "OTP Sent", description: "Please check your phone for the verification code." });
     } catch (error: any) {
-      toast({ title: "Failed to Send OTP", description: error.message, variant: "destructive" });
+      console.error("OTP Send Error:", error);
+      toast({
+        title: "Failed to Send OTP",
+        description: `Firebase error: ${error.message}. Make sure Phone authentication is enabled in your Firebase console.`,
+        variant: "destructive",
+        duration: 9000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -143,35 +148,28 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     }
     setIsLoading(true);
     try {
-      // Step 1: Verify the phone OTP. This signs the user into Firebase Phone Auth.
-      const phoneUserCredential = await confirmationResult.confirm(otp);
+      await confirmationResult.confirm(otp);
       
-      if(phoneUserCredential.user) {
-          // Step 2: Now that phone is verified, create the final account with Email/Password.
-          const { email, password, name, isSeller, phone } = pendingSignUpData;
-          const finalUser = await signUpWithEmailPassword(email, password);
-          
-          if (finalUser) {
-            // Step 3: Send the email verification link.
-            await sendEmailVerificationLink(finalUser);
+      const { email, password, name, isSeller, phone } = pendingSignUpData;
+      const finalUser = await signUpWithEmailPassword(email, password);
+      
+      if (finalUser) {
+        await sendEmailVerificationLink(finalUser);
 
-            // Step 4: Create the user in our MongoDB database via our API
-            await login({
-              firebaseUser: finalUser,
-              role: isSeller ? 'provider' : 'student',
-              isNewUser: true,
-              name: name,
-              phone: `+91${phone}`,
-            });
-
-            // Step 5: Show success and move to the next step in the UI
-            setAuthStep('verified');
-          } else {
-             throw new Error("Could not finalize account creation with email and password.");
-          }
+        await login({
+          firebaseUser: finalUser,
+          role: isSeller ? 'provider' : 'student',
+          isNewUser: true,
+          name: name,
+          phone: `+91${phone}`,
+        });
+        
+        setAuthStep('verified');
+      } else {
+         throw new Error("Could not finalize account creation with email and password.");
       }
     } catch (error: any) {
-      toast({ title: "OTP Verification Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -233,7 +231,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/10 p-4">
-       <div id="recaptcha-container" className="fixed bottom-0 right-0"></div>
+      <div id="recaptcha-container" className="fixed bottom-0 right-0"></div>
       <Card className="w-full max-w-md shadow-2xl rounded-xl border-primary/20">
         <CardHeader className="text-center p-6 pb-4">
           <Image src="/logoo.png" alt={APP_NAME} width={150} height={50} className="mx-auto mb-4" />
