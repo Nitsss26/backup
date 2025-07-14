@@ -14,11 +14,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CATEGORIES, DIFFICULTY_LEVELS, LANGUAGES } from '@/lib/constants';
-import { PlusCircle, Trash2, UploadCloud, Loader2, Info, Video, BookCopy, CalendarClock } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; // Added import
-import { cn } from '@/lib/utils';
+import Link from 'next/link';
+import { useAuth } from '@/components/AppProviders';
+import axios from 'axios';
 
 const lessonSchema = z.object({
   title: z.string().min(3, "Lesson title must be at least 3 characters"),
@@ -61,6 +62,7 @@ type CourseFormValues = z.infer<typeof courseSchema>;
 export default function NewCoursePage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const { control, register, handleSubmit, formState: { errors }, watch, setValue } = useForm<CourseFormValues>({
@@ -84,17 +86,38 @@ export default function NewCoursePage() {
   });
 
   const onSubmit = async (data: CourseFormValues) => {
+    if (!user) {
+        toast({ title: "Error", description: "You must be logged in to create a course.", variant: "destructive" });
+        return;
+    }
     setIsLoading(true);
-    console.log("Course data submitted:", data);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    toast({
-      title: "Course Created Successfully!",
-      description: `"${data.title}" has been submitted for review. It will be published once approved by an admin.`,
-      duration: 5000,
-    });
-    setIsLoading(false);
-    router.push('/dashboard/seller/courses'); 
+
+    try {
+        const payload = { ...data, sellerId: user.id };
+        const response = await axios.post('/api/courses', payload);
+        if (response.status === 201) {
+            toast({
+            title: "Course Created Successfully!",
+            description: `"${data.title}" has been submitted for review.`,
+            duration: 5000,
+            });
+            router.push('/dashboard/seller/courses');
+        } else {
+             throw new Error(response.data.message || "An unknown error occurred.");
+        }
+    } catch (error: any) {
+        console.error("Course creation failed:", error);
+        const errorData = error.response?.data;
+        const errorMessage = errorData?.message || "Failed to create the course. Please try again.";
+        const errorDetails = errorData?.errors ? `\nDetails: ${Object.values(errorData.errors).join(', ')}` : '';
+        toast({
+            title: "Course Creation Failed",
+            description: errorMessage + errorDetails,
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
+    }
   };
   
   const watchCurriculum = watch("curriculum");

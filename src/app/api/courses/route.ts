@@ -198,27 +198,50 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect();
     const body = await request.json();
-    if (body.seller && typeof body.seller === 'string' && !mongoose.Types.ObjectId.isValid(body.seller)) {
-        console.warn(`[API /api/courses POST] Invalid seller ID string received: ${body.seller}. Unsetting seller field.`);
-        delete body.seller;
-    } else if (body.seller && typeof body.seller === 'string' && mongoose.Types.ObjectId.isValid(body.seller)) {
-        body.seller = new mongoose.Types.ObjectId(body.seller);
+    const { sellerId, ...courseData } = body;
+
+    if (!sellerId || !mongoose.Types.ObjectId.isValid(sellerId)) {
+        return NextResponse.json({ message: 'A valid seller ID is required to create a course.' }, { status: 400 });
     }
+
+    const seller = await UserModel.findById(sellerId).lean();
+    if (!seller) {
+        return NextResponse.json({ message: 'Seller not found.' }, { status: 404 });
+    }
+     if (seller.role !== 'provider') {
+        return NextResponse.json({ message: 'User is not a seller.' }, { status: 403 });
+    }
+
+    // Construct providerInfo from the seller's data
+    const providerInfo = {
+        name: seller.name,
+        logoUrl: seller.avatarUrl,
+        verified: seller.verificationStatus === 'verified',
+        description: seller.bio,
+        type: seller.name.toLowerCase().includes('academy') || seller.name.toLowerCase().includes('institute') ? 'Institute' : 'Individual', // Example logic
+    };
     
     const newCourse = new CourseModel({
-      ...body,
-      approvalStatus: 'pending', 
+      ...courseData,
+      seller: new mongoose.Types.ObjectId(sellerId),
+      providerInfo: providerInfo,
+      approvalStatus: 'pending',
+      lastUpdated: new Date(),
     });
+    
     await newCourse.save();
+
+    await UserModel.findByIdAndUpdate(sellerId, { $push: { coursesCreated: newCourse._id } });
+
     return NextResponse.json(newCourse, { status: 201 });
   } catch (error: any) {
-    console.error('🔴 Failed to create course (API Route /api/courses POST V6):', error);
+    console.error('🔴 Failed to create course:', error);
     if (error.name === 'ValidationError') {
       let errors: Record<string, string> = {};
       for (let field in error.errors) {
         errors[field] = error.errors[field].message;
       }
-      return NextResponse.json({ message: 'Mongoose validation failed', errors }, { status: 400 });
+      return NextResponse.json({ message: 'Course validation failed. Please check the fields.', errors }, { status: 400 });
     }
     return NextResponse.json({ message: 'Failed to create course: ' + error.message, errorStack: error.stack }, { status: 500 });
   }
