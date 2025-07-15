@@ -4,8 +4,7 @@
 import React, { type ReactNode, useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { SidebarProvider as UISidebarProvider } from '@/components/ui/sidebar';
 import type { User as AppUser, Course, CartItem } from '@/lib/types';
-import { auth, onAuthStateChanged, signOut as firebaseSignOut, type FirebaseUser } from '@/lib/firebase';
-import axios from 'axios';
+import { placeholderUsers } from '@/lib/placeholder-data'; // Import placeholder users
 
 // --- SIDEBAR CONTEXT ---
 interface SidebarContextType {
@@ -22,16 +21,11 @@ export function useSidebarContext() {
 
 // --- AUTH CONTEXT ---
 interface LoginParams {
-  firebaseUser: FirebaseUser;
-  role?: 'student' | 'provider';
-  isNewUser?: boolean;
-  name?: string;
-  phone?: string;
+  email: string;
 }
 
 interface AuthContextType {
   user: AppUser | null;
-  firebaseUser: FirebaseUser | null;
   isLoading: boolean;
   login: (params: LoginParams) => Promise<AppUser | null>;
   logout: () => Promise<void>;
@@ -47,52 +41,39 @@ export function useAuth() {
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser && fbUser.emailVerified) { // Only proceed if email is verified
-        setFirebaseUser(fbUser);
-        const storedUser = localStorage.getItem('edtechcart_user');
-        if (storedUser && JSON.parse(storedUser).firebaseUid === fbUser.uid) {
-          setUser(JSON.parse(storedUser));
-        } else {
-          await login({ firebaseUser: fbUser });
-        }
-      } else {
-        // If user is not verified or doesn't exist, treat as logged out
-        setUser(null);
-        setFirebaseUser(null);
+    // On initial load, check for a user in localStorage
+    const storedUser = localStorage.getItem('edtechcart_user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
         localStorage.removeItem('edtechcart_user');
       }
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
+    setIsLoading(false);
   }, []);
 
-  const login = async ({ firebaseUser, role, name, phone }: LoginParams): Promise<AppUser | null> => {
+  const login = async ({ email }: LoginParams): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
-      
-      const response = await axios.post('/api/users', {
-        email: firebaseUser.email,
-        name: name || firebaseUser.displayName || 'New User',
-        avatarUrl: firebaseUser.photoURL,
-        firebaseUid: firebaseUser.uid,
-        role: role,
-        phone: phone || firebaseUser.phoneNumber,
-      });
+      // Find the user from placeholder data by email
+      const appUser = placeholderUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-      const appUser: AppUser = response.data;
-      setUser(appUser);
-      localStorage.setItem('edtechcart_user', JSON.stringify(appUser));
-      return appUser;
+      if (appUser) {
+        setUser(appUser);
+        localStorage.setItem('edtechcart_user', JSON.stringify(appUser));
+        return appUser;
+      } else {
+        throw new Error("User not found in placeholder data.");
+      }
 
     } catch (error) {
-      console.error("Error during app login/sync:", error);
-      await firebaseSignOut(auth);
+      console.error("Error during app login:", error);
+      setUser(null);
+      localStorage.removeItem('edtechcart_user');
       return null;
     } finally {
       setIsLoading(false);
@@ -101,14 +82,12 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     setIsLoading(true);
-    await firebaseSignOut(auth);
     setUser(null);
-    setFirebaseUser(null);
     localStorage.removeItem('edtechcart_user');
     setIsLoading(false);
   };
   
-  const value = { user, firebaseUser, isLoading, login, logout };
+  const value = { user, isLoading, login, logout };
 
   return (
     <AuthContext.Provider value={value}>
