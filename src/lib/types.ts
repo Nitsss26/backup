@@ -77,7 +77,6 @@ export type UserRole = 'student' | 'provider' | 'admin';
 
 export interface User {
   id: string;
-  firebaseUid?: string; // Added for Firebase integration
   name: string;
   email: string;
   role: UserRole;
