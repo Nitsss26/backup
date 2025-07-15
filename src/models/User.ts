@@ -2,7 +2,6 @@ import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
-  firebaseUid?: string;
   name: string;
   email: string;
   phone?: string; 
@@ -26,7 +25,6 @@ export interface IUser extends Document {
 }
 
 const UserSchema: Schema<IUser> = new Schema({
-  firebaseUid: { type: String, unique: true, index: true, sparse: true },
   name: { type: String, required: [true, 'Name is required.'] },
   email: { 
     type: String, 
@@ -36,7 +34,7 @@ const UserSchema: Schema<IUser> = new Schema({
     trim: true,
     match: [/.+\@.+\..+/, 'Please fill a valid email address.']
   },
-  phone: { type: String, trim: true, sparse: true, unique: true }, // Added unique constraint
+  phone: { type: String, trim: true, sparse: true, unique: true },
   password: { type: String, select: false },
   role: { type: String, enum: ['student', 'provider', 'admin'], default: 'student' },
   avatarUrl: { type: String, default: '' },
