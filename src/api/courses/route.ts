@@ -212,7 +212,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'User is not a seller.' }, { status: 403 });
     }
 
-    // Construct providerInfo from the seller's data
     const providerInfo = {
         name: seller.name,
         logoUrl: seller.avatarUrl,
@@ -227,8 +226,8 @@ export async function POST(request: NextRequest) {
       providerInfo: providerInfo,
       approvalStatus: 'approved', // Auto-approve new courses
       lastUpdated: new Date(),
-      studentsEnrolledCount: 0, // Explicitly set default
-      studentsEnrolled: 0, // Explicitly set default
+      studentsEnrolled: 0,
+      studentsEnrolledCount: 0,
       reviewsCount: 0,
       rating: 0,
     });
