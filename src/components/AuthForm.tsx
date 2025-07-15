@@ -19,6 +19,7 @@ import { APP_NAME } from '@/lib/constants';
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(1, "Password is required."),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -35,13 +36,14 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: 'kaushik.learning@example.com', // Default to seller email
+      password: 'password123',
     }
   });
 
   const onLoginSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     setIsLoading(true);
     try {
-      const user = await login({ email: data.email });
+      const user = await login({ email: data.email, password: data.password });
       if (user) {
         toast({ title: "Login Successful", description: `Welcome back, ${user.name}!` });
         const redirectUrl = searchParams.get('redirect');
@@ -53,13 +55,9 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
                                   '/dashboard/student';
             router.push(dashboardLink);
         }
-      } else {
-        // The new login function will throw an error on failure, which is caught below.
-        // This part is unlikely to be reached unless the API returns null without error.
-        throw new Error("Login failed. User not found.");
       }
     } catch (error: any) {
-      toast({ title: "Login Failed", description: error.message, variant: "destructive" });
+      toast({ title: "Login Failed", description: error.message || "Invalid credentials. Please try again.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +72,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
             Sign In
           </CardTitle>
           <CardDescription className="text-base text-muted-foreground mt-1">
-            Enter an email from our records to log in.
+            Enter your credentials to access your account.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
@@ -84,6 +82,11 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
                 <Input id="email" {...loginForm.register('email')} placeholder="you@example.com" />
                 {loginForm.formState.errors.email && <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>}
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" type="password" {...loginForm.register('password')} placeholder="••••••••" />
+                {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
+              </div>
               <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
                 {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <LogIn className="mr-2 h-5 w-5"/>}
                 Sign In
@@ -91,9 +94,9 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
             </form>
         </CardContent>
         <CardFooter className="flex justify-center p-6 border-t">
-            <p className="text-sm text-muted-foreground">
-                This is a simplified login for demonstration.
-            </p>
+            <Link href="/auth/forgot-password" className="text-sm text-primary hover:underline">
+              Forgot your password?
+            </Link>
         </CardFooter>
       </Card>
     </div>

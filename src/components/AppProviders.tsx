@@ -22,12 +22,13 @@ export function useSidebarContext() {
 // --- AUTH CONTEXT ---
 interface LoginParams {
   email: string;
+  password?: string; // Password is now optional for flexibility, but required by login function
 }
 
 interface AuthContextType {
   user: AppUser | null;
   isLoading: boolean;
-  login: (params: LoginParams) => Promise<AppUser | null>;
+  login: (params: Required<LoginParams>) => Promise<AppUser | null>;
   logout: () => Promise<void>;
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -61,22 +62,15 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async ({ email }: LoginParams): Promise<AppUser | null> => {
+  const login = async ({ email, password }: Required<LoginParams>): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
-      // This is now the definitive source of truth for login.
-      // It hits the backend, which queries the real database.
-      const response = await axios.post('/api/users', {
-        email: email,
-        // For simplicity, we pass a mock firebaseUid. In a real scenario,
-        // this would come from a real auth provider like Firebase Auth.
-        firebaseUid: `mock_uid_for_${email}`
-      });
+      // Hit the backend to validate email and password
+      const response = await axios.post('/api/users', { email, password });
 
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 200) {
         const userFromDb = response.data;
-
-        // The user object from the API should already have a string `id`
+        
         const userToStore: AppUser = {
             ...userFromDb,
             id: userFromDb._id.toString() 
@@ -86,6 +80,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
         return userToStore;
       } else {
+        // This case might not be reached if server always returns specific error codes
         throw new Error(response.data.message || "Login failed");
       }
 
@@ -93,7 +88,6 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error during app login:", error);
       setUser(null);
       localStorage.removeItem('edtechcart_user');
-      // Extract a user-friendly error message if available
       const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred during login.";
       throw new Error(errorMessage);
     } finally {
