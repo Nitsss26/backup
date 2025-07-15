@@ -36,7 +36,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: 'kaushik.learning@example.com', // Default to seller email
-      password: 'password123',
+      password: '', // Removed hardcoded password
     }
   });
 
