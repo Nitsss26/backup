@@ -225,7 +225,7 @@ export async function POST(request: NextRequest) {
       ...courseData,
       seller: new mongoose.Types.ObjectId(sellerId),
       providerInfo: providerInfo,
-      approvalStatus: 'pending',
+      approvalStatus: 'approved', // Auto-approve new courses
       lastUpdated: new Date(),
     });
     

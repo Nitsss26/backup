@@ -70,6 +70,7 @@ export interface ICourse extends Document {
   highlights: string[];
   curriculum: IModule[];
   seller?: mongoose.Types.ObjectId | IUser; // Made seller optional
+  studentsEnrolled?: number; // Added field to match frontend types
   studentsEnrolledCount: number;
   rating: number;
   reviewsCount: number;
@@ -101,6 +102,7 @@ const CourseSchema: Schema<ICourse> = new Schema({
   highlights: [{ type: String }],
   curriculum: [ModuleSchema],
   seller: { type: Schema.Types.ObjectId, ref: 'User' }, // Kept as is, assuming providerInfo is primary for display
+  studentsEnrolled: { type: Number, default: 0, min: 0 },
   studentsEnrolledCount: { type: Number, default: 0, min: 0 },
   rating: { type: Number, default: 0, min: 0, max: 5 },
   reviewsCount: { type: Number, default: 0, min: 0 },

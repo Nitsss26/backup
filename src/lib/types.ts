@@ -16,6 +16,7 @@ export interface Course {
   description: string;
   curriculum?: Module[];
   studentsEnrolled?: number;
+  studentsEnrolledCount?: number;
   lastUpdated?: string;
   language?: string;
   certificateAvailable?: boolean;
