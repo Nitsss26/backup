@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -99,6 +100,11 @@ export default function AdvancedAnalyticsDashboard() {
           <KpiCards startDate={startDate} endDate={endDate} />
         </div>
 
+        {/* Traffic Channels */}
+        <div className="mb-4 sm:mb-6">
+          <TrafficChannels startDate={startDate} endDate={endDate} />
+        </div>
+
         {/* Charts Grid - Responsive Layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <ChartCard
@@ -165,11 +171,6 @@ export default function AdvancedAnalyticsDashboard() {
             startDate={new Date(startDate)}
             endDate={new Date(endDate)}
           />
-        </div>
-
-        {/* Traffic Channels */}
-        <div className="mb-4 sm:mb-6">
-          <TrafficChannels startDate={startDate} endDate={endDate} />
         </div>
 
         {/* Ad Performance and Metrics Table - Mobile Responsive */}

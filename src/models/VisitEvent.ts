@@ -1,3 +1,4 @@
+
 import mongoose, { Schema, Document, model, models } from 'mongoose';
 
 export interface IVisitEvent extends Document {

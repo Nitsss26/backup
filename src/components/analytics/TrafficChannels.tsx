@@ -1,3 +1,4 @@
+
 // src/components/analytics/TrafficChannels.tsx
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';

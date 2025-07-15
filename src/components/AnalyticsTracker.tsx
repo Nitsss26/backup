@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -22,11 +23,41 @@ interface AnalyticsEvent {
   device: 'mobile' | 'tablet' | 'desktop' | 'unknown';
   browser: 'Chrome' | 'Firefox' | 'Other' | 'unknown';
   referrer: string;
+  trafficSource: 'Google' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube' | 'Facebook' | 'Direct' | 'Other Referral' | 'Unknown';
   courseId?: string;
   elementType?: 'button' | 'a';
   elementText?: string;
   href?: string;
 }
+
+// Helper function to categorize the referrer
+const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => {
+  if (!referrer) {
+    return 'Direct';
+  }
+  try {
+    const url = new URL(referrer);
+    const hostname = url.hostname;
+
+    if (hostname.includes('google.')) return 'Google';
+    if (hostname.includes('linkedin.')) return 'LinkedIn';
+    if (hostname.includes('instagram.')) return 'Instagram';
+    if (hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
+    if (hostname.includes('youtube.')) return 'YouTube';
+    if (hostname.includes('facebook.')) return 'Facebook';
+    
+    // Check if the referrer is the same as the current app's host
+    if (typeof window !== 'undefined' && hostname === window.location.hostname) {
+        return 'Direct';
+    }
+
+    return 'Other Referral';
+  } catch (error) {
+    console.warn("Could not parse referrer URL:", referrer, error);
+    return 'Unknown';
+  }
+};
+
 
 export function AnalyticsTracker() {
   const pathname = usePathname();
@@ -50,8 +81,10 @@ export function AnalyticsTracker() {
     
     // Test referrer override, otherwise use the real one.
     const referrer = searchParams.get('_ref') || document.referrer;
+    const trafficSource = getTrafficSource(referrer);
 
-    const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer'>> => {
+
+    const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer' | 'trafficSource'>> => {
       try {
         const geoRes = await fetch('https://ip-api.com/json', { cache: 'no-store' });
         let geoData: GeoData = { country: 'unknown', city: 'unknown', state: 'unknown', lat: 0, lng: 0 };
@@ -91,6 +124,7 @@ export function AnalyticsTracker() {
             timestamp: new Date().toISOString(),
             courseId,
             referrer,
+            trafficSource,
         };
         
         clientLogger.info('AnalyticsTracker: Sending event', { event: fullEvent });
