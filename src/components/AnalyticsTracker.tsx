@@ -37,6 +37,7 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
   }
   try {
     const referrerUrl = new URL(referrer);
+    // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
     const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
 
     if (referrerUrl.hostname.includes(appHostname)) {
@@ -54,7 +55,7 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
     
     return 'Other Referral';
   } catch (error) {
-    console.warn("Could not parse referrer URL:", referrer, error);
+    console.warn("Could not parse referrer URL on client:", referrer, error);
     return 'Unknown';
   }
 };
