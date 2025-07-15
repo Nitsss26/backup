@@ -68,7 +68,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch total users');
         const data = await response.json();
-        if (data.totalUsers || data.totalUsers === 0) {
+        if (data && (data.totalUsers || data.totalUsers === 0)) {
           setTotalUsersData({
             value: data.totalUsers.toLocaleString(),
             trend: data.increment || 'No data'
@@ -88,7 +88,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch total sessions');
         const data = await response.json();
-        if (data.totalSessions || data.totalSessions === 0) {
+        if (data && (data.totalSessions || data.totalSessions === 0)) {
           setTotalSessionsData({
             value: data.totalSessions.toLocaleString(),
             trend: data.increment || 'No data'
@@ -108,7 +108,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch total sales');
         const data = await response.json();
-        if (data.totalSales || data.totalSales === 0) {
+        if (data && (data.totalSales || data.totalSales === 0)) {
           setTotalSalesData({
             value: `₹${data.totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
             trend: data.increment || 'No data'
@@ -128,7 +128,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch total enrollments');
         const data = await response.json();
-        if (data.totalEnrollments || data.totalEnrollments === 0) {
+        if (data && (data.totalEnrollments || data.totalEnrollments === 0)) {
           setTotalEnrollmentsData({
             value: data.totalEnrollments.toLocaleString(),
             trend: data.increment || 'No data'
@@ -148,7 +148,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch total engagements');
         const data = await response.json();
-        if (data.totalEngagements || data.totalEngagements === 0) {
+        if (data && (data.totalEngagements || data.totalEngagements === 0)) {
           setTotalEngagementsData({
             value: data.totalEngagements.toLocaleString(),
             trend: data.increment || 'No data'
@@ -168,7 +168,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch avg time');
         const data = await response.json();
-        if (data.avgTime) {
+        if (data && data.avgTime) {
           setAvgTimeData({
             value: data.avgTime,
             trend: data.increment || 'No data'
@@ -188,7 +188,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch impressions');
         const data = await response.json();
-        if (data.totalImpressions || data.totalImpressions === 0) {
+        if (data && (data.totalImpressions || data.totalImpressions === 0)) {
           setImpressionsData({
             value: data.totalImpressions.toLocaleString(),
             trend: data.increment || 'No data'
@@ -208,7 +208,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch conversion');
         const data = await response.json();
-        if (data.conversion || data.conversion === 0) {
+        if (data && (data.conversion || data.conversion === 0)) {
           setConversionData({
             value: `${Number(data.conversion).toFixed(2)}%`,
             trend: data.increment || 'No data'
@@ -228,7 +228,7 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         );
         if (!response.ok) throw new Error('Failed to fetch cart count');
         const data = await response.json();
-        if (data.cartCount || data.cartCount === 0) {
+        if (data && (data.cartCount || data.cartCount === 0)) {
           setCartCountData({
             value: data.cartCount.toLocaleString(),
             trend: data.percentageChange !== null 
