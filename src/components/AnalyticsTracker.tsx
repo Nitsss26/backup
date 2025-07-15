@@ -14,7 +14,7 @@ interface GeoData {
 }
 
 interface AnalyticsEvent {
-  type: 'visit' | 'click' | 'duration';
+  type: 'visit' | 'click' | 'duration' | 'scroll';
   sessionId: string;
   path: string;
   timestamp: string;
@@ -28,9 +28,9 @@ interface AnalyticsEvent {
   elementType?: 'button' | 'a';
   elementText?: string;
   href?: string;
+  details?: Record<string, any>;
 }
 
-// Helper function to categorize the referrer
 const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => {
   if (!referrer) {
     return 'Direct';
@@ -80,10 +80,11 @@ export function AnalyticsTracker() {
       courseId = params.id.toString();
     }
     
+    // Prioritize `_ref` for testing, then fall back to document.referrer
     const referrer = searchParams.get('_ref') || document.referrer;
     const trafficSource = getTrafficSource(referrer);
 
-    const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer' | 'trafficSource'>> => {
+    const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer' | 'trafficSource' | 'details'>> => {
       try {
         const geoRes = await fetch('https://ip-api.com/json', { cache: 'no-store' });
         let geoData: GeoData = { country: 'unknown', city: 'unknown', state: 'unknown', lat: 0, lng: 0 };
@@ -115,7 +116,7 @@ export function AnalyticsTracker() {
     const trackEvent = async (eventPayload: Partial<AnalyticsEvent> & { type: AnalyticsEvent['type'] }) => {
       try {
         const baseData = await getAnalyticsData();
-        const fullEvent = {
+        const fullEvent: AnalyticsEvent = {
             ...baseData,
             ...eventPayload,
             sessionId,
@@ -124,9 +125,8 @@ export function AnalyticsTracker() {
             courseId,
             referrer,
             trafficSource,
-        };
+        } as AnalyticsEvent;
         
-        // Use keepalive for requests that might be interrupted by page navigation
         const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });
         navigator.sendBeacon('/api/analytics/track', blob);
         
