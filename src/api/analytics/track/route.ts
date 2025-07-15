@@ -24,14 +24,14 @@ const getTrafficSource = (referrer: string): IVisitEvent['trafficSource'] => {
         return 'Direct'; // Internal navigation
     }
     
-    const hostname = referrerUrl.hostname;
+    const hostname = referrerUrl.hostname.toLowerCase();
 
     if (hostname.includes('google.')) return 'Google';
-    if (hostname.includes('linkedin.')) return 'LinkedIn';
-    if (hostname.includes('instagram.')) return 'Instagram';
-    if (hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
-    if (hostname.includes('youtube.')) return 'YouTube';
-    if (hostname.includes('facebook.')) return 'Facebook';
+    if (hostname.includes('linkedin.com')) return 'LinkedIn';
+    if (hostname.includes('instagram.com')) return 'Instagram';
+    if (hostname.includes('t.co') || hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
+    if (hostname.includes('youtube.com')) return 'YouTube';
+    if (hostname.includes('facebook.com')) return 'Facebook';
     
     return 'Other Referral';
   } catch(e) {

@@ -37,21 +37,20 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
   }
   try {
     const referrerUrl = new URL(referrer);
-    // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
     const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
 
     if (referrerUrl.hostname.includes(appHostname)) {
         return 'Direct'; // Internal navigation
     }
     
-    const hostname = referrerUrl.hostname;
+    const hostname = referrerUrl.hostname.toLowerCase();
 
     if (hostname.includes('google.')) return 'Google';
-    if (hostname.includes('linkedin.')) return 'LinkedIn';
-    if (hostname.includes('instagram.')) return 'Instagram';
-    if (hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
-    if (hostname.includes('youtube.')) return 'YouTube';
-    if (hostname.includes('facebook.')) return 'Facebook';
+    if (hostname.includes('linkedin.com')) return 'LinkedIn';
+    if (hostname.includes('instagram.com')) return 'Instagram';
+    if (hostname.includes('t.co') || hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
+    if (hostname.includes('youtube.com')) return 'YouTube';
+    if (hostname.includes('facebook.com')) return 'Facebook';
     
     return 'Other Referral';
   } catch (error) {
