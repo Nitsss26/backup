@@ -54,6 +54,8 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
             router.push(dashboardLink);
         }
       } else {
+        // The new login function will throw an error on failure, which is caught below.
+        // This part is unlikely to be reached unless the API returns null without error.
         throw new Error("Login failed. User not found.");
       }
     } catch (error: any) {

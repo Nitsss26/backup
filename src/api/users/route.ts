@@ -12,33 +12,46 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, name, role, avatarUrl, firebaseUid, phone } = body;
 
-    if (!email || !firebaseUid) {
-      return NextResponse.json({ message: 'Email and Firebase UID are required.' }, { status: 400 });
+    if (!email) {
+      return NextResponse.json({ message: 'Email is required.' }, { status: 400 });
     }
 
-    let user = await UserModel.findOne({ $or: [{ email }, { firebaseUid }] });
+    let user = await UserModel.findOne({ email });
 
     if (user) {
       // User exists, update Firebase UID if it's not there, or role if they re-register as a different type.
-      user.firebaseUid = firebaseUid;
+      if (firebaseUid) user.firebaseUid = firebaseUid;
       if (role) user.role = role;
       if (phone && !user.phone) user.phone = phone; // Add phone if missing
       await user.save();
     } else {
-      // User does not exist, create a new one
-      const newUserRole: UserRole = role || 'student';
-      
-      user = await UserModel.create({
-        email,
-        name: name || email.split('@')[0],
-        firebaseUid,
-        phone,
-        role: newUserRole,
-        avatarUrl: avatarUrl || `https://placehold.co/100x100/EBF4FF/3B82F6?text=${(name || email).charAt(0).toUpperCase()}`,
-        // Set initial verification status based on role
-        verificationStatus: newUserRole === 'provider' ? 'unverified' : undefined,
-        documentsSubmitted: false,
-      });
+        // If user doesn't exist, we should ideally not create one in a simple login flow.
+        // But for the purpose of this simplified system, we will check if it's a known placeholder.
+        // For a real app, you would return a "User not found" error here.
+        // This logic is being kept to support the initial seeding. A more robust solution
+        // would separate user creation (registration) from user fetching (login).
+        
+        // This block will now effectively act as a fallback for user creation if needed.
+        if (!firebaseUid) {
+            return NextResponse.json({ message: 'User not found. Please register.' }, { status: 404 });
+        }
+
+        const newUserRole: UserRole = role || 'student';
+        
+        user = await UserModel.create({
+            email,
+            name: name || email.split('@')[0],
+            firebaseUid,
+            phone,
+            role: newUserRole,
+            avatarUrl: avatarUrl || `https://placehold.co/100x100/EBF4FF/3B82F6?text=${(name || email).charAt(0).toUpperCase()}`,
+            verificationStatus: newUserRole === 'provider' ? 'unverified' : undefined,
+            documentsSubmitted: false,
+        });
+    }
+
+    if (!user) {
+        return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
     // Exclude password from the response
@@ -48,7 +61,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('[API /api/users POST] Error:', error);
-    // Provide more specific error for duplicates
     if (error.code === 11000) {
         return NextResponse.json({ message: 'An account with this email or UID already exists.' }, { status: 409 });
     }

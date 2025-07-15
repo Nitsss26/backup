@@ -4,7 +4,7 @@
 import React, { type ReactNode, useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { SidebarProvider as UISidebarProvider } from '@/components/ui/sidebar';
 import type { User as AppUser, Course, CartItem } from '@/lib/types';
-import { placeholderUsers } from '@/lib/placeholder-data'; // Import placeholder users
+import axios from 'axios'; // Import axios for API calls
 
 // --- SIDEBAR CONTEXT ---
 interface SidebarContextType {
@@ -44,12 +44,11 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // On initial load, check for a user in localStorage
     const storedUser = localStorage.getItem('edtechcart_user');
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser && parsedUser.id) { // Ensure the stored user is valid
+        if (parsedUser && parsedUser.id) {
              setUser(parsedUser);
         } else {
             localStorage.removeItem('edtechcart_user');
@@ -65,27 +64,38 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async ({ email }: LoginParams): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
-      // Find the user from placeholder data by email
-      const foundUser = placeholderUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      // This is now the definitive source of truth for login.
+      // It hits the backend, which queries the real database.
+      const response = await axios.post('/api/users', {
+        email: email,
+        // For simplicity, we pass a mock firebaseUid. In a real scenario,
+        // this would come from a real auth provider like Firebase Auth.
+        firebaseUid: `mock_uid_for_${email}`
+      });
 
-      if (foundUser) {
+      if (response.status === 200 || response.status === 201) {
+        const userFromDb = response.data;
+
+        // The user object from the API should already have a string `id`
         const userToStore: AppUser = {
-            ...foundUser,
-            // THIS IS THE CRITICAL FIX: The frontend `id` must be the string version of MongoDB's `_id`.
-            id: foundUser._id.toString() 
+            ...userFromDb,
+            id: userFromDb._id.toString() 
         };
+        
         setUser(userToStore);
         localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
         return userToStore;
       } else {
-        throw new Error("User not found in placeholder data.");
+        throw new Error(response.data.message || "Login failed");
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error during app login:", error);
       setUser(null);
       localStorage.removeItem('edtechcart_user');
-      return null;
+      // Extract a user-friendly error message if available
+      const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred during login.";
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
