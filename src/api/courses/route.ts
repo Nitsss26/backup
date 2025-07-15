@@ -1,12 +1,12 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import dbConnect from '../../../lib/dbConnect';
-import CourseModel, { type ICourse } from '../../../models/Course';
-import UserModel, { type IUser } from '../../../models/User'; // Import IUser for type casting
+import dbConnect from '@/lib/dbConnect';
+import CourseModel from '@/models/Course';
+import UserModel from '@/models/User';
 import mongoose from 'mongoose';
 import { ITEMS_PER_PAGE, CATEGORIES as APP_CATEGORIES } from '@/lib/constants';
 
-export const dynamic = 'force-dynamic'; // Ensure no caching on this route
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   console.log('🟢 [/api/courses] GET request received - V6 with Enhanced Robustness');
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
         let sellerDisplayInfo: any = { name: 'Unknown Seller', id: undefined, avatarUrl: undefined, verificationStatus: 'unverified', bio: undefined, type: 'Individual' };
 
         if (course.seller && typeof course.seller === 'object' && course.seller !== null && '_id' in course.seller && course.seller._id) {
-          const populatedSeller = course.seller as IUser;
+          const populatedSeller = course.seller as any;
           sellerDisplayInfo = {
             id: populatedSeller._id?.toString(),
             name: populatedSeller.name || 'Seller Name Unavailable',
