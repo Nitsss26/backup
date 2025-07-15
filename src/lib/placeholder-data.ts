@@ -15,24 +15,25 @@ const indianSellerNames = [
 ];
 const indianAdminName = "Aditya Kumar";
 
+const generateObjectIdString = () => new mongoose.Types.ObjectId().toHexString();
 
-export const placeholderUsers: User[] = [
+export const placeholderUsers: (Omit<User, 'id'> & { _id: string; id: string })[] = [
   // Students
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd409342b").toHexString(), name: indianStudentNames[0], email: 'priya.sharma@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=PS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), bio: "Lifelong learner passionate about technology and design.", notificationPreferences: { courseUpdates: true, promotions: false, platformAnnouncements: true } },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd409342e").toHexString(), name: indianStudentNames[1], email: 'rahul.kumar@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=RK', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), bio: "Exploring new skills to advance my career in finance.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: true } },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd4093431").toHexString(), name: indianStudentNames[2], email: 'ananya.singh@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString(), bio: "Preparing for NEET and exploring creative writing.", notificationPreferences: { courseUpdates: false, promotions: false, platformAnnouncements: true } },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd4093433").toHexString(), name: indianStudentNames[3], email: 'amit.patel@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AP', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), bio: "Student of Computer Science, eager to learn new programming languages.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: false } },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd4093434").toHexString(), name: indianStudentNames[4], email: 'sneha.reddy@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=SR', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), bio: "Future marketing professional, looking for courses on digital marketing.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: true } },
+  { _id: "6845b4ad188aa67dd409342b", id: "6845b4ad188aa67dd409342b", name: indianStudentNames[0], email: 'priya.sharma@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=PS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), bio: "Lifelong learner passionate about technology and design.", notificationPreferences: { courseUpdates: true, promotions: false, platformAnnouncements: true } },
+  { _id: "6845b4ad188aa67dd409342e", id: "6845b4ad188aa67dd409342e", name: indianStudentNames[1], email: 'rahul.kumar@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=RK', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), bio: "Exploring new skills to advance my career in finance.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: true } },
+  { _id: "6845b4ad188aa67dd4093431", id: "6845b4ad188aa67dd4093431", name: indianStudentNames[2], email: 'ananya.singh@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 40).toISOString(), bio: "Preparing for NEET and exploring creative writing.", notificationPreferences: { courseUpdates: false, promotions: false, platformAnnouncements: true } },
+  { _id: "6845b4ad188aa67dd4093433", id: "6845b4ad188aa67dd4093433", name: indianStudentNames[3], email: 'amit.patel@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=AP', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), bio: "Student of Computer Science, eager to learn new programming languages.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: false } },
+  { _id: "6845b4ad188aa67dd4093434", id: "6845b4ad188aa67dd4093434", name: indianStudentNames[4], email: 'sneha.reddy@example.com', role: 'student', avatarUrl: 'https://placehold.co/100x100/EBF4FF/3B82F6?text=SR', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), bio: "Future marketing professional, looking for courses on digital marketing.", notificationPreferences: { courseUpdates: true, promotions: true, platformAnnouncements: true } },
 
   // Providers/Sellers
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd409342c").toHexString(), name: indianSellerNames[0], email: 'expert.tutors@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=ET', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), verificationStatus: 'pending', documentsSubmitted: true, bio: "Dedicated to providing top-notch coding bootcamps and exam preparation courses. We believe in practical learning." },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd409342f").toHexString(), name: indianSellerNames[1], email: 'kaushik.learning@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=KL', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString(), verificationStatus: 'verified', documentsSubmitted: true, bio: "Leading institution for business, finance, and government exam courses. Our faculty are industry experts." },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd4093430").toHexString(), name: indianSellerNames[2], email: 'vidya.mandir@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=VM', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(), verificationStatus: 'rejected', documentsSubmitted: true, bio: "Specialized in language learning and arts. We focus on immersive learning experiences." },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd4093432").toHexString(), name: indianSellerNames[3], email: 'innovate.skillhub@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=IS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(), verificationStatus: 'verified', documentsSubmitted: true, bio: "Premier destination for cutting-edge Computer Science and Personal Development programs. We foster innovation." },
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd4093435").toHexString(), name: indianSellerNames[4], email: 'gyan.ganga@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=GG', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 200).toISOString(), verificationStatus: 'unverified', documentsSubmitted: false, bio: "Traditional and modern teaching methods for competitive exams and skill development." },
+  { _id: "6845b4ad188aa67dd409342c", id: "6845b4ad188aa67dd409342c", name: indianSellerNames[0], email: 'expert.tutors@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=ET', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString(), verificationStatus: 'pending', documentsSubmitted: true, bio: "Dedicated to providing top-notch coding bootcamps and exam preparation courses. We believe in practical learning." },
+  { _id: "6845b4ad188aa67dd409342f", id: "6845b4ad188aa67dd409342f", name: indianSellerNames[1], email: 'kaushik.learning@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=KL', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString(), verificationStatus: 'verified', documentsSubmitted: true, bio: "Leading institution for business, finance, and government exam courses. Our faculty are industry experts." },
+  { _id: "6845b4ad188aa67dd4093430", id: "6845b4ad188aa67dd4093430", name: indianSellerNames[2], email: 'vidya.mandir@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=VM', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(), verificationStatus: 'rejected', documentsSubmitted: true, bio: "Specialized in language learning and arts. We focus on immersive learning experiences." },
+  { _id: "6845b4ad188aa67dd4093432", id: "6845b4ad188aa67dd4093432", name: indianSellerNames[3], email: 'innovate.skillhub@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=IS', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString(), verificationStatus: 'verified', documentsSubmitted: true, bio: "Premier destination for cutting-edge Computer Science and Personal Development programs. We foster innovation." },
+  { _id: "6845b4ad188aa67dd4093435", id: "6845b4ad188aa67dd4093435", name: indianSellerNames[4], email: 'gyan.ganga@example.com', role: 'provider', avatarUrl: 'https://placehold.co/100x100/CCDEF9/1E40AF?text=GG', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 200).toISOString(), verificationStatus: 'unverified', documentsSubmitted: false, bio: "Traditional and modern teaching methods for competitive exams and skill development." },
   
   // Admin
-  { id: new mongoose.Types.ObjectId("6845b4ad188aa67dd409342d").toHexString(), name: indianAdminName, email: 'admin@example.com', role: 'admin', avatarUrl: 'https://placehold.co/100x100/7CB9F9/183265?text=AK', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), bio: "Ensuring EdTechCart runs smoothly for everyone. Committed to quality and user satisfaction." },
+  { _id: "6845b4ad188aa67dd409342d", id: "6845b4ad188aa67dd409342d", name: indianAdminName, email: 'admin@example.com', role: 'admin', avatarUrl: 'https://placehold.co/100x100/7CB9F9/183265?text=AK', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString(), bio: "Ensuring EdTechCart runs smoothly for everyone. Committed to quality and user satisfaction." },
 ];
 
 
@@ -64,6 +65,7 @@ export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) =>
 
   return {
     id: `course${i + 1}`,
+    _id: generateObjectIdString(),
     title: `Comprehensive ${category.name} Program ${i + 1}`,
     instructor: seller.name,
     sellerId: seller.id,
@@ -121,6 +123,7 @@ export const placeholderCourses: Course[] = Array.from({ length: 30 }, (_, i) =>
 export const featuredCoursesForHomepage: Course[] = [
   {
     id: '6845b4b7188aa67dd4093785',
+    _id: '6845b4b7188aa67dd4093785',
     title: 'IIT-JEE Physics: Mechanics & Electrodynamics Masterclass',
     instructor: 'Expert Tutors Academy',
     rating: 4.8,
@@ -148,6 +151,7 @@ export const featuredCoursesForHomepage: Course[] = [
   },
   {
     id: '6845b4b7188aa67dd4093790',
+    _id: '6845b4b7188aa67dd4093790',
     title: 'NEET Biology: Complete Syllabus Coverage Course',
     instructor: 'Kaushik Learning Solutions',
     rating: 4.9,
@@ -174,6 +178,7 @@ export const featuredCoursesForHomepage: Course[] = [
   },
   {
     id: '6845b4b7188aa67dd409379b',
+    _id: '6845b4b7188aa67dd409379b',
     title: 'UPSC CSE Prelims: GS Paper 1 Strategy Course',
     instructor: 'Vidya Mandir Online',
     rating: 4.7,
@@ -200,6 +205,7 @@ export const featuredCoursesForHomepage: Course[] = [
   },
   {
     id: '6845b4b7188aa67dd40937a6',
+    _id: '6845b4b7188aa67dd40937a6',
     title: 'Full Stack Web Development Course: React & Node',
     instructor: 'Innovate Skill Hub',
     rating: 4.9,
@@ -227,6 +233,7 @@ export const featuredCoursesForHomepage: Course[] = [
   }, 
       {
         id: '6845b4b9188aa67dd4093835',
+        _id: '6845b4b9188aa67dd4093835',
         title: 'Machine Learning A-Z™: Python & R',
         instructor: 'Innovate Skill Hub',
       //  sellerId: placeholderUsers.find(u => u.email === 'innovate.skillhub@example.com')?.id || 'user8',
@@ -264,6 +271,7 @@ export const topCategoryShowcaseData = [
     courses: [
       {
         id: '6845b4b7188aa67dd40937b1',
+        _id: '6845b4b7188aa67dd40937b1',
         title: 'Arjuna JEE 2026',
         instructor: 'Physics Wallah PVT LTD',
         rating: 4.8,
@@ -292,6 +300,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: '6845b4b7188aa67dd40937bc',
+        _id: '6845b4b7188aa67dd40937bc',
         title: 'JEE Chemistry Complete Prep',
         instructor: 'Unacademy JEE',
         rating: 4.8,
@@ -320,6 +329,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: '6845b4b7188aa67dd40937c7',
+        _id: '6845b4b7188aa67dd40937c7',
         title: 'JEE Maths Advanced Course',
         instructor: 'Vedantu JEE',
         rating: 4.7,
@@ -348,6 +358,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: '6845b4b8188aa67dd40937d2',
+        _id: '6845b4b8188aa67dd40937d2',
         title: 'JEE Full Syllabus Revision',
         instructor: "Byju's Classes",
         rating: 4.6,
@@ -382,6 +393,7 @@ export const topCategoryShowcaseData = [
     courses: [
       {
         id: '6845b4b8188aa67dd40937dd',
+        _id: '6845b4b8188aa67dd40937dd',
         title: 'NEET Biology In-Depth',
         instructor: 'NEET Prep Experts',
         rating: 4.9,
@@ -410,6 +422,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'neet-showcase-2',
+        _id: '6845b4b8188aa67dd40937de',
         title: 'NEET Physics Problem Solving',
         instructor: 'Alpha Medical Academy',
         rating: 4.7,
@@ -438,6 +451,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'neet-showcase-3',
+        _id: '6845b4b8188aa67dd40937df',
         title: 'NEET Chemistry Simplified',
         instructor: 'Med Scholars Hub',
         rating: 4.8,
@@ -466,6 +480,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'neet-showcase-4',
+        _id: '6845b4b8188aa67dd40937e0',
         title: 'NEET Full Mock Test Series',
         instructor: 'Target NEET',
         rating: 4.6,
@@ -500,6 +515,7 @@ export const topCategoryShowcaseData = [
     courses: [
       {
         id: 'govexams-showcase-1',
+        _id: '6845b4b8188aa67dd40937e1',
         title: 'UPSC Civil Services GS Foundation',
         instructor: 'Sarkari Pariksha Pro',
         rating: 4.8,
@@ -528,6 +544,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'govexams-showcase-2',
+        _id: '6845b4b8188aa67dd40937e2',
         title: 'Banking Exams: Quant & Reasoning',
         instructor: 'IBPS Masters',
         rating: 4.7,
@@ -556,6 +573,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'govexams-showcase-3',
+        _id: '6845b4b8188aa67dd40937e3',
         title: 'SSC CGL Tier 1 & 2 Comprehensive',
         instructor: 'ExamCrackers Academy',
         rating: 4.6,
@@ -584,6 +602,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'govexams-showcase-4',
+        _id: '6845b4b8188aa67dd40937e4',
         title: 'State PSC General Studies Special',
         instructor: 'Public Service Pathshala',
         rating: 4.5,
@@ -618,6 +637,7 @@ export const topCategoryShowcaseData = [
     courses: [
       {
         id: 'cs-showcase-1',
+        _id: '6845b4b8188aa67dd40937e5',
         title: 'Machine Learning A-Z™: Python & R',
         instructor: 'Innovate Skill Hub',
         rating: 4.9,
@@ -646,6 +666,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'cs-showcase-2',
+        _id: '6845b4b8188aa67dd40937e6',
         title: 'Data Structures & Algorithms Bootcamp',
         instructor: 'Expert Tutors Academy',
         rating: 4.8,
@@ -674,6 +695,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'cs-showcase-3',
+        _id: '6845b4b8188aa67dd40937e7',
         title: 'Deep Learning Specialization (TensorFlow)',
         instructor: 'AI Learning Co.',
         rating: 4.7,
@@ -702,6 +724,7 @@ export const topCategoryShowcaseData = [
       },
       {
         id: 'cs-showcase-4',
+        _id: '6845b4b8188aa67dd40937e8',
         title: 'Algorithmic Toolbox: Core Algorithms',
         instructor: 'CodeMasters Institute',
         rating: 4.6,
@@ -739,6 +762,7 @@ export const placeholderReviews: Review[] = placeholderCourses.concat(featuredCo
     const reviewer = studentUsers[i % studentUsers.length];
     return {
     id: `review${course.id}-${i}`,
+    _id: generateObjectIdString(),
     courseId: course.id,
     userId: reviewer.id,
     userName: reviewer.name,

@@ -69,11 +69,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       const foundUser = placeholderUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
 
       if (foundUser) {
-        // ** THE FIX IS HERE **
-        // Ensure the ID stored is the hex string, not the ObjectId object.
         const userToStore: AppUser = {
             ...foundUser,
-            id: foundUser.id.toString() // Use the string representation of the ID
+            // THIS IS THE CRITICAL FIX: The frontend `id` must be the string version of MongoDB's `_id`.
+            id: foundUser._id.toString() 
         };
         setUser(userToStore);
         localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));

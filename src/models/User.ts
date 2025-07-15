@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
   firebaseUid?: string;
   name: string;
   email: string;
