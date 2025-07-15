@@ -10,9 +10,11 @@ import {
   Percent, 
   MousePointerClick, 
   Eye, 
-  ShoppingBag 
+  ShoppingBag,
+  Globe 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 interface KpiCardsProps {
   startDate: string;
@@ -320,9 +322,9 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
         { 
           title: 'Geo Analytics', 
           value: '', 
-          icon: Eye, 
-          color: 'text-indigo-500',
-          trend: '',
+          icon: Globe, 
+          color: 'text-gray-500',
+          trend: 'View Map',
           link: '/admin/analytics/geo'
         }
       ].map((kpi, index) => (
@@ -331,16 +333,16 @@ export default function KpiCards({ startDate, endDate }: KpiCardsProps) {
             <CardTitle className="text-sm font-medium text-gray-400">{kpi.title}</CardTitle>
             {kpi.link ? (
               <Button asChild variant="ghost" size="icon" className="h-5 w-5">
-                <a href={kpi.link}>
+                <Link href={kpi.link}>
                   <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
-                </a>
+                </Link>
               </Button>
             ) : (
               <kpi.icon className={`h-5 w-5 ${kpi.color}`} />
             )}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{kpi.value}</div>
+            <div className="text-2xl font-bold text-white">{kpi.value || '...'}</div>
             <p className={`text-xs ${kpi.trend.includes('↑') ? 'text-green-500' : kpi.trend.includes('↓') ? 'text-red-500' : 'text-gray-400'} mt-1`}>
               {kpi.trend}
             </p>

@@ -35,6 +35,7 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
   if (!referrer) {
     return 'Direct';
   }
+  
   try {
     const referrerUrl = new URL(referrer);
     // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
