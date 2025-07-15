@@ -20,32 +20,39 @@ export async function GET(request: Request) {
       };
     }
     
-    // Only count the first visit of each session to avoid skewing data
-    const firstVisits = await VisitEventModel.aggregate([
+    // This pipeline correctly finds the first visit for each session within the date range
+    // and then groups those unique sessions by traffic source.
+    const trafficSourcesAggregation = await VisitEventModel.aggregate([
+      // First, filter all visits by the selected date range
+      { $match: matchStage },
+      // Sort by timestamp to reliably find the first event per session
       { $sort: { timestamp: 1 } },
+      // Group by sessionId to find the first document for each session
       { 
         $group: { 
           _id: "$sessionId",
           firstVisit: { $first: "$$ROOT" }
         }
       },
-      { $replaceRoot: { newRoot: "$firstVisit" } },
-      { $match: matchStage } // Apply date filter after identifying first visits
+      // Now, group these unique first visits by their traffic source and count them
+      { 
+        $group: {
+            _id: "$firstVisit.trafficSource",
+            value: { $sum: 1 }
+        }
+      },
+      // Format the output to be { name, value }
+      {
+        $project: {
+          _id: 0,
+          name: { $ifNull: ["$_id", "Unknown"] }, // Handle cases where trafficSource might be null
+          value: "$value"
+        }
+      }
     ]);
 
-    // Now, group these first visits by traffic source
-    const trafficSources = firstVisits.reduce((acc, visit) => {
-        const source = visit.trafficSource || 'Unknown';
-        acc[source] = (acc[source] || 0) + 1;
-        return acc;
-    }, {} as Record<string, number>);
+    return NextResponse.json(trafficSourcesAggregation);
 
-    const formattedData = Object.entries(trafficSources).map(([name, value]) => ({
-      name,
-      value,
-    }));
-    
-    return NextResponse.json(formattedData);
   } catch (error) {
     console.error('Error fetching traffic sources:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

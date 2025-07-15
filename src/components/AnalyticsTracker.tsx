@@ -37,10 +37,11 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
   }
   try {
     const referrerUrl = new URL(referrer);
-    const appUrl = new URL(window.location.href);
+    // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
+    const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
 
-    if (referrerUrl.hostname === appUrl.hostname) {
-        return 'Direct';
+    if (referrerUrl.hostname.includes(appHostname)) {
+        return 'Direct'; // Internal navigation
     }
     
     const hostname = referrerUrl.hostname;
@@ -80,10 +81,8 @@ export function AnalyticsTracker() {
       courseId = params.id.toString();
     }
     
-    // Test referrer override, otherwise use the real one.
     const referrer = searchParams.get('_ref') || document.referrer;
     const trafficSource = getTrafficSource(referrer);
-
 
     const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer' | 'trafficSource'>> => {
       try {
@@ -128,17 +127,12 @@ export function AnalyticsTracker() {
             trafficSource,
         };
         
-        clientLogger.info('AnalyticsTracker: Sending event', { event: fullEvent });
-        const response = await fetch('/api/analytics/track', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(fullEvent),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
+        // Use keepalive for requests that might be interrupted by page navigation
+        const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });
+        navigator.sendBeacon('/api/analytics/track', blob);
+        
+        clientLogger.info('AnalyticsTracker: Sent event via Beacon', { event: fullEvent });
+      
       } catch (error) {
         clientLogger.error('AnalyticsTracker: Failed to send event', {
           error: (error as Error).message,
@@ -147,7 +141,6 @@ export function AnalyticsTracker() {
       }
     };
     
-    // Track initial page visit
     startTimeRef.current = Date.now();
     trackEvent({ type: 'visit' });
 
@@ -184,7 +177,7 @@ export function AnalyticsTracker() {
           type: 'duration',
           duration,
         });
-        startTimeRef.current = null; // Prevent re-tracking
+        startTimeRef.current = null;
       }
     };
     
@@ -193,7 +186,7 @@ export function AnalyticsTracker() {
     return () => {
       window.removeEventListener('click', handleClick);
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      handleBeforeUnload(); // Ensure duration is tracked on component unmount (e.g., page navigation)
+      handleBeforeUnload();
     };
   }, [pathname, params, searchParams]);
 
