@@ -14,20 +14,30 @@ const getTrafficSource = (referrer: string): IVisitEvent['trafficSource'] => {
   if (!referrer) {
     return 'Direct';
   }
-  const url = new URL(referrer);
-  const hostname = url.hostname;
-
-  if (hostname.includes('google.')) return 'Google';
-  if (hostname.includes('linkedin.')) return 'LinkedIn';
-  if (hostname.includes('instagram.')) return 'Instagram';
-  if (hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
-  if (hostname.includes('youtube.')) return 'YouTube';
-  if (hostname.includes('facebook.')) return 'Facebook';
-  if (hostname === new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname) {
-    return 'Direct'; // Internal navigation
-  }
   
-  return 'Other Referral';
+  try {
+    const referrerUrl = new URL(referrer);
+    // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
+    const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
+
+    if (referrerUrl.hostname.includes(appHostname)) {
+        return 'Direct'; // Internal navigation
+    }
+    
+    const hostname = referrerUrl.hostname;
+
+    if (hostname.includes('google.')) return 'Google';
+    if (hostname.includes('linkedin.')) return 'LinkedIn';
+    if (hostname.includes('instagram.')) return 'Instagram';
+    if (hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
+    if (hostname.includes('youtube.')) return 'YouTube';
+    if (hostname.includes('facebook.')) return 'Facebook';
+    
+    return 'Other Referral';
+  } catch(e) {
+      console.warn("Could not parse referrer URL on backend:", referrer, e);
+      return 'Unknown';
+  }
 };
 
 export async function POST(request: Request) {

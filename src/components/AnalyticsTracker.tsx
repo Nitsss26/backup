@@ -36,8 +36,14 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
     return 'Direct';
   }
   try {
-    const url = new URL(referrer);
-    const hostname = url.hostname;
+    const referrerUrl = new URL(referrer);
+    const appUrl = new URL(window.location.href);
+
+    if (referrerUrl.hostname === appUrl.hostname) {
+        return 'Direct';
+    }
+    
+    const hostname = referrerUrl.hostname;
 
     if (hostname.includes('google.')) return 'Google';
     if (hostname.includes('linkedin.')) return 'LinkedIn';
@@ -46,11 +52,6 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
     if (hostname.includes('youtube.')) return 'YouTube';
     if (hostname.includes('facebook.')) return 'Facebook';
     
-    // Check if the referrer is the same as the current app's host
-    if (typeof window !== 'undefined' && hostname === window.location.hostname) {
-        return 'Direct';
-    }
-
     return 'Other Referral';
   } catch (error) {
     console.warn("Could not parse referrer URL:", referrer, error);
