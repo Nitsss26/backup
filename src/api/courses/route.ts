@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
 
     const seller = await UserModel.findById(sellerId).lean();
     if (!seller) {
-        return NextResponse.json({ message: 'Seller not found.' }, { status: 404 });
+        return NextResponse.json({ message: `Seller not found with ID: ${sellerId}` }, { status: 404 });
     }
      if (seller.role !== 'provider') {
         return NextResponse.json({ message: 'User is not a seller.' }, { status: 403 });

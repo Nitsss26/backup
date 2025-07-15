@@ -48,8 +48,14 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storedUser = localStorage.getItem('edtechcart_user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser && parsedUser.id) { // Ensure the stored user is valid
+             setUser(parsedUser);
+        } else {
+            localStorage.removeItem('edtechcart_user');
+        }
       } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
         localStorage.removeItem('edtechcart_user');
       }
     }
@@ -60,12 +66,18 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       // Find the user from placeholder data by email
-      const appUser = placeholderUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+      const foundUser = placeholderUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
 
-      if (appUser) {
-        setUser(appUser);
-        localStorage.setItem('edtechcart_user', JSON.stringify(appUser));
-        return appUser;
+      if (foundUser) {
+        // ** THE FIX IS HERE **
+        // Ensure the ID stored is the hex string, not the ObjectId object.
+        const userToStore: AppUser = {
+            ...foundUser,
+            id: foundUser.id.toString() // Use the string representation of the ID
+        };
+        setUser(userToStore);
+        localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
+        return userToStore;
       } else {
         throw new Error("User not found in placeholder data.");
       }
