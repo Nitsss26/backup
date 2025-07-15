@@ -70,7 +70,7 @@ export interface ICourse extends Document {
   highlights: string[];
   curriculum: IModule[];
   seller?: mongoose.Types.ObjectId | IUser; // Made seller optional
-  studentsEnrolled?: number; // Added field to match frontend types
+  studentsEnrolled: number;
   studentsEnrolledCount: number;
   rating: number;
   reviewsCount: number;
