@@ -13,6 +13,7 @@ interface GeoData {
   lng: number;
 }
 
+// Updated to a more flexible string type for traffic source
 interface AnalyticsEvent {
   type: 'visit' | 'click' | 'duration' | 'scroll';
   sessionId: string;
@@ -23,7 +24,7 @@ interface AnalyticsEvent {
   device: 'mobile' | 'tablet' | 'desktop' | 'unknown';
   browser: 'Chrome' | 'Firefox' | 'Other' | 'unknown';
   referrer: string;
-  trafficSource: 'Google' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube' | 'Facebook' | 'Direct' | 'Other Referral' | 'Unknown';
+  trafficSource: string; // Changed to string to accommodate UTM sources
   courseId?: string;
   elementType?: 'button' | 'a';
   elementText?: string;
@@ -31,7 +32,13 @@ interface AnalyticsEvent {
   details?: Record<string, any>;
 }
 
-const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => {
+// More robust traffic source detection, prioritizing UTM parameters
+const getTrafficSource = (searchParams: URLSearchParams, referrer: string): string => {
+  const utmSource = searchParams.get('utm_source');
+  if (utmSource) {
+    return utmSource; // UTM source takes highest priority
+  }
+
   if (!referrer) {
     return 'Direct';
   }
@@ -47,12 +54,13 @@ const getTrafficSource = (referrer: string): AnalyticsEvent['trafficSource'] => 
     
     const hostname = referrerUrl.hostname.toLowerCase();
 
-    if (hostname.includes('google.')) return 'Google';
-    if (hostname.includes('linkedin.com')) return 'LinkedIn';
-    if (hostname.includes('instagram.com')) return 'Instagram';
-    if (hostname.includes('t.co') || hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
-    if (hostname.includes('youtube.com')) return 'YouTube';
-    if (hostname.includes('facebook.com')) return 'Facebook';
+    if (hostname.includes('google.')) return 'google';
+    if (hostname.includes('linkedin.com')) return 'linkedin';
+    if (hostname.includes('instagram.com')) return 'instagram';
+    if (hostname.includes('t.co') || hostname.includes('x.com') || hostname.includes('twitter.com')) return 'x';
+    if (hostname.includes('youtube.com')) return 'youtube';
+    if (hostname.includes('facebook.com')) return 'facebook';
+    if (hostname.includes('whatsapp.com') || hostname.includes('wa.me')) return 'whatsapp';
     
     return 'Other Referral';
   } catch (error) {
@@ -82,9 +90,8 @@ export function AnalyticsTracker() {
       courseId = params.id.toString();
     }
     
-    // Prioritize `_ref` for testing, then fall back to document.referrer
-    const referrer = searchParams.get('_ref') || document.referrer;
-    const trafficSource = getTrafficSource(referrer);
+    const referrer = document.referrer;
+    const trafficSource = getTrafficSource(searchParams, referrer);
 
     const getAnalyticsData = async (): Promise<Omit<AnalyticsEvent, 'type' | 'path' | 'timestamp' | 'duration' | 'courseId' | 'elementType' | 'elementText' | 'href' | 'sessionId' | 'referrer' | 'trafficSource' | 'details'>> => {
       try {

@@ -1,3 +1,4 @@
+
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export type UserActionType =
@@ -36,7 +37,7 @@ export interface IUserActionEvent extends Document {
   };
   device?: string;
   browser?: string;
-  trafficSource?: 'Google' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube' | 'Facebook' | 'Direct' | 'Other Referral' | 'Unknown';
+  trafficSource?: string; // Changed to flexible string for UTM sources
 }
 
 const UserActionEventSchema: Schema<IUserActionEvent> = new Schema({
@@ -65,7 +66,7 @@ const UserActionEventSchema: Schema<IUserActionEvent> = new Schema({
   },
   device: { type: String },
   browser: { type: String },
-  trafficSource: { type: String, enum: ['Google', 'LinkedIn', 'Instagram', 'X', 'YouTube', 'Facebook', 'Direct', 'Other Referral', 'Unknown'] },
+  trafficSource: { type: String },
 }, { timestamps: { createdAt: 'timestamp', updatedAt: false } });
 
 UserActionEventSchema.index({ timestamp: -1 });

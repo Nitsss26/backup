@@ -1,3 +1,4 @@
+
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IClickEvent extends Document {
@@ -17,7 +18,7 @@ export interface IClickEvent extends Document {
   };
   device?: string;
   browser?: string;
-  trafficSource?: 'Google' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube' | 'Facebook' | 'Direct' | 'Other Referral' | 'Unknown';
+  trafficSource?: string; // Changed to flexible string for UTM sources
   type: 'click';
 }
 
@@ -37,7 +38,7 @@ const ClickEventSchema: Schema = new Schema({
   },
   device: { type: String },
   browser: { type: String },
-  trafficSource: { type: String, enum: ['Google', 'LinkedIn', 'Instagram', 'X', 'YouTube', 'Facebook', 'Direct', 'Other Referral', 'Unknown'] },
+  trafficSource: { type: String },
   type: { type: String, enum: ['click'], required: true },
 });
 

@@ -18,7 +18,7 @@ export interface IVisitEvent extends Document {
   };
   device?: string;
   browser?: string;
-  trafficSource?: 'Google' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube' | 'Facebook' | 'Direct' | 'Other Referral' | 'Unknown';
+  trafficSource?: string; // Changed to flexible string for UTM sources
   type: 'visit';
 }
 
@@ -38,7 +38,7 @@ const VisitEventSchema: Schema<IVisitEvent> = new Schema({
   },
   device: { type: String },
   browser: { type: String },
-  trafficSource: { type: String, enum: ['Google', 'LinkedIn', 'Instagram', 'X', 'YouTube', 'Facebook', 'Direct', 'Other Referral', 'Unknown'] },
+  trafficSource: { type: String },
   type: { type: String, enum: ['visit'], required: true },
 });
 

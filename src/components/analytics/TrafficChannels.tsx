@@ -9,8 +9,8 @@ interface TrafficChannelData {
   value: number;
 }
 
-const ALL_SOURCES = ['Google', 'YouTube', 'LinkedIn', 'Facebook', 'Instagram', 'X', 'Direct', 'Other Referral', 'Unknown'];
-const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#d946ef', '#64748b', '#9ca3af'];
+const ALL_SOURCES = ['google', 'youtube', 'linkedin', 'facebook', 'instagram', 'x', 'whatsapp', 'Direct', 'Other Referral', 'Unknown'];
+const COLORS = ['#4285F4', '#FF0000', '#0077B5', '#1877F2', '#E4405F', '#000000', '#25D366', '#64748B', '#9CA3AF', '#CCCCCC'];
 
 const sourceColorMap: Record<string, string> = {};
 ALL_SOURCES.forEach((source, index) => {
@@ -38,10 +38,10 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
         }
         const result: TrafficChannelData[] = await response.json();
         
-        // Ensure all predefined sources are present, even with a value of 0
-        const dataMap = new Map(result.map(item => [item.name, item.value]));
+        // Ensure all predefined sources are present, even with a value of 0, for the legend
+        const dataMap = new Map(result.map(item => [item.name.toLowerCase(), item.value]));
         const completeData = ALL_SOURCES.map(source => ({
-            name: source,
+            name: source.charAt(0).toUpperCase() + source.slice(1), // Capitalize for display
             value: dataMap.get(source) || 0
         }));
 
@@ -106,7 +106,7 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
                         label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                     >
                         {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={sourceColorMap[entry.name] || '#ccc'} />
+                            <Cell key={`cell-${index}`} fill={sourceColorMap[entry.name.toLowerCase()] || '#ccc'} />
                         ))}
                     </Pie>
                     <Tooltip 
