@@ -14,8 +14,7 @@ export interface IVisitEvent extends Document {
     city?: string;
     state?: string;
     lat: number;
-    lon?: number;
-    lng?: number;
+    lng: number;
   };
   device?: string;
   browser?: string;
@@ -35,7 +34,6 @@ const VisitEventSchema: Schema<IVisitEvent> = new Schema({
     city: { type: String, default: 'unknown' },
     state: { type: String, default: 'unknown' },
     lat: { type: Number, default: 0 },
-    lon: { type: Number },
     lng: { type: Number, default: 0 },
   },
   device: { type: String },

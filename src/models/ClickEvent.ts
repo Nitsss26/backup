@@ -6,8 +6,19 @@ export interface IClickEvent extends Document {
   elementType: string;
   elementText: string;
   href?: string;
-  courseId?: string;
+  courseId?: mongoose.Types.ObjectId;
   timestamp: Date;
+  geoData?: {
+    country: string;
+    city?: string;
+    state?: string;
+    lat?: number;
+    lng?: number;
+  };
+  device?: string;
+  browser?: string;
+  trafficSource?: 'Google' | 'LinkedIn' | 'Instagram' | 'X' | 'YouTube' | 'Facebook' | 'Direct' | 'Other Referral' | 'Unknown';
+  type: 'click';
 }
 
 const ClickEventSchema: Schema = new Schema({
@@ -17,6 +28,17 @@ const ClickEventSchema: Schema = new Schema({
   href: { type: String },
   courseId: { type: Schema.Types.ObjectId, ref: 'Course' },
   timestamp: { type: Date, default: Date.now },
+  geoData: {
+    country: { type: String },
+    city: { type: String },
+    state: { type: String },
+    lat: { type: Number },
+    lng: { type: Number },
+  },
+  device: { type: String },
+  browser: { type: String },
+  trafficSource: { type: String, enum: ['Google', 'LinkedIn', 'Instagram', 'X', 'YouTube', 'Facebook', 'Direct', 'Other Referral', 'Unknown'] },
+  type: { type: String, enum: ['click'], required: true },
 });
 
 // Add indexes for analytics
