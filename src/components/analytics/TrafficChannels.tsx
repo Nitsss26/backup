@@ -1,5 +1,4 @@
 
-// src/components/analytics/TrafficChannels.tsx
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
@@ -10,7 +9,13 @@ interface TrafficChannelData {
   value: number;
 }
 
-const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#d946ef', '#64748b'];
+const ALL_SOURCES = ['Google', 'YouTube', 'LinkedIn', 'Facebook', 'Instagram', 'X', 'Direct', 'Other Referral', 'Unknown'];
+const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#d946ef', '#64748b', '#9ca3af'];
+
+const sourceColorMap: Record<string, string> = {};
+ALL_SOURCES.forEach((source, index) => {
+  sourceColorMap[source] = COLORS[index % COLORS.length];
+});
 
 interface TrafficChannelsProps {
     startDate: string;
@@ -31,8 +36,16 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
         if (!response.ok) {
           throw new Error('Failed to fetch traffic data');
         }
-        const result = await response.json();
-        setData(result);
+        const result: TrafficChannelData[] = await response.json();
+        
+        // Ensure all predefined sources are present, even with a value of 0
+        const dataMap = new Map(result.map(item => [item.name, item.value]));
+        const completeData = ALL_SOURCES.map(source => ({
+            name: source,
+            value: dataMap.get(source) || 0
+        }));
+
+        setData(completeData);
       } catch (err: any) {
         setError(err.message || 'An error occurred');
         setData([]);
@@ -43,9 +56,11 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
     fetchTrafficData();
   }, [startDate, endDate]);
   
+  const chartData = data.filter(item => item.value > 0);
+
   if (isLoading) {
     return (
-      <Card className="bg-gray-800 border-gray-700 mb-6 flex items-center justify-center h-64">
+      <Card className="bg-gray-800 border-gray-700 mb-6 flex items-center justify-center h-80">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400"/>
       </Card>
     );
@@ -57,24 +72,11 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
             <CardHeader>
                 <CardTitle className="text-lg font-semibold text-white">Traffic by Channel</CardTitle>
             </CardHeader>
-            <CardContent className="flex items-center justify-center h-48">
+            <CardContent className="flex items-center justify-center h-64">
                 <p className="text-red-500">{error}</p>
             </CardContent>
         </Card>
     );
-  }
-
-  if (data.length === 0) {
-      return (
-        <Card className="bg-gray-800 border-gray-700 mb-6">
-            <CardHeader>
-                <CardTitle className="text-lg font-semibold text-white">Traffic by Channel</CardTitle>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center h-48">
-                <p className="text-gray-400">No traffic data available for this period.</p>
-            </CardContent>
-        </Card>
-      );
   }
 
   return (
@@ -85,10 +87,15 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
       </CardHeader>
       <CardContent>
         <div className="h-80 w-full">
+          {chartData.length === 0 ? (
+             <div className="flex items-center justify-center h-full">
+                <p className="text-gray-400">No traffic data available for this period.</p>
+            </div>
+          ) : (
             <ResponsiveContainer>
                  <PieChart>
                     <Pie
-                        data={data}
+                        data={chartData}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
@@ -96,10 +103,10 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
                         fill="#8884d8"
                         dataKey="value"
                         nameKey="name"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
                     >
-                        {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        {chartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={sourceColorMap[entry.name] || '#ccc'} />
                         ))}
                     </Pie>
                     <Tooltip 
@@ -114,6 +121,7 @@ export default function TrafficChannels({ startDate, endDate }: TrafficChannelsP
                     <Legend />
                 </PieChart>
             </ResponsiveContainer>
+          )}
         </div>
       </CardContent>
     </Card>
