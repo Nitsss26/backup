@@ -76,14 +76,14 @@ export async function POST(request: Request) {
       geoData,
       device,
       browser,
-      referrer, // We'll get the referrer from the client
-      trafficSource: providedTrafficSource, // This will now come from the client, with UTM source prioritized
+      referrer,
+      trafficSource: providedTrafficSource,
       details,
     } = body;
     
-    // **THE CRITICAL FIX IS HERE**
-    // The client-side tracker will now determine the traffic source, including UTM parameters.
-    // The backend just records what it's given. If it's not provided, it falls back.
+    // <<< CONSOLE.LOG ADDED HERE FOR DEBUGGING >>>
+    console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${providedTrafficSource}`);
+
     const trafficSource = providedTrafficSource || getTrafficSource(referrer);
 
     if (!sessionId) {
@@ -141,11 +141,10 @@ export async function POST(request: Request) {
         logger.warn('[/api/analytics/track POST] Missing or invalid path/duration for duration event');
         return NextResponse.json({ message: 'Path and valid duration are required for duration event' }, { status: 400 });
       }
-      // Instead of creating a new event, we update the existing visit event with duration.
       await VisitEventModel.updateOne(
-        { sessionId, path, duration: 0 }, // Find the initial visit event
+        { sessionId, path, duration: 0 },
         { $set: { duration } },
-        { sort: { timestamp: -1 } } // Update the most recent one if duplicates exist
+        { sort: { timestamp: -1 } }
       );
     } else if (type === 'scroll') {
       await UserActionEventModel.create({

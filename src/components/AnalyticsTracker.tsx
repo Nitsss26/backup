@@ -132,13 +132,14 @@ export function AnalyticsTracker() {
             timestamp: new Date().toISOString(),
             courseId,
             referrer,
-            trafficSource, // **THE CRITICAL FIX IS HERE**
+            trafficSource,
         } as AnalyticsEvent;
+        
+        // <<< CONSOLE.LOG ADDED HERE FOR DEBUGGING >>>
+        console.log('[FRONTEND TRACKER] Sending event:', fullEvent);
         
         const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });
         navigator.sendBeacon('/api/analytics/track', blob);
-        
-        clientLogger.info('AnalyticsTracker: Sent event via Beacon', { event: fullEvent });
       
       } catch (error) {
         clientLogger.error('AnalyticsTracker: Failed to send event', {
