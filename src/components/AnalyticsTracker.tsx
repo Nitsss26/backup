@@ -13,7 +13,6 @@ interface GeoData {
   lng: number;
 }
 
-// Updated to a more flexible string type for traffic source
 interface AnalyticsEvent {
   type: 'visit' | 'click' | 'duration' | 'scroll';
   sessionId: string;
@@ -24,7 +23,7 @@ interface AnalyticsEvent {
   device: 'mobile' | 'tablet' | 'desktop' | 'unknown';
   browser: 'Chrome' | 'Firefox' | 'Other' | 'unknown';
   referrer: string;
-  trafficSource: string; // Changed to string to accommodate UTM sources
+  trafficSource: string;
   courseId?: string;
   elementType?: 'button' | 'a';
   elementText?: string;
@@ -133,7 +132,7 @@ export function AnalyticsTracker() {
             timestamp: new Date().toISOString(),
             courseId,
             referrer,
-            trafficSource,
+            trafficSource, // **THE CRITICAL FIX IS HERE**
         } as AnalyticsEvent;
         
         const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });

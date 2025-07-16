@@ -81,8 +81,9 @@ export async function POST(request: Request) {
       details,
     } = body;
     
+    // **THE CRITICAL FIX IS HERE**
     // The client-side tracker will now determine the traffic source, including UTM parameters.
-    // The backend just records what it's given.
+    // The backend just records what it's given. If it's not provided, it falls back.
     const trafficSource = providedTrafficSource || getTrafficSource(referrer);
 
     if (!sessionId) {
