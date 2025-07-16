@@ -4,43 +4,51 @@ import dbConnect from '@/lib/dbConnect';
 import UserModel from '@/models/User';
 import type { UserRole } from '@/lib/types';
 
-// This endpoint handles creating a user OR logging in a user from MongoDB.
+// This endpoint handles creating a new user in MongoDB.
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
 
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, name, role = 'student' } = body;
 
-    if (!email) {
-      return NextResponse.json({ message: 'Email is required.' }, { status: 400 });
-    }
-    if (!password) {
-      return NextResponse.json({ message: 'Password is required for login.' }, { status: 400 });
-    }
-
-    // Attempt to find the user by email, and explicitly include the password field for comparison
-    const user = await UserModel.findOne({ email }).select('+password').lean();
-
-    if (!user) {
-        return NextResponse.json({ message: 'Invalid credentials. User not found.' }, { status: 404 });
+    // --- Validation ---
+    if (!email || !password || !name) {
+      return NextResponse.json({ message: 'Name, email, and password are required.' }, { status: 400 });
     }
     
-    // Simple password comparison (as it's not hashed in placeholder data)
-    const isPasswordCorrect = user.password === password;
-
-    if (!isPasswordCorrect) {
-        return NextResponse.json({ message: 'Invalid credentials. Password incorrect.' }, { status: 401 });
+    // --- Check if user already exists ---
+    const existingUser = await UserModel.findOne({ email }).lean();
+    if (existingUser) {
+        return NextResponse.json({ message: 'An account with this email already exists.' }, { status: 409 });
     }
 
+    // --- Create New User ---
+    const newUser = new UserModel({
+      name,
+      email,
+      password, // In a real app, this should be hashed.
+      role,
+      verificationStatus: 'unverified',
+      documentsSubmitted: false,
+      notificationPreferences: {
+        courseUpdates: true,
+        promotions: true,
+        platformAnnouncements: true,
+      },
+    });
+
+    await newUser.save();
+    
     // Exclude password from the final response before sending it to the client
-    const { password: _, ...userResponse } = user;
-    return NextResponse.json(userResponse, { status: 200 });
+    const { password: _, ...userResponse } = newUser.toObject();
+
+    return NextResponse.json(userResponse, { status: 201 });
 
   } catch (error: any) {
-    console.error('[API /api/users POST] Error:', error);
-    if (error.code === 11000) {
-        return NextResponse.json({ message: 'An account with this email already exists.' }, { status: 409 });
+    console.error('[API /api/users POST - SIGNUP] Error:', error);
+    if (error.name === 'ValidationError') {
+        return NextResponse.json({ message: 'Validation Error', errors: error.errors }, { status: 400 });
     }
     return NextResponse.json(
       { message: 'Internal Server Error', error: error.message },
