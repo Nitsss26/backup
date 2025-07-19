@@ -8,11 +8,8 @@ export interface IUtmEvent extends Document {
 
 const UtmEventSchema: Schema<IUtmEvent> = new Schema({
   source: { type: String, required: true, index: true },
-  timestamp: { type: Date, default: Date.now, index: true }, // Added index here
+  timestamp: { type: Date, default: Date.now, index: true },
 });
-
-// Explicitly add index for timestamp to ensure date range queries are efficient
-UtmEventSchema.index({ timestamp: 1 });
 
 const UtmEventModel: Model<IUtmEvent> =
   models.UtmEvent || mongoose.model<IUtmEvent>('UtmEvent', UtmEventSchema);

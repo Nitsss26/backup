@@ -1682,3 +1682,7 @@
 {"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"1e0b1d09-047a-43a2-8a9c-f3ff619e3f1f","timestamp":"2025-07-19T13:31:58.219Z","trafficSource":"Direct","type":"visit"}
 {"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"f49726c2-d9f4-405a-bfd5-ca79d33e97ec","timestamp":"2025-07-19T13:33:52.602Z","trafficSource":"Direct","type":"duration"}
 {"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"9a7622a5-f23c-4441-b3f7-50a6dc579313","timestamp":"2025-07-19T13:33:57.950Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"6db07f29-da9e-437a-818c-2b2c12d58219","timestamp":"2025-07-19T13:37:02.258Z","trafficSource":"Other Referral","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"6db07f29-da9e-437a-818c-2b2c12d58219","timestamp":"2025-07-19T13:37:33.618Z","trafficSource":"Other Referral","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"bf65d798-cbbd-4025-afab-fd263ab4b51c","timestamp":"2025-07-19T13:38:14.156Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"6db07f29-da9e-437a-818c-2b2c12d58219","timestamp":"2025-07-19T13:40:05.288Z","trafficSource":"Other Referral","type":"visit"}

@@ -17,20 +17,15 @@ function getSessionId() {
   return null;
 }
 
-// More specific function to get traffic source
-const getTrafficSource = (searchParams: URLSearchParams, referrer: string): string => {
-  const utmSource = searchParams.get('utm_source');
-  if (utmSource) return utmSource.toLowerCase();
-
+const getTrafficSourceFromReferrer = (referrer: string): string => {
   if (!referrer) return 'Direct';
 
   try {
     const referrerUrl = new URL(referrer);
-    // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
     const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
 
     if (referrerUrl.hostname.includes(appHostname)) {
-        return 'Direct'; // Internal navigation
+        return 'Direct';
     }
     
     const hostname = referrerUrl.hostname.toLowerCase();
@@ -50,24 +45,19 @@ const getTrafficSource = (searchParams: URLSearchParams, referrer: string): stri
   }
 };
 
-
 export function AnalyticsTracker() {
   const pathname = usePathname();
   const params = useParams();
   const searchParams = useSearchParams();
-  const trackedPathRef = useRef<string | null>(null);
+  const pageViewRef = useRef(false);
 
   useEffect(() => {
-    const fullUrl = `${pathname}?${searchParams.toString()}`;
-    // Prevent re-tracking on fast re-renders (like in dev mode)
-    if (trackedPathRef.current === fullUrl) {
-      return;
-    }
+    // This effect should only run once per component mount on the client.
+    if (pageViewRef.current) return;
+    pageViewRef.current = true;
 
     const sessionId = getSessionId();
     if (!sessionId) return;
-
-    trackedPathRef.current = fullUrl;
 
     let courseId: string | undefined;
     if (params?.id && pathname.startsWith('/courses/') && /^[0-9a-fA-F]{24}$/.test(params.id.toString())) {
@@ -75,8 +65,26 @@ export function AnalyticsTracker() {
     }
     
     const referrer = document.referrer || '';
-    const trafficSource = getTrafficSource(searchParams, referrer);
     
+    // --- UTM Tracking Logic ---
+    const utmSource = searchParams.get('utm_source');
+    if (utmSource) {
+        // Direct call to the dedicated UTM tracking API
+        fetch('/api/analytics/track-utm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ source: utmSource }),
+            keepalive: true,
+        }).catch(error => {
+            clientLogger.error('AnalyticsTracker: Failed to send UTM event', {
+                error: (error as Error).message,
+                source: utmSource,
+            });
+        });
+    }
+
+    const trafficSource = utmSource || getTrafficSourceFromReferrer(referrer);
+
     const trackEvent = async (eventPayload: Record<string, any>) => {
       try {
         const fullEvent = {
@@ -86,15 +94,13 @@ export function AnalyticsTracker() {
             timestamp: new Date().toISOString(),
             courseId,
             referrer,
-            // Pass the determined source from the client
-            trafficSource, 
+            trafficSource,
             device: navigator.userAgent.includes('Mobi') ? 'Mobile' : 'Desktop',
             browser: navigator.userAgent,
         };
         
         console.log('[FRONTEND TRACKER] Sending event:', fullEvent);
         
-        // Use sendBeacon for robustness on page exit
         const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });
         navigator.sendBeacon('/api/analytics/track', blob);
       
@@ -106,12 +112,10 @@ export function AnalyticsTracker() {
       }
     };
     
-    // Track the initial visit event
     trackEvent({ type: 'visit' });
     
-    // Setup duration tracking on page exit
     const handlePageExit = () => {
-        trackEvent({ type: 'duration', duration: 0 }); // Duration will be calculated on backend
+        trackEvent({ type: 'duration', duration: 0 });
     }
     window.addEventListener('beforeunload', handlePageExit)
 

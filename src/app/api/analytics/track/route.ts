@@ -1,33 +1,43 @@
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEventModel, { IVisitEvent } from '@/models/VisitEvent';
-import ClickEventModel, { IClickEvent } from '@/models/ClickEvent';
+import VisitEventModel from '@/models/VisitEvent';
+import ClickEventModel from '@/models/ClickEvent';
 import UserActionEventModel from '@/models/UserActionEvent';
-import CourseModel from '@/models/Course';
-import { subDays } from 'date-fns';
 import mongoose from 'mongoose';
 import logger from '@/lib/logger';
 
-// Helper function to categorize the referrer
-const getTrafficSource = (referrer: string): IVisitEvent['trafficSource'] => {
+// This function is now only a fallback
+const getTrafficSource = (referrer: string): string => {
   if (!referrer) {
     return 'Direct';
   }
-  const url = new URL(referrer);
-  const hostname = url.hostname;
-
-  if (hostname.includes('google.')) return 'Google';
-  if (hostname.includes('linkedin.')) return 'LinkedIn';
-  if (hostname.includes('instagram.')) return 'Instagram';
-  if (hostname.includes('x.com') || hostname.includes('twitter.com')) return 'X';
-  if (hostname.includes('youtube.')) return 'YouTube';
-  if (hostname.includes('facebook.')) return 'Facebook';
-  if (hostname === new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname) {
-    return 'Direct'; // Internal navigation
-  }
   
-  return 'Other Referral';
+  try {
+    const referrerUrl = new URL(referrer);
+    const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
+
+    if (referrerUrl.hostname.includes(appHostname)) {
+        return 'Direct'; // Internal navigation
+    }
+    
+    const hostname = referrerUrl.hostname.toLowerCase();
+    
+    if (hostname.includes('google.')) return 'google';
+    if (hostname.includes('linkedin.com')) return 'linkedin';
+    if (hostname.includes('instagram.com')) return 'instagram';
+    if (hostname.includes('t.co') || hostname.includes('x.com') || hostname.includes('twitter.com')) return 'x';
+    if (hostname.includes('youtube.com')) return 'youtube';
+    if (hostname.includes('facebook.com')) return 'facebook';
+    if (hostname.includes('whatsapp.com') || hostname.includes('wa.me')) return 'whatsapp';
+    
+    return 'Other Referral';
+  } catch(e) {
+      console.warn("Could not parse referrer URL on backend:", referrer, e);
+      return 'Unknown';
+  }
 };
+
 
 export async function POST(request: Request) {
   try {
@@ -55,16 +65,19 @@ export async function POST(request: Request) {
       href,
       duration,
       courseId,
-      visitorAlias: providedVisitorAlias,
       timestamp,
       geoData,
       device,
       browser,
-      referrer, // We'll get the referrer from the client
+      referrer,
+      trafficSource: providedTrafficSource, // This is the source determined on the client (e.g., from utm_source)
       details,
     } = body;
     
-    const trafficSource = getTrafficSource(referrer);
+    // Logic: Trust the frontend's traffic source. Only if it's not provided, fall back to referrer.
+    const trafficSource = providedTrafficSource || getTrafficSource(referrer);
+    console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${trafficSource}`);
+
 
     if (!sessionId) {
       logger.warn('[/api/analytics/track POST] Missing sessionId');
@@ -86,18 +99,20 @@ export async function POST(request: Request) {
         logger.warn('[/api/analytics/track POST] Missing path for visit event');
         return NextResponse.json({ message: 'Path is required for visit event' }, { status: 400 });
       }
+
+      // Create the visit event itself
       await VisitEventModel.create({
         sessionId,
         path,
         courseId: validCourseId,
         timestamp: timestamp ? new Date(timestamp) : new Date(),
-        duration: 0, // Initial visit event
+        duration: 0, // Duration is updated later
         geoData: sanitizedGeoData,
         device,
         browser,
-        trafficSource,
-        type: 'visit',
+        trafficSource, // Also store it on the visit event for direct analysis
       });
+
     } else if (type === 'click') {
        if (!elementType || !elementText) {
         logger.warn('[/api/analytics/track POST] Missing elementType or elementText for click event');
@@ -114,18 +129,26 @@ export async function POST(request: Request) {
         device,
         browser,
         trafficSource,
-        type: 'click',
       });
     } else if (type === 'duration') {
        if (!path || !Number.isFinite(duration) || duration < 0) {
         logger.warn('[/api/analytics/track POST] Missing or invalid path/duration for duration event');
         return NextResponse.json({ message: 'Path and valid duration are required for duration event' }, { status: 400 });
       }
-      // Instead of creating a new event, we update the existing visit event with duration.
+      
       await VisitEventModel.updateOne(
-        { sessionId, path, duration: 0 }, // Find the initial visit event
-        { $set: { duration } },
-        { sort: { timestamp: -1 } } // Update the most recent one if duplicates exist
+        { sessionId, path, duration: 0 }, 
+        { 
+            $set: { 
+                duration,
+                timestamp: timestamp ? new Date(timestamp) : new Date(),
+                geoData: sanitizedGeoData,
+                device,
+                browser,
+                trafficSource, // Ensure trafficSource is preserved on duration update
+            } 
+        },
+        { sort: { timestamp: -1 } } 
       );
     } else if (type === 'scroll') {
       await UserActionEventModel.create({

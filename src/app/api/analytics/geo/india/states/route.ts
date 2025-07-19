@@ -4,6 +4,9 @@ import dbConnect from '@/lib/dbConnect';
 import VisitEventModel from '@/models/VisitEvent';
 import { subMinutes, subHours } from 'date-fns';
 import logger from '@/lib/logger';
+import { zonedTimeToUtc } from 'date-fns-tz';
+
+const IST_TIMEZONE = 'Asia/Kolkata';
 
 export async function GET(request: Request) {
   try {
@@ -11,34 +14,37 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const timeframe = searchParams.get('timeframe') || '30m';
 
-    let startDate: Date;
-    const endDate = new Date();
-
+    const nowInIST = new Date();
+    let startDateInIST: Date;
+    
     switch (timeframe) {
       case '30m':
-        startDate = subMinutes(endDate, 30);
+        startDateInIST = subMinutes(nowInIST, 30);
         break;
       case '1h':
-        startDate = subHours(endDate, 1);
+        startDateInIST = subHours(nowInIST, 1);
         break;
       case '6h':
-        startDate = subHours(endDate, 6);
+        startDateInIST = subHours(nowInIST, 6);
         break;
       case '24h':
-        startDate = subHours(endDate, 24);
+        startDateInIST = subHours(nowInIST, 24);
         break;
       default:
         logger.warn('[/api/analytics/geo/india/states GET] Invalid timeframe:', timeframe);
         return NextResponse.json({ message: 'Invalid timeframe' }, { status: 400 });
     }
 
-    logger.info('[/api/analytics/geo/india/states GET] Fetching geo data for India states with filters:', { timeframe, startDate, endDate });
+    const utcEndDate = zonedTimeToUtc(nowInIST, IST_TIMEZONE);
+    const utcStartDate = zonedTimeToUtc(startDateInIST, IST_TIMEZONE);
+
+    logger.info('[/api/analytics/geo/india/states GET] Fetching geo data for India states with filters:', { timeframe, utcStartDate, utcEndDate });
 
     const stateData = await VisitEventModel.aggregate([
       {
         $match: {
           'geoData.country': 'India',
-          timestamp: { $gte: startDate, $lte: endDate },
+          timestamp: { $gte: utcStartDate, $lte: utcEndDate },
         },
       },
       {
