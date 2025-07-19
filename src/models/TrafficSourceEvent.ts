@@ -1,4 +1,4 @@
-// src/models/TrafficSourceEvent.ts
+
 import mongoose, { Schema, Document, Model, models } from 'mongoose';
 
 export interface ITrafficSourceEvent extends Document {
