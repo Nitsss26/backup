@@ -2,46 +2,55 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import VisitEventModel from '@/models/VisitEvent';
+import mongoose from 'mongoose';
 
 export async function GET(request: Request) {
   try {
     await dbConnect();
     
     const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
 
-    const matchStage: any = {};
-
-    if (startDate && endDate) {
-      matchStage.timestamp = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+    if (!startDateParam || !endDateParam) {
+      return NextResponse.json({ error: 'Start date and end date are required' }, { status: 400 });
     }
+
+    const startDate = new Date(startDateParam);
+    const endDate = new Date(endDateParam);
     
-    // This pipeline correctly finds the first visit for each session within the date range
-    // and then groups those unique sessions by traffic source.
+    // This is the definitive, correct aggregation pipeline.
     const trafficSourcesAggregation = await VisitEventModel.aggregate([
-      // First, filter all visits by the selected date range
-      { $match: matchStage },
-      // Sort by timestamp to reliably find the first event per session
-      { $sort: { timestamp: 1 } },
-      // Group by sessionId to find the first document for each session
+      // 1. Filter all visit events by the selected date range. This is the crucial first step.
+      { 
+        $match: { 
+          timestamp: { 
+            $gte: startDate, 
+            $lte: endDate 
+          } 
+        } 
+      },
+      // 2. Sort by timestamp to reliably find the first event for each session.
+      { 
+        $sort: { 
+          timestamp: 1 
+        } 
+      },
+      // 3. Group by sessionId to find the first document (which contains the original traffic source).
       { 
         $group: { 
           _id: "$sessionId",
           firstVisit: { $first: "$$ROOT" }
         }
       },
-      // Now, group these unique first visits by their traffic source and count them
+      // 4. Now, group these unique first visits by their traffic source and count them.
       { 
         $group: {
             _id: "$firstVisit.trafficSource",
             value: { $sum: 1 }
         }
       },
-      // Format the output to be { name, value }
+      // 5. Format the output to be { name, value } for the pie chart.
       {
         $project: {
           _id: 0,

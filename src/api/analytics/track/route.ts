@@ -81,10 +81,8 @@ export async function POST(request: Request) {
       details,
     } = body;
     
-    // <<< CONSOLE.LOG ADDED HERE FOR DEBUGGING >>>
-    console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${providedTrafficSource}`);
-
     const trafficSource = providedTrafficSource || getTrafficSource(referrer);
+    console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${trafficSource}`);
 
     if (!sessionId) {
       logger.warn('[/api/analytics/track POST] Missing sessionId');
@@ -111,7 +109,7 @@ export async function POST(request: Request) {
         path,
         courseId: validCourseId,
         timestamp: timestamp ? new Date(timestamp) : new Date(),
-        duration: 0, // Initial visit event
+        duration: 0, // Initial visit event, duration will be updated by 'duration' event type
         geoData: sanitizedGeoData,
         device,
         browser,
@@ -141,10 +139,22 @@ export async function POST(request: Request) {
         logger.warn('[/api/analytics/track POST] Missing or invalid path/duration for duration event');
         return NextResponse.json({ message: 'Path and valid duration are required for duration event' }, { status: 400 });
       }
+      // CRITICAL FIX: Update the existing visit event to set its duration.
+      // This ensures the visit event, which has the trafficSource, also gets the duration.
       await VisitEventModel.updateOne(
-        { sessionId, path, duration: 0 },
-        { $set: { duration } },
-        { sort: { timestamp: -1 } }
+        { sessionId, path, duration: 0 }, // Find the initial visit event for this path
+        { 
+            $set: { 
+                duration,
+                // Also update other metadata in case it changed during the session (less likely but robust)
+                timestamp: timestamp ? new Date(timestamp) : new Date(),
+                geoData: sanitizedGeoData,
+                device,
+                browser,
+                trafficSource, // Ensure traffic source is persisted on the event that gets the duration
+            } 
+        },
+        { sort: { timestamp: -1 } } // Update the most recent one if multiple exist
       );
     } else if (type === 'scroll') {
       await UserActionEventModel.create({

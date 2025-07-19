@@ -38,12 +38,16 @@ const getTrafficSource = (searchParams: URLSearchParams, referrer: string): stri
     return utmSource; // UTM source takes highest priority
   }
 
-  if (!referrer) {
+  // Special case for manual referrer override for testing
+  const manualRef = searchParams.get('_ref');
+  const effectiveReferrer = manualRef || referrer;
+
+  if (!effectiveReferrer) {
     return 'Direct';
   }
   
   try {
-    const referrerUrl = new URL(referrer);
+    const referrerUrl = new URL(effectiveReferrer);
     // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
     const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
 
@@ -63,7 +67,7 @@ const getTrafficSource = (searchParams: URLSearchParams, referrer: string): stri
     
     return 'Other Referral';
   } catch (error) {
-    console.warn("Could not parse referrer URL on client:", referrer, error);
+    console.warn("Could not parse referrer URL on client:", effectiveReferrer, error);
     return 'Unknown';
   }
 };
@@ -132,10 +136,9 @@ export function AnalyticsTracker() {
             timestamp: new Date().toISOString(),
             courseId,
             referrer,
-            trafficSource,
+            trafficSource, // CRITICAL FIX: Ensure trafficSource is passed
         } as AnalyticsEvent;
         
-        // <<< CONSOLE.LOG ADDED HERE FOR DEBUGGING >>>
         console.log('[FRONTEND TRACKER] Sending event:', fullEvent);
         
         const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });
