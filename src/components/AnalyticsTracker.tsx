@@ -77,8 +77,6 @@ export function AnalyticsTracker() {
     const referrer = document.referrer || '';
     const trafficSource = getTrafficSource(searchParams, referrer);
     
-    console.log(`[FRONTEND TRACKER] Determined trafficSource: "${trafficSource}"`);
-
     const trackEvent = async (eventPayload: Record<string, any>) => {
       try {
         const fullEvent = {
