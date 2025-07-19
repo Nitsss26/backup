@@ -1,8 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEventModel from '@/models/VisitEvent';
-import mongoose from 'mongoose';
+import TrafficSourceEventModel from '@/models/TrafficSourceEvent'; // Using the new, dedicated model
 
 export async function GET(request: Request) {
   try {
@@ -19,9 +18,9 @@ export async function GET(request: Request) {
     const startDate = new Date(startDateParam);
     const endDate = new Date(endDateParam);
     
-    // This is the definitive, correct aggregation pipeline.
-    const trafficSourcesAggregation = await VisitEventModel.aggregate([
-      // 1. Filter all visit events by the selected date range. This is the crucial first step.
+    // The definitive, correct, and simple aggregation pipeline using the new dedicated collection.
+    const trafficSourcesAggregation = await TrafficSourceEventModel.aggregate([
+      // 1. Filter the traffic source events by the selected date range.
       { 
         $match: { 
           timestamp: { 
@@ -30,27 +29,14 @@ export async function GET(request: Request) {
           } 
         } 
       },
-      // 2. Sort by timestamp to reliably find the first event for each session.
-      { 
-        $sort: { 
-          timestamp: 1 
-        } 
-      },
-      // 3. Group by sessionId to find the first document (which contains the original traffic source).
-      { 
-        $group: { 
-          _id: "$sessionId",
-          firstVisit: { $first: "$$ROOT" }
-        }
-      },
-      // 4. Now, group these unique first visits by their traffic source and count them.
+      // 2. Group by the trafficSource field and count the number of documents in each group.
       { 
         $group: {
-            _id: "$firstVisit.trafficSource",
+            _id: "$trafficSource",
             value: { $sum: 1 }
         }
       },
-      // 5. Format the output to be { name, value } for the pie chart.
+      // 3. Format the output to be { name, value } for the pie chart.
       {
         $project: {
           _id: 0,

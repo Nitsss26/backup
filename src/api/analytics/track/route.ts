@@ -1,11 +1,10 @@
 
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEventModel, { IVisitEvent } from '@/models/VisitEvent';
-import ClickEventModel, { IClickEvent } from '@/models/ClickEvent';
+import VisitEventModel from '@/models/VisitEvent';
+import ClickEventModel from '@/models/ClickEvent';
 import UserActionEventModel from '@/models/UserActionEvent';
-import CourseModel from '@/models/Course';
-import { subDays } from 'date-fns';
+import TrafficSourceEventModel from '@/models/TrafficSourceEvent'; // Import the new model
 import mongoose from 'mongoose';
 import logger from '@/lib/logger';
 
@@ -71,18 +70,20 @@ export async function POST(request: Request) {
       href,
       duration,
       courseId,
-      visitorAlias: providedVisitorAlias,
       timestamp,
       geoData,
       device,
       browser,
       referrer,
-      trafficSource: providedTrafficSource,
+      trafficSource: providedTrafficSource, // This is the source determined on the client (e.g., from utm_source)
       details,
     } = body;
     
+    // The definitive traffic source is what the client provides.
+    // The server-side getTrafficSource is only a fallback if the client couldn't determine it.
     const trafficSource = providedTrafficSource || getTrafficSource(referrer);
     console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${trafficSource}`);
+
 
     if (!sessionId) {
       logger.warn('[/api/analytics/track POST] Missing sessionId');
@@ -104,18 +105,28 @@ export async function POST(request: Request) {
         logger.warn('[/api/analytics/track POST] Missing path for visit event');
         return NextResponse.json({ message: 'Path is required for visit event' }, { status: 400 });
       }
+      
+      // Atomically create the TrafficSourceEvent if it doesn't exist for this session
+      // This ensures we only record the *first* source for a session
+      await TrafficSourceEventModel.findOneAndUpdate(
+        { sessionId: sessionId },
+        { $setOnInsert: { sessionId: sessionId, trafficSource: trafficSource, timestamp: new Date(timestamp) } },
+        { upsert: true, new: true }
+      );
+
+      // Create the visit event itself
       await VisitEventModel.create({
         sessionId,
         path,
         courseId: validCourseId,
         timestamp: timestamp ? new Date(timestamp) : new Date(),
-        duration: 0, // Initial visit event, duration will be updated by 'duration' event type
+        duration: 0, // Duration is updated later
         geoData: sanitizedGeoData,
         device,
         browser,
-        trafficSource,
-        type: 'visit',
+        trafficSource, // Also store it on the visit event for direct analysis
       });
+
     } else if (type === 'click') {
        if (!elementType || !elementText) {
         logger.warn('[/api/analytics/track POST] Missing elementType or elementText for click event');
@@ -132,26 +143,23 @@ export async function POST(request: Request) {
         device,
         browser,
         trafficSource,
-        type: 'click',
       });
     } else if (type === 'duration') {
        if (!path || !Number.isFinite(duration) || duration < 0) {
         logger.warn('[/api/analytics/track POST] Missing or invalid path/duration for duration event');
         return NextResponse.json({ message: 'Path and valid duration are required for duration event' }, { status: 400 });
       }
-      // CRITICAL FIX: Update the existing visit event to set its duration.
-      // This ensures the visit event, which has the trafficSource, also gets the duration.
+      
+      // Update the visit event to set its duration.
       await VisitEventModel.updateOne(
         { sessionId, path, duration: 0 }, // Find the initial visit event for this path
         { 
             $set: { 
                 duration,
-                // Also update other metadata in case it changed during the session (less likely but robust)
                 timestamp: timestamp ? new Date(timestamp) : new Date(),
                 geoData: sanitizedGeoData,
                 device,
                 browser,
-                trafficSource, // Ensure traffic source is persisted on the event that gets the duration
             } 
         },
         { sort: { timestamp: -1 } } // Update the most recent one if multiple exist
