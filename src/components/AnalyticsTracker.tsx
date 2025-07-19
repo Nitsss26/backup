@@ -5,18 +5,15 @@ import { useEffect, useRef } from 'react';
 import { usePathname, useParams, useSearchParams } from 'next/navigation';
 import clientLogger from '@/lib/clientLogger';
 
-// This tracker now has two responsibilities:
-// 1. Fire a simple, direct event for every `utm_source` hit.
-// 2. Continue to track session-based events for other analytics.
-
 const trackUtmHit = async (source: string) => {
     try {
         console.log(`[FRONTEND TRACKER] Found UTM source, firing dedicated event: ${source}`);
+        // Use keepalive to ensure the request is sent even if the page is being unloaded.
         await fetch('/api/analytics/track-utm', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ source }),
-            keepalive: true, // Ensures the request is sent even if the page is being unloaded.
+            keepalive: true,
         });
     } catch (error) {
         clientLogger.error('AnalyticsTracker: Failed to send UTM event', {
@@ -30,17 +27,20 @@ export function AnalyticsTracker() {
   const pathname = usePathname();
   const params = useParams();
   const searchParams = useSearchParams();
+  const utmTrackedRef = useRef(false); // Ref to prevent duplicate tracking in React StrictMode
 
   useEffect(() => {
-    // --- New Direct UTM Tracking ---
+    // --- Direct UTM Tracking ---
     const utmSource = searchParams.get('utm_source');
-    if (utmSource) {
+
+    // Only track if a source exists and it hasn't been tracked for this page load yet.
+    if (utmSource && !utmTrackedRef.current) {
       trackUtmHit(utmSource);
+      utmTrackedRef.current = true; // Set the flag to true after tracking
     }
-    // --- End of New Direct UTM Tracking ---
-
-
+    
     // --- Existing Session-based Tracking (for other analytics) ---
+    // This part remains for other analytics like page duration, clicks, etc.
     const sessionId = localStorage.getItem('sessionId') || crypto.randomUUID();
     localStorage.setItem('sessionId', sessionId);
 
@@ -49,12 +49,10 @@ export function AnalyticsTracker() {
       courseId = params.id.toString();
     }
     
-    const referrer = document.referrer;
-    
-    // The main traffic source for the session is now set here and passed around
-    const determinedTrafficSource = utmSource || (referrer ? new URL(referrer).hostname : 'Direct');
+    const referrer = document.referrer || 'Direct';
+    const determinedTrafficSource = utmSource || (new URL(document.referrer || 'http://localhost').hostname);
 
-    const trackEvent = async (eventPayload: Record<string, any>) => {
+    const trackSessionEvent = async (eventPayload: Record<string, any>) => {
       try {
         const fullEvent = {
             ...eventPayload,
@@ -79,7 +77,7 @@ export function AnalyticsTracker() {
       }
     };
     
-    trackEvent({ type: 'visit' });
+    trackSessionEvent({ type: 'visit' });
 
   }, [pathname, params, searchParams]);
 

@@ -1645,3 +1645,21 @@
 {"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:04:29.758Z","trafficSource":"Direct","type":"visit"}
 {"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:04:29.809Z","trafficSource":"Direct","type":"duration"}
 {"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:04:29.834Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"680353b3-8875-489e-9b36-b63bc4feeacb","timestamp":"2025-07-19T13:14:00.769Z","trafficSource":"Other Referral","type":"duration"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"680353b3-8875-489e-9b36-b63bc4feeacb","timestamp":"2025-07-19T13:14:03.235Z","trafficSource":"Other Referral","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"680353b3-8875-489e-9b36-b63bc4feeacb","timestamp":"2025-07-19T13:14:03.296Z","trafficSource":"Other Referral","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:14:46.202Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track-utm POST] UTM event tracked successfully","source":"linkedin","timestamp":"2025-07-19T13:14:50.293Z"}
+{"level":"info","message":"[/api/analytics/track-utm POST] UTM event tracked successfully","source":"linkedin","timestamp":"2025-07-19T13:14:50.321Z"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:15:06.970Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:15:33.786Z","trafficSource":"Direct","type":"duration"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:15:50.195Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:15:50.232Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:17:08.223Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track-utm POST] UTM event tracked successfully","source":"youtube","timestamp":"2025-07-19T13:17:08.271Z"}
+{"level":"info","message":"[/api/analytics/track-utm POST] UTM event tracked successfully","source":"youtube","timestamp":"2025-07-19T13:17:08.290Z"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:17:08.950Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track-utm POST] UTM event tracked successfully","source":"whatspp","timestamp":"2025-07-19T13:17:48.208Z"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:17:48.278Z","trafficSource":"Direct","type":"visit"}
+{"level":"info","message":"[/api/analytics/track-utm POST] UTM event tracked successfully","source":"whatspp","timestamp":"2025-07-19T13:17:48.311Z"}
+{"level":"info","message":"[/api/analytics/track POST] Event tracked successfully","sessionId":"fc3fcb6a-b4c7-4591-b9e8-54d94a304605","timestamp":"2025-07-19T13:17:49.031Z","trafficSource":"Direct","type":"visit"}
