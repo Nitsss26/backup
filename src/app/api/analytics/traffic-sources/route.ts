@@ -1,50 +1,53 @@
+
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEventModel from '@/models/VisitEvent';
+import UtmEventModel from '@/models/UtmEvent'; // Using the new, dedicated model
 
 export async function GET(request: Request) {
   try {
     await dbConnect();
     
     const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
 
-    const matchStage: any = {};
-
-    if (startDate && endDate) {
-      matchStage.timestamp = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+    if (!startDateParam || !endDateParam) {
+      return NextResponse.json({ error: 'Start date and end date are required' }, { status: 400 });
     }
+
+    const startDate = new Date(startDateParam);
+    const endDate = new Date(endDateParam);
     
-    // Only count the first visit of each session to avoid skewing data
-    const firstVisits = await VisitEventModel.aggregate([
-      { $sort: { timestamp: 1 } },
+    // The new, definitive, and simple aggregation pipeline using the dedicated collection.
+    const trafficSourcesAggregation = await UtmEventModel.aggregate([
+      // 1. Filter the UTM events by the selected date range.
       { 
-        $group: { 
-          _id: "$sessionId",
-          firstVisit: { $first: "$$ROOT" }
+        $match: { 
+          timestamp: { 
+            $gte: startDate, 
+            $lte: endDate 
+          } 
+        } 
+      },
+      // 2. Group by the source field and count the number of documents in each group.
+      { 
+        $group: {
+            _id: "$source",
+            value: { $sum: 1 }
         }
       },
-      { $replaceRoot: { newRoot: "$firstVisit" } },
-      { $match: matchStage } // Apply date filter after identifying first visits
+      // 3. Format the output to be { name, value } for the pie chart.
+      {
+        $project: {
+          _id: 0,
+          name: { $ifNull: ["$_id", "Unknown"] }, // Handle cases where source might be null
+          value: "$value"
+        }
+      }
     ]);
 
-    // Now, group these first visits by traffic source
-    const trafficSources = firstVisits.reduce((acc, visit) => {
-        const source = visit.trafficSource || 'Unknown';
-        acc[source] = (acc[source] || 0) + 1;
-        return acc;
-    }, {} as Record<string, number>);
+    return NextResponse.json(trafficSourcesAggregation);
 
-    const formattedData = Object.entries(trafficSources).map(([name, value]) => ({
-      name,
-      value,
-    }));
-    
-    return NextResponse.json(formattedData);
   } catch (error) {
     console.error('Error fetching traffic sources:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
