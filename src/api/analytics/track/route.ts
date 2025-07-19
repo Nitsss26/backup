@@ -9,11 +9,7 @@ import mongoose from 'mongoose';
 import logger from '@/lib/logger';
 
 // Helper function to categorize the referrer
-const getTrafficSource = (referrer: string, utmSource?: string | null): string => {
-  if (utmSource) {
-    return utmSource; // UTM source takes highest priority
-  }
-
+const getTrafficSource = (referrer: string): string => {
   if (!referrer) {
     return 'Direct';
   }
@@ -28,7 +24,8 @@ const getTrafficSource = (referrer: string, utmSource?: string | null): string =
     }
     
     const hostname = referrerUrl.hostname.toLowerCase();
-
+    
+    // Exact or "contains" matching for hostnames. More robust.
     if (hostname.includes('google.')) return 'google';
     if (hostname.includes('linkedin.com')) return 'linkedin';
     if (hostname.includes('instagram.com')) return 'instagram';
@@ -43,6 +40,7 @@ const getTrafficSource = (referrer: string, utmSource?: string | null): string =
       return 'Unknown';
   }
 };
+
 
 export async function POST(request: Request) {
   try {
@@ -79,8 +77,8 @@ export async function POST(request: Request) {
       details,
     } = body;
     
-    // The definitive traffic source is what the client provides.
-    // The server-side getTrafficSource is only a fallback if the client couldn't determine it.
+    // CRITICAL FIX: Prioritize the traffic source sent from the frontend.
+    // Only fall back to deriving from referrer if the frontend couldn't determine it.
     const trafficSource = providedTrafficSource || getTrafficSource(referrer);
     console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${trafficSource}`);
 
