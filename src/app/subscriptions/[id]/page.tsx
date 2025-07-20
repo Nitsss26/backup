@@ -23,6 +23,7 @@ import { useCart, useWishlist } from '@/components/AppProviders';
 import { cn } from '@/lib/utils';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Label } from '@/components/ui/label';
 
 function ReviewCard({ review }: { review: ReviewType }) {
   return (
@@ -286,6 +287,34 @@ export default function SubscriptionDetailPage() {
           </div>
 
           <div className="lg:col-span-1">
+            <div className="lg:hidden mt-8 md:mt-0"> 
+                 <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
+                    <CardHeader className="p-0 md:hidden">
+                        <Image src={subscription.imageUrl} alt={subscription.title} width={600} height={800} className="rounded-t-lg object-cover w-full aspect-[3/4]" data-ai-hint="ebook cover mobile"/>
+                    </CardHeader>
+                    <CardContent className="p-5 space-y-3">
+                        <div className="space-y-2">
+                            <Label>Choose Validity</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {subscription.validityOptions.map(option => (
+                                    <Button key={option.duration} variant={selectedValidity?.duration === option.duration ? "default" : "outline"} onClick={() => setSelectedValidity(option)}>
+                                        {option.duration}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="text-3xl font-bold text-primary">₹{currentPrice.toLocaleString('en-IN')}
+                            {currentOriginalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{currentOriginalPrice.toLocaleString('en-IN')}</span>}
+                        </div>
+                        <Button size="lg" className="w-full text-base py-3" onClick={handleAddToCart} disabled={isInCart}>
+                            <ShoppingCart className="mr-2 h-5 w-5" /> {isInCart ? "In Cart" : "Add to Cart"}
+                        </Button>
+                        <Button variant="outline" size="lg" className="w-full text-base py-3" onClick={handleWishlistToggle}>
+                            <Heart className={cn("mr-2 h-5 w-5", isInWishlist && "fill-destructive text-destructive")} /> {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
              {relatedSubscriptions.length > 0 && (
                 <section className="mt-12 lg:mt-0">
                 <h2 className="text-2xl font-bold mb-6 font-headline text-foreground">You Might Also Like</h2>
