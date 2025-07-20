@@ -5,22 +5,22 @@ import mongoose from 'mongoose';
 const generateObjectIdString = () => new mongoose.Types.ObjectId().toHexString();
 
 const placeholderReviews: { [key: string]: Review[] } = {
-  "sub-001": [
+  "sub-001": [ // Amazon Prime Video
     { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-001', userId: 'user-sample-1', userName: 'Arthur F.', userAvatar: 'https://i.pravatar.cc/150?u=arthur', rating: 5, comment: "Everything fine. Due to timezone difference it took some time to activate my account, but when I asked for help they replied very fast. Account works just as I expected.", createdAt: new Date('2025-03-04T10:00:00Z').toISOString() },
-    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-001', userId: 'user-sample-2', userName: 'SYJU K', userAvatar: 'https://i.pravatar.cc/150?u=syju', rating: 5, comment: "Very good.", createdAt: new Date('2025-02-05T11:00:00Z').toISOString() },
+    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-001', userId: 'user-sample-2', userName: 'SYJU K', userAvatar: 'https://i.pravatar.cc/150?u=syju', rating: 5, comment: "Very good service. Received the login details within an hour. Highly recommended for affordable streaming.", createdAt: new Date('2025-02-05T11:00:00Z').toISOString() },
     { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-001', userId: 'user-sample-3', userName: 'Devansh', userAvatar: 'https://i.pravatar.cc/150?u=devansh', rating: 5, comment: "Fast service. Gives genuine products at a cheap rate. No problem in watching no one interrupt in between. Loving till now the product is best", createdAt: new Date('2024-10-04T11:00:00Z').toISOString() },
   ],
-  "sub-002": [
-    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-002', userId: 'user-sample-4', userName: 'John D.', userAvatar: 'https://i.pravatar.cc/150?u=john', rating: 5, comment: "Everything is good. The first day is normal.", createdAt: new Date('2025-07-08T12:15:00Z').toISOString() },
-    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-002', userId: 'user-sample-5', userName: 'Alex P.', userAvatar: 'https://i.pravatar.cc/150?u=alex', rating: 5, comment: "paid. For an hour, the seller wrote me. Deleted instructions and promotional code. Registered according to instructions and received a PRO account for a year. super super!", createdAt: new Date('2025-06-25T01:24:00Z').toISOString() },
+  "sub-002": [ // Perplexity Pro
+    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-002', userId: 'user-sample-4', userName: 'John D.', userAvatar: 'https://i.pravatar.cc/150?u=john', rating: 5, comment: "Everything is good. The activation process was smooth and the seller was very helpful.", createdAt: new Date('2025-07-08T12:15:00Z').toISOString() },
+    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-002', userId: 'user-sample-5', userName: 'Alex P.', userAvatar: 'https://i.pravatar.cc/150?u=alex', rating: 5, comment: "paid. For an hour, the seller wrote me. Registered according to instructions and received a PRO account for a year. super super!", createdAt: new Date('2025-06-25T01:24:00Z').toISOString() },
   ],
-  "sub-003": [
+  "sub-003": [ // Netflix
     { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-003', userId: 'user-sample-6', userName: 'Alfonso R.', userAvatar: 'https://i.pravatar.cc/150?u=alfonso', rating: 5, comment: "It’s really a worthwhile service, and best of all, it’s reliable over time. If there’s a problem, they’re there to attend to. Let them stay that way.", createdAt: new Date('2025-01-08T00:00:00Z').toISOString() },
     { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-003', userId: 'user-sample-7', userName: 'Avadh Joshi', userAvatar: 'https://i.pravatar.cc/150?u=avadh', rating: 5, comment: "Recently purchased this product from your site and i am very happy with the purchase of netflix premium yearly. Great price and got same day delivery also.", createdAt: new Date('2024-12-02T00:00:00Z').toISOString() },
   ],
-  "sub-004": [
+  "sub-004": [ // Spotify
     { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-004', userId: 'user-sample-8', userName: 'David', userAvatar: 'https://i.pravatar.cc/150?u=david', rating: 5, comment: "At the moment it works, and on Spotify it says that the subscription ends next year, it's really a bomb.", createdAt: new Date('2025-07-14T00:00:00Z').toISOString() },
-    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-004', userId: 'user-sample-9', userName: 'USAMEX', userAvatar: 'https://i.pravatar.cc/150?u=usamex', rating: 5, comment: "As soon as I logged in the Premium subscription was enabled for the 12 months Just had to change the password and keep the email address to access the account further I hope this works for the whole year, I'll update the review if anything changes", createdAt: new Date('2025-07-02T00:00:00Z').toISOString() },
+    { id: generateObjectIdString(), _id: generateObjectIdString(), courseId: 'sub-004', userId: 'user-sample-9', userName: 'USAMEX', userAvatar: 'https://i.pravatar.cc/150?u=usamex', rating: 5, comment: "As soon as I logged in the Premium subscription was enabled for the 12 months. Just had to change the password and keep the email address to access the account further. I hope this works for the whole year.", createdAt: new Date('2025-07-02T00:00:00Z').toISOString() },
   ],
 };
 
@@ -30,8 +30,8 @@ export const placeholderSubscriptions: Subscription[] = [
     title: "Amazon Prime Video Premium",
     price: 65.00,
     originalPrice: 125.00,
-    category: "Subscription",
-    imageUrl: "/prime.jpeg",
+    category: "Entertainment",
+    imageUrl: "https://i.postimg.cc/25y5DrfN/app.png",
     rating: 4.89,
     reviewsCount: 122,
     providerInfo: {
@@ -39,7 +39,7 @@ export const placeholderSubscriptions: Subscription[] = [
       verified: true
     },
     shortDescription: "Private Prime Video Premium subscription supporting all devices. Create your own profile and set a pin.",
-    description: "Get your private Prime Video Premium subscription. It supports all devices including Android, iOS, Windows, Mac, and Smart TVs. You can use it on up to 2 devices simultaneously. You can create your own profile and secure it with a pin. For Amazon Prime shopping, please check our other listings. This subscription is 100% legitimate and safe, with a full replacement warranty.",
+    description: "Get your private Prime Video Premium subscription. It supports all devices including Android, iOS, Windows, Mac, and Smart TVs. You can use it on up to 2 devices simultaneously. You can create your own profile and secure it with a pin. This subscription is 100% legitimate and safe, with a full replacement warranty.",
     validityOptions: [
       { duration: "1 Month", price: 65.00, originalPrice: 125.00 },
       { duration: "6 Months", price: 350.00, originalPrice: 750.00 },
@@ -53,9 +53,9 @@ export const placeholderSubscriptions: Subscription[] = [
       "Full Replacement Warranty"
     ],
     usageLimitations: [
-      "Maximum 2 devices are allowed to be logged in, else account will be banned.",
+      "Login is limited to a single device.",
       "Cannot change account details and password.",
-      "This membership only includes Prime Videos, not Amazon Prime shopping benefits.",
+      "This membership only includes Prime Videos.",
       "Create and use your own profile only."
     ],
     purchaseInstructions: [
@@ -66,38 +66,38 @@ export const placeholderSubscriptions: Subscription[] = [
     reviews: placeholderReviews['sub-001'],
     faqs: [
         {q: "Is this the same as Amazon Prime for shopping?", a: "No, this subscription is only for Prime Video content. It does not include Amazon Prime shopping benefits like free delivery."},
-        {q: "Can I change the password?", a: "No, you cannot change the account details or password. You can, however, create your own profile and set a PIN."}
+        {q: "Can I change the password?", a: "No, you cannot change the account details or password. You can, however, create your own profile and set a PIN for it."}
     ]
   },
   {
     id: 'sub-002',
-    title: "Perplexity Pro - 1 Year Subscription",
+    title: "Perplexity Pro - 1 Year",
     price: 450,
     originalPrice: 16500,
-    category: "Subscription",
-    imageUrl: "/p.png",
+    category: "Productivity",
+    imageUrl: "https://i.postimg.cc/BvznZkqL/per.png",
     rating: 5.0,
     reviewsCount: 12,
     providerInfo: {
       name: "GGsel Resellers",
       verified: false
     },
-    shortDescription: "Get one year of Perplexity Pro AI with advanced models like GPT-4.1, Claude 4, and Grok-3 on your personal mail.",
-    description: "The original cost of Perplexity Pro is $200 per year. However, we are offering it at an exclusive price of just $5.5 (approx ₹450) for a limited time! This includes AI models like DeepSeek R1, OpenAI's o4, GPT-4.1, Google Gemini Flash 2.5 Pro, Claude 4 Sonnet, Grok-3, and their own Sonar model. It also features image generation by Flux.1, DALL-E 3, and Playground v3.",
+    shortDescription: "One year of Perplexity Pro AI with advanced models like GPT-4o, Claude 3, and more on your personal mail.",
+    description: "The original cost of Perplexity Pro is $200 per year. We are offering it at an exclusive price of just ₹450 for a limited time! This includes AI models like GPT-4o, Claude 3 Sonnet, and image generation with DALL-E 3.",
     validityOptions: [
       { duration: "1 Year", price: 450, originalPrice: 16500 }
     ],
     features: [
-      "Access to Advanced AI Models: GPT-4.1, Claude 4, etc.",
-      "Image Generation with DALL-E 3 and more",
-      "Full 1-Year Warranty (if subscription stops)",
+      "Access to Advanced AI Models: GPT-4o, Claude 3, etc.",
+      "Image Generation with DALL-E 3",
+      "Full 1-Year Warranty",
       "Activation on your personal email address",
-      "Works globally, including Russia"
+      "Works globally"
     ],
     purchaseInstructions: [
-      "After purchase on our platform, you will receive a code.",
+      "After purchase, you will receive a code.",
       "Send us this code in the GGsell chat to start the delivery process.",
-      "After verification, the subscription will be activated on your mail."
+      "After verification, the subscription will be activated on your email."
     ],
     reviews: placeholderReviews['sub-002'],
      faqs: [
@@ -107,11 +107,11 @@ export const placeholderSubscriptions: Subscription[] = [
   },
   {
     id: 'sub-003',
-    title: "Netflix Premium - 1 Year Subscription",
+    title: "Netflix Premium - 1 Year",
     price: 1695,
-    originalPrice: 6000,
-    category: "Subscription",
-    imageUrl: "/n.png",
+    originalPrice: 7788,
+    category: "Entertainment",
+    imageUrl: "https://i.postimg.cc/MpWT91PT/nt.png",
     rating: 4.83,
     reviewsCount: 41,
     providerInfo: {
@@ -121,7 +121,7 @@ export const placeholderSubscriptions: Subscription[] = [
     shortDescription: "Enjoy Netflix Premium for 12 months with 4K Ultra HD quality, multi-device support, and global access.",
     description: "Get a stable, prepaid Netflix Premium account for 12 months. This is not a trial. Enjoy 4K Ultra HD + HDR streaming on a single screen at a time. The subscription works on all devices and can be streamed globally without restrictions. We offer a full 12-month replacement warranty.",
     validityOptions: [
-      { duration: "12 Months", price: 1695, originalPrice: 6000 }
+      { duration: "12 Months", price: 1695, originalPrice: 7788 }
     ],
     features: [
       "4K Ultra HD + HDR Streaming",
@@ -135,9 +135,9 @@ export const placeholderSubscriptions: Subscription[] = [
       "Email and phone number cannot be changed."
     ],
     purchaseInstructions: [
-      "Add the subscription to your cart and proceed to checkout.",
-      "After payment is completed, login credentials will be delivered via email within 30-180 minutes.",
-      "Use the credentials to log in on the Netflix website or app and start streaming."
+      "Add to cart and proceed to checkout.",
+      "Login credentials will be delivered via email within 30-180 minutes.",
+      "Log in on the Netflix website or app and start streaming."
     ],
     reviews: placeholderReviews['sub-003'],
     faqs: [
@@ -147,11 +147,11 @@ export const placeholderSubscriptions: Subscription[] = [
   },
   {
     id: 'sub-004',
-    title: "Spotify Premium - 12 Months Subscription",
+    title: "Spotify Premium - 12 Months",
     price: 999,
     originalPrice: 2388,
-    category: "Subscription",
-    imageUrl: "/sp.png",
+    category: "Music",
+    imageUrl: "https://i.postimg.cc/DwBzHmHc/Screenshot-2025-07-21-042127.png",
     rating: 4.87,
     reviewsCount: 15,
     providerInfo: {
@@ -159,7 +159,7 @@ export const placeholderSubscriptions: Subscription[] = [
       verified: false
     },
     shortDescription: "Get a personal Spotify Premium account for 12 months. Enjoy ad-free music, offline mode, and unlimited skips.",
-    description: "This product provides you with a unique Spotify Premium account for 12 months. You will receive login and password details after purchase. Enjoy unlimited high-quality streaming, offline mode, and no ad interruptions. It is recommended to not change the country settings of the account.",
+    description: "This product provides you with a unique Spotify Premium account for 12 months. You will receive login and password details after purchase. Enjoy unlimited high-quality streaming, offline mode, and no ad interruptions.",
     validityOptions: [
       { duration: "12 Months", price: 999, originalPrice: 2388 }
     ],
@@ -171,10 +171,9 @@ export const placeholderSubscriptions: Subscription[] = [
       "Works on all devices"
     ],
     usageLimitations: [
-      "This is a unique account, not a code. It cannot be activated on an existing Spotify account.",
-      "Family Share feature is not available.",
-      "It is recommended not to change country settings.",
-      "It is advisable to start using the account immediately as duration is limited by activation time."
+      "This is a unique account, not a code.",
+      "Cannot be activated on an existing Spotify account.",
+      "It is recommended not to change country settings."
     ],
     purchaseInstructions: [
       "Complete the purchase.",
@@ -183,8 +182,8 @@ export const placeholderSubscriptions: Subscription[] = [
     ],
     reviews: placeholderReviews['sub-004'],
     faqs: [
-        {q: "Can I use this on my existing Spotify account?", a: "No, this is a new, unique account. You will receive login credentials for it. You cannot activate this on an existing account."},
-        {q: "What if I change the country?", a: "It's recommended not to change the country settings, as it may lead to changes in the subscription type or loss of premium features."}
+        {q: "Can I use this on my existing Spotify account?", a: "No, this is a new, unique account. You will receive login credentials for it."},
+        {q: "What if I change the country?", a: "It's recommended not to change the country settings, as it may lead to changes in the subscription type."}
     ]
   }
 ];

@@ -19,8 +19,8 @@ export default function SubscriptionsPage() {
       <Header />
       <main className="flex-grow container py-8 px-4 md:px-6">
         <Breadcrumbs items={breadcrumbItems} />
-        <h1 className="text-3xl md:text-4xl font-bold mb-8 font-headline">Subscriptions</h1>
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <h1 className="text-3xl md:text-4xl font-bold mb-8 font-headline text-center">All Subscriptions</h1>
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {placeholderSubscriptions.map(sub => (
                 <SubscriptionCard key={sub.id} subscription={sub} />
             ))}

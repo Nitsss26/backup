@@ -6,12 +6,12 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StarRating } from '@/components/ui/StarRating';
 import type { Subscription, Review as ReviewType } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Heart, ShieldCheck, Star, Loader2, BookCopy, AlertTriangle, Instagram, ShoppingCart, HelpCircle } from 'lucide-react';
+import { CheckCircle, Heart, ShieldCheck, Loader2, BookCopy, AlertTriangle, ShoppingCart, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -174,7 +174,7 @@ export default function SubscriptionDetailPage() {
                 <div className="hidden md:block md:col-span-1 row-start-1 md:row-start-auto">
                      <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
                         <CardHeader className="p-0">
-                            <Image src={subscription.imageUrl} alt={subscription.title} width={600} height={800} className="rounded-t-lg object-cover w-full aspect-[3/4]" data-ai-hint="subscription service logo"/>
+                            <Image src={subscription.imageUrl} alt={subscription.title} width={600} height={800} className="rounded-t-lg object-contain w-full bg-white" data-ai-hint="subscription service logo"/>
                         </CardHeader>
                         <CardContent className="p-5 space-y-3">
                             <div className="space-y-2">
@@ -205,12 +205,11 @@ export default function SubscriptionDetailPage() {
         <div className="container mt-8 md:mt-12 grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Tabs defaultValue="description" className="w-full mb-8">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="features">Features</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews ({subscription.reviews?.length || 0})</TabsTrigger>
                 <TabsTrigger value="faq">FAQ</TabsTrigger>
-                {subscription.purchaseInstructions && <TabsTrigger value="purchase">How to Buy</TabsTrigger>}
               </TabsList>
 
               <TabsContent value="description">
@@ -232,6 +231,17 @@ export default function SubscriptionDetailPage() {
                         <p className="text-sm leading-relaxed text-foreground" dangerouslySetInnerHTML={{ __html: feature }} />
                       </div>
                     ))}
+                     {subscription.usageLimitations && subscription.usageLimitations.length > 0 && (
+                        <>
+                            <h3 className="font-semibold mt-6 mb-2 text-lg text-foreground col-span-full">Usage Limitations</h3>
+                             {subscription.usageLimitations.map((limit, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                    <AlertTriangle className="h-5 w-5 text-warning mt-0.5 shrink-0" />
+                                    <p className="text-sm leading-relaxed text-foreground">{limit}</p>
+                                </div>
+                            ))}
+                        </>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -269,20 +279,6 @@ export default function SubscriptionDetailPage() {
                 </Card>
               </TabsContent>
 
-              {subscription.purchaseInstructions && (
-              <TabsContent value="purchase">
-                <Card className="shadow-md border bg-card">
-                  <CardHeader><CardTitle className="text-2xl font-headline text-foreground">Purchase & Delivery</CardTitle></CardHeader>
-                  <CardContent className="space-y-4">
-                    <ol className="list-decimal space-y-3 pl-5 text-base text-foreground">
-                        {subscription.purchaseInstructions.map((instruction, index) => (
-                            <li key={index} dangerouslySetInnerHTML={{ __html: instruction }} />
-                        ))}
-                    </ol>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              )}
             </Tabs>
           </div>
 
@@ -290,7 +286,7 @@ export default function SubscriptionDetailPage() {
             <div className="lg:hidden mt-8 md:mt-0"> 
                  <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
                     <CardHeader className="p-0 md:hidden">
-                        <Image src={subscription.imageUrl} alt={subscription.title} width={600} height={800} className="rounded-t-lg object-cover w-full aspect-[3/4]" data-ai-hint="ebook cover mobile"/>
+                        <Image src={subscription.imageUrl} alt={subscription.title} width={600} height={800} className="rounded-t-lg object-contain w-full bg-white" data-ai-hint="ebook cover mobile"/>
                     </CardHeader>
                     <CardContent className="p-5 space-y-3">
                         <div className="space-y-2">
