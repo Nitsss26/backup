@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Header } from '@/components/layout/Header';
@@ -184,7 +185,7 @@ export default function CoursesPage() {
 
             {/* Promotional Banner */}
             {currentBannerUrl && (
-              <div className="mb-6 md:mb-8 -mt-10">
+              <div className="mb-6 md:mb-8">
                 <Image
                   key={currentBannerUrl}
                   src={currentBannerUrl}

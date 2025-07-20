@@ -160,7 +160,7 @@ export default function CourseDetailPage() {
 
   const handleAddToCart = () => {
     if (course) {
-      addToCart(course);
+      addToCart(course, 'course');
       toast({
         title: "Added to Cart!",
         description: `"${course.title}" has been added to your cart.`,
@@ -168,7 +168,7 @@ export default function CourseDetailPage() {
     }
   };
 
-  const isInCart = course ? cartItems.some(item => item.course.id === course.id) : false;
+  const isInCart = course ? cartItems.some(item => item.type === 'course' && item.item.id === course.id) : false;
 
 
   if (isLoading) {
@@ -505,7 +505,7 @@ export default function CourseDetailPage() {
               <h2 className="text-2xl font-bold mb-6 font-headline text-foreground">Related Courses</h2>
               <div className="grid grid-cols-1 gap-6">
                 {relatedCourses.map((relCourse) => (
-                  <CourseCard key={String((relCourse as any)._id) || relCourse.id} course={relCourse} />
+                  <CourseCard key={String(relCourse._id) || relCourse.id} course={relCourse} />
                 ))}
               </div>
             </section>
@@ -517,5 +517,8 @@ export default function CourseDetailPage() {
     </div>
   );
 }
+    
+ 
+    
 
     
