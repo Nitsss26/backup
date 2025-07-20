@@ -71,6 +71,34 @@ export interface EBook {
   faqs?: { q: string; a: string }[];
 }
 
+export interface Subscription {
+  id: string;
+  title: string;
+  price: number;
+  originalPrice?: number;
+  category: 'Subscription';
+  imageUrl: string;
+  rating: number;
+  reviewsCount: number;
+  providerInfo: {
+    name: string;
+    logoUrl?: string;
+  };
+  shortDescription: string;
+  description: string;
+  validityOptions: {
+    duration: string;
+    price: number;
+    originalPrice?: number;
+  }[];
+  features: string[];
+  usageLimitations?: string[];
+  purchaseInstructions?: string[];
+  reviews?: Review[];
+  faqs?: { q: string; a: string }[];
+}
+
+
 export interface Module {
   id: string;
   title: string;
@@ -92,7 +120,7 @@ export interface Lesson {
 export interface Review {
   id: string;
   _id?: string;
-  courseId: string; // Can be course or ebook ID
+  courseId: string; // Can be course, ebook, or subscription ID
   userId: string;
   userName: string;
   userAvatar?: string;
@@ -131,6 +159,9 @@ export type CartItem = {
 } | {
     type: 'ebook';
     item: EBook;
+} | {
+    type: 'subscription';
+    item: Subscription;
 };
 
 export type WishlistItem = {
@@ -139,6 +170,9 @@ export type WishlistItem = {
 } | {
     type: 'ebook';
     item: EBook;
+} | {
+    type: 'subscription';
+    item: Subscription;
 };
 
 export interface Category {
@@ -168,8 +202,8 @@ export interface Order {
   id: string;
   userId: string;
   items: Array<{
-    item: Course | EBook,
-    type: 'course' | 'ebook',
+    item: Course | EBook | Subscription,
+    type: 'course' | 'ebook' | 'subscription',
     priceAtPurchase: number,
     titleAtPurchase: string
   }>;

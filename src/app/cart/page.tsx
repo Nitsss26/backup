@@ -29,7 +29,7 @@ export default function CartPage() {
   }, []);
 
 
-  const handleRemoveItem = (itemId: string, itemType: 'course' | 'ebook') => {
+  const handleRemoveItem = (itemId: string, itemType: 'course' | 'ebook' | 'subscription') => {
     removeFromCart(itemId, itemType);
   };
 
@@ -86,14 +86,23 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-6">
               {cartItems.map(cartItem => {
                 const item = cartItem.item;
-                const linkHref = cartItem.type === 'course' ? `/courses/${item.id}` : `/ebooks/${item.id}`;
+                let linkHref = '#';
+                if (cartItem.type === 'course') linkHref = `/courses/${item.id}`;
+                if (cartItem.type === 'ebook') linkHref = `/ebooks/${item.id}`;
+                if (cartItem.type === 'subscription') linkHref = `/subscriptions/${item.id}`;
+
+                let authorOrProvider = '';
+                if (cartItem.type === 'course') authorOrProvider = (item as any).providerInfo?.name || (item as any).instructor;
+                if (cartItem.type === 'ebook') authorOrProvider = (item as any).author;
+                if (cartItem.type === 'subscription') authorOrProvider = (item as any).providerInfo?.name;
+
                 return (
                     <Card key={`${cartItem.type}-${item.id}`} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 shadow-sm hover:shadow-md transition-shadow border">
                     <Image
-                        src={item.imageUrl}
+                        src={item.imageUrl || ''}
                         alt={item.title}
                         width={160}
-                        height={cartItem.type === 'ebook' ? 213 : 90}
+                        height={cartItem.type === 'ebook' ? 213 : (cartItem.type === 'subscription' ? 213 : 90)}
                         className="rounded-md object-cover w-full md:w-40 aspect-video"
                         data-ai-hint={`${item.category} ${cartItem.type} cart item`}
                     />
@@ -101,7 +110,7 @@ export default function CartPage() {
                         <Link href={linkHref} className="hover:underline">
                         <h3 className="text-lg font-semibold line-clamp-2">{item.title}</h3>
                         </Link>
-                        <p className="text-sm text-muted-foreground">By {cartItem.type === 'course' ? item.providerInfo?.name || item.instructor : item.author}</p>
+                        <p className="text-sm text-muted-foreground">By {authorOrProvider}</p>
                         <p className="text-sm text-muted-foreground">{item.category}</p>
                     </div>
                     <div className="flex flex-col items-end md:items-center gap-2 md:ml-auto mt-4 md:mt-0">

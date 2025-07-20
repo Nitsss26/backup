@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import type { Course, EBook } from '@/lib/types';
+import type { Course, EBook, Subscription } from '@/lib/types';
 import { PAYMENT_OPTIONS, APP_NAME } from '@/lib/constants';
 import { ChevronRight, CreditCard, Lock, ShoppingBag, UserCircleIcon, Loader2 } from 'lucide-react';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
@@ -65,14 +65,12 @@ export default function CheckoutPage() {
     setIsProcessingOrder(true);
     
     try {
-      // The API now expects the full item object within each cartItem
       const orderData = {
         userId: user.id,
         items: cartItems, 
         totalAmount: total,
         paymentMethod: paymentMethod,
          paymentDetails: {
-          // You can add more payment-specific details here if needed
           gateway: 'mock-gateway',
           transactionTime: new Date().toISOString()
         }
@@ -245,7 +243,7 @@ export default function CheckoutPage() {
                       {cartItems.map(cartItem => (
                         <div key={cartItem.item.id} className="flex justify-between items-center p-2 border-b last:border-b-0">
                            <div className="flex items-center gap-3">
-                             <Image src={cartItem.item.imageUrl} alt={cartItem.item.title} width={80} height={cartItem.type === 'ebook' ? 107 : 45} className="rounded object-cover" data-ai-hint={`${cartItem.item.category} checkout thumbnail`}/>
+                             <Image src={cartItem.item.imageUrl || ''} alt={cartItem.item.title} width={80} height={cartItem.type === 'ebook' ? 107 : 45} className="rounded object-cover" data-ai-hint={`${cartItem.item.category} checkout thumbnail`}/>
                              <div>
                                 <p className="font-medium text-sm line-clamp-1">{cartItem.item.title}</p>
                                 <p className="text-xs text-muted-foreground">{cartItem.item.category}</p>
@@ -283,7 +281,7 @@ export default function CheckoutPage() {
               <CardContent className="space-y-3">
                 {cartItems.map(cartItem => (
                   <div key={cartItem.item.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
-                    <Image src={cartItem.item.imageUrl} alt={cartItem.item.title} width={100} height={cartItem.type === 'ebook' ? 133 : 56} className="rounded-md object-cover aspect-video" data-ai-hint={`${cartItem.item.category} checkout order summary`}/>
+                    <Image src={cartItem.item.imageUrl || ''} alt={cartItem.item.title} width={100} height={cartItem.type === 'ebook' ? 133 : 56} className="rounded-md object-cover aspect-video" data-ai-hint={`${cartItem.item.category} checkout order summary`}/>
                     <div>
                       <p className="text-sm font-medium line-clamp-2">{cartItem.item.title}</p>
                       <p className="text-sm font-semibold">₹{cartItem.item.price.toLocaleString('en-IN')}</p>

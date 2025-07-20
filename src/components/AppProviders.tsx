@@ -3,7 +3,7 @@
 
 import React, { type ReactNode, useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { SidebarProvider as UISidebarProvider } from '@/components/ui/sidebar';
-import type { User as AppUser, Course, CartItem, WishlistItem, EBook } from '@/lib/types';
+import type { User as AppUser, Course, CartItem, WishlistItem, EBook, Subscription } from '@/lib/types';
 import axios from 'axios';
 
 // --- SIDEBAR CONTEXT ---
@@ -105,8 +105,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 // --- CART CONTEXT ---
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (item: Course | EBook, type: 'course' | 'ebook') => void;
-  removeFromCart: (itemId: string, type: 'course' | 'ebook') => void;
+  addToCart: (item: Course | EBook | Subscription, type: 'course' | 'ebook' | 'subscription') => void;
+  removeFromCart: (itemId: string, type: 'course' | 'ebook' | 'subscription') => void;
   clearCart: () => void;
   subtotal: number;
   total: number;
@@ -137,7 +137,7 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('edtechcart_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = useCallback((item: Course | EBook, type: 'course' | 'ebook') => {
+  const addToCart = useCallback((item: Course | EBook | Subscription, type: 'course' | 'ebook' | 'subscription') => {
     setCartItems((prev) => {
       const existing = prev.find(i => i.item.id === item.id && i.type === type);
       if (existing) return prev;
@@ -145,7 +145,7 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   }, []);
 
-  const removeFromCart = useCallback((itemId: string, type: 'course' | 'ebook') => {
+  const removeFromCart = useCallback((itemId: string, type: 'course' | 'ebook' | 'subscription') => {
     setCartItems((prev) => prev.filter(i => !(i.item.id === itemId && i.type === type)));
   }, []);
 
@@ -164,8 +164,8 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
 // --- WISHLIST CONTEXT ---
 interface WishlistContextType {
   wishlistItems: WishlistItem[];
-  addToWishlist: (item: Course | EBook, type: 'course' | 'ebook') => void;
-  removeFromWishlist: (itemId: string, type: 'course' | 'ebook') => void;
+  addToWishlist: (item: Course | EBook | Subscription, type: 'course' | 'ebook' | 'subscription') => void;
+  removeFromWishlist: (itemId: string, type: 'course' | 'ebook' | 'subscription') => void;
 }
 export const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
 export function useWishlist() {
@@ -193,7 +193,7 @@ const WishlistProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem('edtechcart_wishlist', JSON.stringify(wishlistItems));
     }, [wishlistItems]);
 
-    const addToWishlist = useCallback((item: Course | EBook, type: 'course' | 'ebook') => {
+    const addToWishlist = useCallback((item: Course | EBook | Subscription, type: 'course' | 'ebook' | 'subscription') => {
         setWishlistItems((prev) => {
             const existing = prev.find(i => i.item.id === item.id && i.type === type);
             if (existing) return prev;
@@ -201,7 +201,7 @@ const WishlistProvider = ({ children }: { children: ReactNode }) => {
         });
     }, []);
 
-    const removeFromWishlist = useCallback((itemId: string, type: 'course' | 'ebook') => {
+    const removeFromWishlist = useCallback((itemId: string, type: 'course' | 'ebook' | 'subscription') => {
         setWishlistItems((prev) => prev.filter(i => !(i.item.id === itemId && i.type === type)));
     }, []);
 

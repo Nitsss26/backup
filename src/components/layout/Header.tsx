@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus, Book, Home, UserCircle, Heart } from 'lucide-react';
+import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus, Book, Home, UserCircle, Heart, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserProfileDropdown } from '@/components/UserProfileDropdown';
 import { APP_NAME, CATEGORIES } from '@/lib/constants';
@@ -65,7 +65,8 @@ export function Header() {
   };
 
   const navLinks = [
-    // { href: '/courses', label: 'Courses', icon: BookOpenText },
+    { href: '/courses', label: 'Courses', icon: BookOpenText },
+    { href: '/subscriptions', label: 'Subscriptions', icon: Star },
     { href: '/compare', label: 'Compare', icon: Book },
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
     { href: '/about', label: 'About', icon: Store },
