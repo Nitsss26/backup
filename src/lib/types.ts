@@ -52,7 +52,6 @@ export interface EBook {
   category: string;
   imageUrl: string;
   pages?: number;
-  level?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
   description: string;
   benefits?: string[];
   lastUpdated?: string;
@@ -68,6 +67,7 @@ export interface EBook {
   tags?: string[];
   purchaseInstructions: string[];
   importantNotice?: string;
+  reviews?: Review[];
 }
 
 export interface Module {
@@ -91,7 +91,7 @@ export interface Lesson {
 export interface Review {
   id: string;
   _id?: string;
-  courseId: string;
+  courseId: string; // Can be course or ebook ID
   userId: string;
   userName: string;
   userAvatar?: string;
@@ -122,13 +122,21 @@ export interface User {
   };
 }
 
-export interface CartItem {
-  course: Course;
-}
+export type CartItem = {
+    type: 'course';
+    item: Course;
+} | {
+    type: 'ebook';
+    item: EBook;
+};
 
-export interface WishlistItem {
-  course: Course;
-}
+export type WishlistItem = {
+    type: 'course';
+    item: Course;
+} | {
+    type: 'ebook';
+    item: EBook;
+};
 
 export interface Category {
   id: string;
@@ -156,7 +164,7 @@ export interface Certificate {
 export interface Order {
   id: string;
   userId: string;
-  items: Course[]; 
+  items: Array<{ type: 'course' | 'ebook', item: Course | EBook }>; 
   totalAmount: number;
   paymentMethod: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';

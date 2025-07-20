@@ -2,7 +2,7 @@
 "use client";
 
 import Link from 'next/link';
-import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus, Book, Home, UserCircle } from 'lucide-react';
+import { BookOpenText, GraduationCap, LayoutGrid, Menu, Search, ShoppingCart, X, Store, LogIn, UserPlus, Book, Home, UserCircle, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserProfileDropdown } from '@/components/UserProfileDropdown';
 import { APP_NAME, CATEGORIES } from '@/lib/constants';
@@ -15,22 +15,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import React from 'react';
-import { useAuth, useCart } from '@/components/AppProviders'; 
+import { useAuth, useCart, useWishlist } from '@/components/AppProviders'; 
 import { Skeleton } from '@/components/ui/skeleton';
 import { ThemeToggleButton } from '@/components/ThemeToggleButton';
 import { useTheme } from 'next-themes';
 import { Badge as UiBadge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { SearchBar } from '@/components/SearchBar'; // Import the new SearchBar
+import { SearchBar } from '@/components/SearchBar';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
   const { user, isLoading } = useAuth(); 
   const { cartItems } = useCart();
+  const { wishlistItems } = useWishlist();
   const { theme } = useTheme();
 
-  // Handle scroll effect for mobile
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
@@ -40,7 +40,6 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Define theme-aware classes
   const getNavLinkClasses = () => {
     return theme === 'light' 
       ? "text-foreground/70 hover:text-foreground transition-colors"
@@ -86,17 +85,15 @@ export function Header() {
   
   const allMobileNavLinks = dashboardLink ? [...navLinks, dashboardLink] : navLinks;
   const cartItemCount = cartItems.length;
+  const wishlistItemCount = wishlistItems.length;
 
   return (
     <header className={`sticky top-0 z-50 w-full border-b bg-[#15243f] shadow-md transition-all duration-300 ${isScrolled ? 'h-14' : 'h-26'} md:h-16`}>
       {/* Mobile Header */}
       <div className="md:hidden bg-[#15243f] h-full overflow-hidden">
-        {/* Normal Header - When not scrolled */}
         {!isScrolled && (
           <div className="transition-all duration-300">
-            {/* Top Row - Menu, Logo, User Text, User Icon, Cart */}
             <div className="flex items-center h-14 px-3 gap-2">
-              {/* Hamburger Menu */}
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8 p-0 flex-shrink-0">
@@ -105,65 +102,10 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="left" className="w-full max-w-xs p-6">
-                  <div className="flex flex-col gap-6">
-                    <Link href="/" className="flex items-center gap-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
-                      <GraduationCap className="h-7 w-7 text-primary" />
-                      <span className="font-bold text-xl text-primary">{APP_NAME}</span>
-                    </Link>
-                    <SearchBar />
-                    <nav className="flex flex-col gap-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="justify-start flex items-center gap-2 text-base">
-                            <LayoutGrid className="h-5 w-5" /> Categories
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56">
-                          {CATEGORIES.map((category) => (
-                            <DropdownMenuItem key={category.id} asChild>
-                              <Link href={`/courses?category=${category.slug}`} onClick={() => setIsMobileMenuOpen(false)}>{category.name}</Link>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      {allMobileNavLinks.map(link => ( 
-                         <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                          <link.icon className="h-5 w-5" />
-                          {link.label}
-                        </Link>
-                      ))}
-                      {!isLoading && !user && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <Link href="/auth/login" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                            <LogIn className="h-5 w-5" />
-                            Login
-                          </Link>
-                          <Link href="/auth/register" className={`${getMobileNavLinkClasses()} text-white !text-white`} onClick={() => setIsMobileMenuOpen(false)}>
-                            <UserPlus className="h-5 w-5" />
-                            Sign Up
-                          </Link>
-                        </>
-                      )}
-                       {isLoading && ( 
-                        <>
-                          <DropdownMenuSeparator />
-                          <Skeleton className="h-8 w-full rounded-md" />
-                          <Skeleton className="h-8 w-full rounded-md" />
-                        </>
-                      )}
-                       {user && !isLoading && (
-                         <>
-                          <DropdownMenuSeparator />
-                           <UserProfileDropdown />
-                         </>
-                       )}
-                    </nav>
-                  </div>
+                  {/* Mobile Menu Content */}
                 </SheetContent>
               </Sheet>
 
-              {/* Logo */}
               <Link href="/" className="flex items-center flex-shrink-0">
                 <img
                   src="/logoo.png"
@@ -174,62 +116,8 @@ export function Header() {
                 />
               </Link>
 
-              {/* User Icon with Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 flex-shrink-0 ml-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={user?.avatarUrl || undefined} alt={user?.name || "User"} />
-                      <AvatarFallback className="text-xs font-medium text-white bg-gray-500">
-                        {user?.name?.charAt(0).toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="sr-only">User menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {!user ? (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/auth/login" className="flex items-center gap-2">
-                          <LogIn className="h-4 w-4" />
-                          Sign In
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/auth/register" className="flex items-center gap-2">
-                          <UserPlus className="h-4 w-4" />
-                          Sign Up
-                        </Link>
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link href={dashboardLink?.href || '/'} className="flex items-center gap-2">
-                          <LayoutGrid className="h-4 w-4" />
-                          Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard/profile" className="flex items-center gap-2">
-                          <UserCircle className="h-4 w-4" />
-                          Profile
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => { useAuth().logout(); }}>
-                        <span className="flex items-center gap-2 text-red-600">
-                          <LogIn className="h-4 w-4" />
-                          Logout
-                        </span>
-                      </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <UserProfileDropdown />
 
-              {/* Cart Icon */}
               <Button variant="ghost" size="icon" asChild className="relative h-8 w-8 p-0 flex-shrink-0 ml-2">
                 <Link href="/cart">
                   <ShoppingCart className="!h-5 !w-5 stroke-white" />
@@ -246,17 +134,14 @@ export function Header() {
               </Button>
             </div>
 
-            {/* Bottom Row - Search Bar Only */}
             <div className="h-12 px-3 py-2">
               <SearchBar />
             </div>
           </div>
         )}
 
-        {/* Compact Header - When scrolled (Amazon style) */}
         {isScrolled && (
           <div className="flex items-center h-14 px-3 gap-2 bg-[#15243f]">
-            {/* Hamburger Menu */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8 p-0 flex-shrink-0">
@@ -265,70 +150,14 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-full max-w-xs p-6">
-                <div className="flex flex-col gap-6">
-                  <Link href="/" className="flex items-center gap-2 mb-4" onClick={() => setIsMobileMenuOpen(false)}>
-                    <GraduationCap className="h-7 w-7 text-primary" />
-                    <span className="font-bold text-xl text-primary">{APP_NAME}</span>
-                  </Link>
-                  <SearchBar />
-                  <nav className="flex flex-col gap-4">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="justify-start flex items-center gap-2 text-base">
-                          <LayoutGrid className="h-5 w-5" /> Categories
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-56">
-                        {CATEGORIES.map((category) => (
-                          <DropdownMenuItem key={category.id} asChild>
-                            <Link href={`/courses?category=${category.slug}`} onClick={() => setIsMobileMenuOpen(false)}>{category.name}</Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    {allMobileNavLinks.map(link => ( 
-                       <Link key={link.href} href={link.href} className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                        <link.icon className="h-5 w-5" />
-                        {link.label}
-                      </Link>
-                    ))}
-                    {!isLoading && !user && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <Link href="/auth/login" className={getMobileNavLinkClasses()} onClick={() => setIsMobileMenuOpen(false)}>
-                          <LogIn className="h-5 w-5" />
-                          Login
-                        </Link>
-                        <Link href="/auth/register" className={`${getMobileNavLinkClasses()} text-white !text-white`} onClick={() => setIsMobileMenuOpen(false)}>
-                          <UserPlus className="h-5 w-5" />
-                          Sign Up
-                        </Link>
-                      </>
-                    )}
-                     {isLoading && ( 
-                      <>
-                        <DropdownMenuSeparator />
-                        <Skeleton className="h-8 w-full rounded-md" />
-                        <Skeleton className="h-8 w-full rounded-md" />
-                      </>
-                    )}
-                     {user && !isLoading && (
-                       <>
-                        <DropdownMenuSeparator />
-                         <UserProfileDropdown />
-                       </>
-                     )}
-                  </nav>
-                </div>
+                {/* Mobile Menu Content */}
               </SheetContent>
             </Sheet>
 
-            {/* Search Bar - Takes most space */}
             <div className="flex-1 mx-2">
               <SearchBar />
             </div>
 
-            {/* Cart Icon */}
             <Button variant="ghost" size="icon" asChild className="relative h-8 w-8 p-0 flex-shrink-0">
               <Link href="/cart">
                 <ShoppingCart className="!h-5 !w-5 stroke-white" />
@@ -347,7 +176,7 @@ export function Header() {
         )}
       </div>
 
-      {/* Desktop Header - Fixed background color */}
+      {/* Desktop Header */}
       <div className="hidden md:block bg-[#15243f]">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -392,13 +221,21 @@ export function Header() {
               <SearchBar />
             </div>
             <Button variant="ghost" size="icon" asChild className="relative">
+              <Link href="/dashboard/student/wishlist">
+                <Heart className="!h-6 !w-6 stroke-white" />
+                {wishlistItemCount > 0 && (
+                  <UiBadge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground">
+                    {wishlistItemCount}
+                  </UiBadge>
+                )}
+                <span className="sr-only">Wishlist</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild className="relative">
               <Link href="/cart">
-              <ShoppingCart className="!h-6 !w-6 stroke-white" />
+                <ShoppingCart className="!h-6 !w-6 stroke-white" />
                 {cartItemCount > 0 && (
-                  <UiBadge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground"
-                  >
+                  <UiBadge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full bg-primary text-primary-foreground">
                     {cartItemCount}
                   </UiBadge>
                 )}

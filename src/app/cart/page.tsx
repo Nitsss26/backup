@@ -10,31 +10,27 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-// Removed placeholderCourses import as cart items will come from context
 import type { CartItem } from '@/lib/types';
 import { X, Tag, Trash2, ShoppingBag, Info } from 'lucide-react';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { useAuth, useCart } from '@/components/AppProviders'; // Import useAuth and useCart
+import { useAuth, useCart } from '@/components/AppProviders';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; 
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
-  // Removed local cartItems state: const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [discountCode, setDiscountCode] = useState('');
   const [isClient, setIsClient] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
-  const { cartItems, removeFromCart, subtotal, total } = useCart(); // Using cartItems directly from context
-  const router = useRouter(); // Initialize useRouter
+  const { cartItems, removeFromCart, subtotal, total } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
-    // Local state initialization with dummy data removed.
-    // Cart items are now solely from useCart() hook.
   }, []);
 
 
-  const handleRemoveItem = (courseId: string) => {
-    removeFromCart(courseId); // Only use context's removeFromCart
+  const handleRemoveItem = (itemId: string, itemType: 'course' | 'ebook') => {
+    removeFromCart(itemId, itemType);
   };
 
   const breadcrumbItems = [
@@ -80,7 +76,7 @@ export default function CartPage() {
           <div className="text-center py-12 bg-background rounded-lg shadow">
             <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h2 className="text-2xl font-semibold mb-2">Your cart is empty</h2>
-            <p className="text-muted-foreground mb-6">Looks like you haven&apos;t added any courses yet.</p>
+            <p className="text-muted-foreground mb-6">Looks like you haven&apos;t added any items yet.</p>
             <Button asChild>
               <Link href="/courses">Explore Courses</Link>
             </Button>
@@ -88,31 +84,35 @@ export default function CartPage() {
         ) : (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-6">
-              {cartItems.map(item => (
-                <Card key={item.course.id} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 shadow-sm hover:shadow-md transition-shadow border">
-                  <Image
-                    src={item.course.imageUrl}
-                    alt={item.course.title}
-                    width={160}
-                    height={90}
-                    className="rounded-md object-cover w-full md:w-40 aspect-video"
-                    data-ai-hint={`${item.course.category} course cart item`}
-                  />
-                  <div className="flex-grow">
-                    <Link href={`/courses/${item.course.id}`} className="hover:underline">
-                      <h3 className="text-lg font-semibold line-clamp-2">{item.course.title}</h3>
-                    </Link>
-                    <p className="text-sm text-muted-foreground">By {item.course.providerInfo?.name || item.course.instructor}</p>
-                    <p className="text-sm text-muted-foreground">{item.course.category}</p>
-                  </div>
-                  <div className="flex flex-col items-end md:items-center gap-2 md:ml-auto mt-4 md:mt-0">
-                    <p className="text-lg font-semibold">₹{item.course.price.toLocaleString('en-IN')}</p>
-                    <Button variant="ghost" size="sm" onClick={() => handleRemoveItem(item.course.id)} className="text-red-500 hover:text-red-700">
-                      <Trash2 className="h-4 w-4 mr-1" /> Remove
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+              {cartItems.map(cartItem => {
+                const item = cartItem.item;
+                const linkHref = cartItem.type === 'course' ? `/courses/${item.id}` : `/ebooks/${item.id}`;
+                return (
+                    <Card key={`${cartItem.type}-${item.id}`} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 shadow-sm hover:shadow-md transition-shadow border">
+                    <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        width={160}
+                        height={cartItem.type === 'ebook' ? 213 : 90}
+                        className="rounded-md object-cover w-full md:w-40 aspect-video"
+                        data-ai-hint={`${item.category} ${cartItem.type} cart item`}
+                    />
+                    <div className="flex-grow">
+                        <Link href={linkHref} className="hover:underline">
+                        <h3 className="text-lg font-semibold line-clamp-2">{item.title}</h3>
+                        </Link>
+                        <p className="text-sm text-muted-foreground">By {cartItem.type === 'course' ? item.providerInfo?.name || item.instructor : item.author}</p>
+                        <p className="text-sm text-muted-foreground">{item.category}</p>
+                    </div>
+                    <div className="flex flex-col items-end md:items-center gap-2 md:ml-auto mt-4 md:mt-0">
+                        <p className="text-lg font-semibold">₹{item.price.toLocaleString('en-IN')}</p>
+                        <Button variant="ghost" size="sm" onClick={() => handleRemoveItem(item.id, cartItem.type)} className="text-red-500 hover:text-red-700">
+                        <Trash2 className="h-4 w-4 mr-1" /> Remove
+                        </Button>
+                    </div>
+                    </Card>
+                );
+              })}
             </div>
 
             <div className="lg:col-span-1">
@@ -137,16 +137,10 @@ export default function CartPage() {
                        <Tag className="h-4 w-4 mr-1"/> Apply
                     </Button>
                   </div>
-                  {discountCode === 'SAVE10' && subtotal > 0 && ( // Show discount only if applied and valid
-                    <div className="flex justify-between text-green-600">
-                      <span>Discount (SAVE10)</span>
-                      <span>-₹{(subtotal * 0.1).toLocaleString('en-IN')}</span>
-                    </div>
-                  )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>₹{(subtotal - (discountCode === 'SAVE10' ? subtotal * 0.1 : 0)).toLocaleString('en-IN')}</span>
+                    <span>₹{total.toLocaleString('en-IN')}</span>
                   </div>
                   <Button size="lg" className="w-full" 
                     onClick={() => {
@@ -156,7 +150,7 @@ export default function CartPage() {
                            router.push('/checkout');
                         }
                     }}
-                    disabled={!user && cartItems.length === 0} // Keep disabled logic simple
+                    disabled={!user && cartItems.length === 0}
                   >
                     {user ? "Proceed to Checkout" : "Login to Checkout"}
                   </Button>

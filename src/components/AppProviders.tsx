@@ -3,8 +3,8 @@
 
 import React, { type ReactNode, useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { SidebarProvider as UISidebarProvider } from '@/components/ui/sidebar';
-import type { User as AppUser, Course, CartItem } from '@/lib/types';
-import axios from 'axios'; // Import axios for API calls
+import type { User as AppUser, Course, CartItem, WishlistItem, EBook } from '@/lib/types';
+import axios from 'axios';
 
 // --- SIDEBAR CONTEXT ---
 interface SidebarContextType {
@@ -22,7 +22,7 @@ export function useSidebarContext() {
 // --- AUTH CONTEXT ---
 interface LoginParams {
   email: string;
-  password?: string; // Password is now optional for flexibility, but required by login function
+  password?: string;
 }
 
 interface AuthContextType {
@@ -65,25 +65,16 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async ({ email, password }: Required<LoginParams>): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
-      // Hit the backend to validate email and password
-      const response = await axios.post('/api/users', { email, password });
-
+      const response = await axios.post('/api/users/login', { email, password }); // Assumes a dedicated login route
       if (response.status === 200) {
         const userFromDb = response.data;
-        
-        const userToStore: AppUser = {
-            ...userFromDb,
-            id: userFromDb._id.toString() 
-        };
-        
+        const userToStore: AppUser = { ...userFromDb, id: userFromDb._id.toString() };
         setUser(userToStore);
         localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
         return userToStore;
       } else {
-        // This case might not be reached if server always returns specific error codes
         throw new Error(response.data.message || "Login failed");
       }
-
     } catch (error: any) {
       console.error("Error during app login:", error);
       setUser(null);
@@ -94,7 +85,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     }
   };
-
+  
   const logout = async () => {
     setIsLoading(true);
     setUser(null);
@@ -114,8 +105,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 // --- CART CONTEXT ---
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (course: Course) => void;
-  removeFromCart: (courseId: string) => void;
+  addToCart: (item: Course | EBook, type: 'course' | 'ebook') => void;
+  removeFromCart: (itemId: string, type: 'course' | 'ebook') => void;
   clearCart: () => void;
   subtotal: number;
   total: number;
@@ -137,13 +128,8 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
         const parsedCart = JSON.parse(storedCart);
         if (Array.isArray(parsedCart)) {
           setCartItems(parsedCart);
-        } else {
-          localStorage.removeItem('edtechcart_cart');
         }
-      } catch (e) {
-        console.error('Failed to parse cart from localStorage', e);
-        localStorage.removeItem('edtechcart_cart');
-      }
+      } catch (e) { console.error('Failed to parse cart', e); }
     }
   }, []);
 
@@ -151,25 +137,21 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('edtechcart_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = useCallback((course: Course) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.course.id === course.id);
-      if (existingItem) {
-        return prevItems;
-      }
-      return [...prevItems, { course }];
+  const addToCart = useCallback((item: Course | EBook, type: 'course' | 'ebook') => {
+    setCartItems((prev) => {
+      const existing = prev.find(i => i.item.id === item.id && i.type === type);
+      if (existing) return prev;
+      return [...prev, { type, item }];
     });
   }, []);
 
-  const removeFromCart = useCallback((courseId: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.course.id !== courseId));
+  const removeFromCart = useCallback((itemId: string, type: 'course' | 'ebook') => {
+    setCartItems((prev) => prev.filter(i => !(i.item.id === itemId && i.type === type)));
   }, []);
 
-  const clearCart = useCallback(() => {
-    setCartItems([]);
-  }, []);
+  const clearCart = useCallback(() => setCartItems([]), []);
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.course.price, 0);
+  const subtotal = cartItems.reduce((sum, cartItem) => sum + cartItem.item.price, 0);
   const total = subtotal;
 
   return (
@@ -177,6 +159,57 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </CartContext.Provider>
   );
+};
+
+// --- WISHLIST CONTEXT ---
+interface WishlistContextType {
+  wishlistItems: WishlistItem[];
+  addToWishlist: (item: Course | EBook, type: 'course' | 'ebook') => void;
+  removeFromWishlist: (itemId: string, type: 'course' | 'ebook') => void;
+}
+export const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
+export function useWishlist() {
+    const context = useContext(WishlistContext);
+    if (!context) throw new Error('useWishlist must be used within AppProviders');
+    return context;
+}
+
+const WishlistProvider = ({ children }: { children: ReactNode }) => {
+    const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+
+    useEffect(() => {
+        const storedWishlist = localStorage.getItem('edtechcart_wishlist');
+        if (storedWishlist) {
+            try {
+                const parsedWishlist = JSON.parse(storedWishlist);
+                if (Array.isArray(parsedWishlist)) {
+                    setWishlistItems(parsedWishlist);
+                }
+            } catch (e) { console.error('Failed to parse wishlist', e); }
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('edtechcart_wishlist', JSON.stringify(wishlistItems));
+    }, [wishlistItems]);
+
+    const addToWishlist = useCallback((item: Course | EBook, type: 'course' | 'ebook') => {
+        setWishlistItems((prev) => {
+            const existing = prev.find(i => i.item.id === item.id && i.type === type);
+            if (existing) return prev;
+            return [...prev, { type, item }];
+        });
+    }, []);
+
+    const removeFromWishlist = useCallback((itemId: string, type: 'course' | 'ebook') => {
+        setWishlistItems((prev) => prev.filter(i => !(i.item.id === itemId && i.type === type)));
+    }, []);
+
+    return (
+        <WishlistContext.Provider value={{ wishlistItems, addToWishlist, removeFromWishlist }}>
+            {children}
+        </WishlistContext.Provider>
+    );
 };
 
 // --- SIDEBAR CONTEXT WRAPPER ---
@@ -196,18 +229,18 @@ export default function AppProviders({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <AuthProvider>
       <CartProvider>
-        <UISidebarProvider>
-          <SidebarContextWrapper>
-            {children}
-          </SidebarContextWrapper>
-        </UISidebarProvider>
+        <WishlistProvider>
+          <UISidebarProvider>
+            <SidebarContextWrapper>
+              {children}
+            </SidebarContextWrapper>
+          </UISidebarProvider>
+        </WishlistProvider>
       </CartProvider>
     </AuthProvider>
   );

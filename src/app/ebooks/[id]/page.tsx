@@ -8,23 +8,46 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StarRating } from '@/components/ui/StarRating';
-import type { EBook } from '@/lib/types';
+import type { EBook, Review as ReviewType } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Users, Award, CheckCircle, Heart, ShieldCheck, Star, CalendarCheck, Gift, Loader2, BookCopy, Mail, Send, AlertTriangle, Instagram } from 'lucide-react';
+import { BookOpen, Users, Award, CheckCircle, Heart, ShieldCheck, Star, CalendarCheck, Gift, Loader2, BookCopy, Mail, Send, AlertTriangle, Instagram, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getEBookById, placeholderEBooks } from '@/lib/ebook-placeholder-data';
+import { getEBookById } from '@/lib/ebook-placeholder-data';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Badge } from '@/components/ui/badge';
 import { APP_NAME } from '@/lib/constants';
+import { useCart, useWishlist } from '@/components/AppProviders';
+
+function ReviewCard({ review }: { review: ReviewType }) {
+  return (
+    <Card className="mb-4 border shadow-sm bg-background">
+      <CardHeader className="flex flex-row items-start gap-4 p-4">
+        <Avatar className="h-11 w-11 border">
+          <AvatarImage src={review.userAvatar} alt={review.userName} data-ai-hint="user avatar review profile ebook detail"/>
+          <AvatarFallback>{review.userName.split(' ').map(n=>n[0]).join('')}</AvatarFallback>
+        </Avatar>
+        <div>
+          <CardTitle className="text-base font-semibold text-foreground">{review.userName}</CardTitle>
+          <StarRating rating={review.rating} size={16} />
+          <p className="text-xs text-muted-foreground mt-1">{new Date(review.createdAt).toLocaleDateString()}</p>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4 pt-0">
+        <p className="text-sm text-foreground leading-relaxed">{review.comment}</p>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function EBookDetailPage() {
   const params = useParams();
   const ebookId = params?.id as string;
   const { toast } = useToast();
+  const { addToCart, cartItems } = useCart();
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const [ebook, setEBook] = useState<EBook | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +67,38 @@ export default function EBookDetailPage() {
     }
     setIsLoading(false);
   }, [ebookId]);
+
+  const isInCart = ebook ? cartItems.some(item => item.type === 'ebook' && item.item.id === ebook.id) : false;
+  const isInWishlist = ebook ? wishlistItems.some(item => item.type === 'ebook' && item.item.id === ebook.id) : false;
+
+  const handleAddToCart = () => {
+    if (ebook) {
+      addToCart(ebook, 'ebook');
+      toast({
+        title: "Added to Cart!",
+        description: `"${ebook.title}" has been added to your cart.`,
+      });
+    }
+  };
+
+  const handleWishlistToggle = () => {
+    if (ebook) {
+      if (isInWishlist) {
+        removeFromWishlist(ebook.id, 'ebook');
+        toast({
+          title: "Removed from Wishlist",
+          description: `"${ebook.title}" has been removed from your wishlist.`,
+        });
+      } else {
+        addToWishlist(ebook, 'ebook');
+        toast({
+          title: "Added to Wishlist",
+          description: `"${ebook.title}" has been added to your wishlist.`,
+        });
+      }
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -96,7 +151,6 @@ export default function EBookDetailPage() {
                         <div className="flex items-center gap-1">
                            <StarRating rating={ebook.rating} size={18} /> <span className="ml-1">({ebook.reviewsCount} ratings)</span>
                         </div>
-                        <Badge variant="secondary" className="bg-yellow-400 text-slate-900 font-medium">{ebook.level}</Badge>
                     </div>
                     <p className="text-sm text-blue-100">By <span className="font-semibold text-white">{ebook.author}</span></p>
                 </div>
@@ -109,11 +163,11 @@ export default function EBookDetailPage() {
                             <div className="text-3xl font-bold text-primary">₹{ebook.price.toLocaleString('en-IN')}
                                 {ebook.originalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{ebook.originalPrice.toLocaleString('en-IN')}</span>}
                             </div>
-                            <Button size="lg" className="w-full text-base py-3" onClick={() => document.getElementById('purchase-instructions')?.scrollIntoView({ behavior: 'smooth' })}>
-                                <Send className="mr-2 h-5 w-5" /> How to Buy
+                            <Button size="lg" className="w-full text-base py-3" onClick={handleAddToCart} disabled={isInCart}>
+                                <ShoppingCart className="mr-2 h-5 w-5" /> {isInCart ? "In Cart" : "Add to Cart"}
                             </Button>
-                            <Button variant="outline" size="lg" className="w-full text-base py-3" onClick={() => toast({ title: "Added to Wishlist!", description: "This E-Book has been saved to your wishlist."})}>
-                                <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
+                            <Button variant="outline" size="lg" className="w-full text-base py-3" onClick={handleWishlistToggle}>
+                                <Heart className={cn("mr-2 h-5 w-5", isInWishlist && "fill-destructive text-destructive")} /> {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
                             </Button>
                         </CardContent>
                     </Card>
@@ -124,9 +178,10 @@ export default function EBookDetailPage() {
         <div className="container mt-8 md:mt-12 grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Tabs defaultValue="description" className="w-full mb-8">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="benefits">Benefits</TabsTrigger>
+                 <TabsTrigger value="reviews">Reviews ({ebook.reviews?.length || 0})</TabsTrigger>
                 <TabsTrigger value="purchase" id="purchase-instructions">How to Buy</TabsTrigger>
                 <TabsTrigger value="author">Author</TabsTrigger>
               </TabsList>
@@ -154,6 +209,21 @@ export default function EBookDetailPage() {
                         <p className="text-sm leading-relaxed text-foreground">{benefit}</p>
                       </div>
                     ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="reviews">
+                <Card className="shadow-md border bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-headline text-foreground">Reader Reviews</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {ebook.reviews && ebook.reviews.length > 0 ? (
+                      ebook.reviews.map(review => <ReviewCard key={review.id} review={review} />)
+                    ) : (
+                      <p className="text-muted-foreground py-6 text-center">No reviews yet for this E-Book. Be the first to share your experience!</p>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -227,11 +297,11 @@ export default function EBookDetailPage() {
                         <div className="text-3xl font-bold text-primary">₹{ebook.price.toLocaleString('en-IN')}
                             {ebook.originalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{ebook.originalPrice.toLocaleString('en-IN')}</span>}
                         </div>
-                        <Button size="lg" className="w-full text-base py-3" onClick={() => document.getElementById('purchase-instructions')?.scrollIntoView({ behavior: 'smooth' })}>
-                            <Send className="mr-2 h-5 w-5" /> How to Buy
+                        <Button size="lg" className="w-full text-base py-3" onClick={handleAddToCart} disabled={isInCart}>
+                            <ShoppingCart className="mr-2 h-5 w-5" /> {isInCart ? "In Cart" : "Add to Cart"}
                         </Button>
-                        <Button variant="outline" size="lg" className="w-full text-base py-3">
-                            <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
+                        <Button variant="outline" size="lg" className="w-full text-base py-3" onClick={handleWishlistToggle}>
+                            <Heart className={cn("mr-2 h-5 w-5", isInWishlist && "fill-destructive text-destructive")} /> {isInWishlist ? "In Wishlist" : "Add to Wishlist"}
                         </Button>
                     </CardContent>
                 </Card>
