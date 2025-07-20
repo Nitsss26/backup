@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import emailjs from 'emailjs-com';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,12 +18,7 @@ import { useAuth } from '@/components/AppProviders';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { APP_NAME } from '@/lib/constants';
 import axios from 'axios';
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp"
-
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -39,7 +35,6 @@ const registerSchema = z.object({
   path: ["confirmPassword"],
 });
 
-
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -54,6 +49,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   const [showOtp, setShowOtp] = useState(false);
   const [formData, setFormData] = useState<RegisterFormValues | null>(null);
   const [otpValue, setOtpValue] = useState("");
+  const [generatedOtp, setGeneratedOtp] = useState("");
 
   const loginForm = useForm<LoginFormValues>({ 
     resolver: zodResolver(loginSchema),
@@ -72,11 +68,11 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         const redirectUrl = searchParams.get('redirect');
         if (redirectUrl) {
           router.push(redirectUrl);
-        } else {
-            const dashboardLink = user.role === 'admin' ? '/admin' : 
-                                  user.role === 'provider' ? '/dashboard/seller' : 
-                                  '/'; // Redirect students to homepage
+        } else if (user.role === 'admin' || user.role === 'provider') {
+            const dashboardLink = user.role === 'admin' ? '/admin' : '/dashboard/seller';
             router.push(dashboardLink);
+        } else {
+            router.push('/'); // Students to homepage
         }
       }
     } catch (error: any) {
@@ -87,13 +83,42 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
   };
   
   const onRegisterSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
+    setIsLoading(true);
     setFormData(data);
-    setShowOtp(true);
-    toast({ title: "Verify Your Account", description: "An OTP has been sent to your email (use 123456)." });
+    
+    // --- Send OTP via EmailJS ---
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(newOtp);
+
+    const templateParams = {
+        name: data.name,
+        email: data.email,
+        otp: newOtp
+    };
+
+    try {
+      await emailjs.send(
+        'service_28cc2rw', // Your Service ID
+        'template_gc6r48o', // Your Template ID
+        templateParams,
+        'g1Wv1-bHMbYU_OURY' // Your Public Key
+      );
+      toast({ title: "Verify Your Account", description: "A 6-digit verification code has been sent to your email." });
+      setShowOtp(true);
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      toast({
+        title: "Failed to Send Verification Email",
+        description: "There was an error sending your verification code. Please check your email and try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const handleOtpSubmit = async () => {
-      if (otpValue !== '123456') {
+      if (otpValue !== generatedOtp) {
           toast({ title: "Invalid OTP", description: "Please enter the correct OTP.", variant: "destructive" });
           return;
       }
@@ -104,13 +129,10 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         const response = await axios.post('/api/users', formData);
         if (response.status === 201) {
           toast({ title: "Registration Successful", description: "You can now log in with your credentials." });
-          // Automatically log the user in after successful registration
           const user = await login({ email: formData.email, password: formData.password });
            if (user) {
-              // Redirect to home page after signup
-              router.push('/');
+              router.push('/'); // Redirect to home page after signup
            } else {
-              // Fallback to login page if auto-login fails
               setMode('login');
               setShowOtp(false);
               loginForm.reset({ email: formData.email, password: '' });
@@ -133,7 +155,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         <div className="space-y-6 text-center">
             <KeyRound className="mx-auto h-12 w-12 text-primary" />
             <h3 className="text-xl font-semibold">Enter Verification Code</h3>
-            <p className="text-muted-foreground text-sm">Please enter the 6-digit code sent to your email. (Hint: it's 123456)</p>
+            <p className="text-muted-foreground text-sm">Please enter the 6-digit code sent to your email.</p>
             <div className="flex justify-center">
                 <InputOTP maxLength={6} value={otpValue} onChange={setOtpValue}>
                     <InputOTPGroup>
@@ -160,12 +182,12 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
           <div className="space-y-1.5">
             <Label htmlFor="login-email">Email</Label>
-            <Input id="login-email" {...loginForm.register('email')} placeholder="name@example.com" />
+            <Input id="login-email" {...loginForm.register('email')} placeholder="Email" />
             {loginForm.formState.errors.email && <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="login-password">Password</Label>
-            <Input id="login-password" type="password" {...loginForm.register('password')} placeholder="••••••••" />
+            <Input id="login-password" type="password" {...loginForm.register('password')} placeholder="Password" />
             {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
           </div>
           <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
