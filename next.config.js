@@ -8,6 +8,12 @@ const nextConfig = {
     remotePatterns: [ 
       {
         protocol: 'https',
+        hostname: 'picasso.cosmofeed.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
