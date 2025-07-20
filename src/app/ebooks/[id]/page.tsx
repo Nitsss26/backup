@@ -1,0 +1,244 @@
+
+"use client";
+
+import Image from 'next/image';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { StarRating } from '@/components/ui/StarRating';
+import type { EBook } from '@/lib/types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, Users, Award, CheckCircle, Heart, ShieldCheck, Star, CalendarCheck, Gift, Loader2, BookCopy, Mail, Send, AlertTriangle, Instagram } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { getEBookById, placeholderEBooks } from '@/lib/ebook-placeholder-data';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
+export default function EBookDetailPage() {
+  const params = useParams();
+  const ebookId = params?.id as string;
+  const { toast } = useToast();
+
+  const [ebook, setEBook] = useState<EBook | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!ebookId) {
+      setError("E-Book ID is missing from URL.");
+      setIsLoading(false);
+      return;
+    }
+    const fetchedEBook = getEBookById(ebookId);
+    if (fetchedEBook) {
+      setEBook(fetchedEBook);
+    } else {
+      setError(`E-Book with ID ${ebookId} not found.`);
+    }
+    setIsLoading(false);
+  }, [ebookId]);
+
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <main className="container py-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-lg text-muted-foreground">Loading E-Book details...</p>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !ebook) {
+    return (
+      <>
+        <Header />
+        <main className="container py-8 text-center">
+          <h1 className="text-2xl font-bold text-destructive mb-4">{error || "E-Book could not be loaded."}</h1>
+          <p className="text-muted-foreground mb-6">
+            The E-Book you are looking for might not exist or there was an issue retrieving its details.
+          </p>
+          <Link href="/" className="text-primary hover:underline mt-4 inline-block">
+            Back to Home
+          </Link>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'E-Books', href: '/ebooks' },
+    { label: ebook.title },
+  ];
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow py-8 bg-slate-50 dark:bg-slate-900">
+        <section className="bg-gradient-to-br from-primary/80 via-blue-600 to-indigo-700 text-primary-foreground py-12 md:py-16">
+            <div className="container grid md:grid-cols-3 gap-8 items-center">
+                <div className="md:col-span-2 space-y-4">
+                    <Breadcrumbs items={breadcrumbItems} className="mb-2 [&_a]:text-blue-100 [&_a:hover]:text-white [&_span]:text-blue-100 [&_svg]:text-blue-100"/>
+                    <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-headline text-white">{ebook.title}</h1>
+                    <p className="text-lg text-blue-100/90">{ebook.shortDescription}</p>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-blue-50">
+                        <div className="flex items-center gap-1">
+                           <StarRating rating={ebook.rating} size={18} /> <span className="ml-1">({ebook.reviewsCount} ratings)</span>
+                        </div>
+                        <Badge variant="secondary" className="bg-yellow-400 text-slate-900 font-medium">{ebook.level}</Badge>
+                    </div>
+                    <p className="text-sm text-blue-100">By <span className="font-semibold text-white">{ebook.author}</span></p>
+                </div>
+                <div className="hidden md:block md:col-span-1 row-start-1 md:row-start-auto">
+                     <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
+                        <CardHeader className="p-0">
+                            <Image src={ebook.imageUrl} alt={ebook.title} width={600} height={800} className="rounded-t-lg object-cover w-full aspect-[3/4]" data-ai-hint="ebook cover design"/>
+                        </CardHeader>
+                        <CardContent className="p-5 space-y-3">
+                            <div className="text-3xl font-bold text-primary">₹{ebook.price.toLocaleString('en-IN')}
+                                {ebook.originalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{ebook.originalPrice.toLocaleString('en-IN')}</span>}
+                            </div>
+                            <Button size="lg" className="w-full text-base py-3" onClick={() => document.getElementById('purchase-instructions')?.scrollIntoView({ behavior: 'smooth' })}>
+                                <Send className="mr-2 h-5 w-5" /> How to Buy
+                            </Button>
+                            <Button variant="outline" size="lg" className="w-full text-base py-3" onClick={() => toast({ title: "Added to Wishlist!", description: "This E-Book has been saved to your wishlist."})}>
+                                <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </section>
+
+        <div className="container mt-8 md:mt-12 grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="description" className="w-full mb-8">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-4 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
+                <TabsTrigger value="description">Description</TabsTrigger>
+                <TabsTrigger value="benefits">Benefits</TabsTrigger>
+                <TabsTrigger value="purchase" id="purchase-instructions">How to Buy</TabsTrigger>
+                <TabsTrigger value="author">Author</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="description">
+                <Card className="shadow-md border bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-headline text-foreground">About This E-Book</CardTitle>
+                  </CardHeader>
+                  <CardContent className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground whitespace-pre-line">
+                    {ebook.description}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              <TabsContent value="benefits">
+                <Card className="shadow-md border bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-headline text-foreground">What You&apos;ll Gain</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid md:grid-cols-2 gap-x-6 gap-y-4">
+                    {ebook.benefits?.map((benefit, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                        <p className="text-sm leading-relaxed text-foreground">{benefit}</p>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="purchase">
+                <Card className="shadow-md border bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-headline text-foreground">Purchase & Delivery Instructions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {ebook.importantNotice && (
+                        <Alert variant="warning">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Important Notice!</AlertTitle>
+                            <AlertDescription>{ebook.importantNotice}</AlertDescription>
+                        </Alert>
+                    )}
+                    <ol className="list-decimal space-y-3 pl-5 text-base text-foreground">
+                        {ebook.purchaseInstructions.map((instruction, index) => (
+                            <li key={index} dangerouslySetInnerHTML={{ __html: instruction }} />
+                        ))}
+                    </ol>
+                    <div className="text-sm text-muted-foreground">
+                        <strong>Please Note:</strong> This E-Book is sold directly by the author. Follow the steps above carefully to ensure you receive your copy. {APP_NAME} facilitates the listing, but the transaction is directly with the seller.
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="author">
+                 <Card className="shadow-md border bg-card">
+                    <CardHeader>
+                        <CardTitle className="text-2xl font-headline text-foreground">About the Author</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+                        <Avatar className="h-28 w-28 md:h-36 md:w-36 border-2 border-primary p-1">
+                            <AvatarImage src={ebook.providerInfo.logoUrl} alt={ebook.providerInfo.name}/>
+                            <AvatarFallback className="text-4xl">{ebook.providerInfo.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-bold text-primary">{ebook.providerInfo.name}</h3>
+                            <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
+                                {ebook.providerInfo.email && (
+                                    <Button variant="outline" asChild size="sm">
+                                        <a href={`mailto:${ebook.providerInfo.email}`}><Mail className="mr-2 h-4 w-4"/>Contact Author</a>
+                                    </Button>
+                                )}
+                                {ebook.providerInfo.instagramUrl && (
+                                     <Button variant="outline" asChild size="sm">
+                                        <a href={ebook.providerInfo.instagramUrl} target="_blank" rel="noopener noreferrer"><Instagram className="mr-2 h-4 w-4"/>Follow on Instagram</a>
+                                    </Button>
+                                )}
+                            </div>
+                             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+                                For any questions regarding the E-Book content or purchase process, please contact the author directly using the links above.
+                            </p>
+                        </div>
+                    </CardContent>
+                 </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="lg:hidden mt-8 md:mt-0"> 
+                 <Card className="shadow-xl sticky top-24 border-2 border-primary/30 bg-card">
+                    <CardHeader className="p-0 md:hidden">
+                        <Image src={ebook.imageUrl} alt={ebook.title} width={600} height={800} className="rounded-t-lg object-cover w-full aspect-[3/4]" data-ai-hint="ebook cover mobile"/>
+                    </CardHeader>
+                    <CardContent className="p-5 space-y-3">
+                        <div className="text-3xl font-bold text-primary">₹{ebook.price.toLocaleString('en-IN')}
+                            {ebook.originalPrice && <span className="ml-2 text-lg text-muted-foreground line-through">₹{ebook.originalPrice.toLocaleString('en-IN')}</span>}
+                        </div>
+                        <Button size="lg" className="w-full text-base py-3" onClick={() => document.getElementById('purchase-instructions')?.scrollIntoView({ behavior: 'smooth' })}>
+                            <Send className="mr-2 h-5 w-5" /> How to Buy
+                        </Button>
+                        <Button variant="outline" size="lg" className="w-full text-base py-3">
+                            <Heart className="mr-2 h-5 w-5" /> Add to Wishlist
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+            {/* You can add related E-Books here later if needed */}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}

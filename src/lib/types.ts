@@ -40,6 +40,36 @@ export interface Course {
   detailedScheduleDescription?: string; 
 }
 
+export interface EBook {
+  id: string;
+  _id?: string;
+  title: string;
+  author: string;
+  rating: number;
+  reviewsCount: number;
+  price: number;
+  originalPrice?: number;
+  category: string;
+  imageUrl: string;
+  pages?: number;
+  level?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+  description: string;
+  benefits?: string[];
+  lastUpdated?: string;
+  language?: string;
+  providerInfo: {
+    name: string;
+    logoUrl?: string;
+    verified?: boolean;
+    email?: string;
+    instagramUrl?: string;
+  };
+  shortDescription: string;
+  tags?: string[];
+  purchaseInstructions: string[];
+  importantNotice?: string;
+}
+
 export interface Module {
   id: string;
   title: string;
