@@ -18,16 +18,17 @@ export async function POST(request: NextRequest) {
     }
     
     // --- Check if user already exists ---
-    const existingUser = await UserModel.findOne({ email }).lean();
+    const existingUser = await UserModel.findOne({ email: email.toLowerCase() }).lean();
     if (existingUser) {
         return NextResponse.json({ message: 'An account with this email already exists.' }, { status: 409 });
     }
 
     // --- Create New User (as student by default) ---
+    // In a real app, you would hash the password here using something like bcrypt
     const newUser = new UserModel({
       name,
-      email,
-      password, // In a real app, this should be hashed.
+      email: email.toLowerCase(),
+      password, // Storing plain text password as per current simplified setup. HASH THIS IN PRODUCTION.
       role: 'student', // All new signups are students
       verificationStatus: 'unverified',
       documentsSubmitted: false,
@@ -43,12 +44,16 @@ export async function POST(request: NextRequest) {
     // Exclude password from the final response before sending it to the client
     const { password: _, ...userResponse } = newUser.toObject();
 
-    return NextResponse.json(userResponse, { status: 201 });
+    return NextResponse.json({ ...userResponse, id: newUser._id.toString() }, { status: 201 });
 
   } catch (error: any) {
     console.error('[API /api/users POST - SIGNUP] Error:', error);
     if (error.name === 'ValidationError') {
-        return NextResponse.json({ message: 'Validation Error', errors: error.errors }, { status: 400 });
+        let errors: Record<string, string> = {};
+        for (let field in error.errors) {
+            errors[field] = error.errors[field].message;
+        }
+        return NextResponse.json({ message: 'Validation Error', errors }, { status: 400 });
     }
     return NextResponse.json(
       { message: 'Internal Server Error', error: error.message },

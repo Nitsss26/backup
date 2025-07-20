@@ -13,7 +13,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Email and password are required.' }, { status: 400 });
     }
 
-    const user = await UserModel.findOne({ email }).select('+password');
+    // Special case for the hardcoded seller
+    if (email.toLowerCase() === 'kaushik.learning@example.com') {
+      if (password !== 'password123') {
+        return NextResponse.json({ message: 'Invalid credentials for seller.' }, { status: 401 });
+      }
+      // Find the seller but don't check the password in the general way
+      const seller = await UserModel.findOne({ email: email.toLowerCase() }).lean();
+      if (!seller) {
+        // Optionally create the seller if they don't exist
+        return NextResponse.json({ message: 'Seller account not found.' }, { status: 404 });
+      }
+      const { password: _, ...sellerResponse } = seller;
+      return NextResponse.json({ ...sellerResponse, id: seller._id.toString() }, { status: 200 });
+    }
+
+    const user = await UserModel.findOne({ email: email.toLowerCase() }).select('+password');
+
     if (!user) {
       return NextResponse.json({ message: 'Invalid credentials.' }, { status: 401 });
     }
@@ -25,18 +41,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Invalid credentials.' }, { status: 401 });
     }
     
-    // Hardcoded check for the specific seller
-    if (email.toLowerCase() === 'kaushik.learning@example.com') {
-      if (password !== 'password123') {
-         return NextResponse.json({ message: 'Invalid credentials for seller.' }, { status: 401 });
-      }
-      user.role = 'provider'; // Ensure role is correct
-    }
-
-
     const { password: _, ...userResponse } = user.toObject();
 
-    return NextResponse.json(userResponse, { status: 200 });
+    return NextResponse.json({ ...userResponse, id: user._id.toString() }, { status: 200 });
 
   } catch (error: any) {
     console.error('[API LOGIN] Error:', error);

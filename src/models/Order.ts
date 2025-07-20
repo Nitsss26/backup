@@ -1,13 +1,13 @@
 
+
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 import type { IUser } from './User';
 
 // This allows referencing different models in the same field
 const orderItemSchema = new Schema({
-  item: {
-    type: Schema.Types.ObjectId,
+  itemId: { // Store ID as string to accommodate both ObjectId and custom strings
+    type: String, 
     required: true,
-    refPath: 'items.itemType' // This field tells Mongoose which model to look in
   },
   itemType: {
     type: String,
@@ -26,7 +26,7 @@ const orderItemSchema = new Schema({
 }, { _id: false });
 
 export interface IOrderItem extends Document {
-  item: mongoose.Types.ObjectId;
+  itemId: string; // Changed to string
   itemType: 'Course' | 'EBook';
   priceAtPurchase: number;
   titleAtPurchase: string;

@@ -65,7 +65,7 @@ export interface EBook {
   };
   shortDescription: string;
   tags?: string[];
-  purchaseInstructions: string[];
+  purchaseInstructions?: string[];
   importantNotice?: string;
   reviews?: Review[];
 }
@@ -98,8 +98,8 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: string;
-  helpfulVotes: number;
-  unhelpfulVotes: number;
+  helpfulVotes?: number;
+  unhelpfulVotes?: number;
   moderationStatus?: 'pending' | 'approved' | 'rejected';
 }
 
@@ -107,8 +107,10 @@ export type UserRole = 'student' | 'provider' | 'admin';
 
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
+  password?: string;
   role: UserRole;
   avatarUrl?: string;
   bio?: string; 
@@ -164,7 +166,12 @@ export interface Certificate {
 export interface Order {
   id: string;
   userId: string;
-  items: Array<{ type: 'course' | 'ebook', item: Course | EBook }>; 
+  items: Array<{
+    item: Course | EBook,
+    type: 'course' | 'ebook',
+    priceAtPurchase: number,
+    titleAtPurchase: string
+  }>;
   totalAmount: number;
   paymentMethod: string;
   status: 'pending' | 'completed' | 'failed' | 'refunded';

@@ -8,19 +8,20 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { StarRating } from '@/components/ui/StarRating';
-import type { EBook, Review as ReviewType } from '@/lib/types';
+import type { EBook, Review as ReviewType, Course } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Users, Award, CheckCircle, Heart, ShieldCheck, Star, CalendarCheck, Gift, Loader2, BookCopy, Mail, Send, AlertTriangle, Instagram, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getEBookById } from '@/lib/ebook-placeholder-data';
+import { getEBookById, placeholderEBooks } from '@/lib/ebook-placeholder-data';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { APP_NAME } from '@/lib/constants';
 import { useCart, useWishlist } from '@/components/AppProviders';
 import { cn } from '@/lib/utils';
+import { SubscriptionCard } from '@/components/SubscriptionCard';
 
 function ReviewCard({ review }: { review: ReviewType }) {
   return (
@@ -51,6 +52,7 @@ export default function EBookDetailPage() {
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
 
   const [ebook, setEBook] = useState<EBook | null>(null);
+  const [relatedEbooks, setRelatedEbooks] = useState<EBook[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,6 +65,11 @@ export default function EBookDetailPage() {
     const fetchedEBook = getEBookById(ebookId);
     if (fetchedEBook) {
       setEBook(fetchedEBook);
+      // Simple logic for related products: filter by category, exclude self
+      const related = placeholderEBooks
+        .filter(b => b.category === fetchedEBook.category && b.id !== fetchedEBook.id)
+        .slice(0, 4);
+      setRelatedEbooks(related);
     } else {
       setError(`E-Book with ID ${ebookId} not found.`);
     }
@@ -99,7 +106,6 @@ export default function EBookDetailPage() {
       }
     }
   };
-
 
   if (isLoading) {
     return (
@@ -179,12 +185,11 @@ export default function EBookDetailPage() {
         <div className="container mt-8 md:mt-12 grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Tabs defaultValue="description" className="w-full mb-8">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="benefits">Benefits</TabsTrigger>
-                 <TabsTrigger value="reviews">Reviews ({ebook.reviews?.length || 0})</TabsTrigger>
-                <TabsTrigger value="purchase" id="purchase-instructions">How to Buy</TabsTrigger>
-                <TabsTrigger value="author">Author</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews ({ebook.reviews?.length || 0})</TabsTrigger>
+                {ebook.purchaseInstructions && <TabsTrigger value="purchase" id="purchase-instructions">How to Buy</TabsTrigger>}
               </TabsList>
 
               <TabsContent value="description">
@@ -229,6 +234,7 @@ export default function EBookDetailPage() {
                 </Card>
               </TabsContent>
 
+              {ebook.purchaseInstructions && (
               <TabsContent value="purchase">
                 <Card className="shadow-md border bg-card">
                   <CardHeader>
@@ -248,43 +254,12 @@ export default function EBookDetailPage() {
                         ))}
                     </ol>
                     <div className="text-sm text-muted-foreground">
-                        <strong>Please Note:</strong> This E-Book is sold directly by the author. Follow the steps above carefully to ensure you receive your copy. {APP_NAME} facilitates the listing, but the transaction is directly with the seller.
+                        <strong>Please Note:</strong> This E-Book is sold directly by the author. Follow the steps above carefully to ensure you receive your copy. {APP_NAME} facilitates the listing, but the transaction is directly with the seller. For any issues, please contact the author at <a href={`mailto:${ebook.providerInfo.email}`} className="text-primary hover:underline">{ebook.providerInfo.email}</a>.
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
-
-              <TabsContent value="author">
-                 <Card className="shadow-md border bg-card">
-                    <CardHeader>
-                        <CardTitle className="text-2xl font-headline text-foreground">About the Author</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-                        <Avatar className="h-28 w-28 md:h-36 md:w-36 border-2 border-primary p-1">
-                            <AvatarImage src={ebook.providerInfo.logoUrl} alt={ebook.providerInfo.name}/>
-                            <AvatarFallback className="text-4xl">{ebook.providerInfo.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-primary">{ebook.providerInfo.name}</h3>
-                            <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
-                                {ebook.providerInfo.email && (
-                                    <Button variant="outline" asChild size="sm">
-                                        <a href={`mailto:${ebook.providerInfo.email}`}><Mail className="mr-2 h-4 w-4"/>Contact Author</a>
-                                    </Button>
-                                )}
-                                {ebook.providerInfo.instagramUrl && (
-                                     <Button variant="outline" asChild size="sm">
-                                        <a href={ebook.providerInfo.instagramUrl} target="_blank" rel="noopener noreferrer"><Instagram className="mr-2 h-4 w-4"/>Follow on Instagram</a>
-                                    </Button>
-                                )}
-                            </div>
-                             <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-                                For any questions regarding the E-Book content or purchase process, please contact the author directly using the links above.
-                            </p>
-                        </div>
-                    </CardContent>
-                 </Card>
-              </TabsContent>
+              )}
             </Tabs>
           </div>
 
@@ -307,7 +282,16 @@ export default function EBookDetailPage() {
                     </CardContent>
                 </Card>
             </div>
-            {/* You can add related E-Books here later if needed */}
+             {relatedEbooks.length > 0 && (
+                <section className="mt-12">
+                <h2 className="text-2xl font-bold mb-6 font-headline text-foreground">Related E-Books</h2>
+                <div className="grid grid-cols-1 gap-6">
+                    {relatedEbooks.map((relatedEbook) => (
+                        <SubscriptionCard key={relatedEbook.id} subscription={{...relatedEbook, url: `/ebooks/${relatedEbook.id}`}} />
+                    ))}
+                </div>
+                </section>
+            )}
           </div>
         </div>
       </main>
