@@ -23,6 +23,9 @@ const placeholderReviews: { [key: string]: Review[] } = {
   ],
   "ebook-005": [
      { id: 'review-ebook-5-1', _id: generateObjectIdString(), courseId: 'ebook-005', userId: 'user-sample-9', userName: 'Karan Mehra', userAvatar: 'https://i.pravatar.cc/150?u=karan', rating: 5, comment: "I didn’t think I had room to grow—but I was wrong. This changed everything. The biohacking tools are something I've never seen before.", createdAt: new Date('2024-07-02T14:00:00Z').toISOString() },
+  ],
+  "ebook-006": [
+     { id: 'review-ebook-6-1', _id: generateObjectIdString(), courseId: 'ebook-006', userId: 'user-sample-10', userName: 'Anjali Sharma', userAvatar: 'https://i.pravatar.cc/150?u=anjali', rating: 5, comment: "The 'HeightMax Method' is a must-read for anyone looking to naturally enhance their stature. The exercises and nutritional advice are top-notch and easy to follow.", createdAt: new Date('2024-07-03T11:00:00Z').toISOString() },
   ]
 };
 
@@ -55,7 +58,9 @@ export const placeholderEBooks: EBook[] = [
     faqs: [
         {q: "Is this only for men?", a: "While the guide is written with a male audience in mind, the principles of skincare, facial exercises, and grooming can be beneficial for everyone."},
         {q: "How long until I see results?", a: "Results vary, but many users report seeing noticeable improvements within 3-4 weeks of consistent application of the methods described."}
-    ]
+    ],
+    purchaseInstructions: ["Take a screenshot of the transaction confirmation. Email the screenshot along with your name and email address to <strong>pacerunners1@gmail.com</strong>.", "Once we confirm the payment, we will send you the download link for the ebook to your email address within 6 hours."],
+    importantNotice: "Price Increase Imminent! The price of our ebook is set to increase in just a few days! Don’t miss out on this opportunity to grab it at the current low price."
   },
   {
     id: 'ebook-002',
@@ -85,7 +90,9 @@ export const placeholderEBooks: EBook[] = [
     faqs: [
         {q: "What is 'lookmaxing'?", a: "Lookmaxing is the process of improving one's physical appearance through various means, including skincare, fitness, style, and grooming."},
         {q: "Is mewing safe?", a: "When done correctly as described in the guide, mewing (correct tongue posture) is generally considered safe. However, if you have any dental or jaw issues, it's best to consult with a professional."}
-    ]
+    ],
+    purchaseInstructions: ["Take a screenshot of the transaction confirmation. Email the screenshot along with your name and email address to <strong>Ruhanshr123@gmail.com</strong>.", "You will receive the E-Book download link within 6 hours after payment confirmation."],
+    importantNotice: "This is a digital product. No physical item will be shipped."
   },
   {
     id: 'ebook-003',
@@ -103,16 +110,17 @@ export const placeholderEBooks: EBook[] = [
         "Structured morning and evening rituals for growth.",
         "Loosen tight muscles that restrict vertical expansion.",
         "Natural ways to stimulate growth hormone release.",
-        "Stay consistent with built-in habit trackers.",
-        "Overcome limiting beliefs and grow with confidence.",
-        "Practical, no-fluff, and result-oriented."
+        "Weekly Planner: Stay consistent with built-in habit trackers.",
+        "Mindset Coaching: Overcome limiting beliefs and grow with confidence.",
+        "Practical, no-fluff, and result-oriented.",
+        "Focuses on consistency and sustainability."
     ],
     providerInfo: {
         name: "Ruhan",
         email: "Ruhanshr123@gmail.com",
     },
     reviews: placeholderReviews['ebook-003'],
-    faqs: [
+     faqs: [
         {q: "Does this work after puberty?", a: "Yes, the methods focus on maximizing your potential by correcting posture, improving spinal decompression, and optimizing hormonal health, which can lead to height increases even after growth plates have fused."},
         {q: "What kind of equipment do I need?", a: "Most exercises require minimal to no equipment. Some advanced techniques might suggest items like a pull-up bar, but alternatives are provided."}
     ]
@@ -144,7 +152,8 @@ export const placeholderEBooks: EBook[] = [
     reviews: placeholderReviews['ebook-004'],
      faqs: [
         {q: "Which version of Excel is this for?", a: "The concepts taught are fundamental and applicable to all modern versions of Excel, including Excel 2016, 2019, 2021, and Microsoft 365."},
-        {q: "Do I get all 4 e-books for the price of Rs 99?", a: "Yes, the price of Rs 99 includes all four e-books in the 'Beginning of Excel' series, giving you over 1,000 pages of content."}
+        {q: "Do I get all 4 e-books for the price of Rs 99?", a: "Yes, the price of Rs 99 includes all four e-books in the 'Beginning of Excel' series, giving you over 1,000 pages of content."},
+        {q: "How will this E-Book help me in my day-to-day tasks?", a: "This e-book will equip you with essential Excel skills to manage data, create reports, and automate tasks, saving you time and improving your efficiency at work or in your studies."},
     ]
   },
   {
@@ -176,6 +185,44 @@ export const placeholderEBooks: EBook[] = [
         {q: "What is 'biohacking'?", a: "Biohacking is a broad term for using science and technology to make your body function better and more efficiently. In this guide, it refers to specific techniques like red light therapy and nutritional strategies to support growth."},
         {q: "Is this guide safe?", a: "All methods described are natural and based on established principles of fitness and nutrition. However, it's always recommended to consult with a healthcare professional before starting any new fitness or diet regimen."}
     ]
+  },
+   {
+    id: 'ebook-006',
+    title: "Heightmax Method: Grow Taller After Puberty",
+    author: "Maxmen",
+    rating: 4.9,
+    reviewsCount: 85,
+    price: 499,
+    originalPrice: 1499,
+    category: "Health & Fitness",
+    imageUrl: "https://picasso.cosmofeed.com/media.cosmofeed.com/Screenshot-2024-06-16-015018-2024-18-06-08-20-38.png?w=600&&q=100",
+    shortDescription: "Your ultimate guide to achieving your desired height naturally and effectively, even after puberty.",
+    description: "Unlock Your Tallest Potential with \"The HeighMax Method\" 🌱. Are you ready to reach new heights and stand tall with confidence? This ebook is more than just a collection of tips; it's a blueprint crafted to elevate your stature and boost your self-esteem. We delve into the science and art of height enhancement, providing practical strategies and a deep understanding of the factors that influence height growth.",
+    benefits: [
+        "Boost Confidence: Gain the stature that reflects your inner confidence.",
+        "Natural Approach: Embrace a natural, science-backed method to enhance your height.",
+        "Holistic Well-being: Focus on nutrition, exercise, and mental health.",
+        "Improved Sleep: Discover how sleep quality influences growth.",
+        "Targeted Exercises: Access a curated collection of exercises to stimulate growth.",
+        "Mindfulness Techniques: Incorporate mindfulness into your routine.",
+        "Educational Resource: Equip yourself with knowledge about factors influencing height.",
+        "Transformative Lifestyle: Embark on a journey that enhances your height and lifestyle."
+    ],
+    providerInfo: {
+        name: "Maxmen",
+        email: "pacerunners1@gmail.com",
+    },
+    reviews: placeholderReviews['ebook-006'],
+    faqs: [
+        {q: "Is it really possible to grow taller after puberty?", a: "While your primary growth plates may have fused, this guide focuses on spinal decompression, posture correction, and optimizing health factors that can contribute to a noticeable increase in your functional height."},
+        {q: "How soon can I expect to see results?", a: "Consistency is key. Most users report feeling better and noticing postural changes within a few weeks, with measurable height improvements possible within 2-3 months."}
+    ],
+    purchaseInstructions: [
+        "Take a screenshot of the transaction confirmation.",
+        "Email the screenshot along with your name and email address to <strong>pacerunners1@gmail.com</strong>.",
+        "Receive Your Ebook: Once we confirm the payment, we will send you the download link for the ebook to your email address within 6 hours."
+    ],
+    importantNotice: "Price Increase Imminent! The price of our ebook is set to increase in just a few days! Don’t miss out on this opportunity to grab it at the current low price."
   }
 ];
 
