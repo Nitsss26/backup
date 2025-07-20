@@ -175,7 +175,7 @@ export default function CourseDetailPage() {
     return (
       <>
         <Header />
-        <main className="container py-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+        <main className="container py-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-12rem)] w-full">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
           <p className="text-lg text-muted-foreground">Loading course details...</p>
         </main>
@@ -222,7 +222,7 @@ export default function CourseDetailPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full">
       <Header />
       <main className="flex-grow py-8 bg-slate-50 dark:bg-slate-900">
         <section className="bg-gradient-to-r from-primary/80 via-blue-600 to-blue-700 text-primary-foreground py-12 md:py-16">

@@ -166,11 +166,11 @@ export default function CheckoutPage() {
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="name">Full Name</Label>
-                        <Input id="name" placeholder="Priya Sharma" defaultValue={user.name} required/>
+                        <Input id="name" placeholder="Name" defaultValue={user.name} required/>
                       </div>
                       <div>
                         <Label htmlFor="email">Email Address</Label>
-                        <Input id="email" type="email" placeholder="you@example.com" defaultValue={user.email} required readOnly/>
+                        <Input id="email" type="email" placeholder="Email" defaultValue={user.email} required readOnly/>
                       </div>
                     </div>
                     <div>

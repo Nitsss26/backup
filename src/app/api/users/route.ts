@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     await dbConnect();
 
     const body = await request.json();
-    const { email, password, name, role = 'student' } = body;
+    const { email, password, name } = body;
 
     // --- Validation ---
     if (!email || !password || !name) {
@@ -23,12 +23,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ message: 'An account with this email already exists.' }, { status: 409 });
     }
 
-    // --- Create New User ---
+    // --- Create New User (as student by default) ---
     const newUser = new UserModel({
       name,
       email,
       password, // In a real app, this should be hashed.
-      role,
+      role: 'student', // All new signups are students
       verificationStatus: 'unverified',
       documentsSubmitted: false,
       notificationPreferences: {

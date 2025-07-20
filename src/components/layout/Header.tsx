@@ -65,7 +65,7 @@ export function Header() {
   };
 
   const navLinks = [
-    { href: '/courses', label: 'Courses', icon: BookOpenText },
+    // { href: '/courses', label: 'Courses', icon: BookOpenText },
     { href: '/compare', label: 'Compare', icon: Book },
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
     { href: '/about', label: 'About', icon: Store },

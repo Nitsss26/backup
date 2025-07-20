@@ -105,7 +105,7 @@ export default function EBookDetailPage() {
     return (
       <>
         <Header />
-        <main className="container py-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+        <main className="container py-8 text-center flex flex-col items-center justify-center min-h-[calc(100vh-12rem)] w-full">
           <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
           <p className="text-lg text-muted-foreground">Loading E-Book details...</p>
         </main>
@@ -118,7 +118,7 @@ export default function EBookDetailPage() {
     return (
       <>
         <Header />
-        <main className="container py-8 text-center">
+        <main className="container py-8 text-center w-full">
           <h1 className="text-2xl font-bold text-destructive mb-4">{error || "E-Book could not be loaded."}</h1>
           <p className="text-muted-foreground mb-6">
             The E-Book you are looking for might not exist or there was an issue retrieving its details.
@@ -139,7 +139,7 @@ export default function EBookDetailPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen w-full">
       <Header />
       <main className="flex-grow py-8 bg-slate-50 dark:bg-slate-900">
         <section className="bg-gradient-to-br from-primary/80 via-blue-600 to-indigo-700 text-primary-foreground py-12 md:py-16">
