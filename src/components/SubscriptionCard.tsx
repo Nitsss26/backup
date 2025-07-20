@@ -32,7 +32,7 @@ export function SubscriptionCard({ subscription, isMobile = false }: Subscriptio
             alt={subscription.title}
             width={600}
             height={400}
-            className={`object-cover w-full group-hover:opacity-90 transition-opacity ${isMobile ? 'h-24' : 'h-48'}`}
+            className={`object-contain w-full bg-white group-hover:opacity-90 transition-opacity ${isMobile ? 'h-32' : 'h-56'}`}
             data-ai-hint={imageHint}
           />
         </CardHeader>
