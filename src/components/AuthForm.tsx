@@ -75,7 +75,7 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         } else {
             const dashboardLink = user.role === 'admin' ? '/admin' : 
                                   user.role === 'provider' ? '/dashboard/seller' : 
-                                  '/dashboard/student';
+                                  '/'; // Redirect students to homepage
             router.push(dashboardLink);
         }
       }
@@ -104,9 +104,17 @@ export function AuthForm({ mode: initialMode }: { mode: 'login' | 'register' }) 
         const response = await axios.post('/api/users', formData);
         if (response.status === 201) {
           toast({ title: "Registration Successful", description: "You can now log in with your credentials." });
-          setShowOtp(false);
-          setMode('login'); 
-          loginForm.reset({ email: formData.email, password: '' });
+          // Automatically log the user in after successful registration
+          const user = await login({ email: formData.email, password: formData.password });
+           if (user) {
+              // Redirect to home page after signup
+              router.push('/');
+           } else {
+              // Fallback to login page if auto-login fails
+              setMode('login');
+              setShowOtp(false);
+              loginForm.reset({ email: formData.email, password: '' });
+           }
         }
       } catch (error: any) {
         toast({
