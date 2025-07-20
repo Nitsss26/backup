@@ -18,6 +18,7 @@ import { useParams } from 'next/navigation';
 import { getEBookById, placeholderEBooks } from '@/lib/ebook-placeholder-data';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Badge } from '@/components/ui/badge';
 
 export default function EBookDetailPage() {
   const params = useParams();
@@ -241,4 +242,5 @@ export default function EBookDetailPage() {
       <Footer />
     </div>
   );
-}
+
+    
