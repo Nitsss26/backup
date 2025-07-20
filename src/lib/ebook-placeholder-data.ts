@@ -52,6 +52,10 @@ export const placeholderEBooks: EBook[] = [
         email: "Ruhanshr123@gmail.com",
     },
     reviews: placeholderReviews['ebook-001'],
+    faqs: [
+        {q: "Is this only for men?", a: "While the guide is written with a male audience in mind, the principles of skincare, facial exercises, and grooming can be beneficial for everyone."},
+        {q: "How long until I see results?", a: "Results vary, but many users report seeing noticeable improvements within 3-4 weeks of consistent application of the methods described."}
+    ]
   },
   {
     id: 'ebook-002',
@@ -78,6 +82,10 @@ export const placeholderEBooks: EBook[] = [
         email: "Ruhanshr123@gmail.com",
     },
     reviews: placeholderReviews['ebook-002'],
+    faqs: [
+        {q: "What is 'lookmaxing'?", a: "Lookmaxing is the process of improving one's physical appearance through various means, including skincare, fitness, style, and grooming."},
+        {q: "Is mewing safe?", a: "When done correctly as described in the guide, mewing (correct tongue posture) is generally considered safe. However, if you have any dental or jaw issues, it's best to consult with a professional."}
+    ]
   },
   {
     id: 'ebook-003',
@@ -104,6 +112,10 @@ export const placeholderEBooks: EBook[] = [
         email: "Ruhanshr123@gmail.com",
     },
     reviews: placeholderReviews['ebook-003'],
+    faqs: [
+        {q: "Does this work after puberty?", a: "Yes, the methods focus on maximizing your potential by correcting posture, improving spinal decompression, and optimizing hormonal health, which can lead to height increases even after growth plates have fused."},
+        {q: "What kind of equipment do I need?", a: "Most exercises require minimal to no equipment. Some advanced techniques might suggest items like a pull-up bar, but alternatives are provided."}
+    ]
   },
   {
     id: 'ebook-004',
@@ -130,6 +142,10 @@ export const placeholderEBooks: EBook[] = [
         email: "excelformulafun@gmail.com",
     },
     reviews: placeholderReviews['ebook-004'],
+     faqs: [
+        {q: "Which version of Excel is this for?", a: "The concepts taught are fundamental and applicable to all modern versions of Excel, including Excel 2016, 2019, 2021, and Microsoft 365."},
+        {q: "Do I get all 4 e-books for the price of Rs 99?", a: "Yes, the price of Rs 99 includes all four e-books in the 'Beginning of Excel' series, giving you over 1,000 pages of content."}
+    ]
   },
   {
     id: 'ebook-005',
@@ -156,6 +172,10 @@ export const placeholderEBooks: EBook[] = [
         email: "Ruhanshr123@gmail.com",
     },
     reviews: placeholderReviews['ebook-005'],
+    faqs: [
+        {q: "What is 'biohacking'?", a: "Biohacking is a broad term for using science and technology to make your body function better and more efficiently. In this guide, it refers to specific techniques like red light therapy and nutritional strategies to support growth."},
+        {q: "Is this guide safe?", a: "All methods described are natural and based on established principles of fitness and nutrition. However, it's always recommended to consult with a healthcare professional before starting any new fitness or diet regimen."}
+    ]
   }
 ];
 

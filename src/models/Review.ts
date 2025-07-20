@@ -4,7 +4,7 @@ import type { ICourse } from './Course';
 import type { IUser } from './User';
 
 export interface IReview extends Document {
-  courseId: mongoose.Types.ObjectId; // Represents either a course or ebook
+  courseId: string; // Changed to string to support both ObjectId and custom EBook IDs
   user: mongoose.Types.ObjectId | IUser;
   rating: number;
   comment: string;
@@ -16,8 +16,7 @@ export interface IReview extends Document {
 }
 
 const ReviewSchema: Schema<IReview> = new Schema({
-  courseId: { type: Schema.Types.ObjectId, required: true, refPath: 'onModel' }, // Use refPath for dynamic ref
-  onModel: { type: String, required: true, enum: ['Course', 'EBook'] },
+  courseId: { type: String, required: true, index: true },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: { type: String, required: true, trim: true, maxlength: 2000 },

@@ -65,11 +65,17 @@ export default function CheckoutPage() {
     setIsProcessingOrder(true);
     
     try {
+      // The API now expects the full item object within each cartItem
       const orderData = {
         userId: user.id,
-        items: cartItems, // Pass the whole cart item { type, item }
+        items: cartItems, 
         totalAmount: total,
         paymentMethod: paymentMethod,
+         paymentDetails: {
+          // You can add more payment-specific details here if needed
+          gateway: 'mock-gateway',
+          transactionTime: new Date().toISOString()
+        }
       };
 
       const response = await axios.post('/api/orders', orderData);

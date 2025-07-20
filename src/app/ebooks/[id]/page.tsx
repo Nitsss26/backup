@@ -11,7 +11,7 @@ import { StarRating } from '@/components/ui/StarRating';
 import type { EBook, Review as ReviewType, Course } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Users, Award, CheckCircle, Heart, ShieldCheck, Star, CalendarCheck, Gift, Loader2, BookCopy, Mail, Send, AlertTriangle, Instagram, ShoppingCart } from 'lucide-react';
+import { BookOpen, Users, Award, CheckCircle, Heart, ShieldCheck, Star, CalendarCheck, Gift, Loader2, BookCopy, Mail, Send, AlertTriangle, Instagram, ShoppingCart, HelpCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -22,6 +22,7 @@ import { APP_NAME } from '@/lib/constants';
 import { useCart, useWishlist } from '@/components/AppProviders';
 import { cn } from '@/lib/utils';
 import { SubscriptionCard } from '@/components/SubscriptionCard';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 function ReviewCard({ review }: { review: ReviewType }) {
   return (
@@ -65,7 +66,6 @@ export default function EBookDetailPage() {
     const fetchedEBook = getEBookById(ebookId);
     if (fetchedEBook) {
       setEBook(fetchedEBook);
-      // Simple logic for related products: filter by category, exclude self
       const related = placeholderEBooks
         .filter(b => b.category === fetchedEBook.category && b.id !== fetchedEBook.id)
         .slice(0, 4);
@@ -185,10 +185,11 @@ export default function EBookDetailPage() {
         <div className="container mt-8 md:mt-12 grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <Tabs defaultValue="description" className="w-full mb-8">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 mb-6 mx-auto max-w-2xl sticky top-16 bg-card/80 backdrop-blur-sm z-30 py-2 rounded-md shadow-sm border">
                 <TabsTrigger value="description">Description</TabsTrigger>
                 <TabsTrigger value="benefits">Benefits</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews ({ebook.reviews?.length || 0})</TabsTrigger>
+                <TabsTrigger value="faq">FAQ</TabsTrigger>
                 {ebook.purchaseInstructions && <TabsTrigger value="purchase" id="purchase-instructions">How to Buy</TabsTrigger>}
               </TabsList>
 
@@ -218,6 +219,31 @@ export default function EBookDetailPage() {
                   </CardContent>
                 </Card>
               </TabsContent>
+              
+              <TabsContent value="faq">
+                <Card className="shadow-md border bg-card">
+                  <CardHeader>
+                    <CardTitle className="text-2xl font-headline flex items-center text-foreground"><HelpCircle className="mr-2 h-6 w-6 text-primary"/>Frequently Asked Questions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {ebook.faqs && ebook.faqs.length > 0 ? (
+                      <Accordion type="multiple" className="w-full">
+                        {ebook.faqs.map((faq, index) => (
+                          <AccordionItem value={`faq-${index}`} key={index}>
+                            <AccordionTrigger className="text-base text-left hover:no-underline py-3.5 font-medium text-foreground">{faq.q}</AccordionTrigger>
+                            <AccordionContent className="text-sm pb-3.5 leading-relaxed text-muted-foreground">
+                              {faq.a}
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    ) : (
+                      <p className="text-muted-foreground py-6 text-center">No FAQs available for this E-Book yet.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
 
               <TabsContent value="reviews">
                 <Card className="shadow-md border bg-card">
@@ -299,3 +325,4 @@ export default function EBookDetailPage() {
     </div>
   );
 }
+

@@ -12,7 +12,7 @@ const orderItemSchema = new Schema({
   itemType: {
     type: String,
     required: true,
-    enum: ['Course', 'EBook'] // The possible models
+    enum: ['course', 'ebook'] // The possible models (lowercase to match CartItem)
   },
   priceAtPurchase: {
     type: Number,
@@ -27,7 +27,7 @@ const orderItemSchema = new Schema({
 
 export interface IOrderItem extends Document {
   itemId: string; // Changed to string
-  itemType: 'Course' | 'EBook';
+  itemType: 'course' | 'ebook';
   priceAtPurchase: number;
   titleAtPurchase: string;
 }

@@ -68,6 +68,7 @@ export interface EBook {
   purchaseInstructions?: string[];
   importantNotice?: string;
   reviews?: Review[];
+  faqs?: { q: string; a: string }[];
 }
 
 export interface Module {
