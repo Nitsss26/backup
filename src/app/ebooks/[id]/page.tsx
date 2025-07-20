@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { APP_NAME } from '@/lib/constants';
 import { useCart, useWishlist } from '@/components/AppProviders';
+import { cn } from '@/lib/utils';
 
 function ReviewCard({ review }: { review: ReviewType }) {
   return (
