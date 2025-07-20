@@ -88,96 +88,7 @@ export function Header() {
   const wishlistItemCount = wishlistItems.length;
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b bg-[#15243f] shadow-md transition-all duration-300 ${isScrolled ? 'h-14' : 'h-26'} md:h-16`}>
-      {/* Mobile Header */}
-      <div className="md:hidden bg-[#15243f] h-full overflow-hidden">
-        {!isScrolled && (
-          <div className="transition-all duration-300">
-            <div className="flex items-center h-14 px-3 gap-2">
-              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 p-0 flex-shrink-0">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-full max-w-xs p-6">
-                  {/* Mobile Menu Content */}
-                </SheetContent>
-              </Sheet>
-
-              <Link href="/" className="flex items-center flex-shrink-0">
-                <img
-                  src="/logoo.png"
-                  alt="Logo"
-                  width={80}
-                  height={32}
-                  className="h-8 w-auto object-contain"
-                />
-              </Link>
-
-              <UserProfileDropdown />
-
-              <Button variant="ghost" size="icon" asChild className="relative h-8 w-8 p-0 flex-shrink-0 ml-2">
-                <Link href="/cart">
-                  <ShoppingCart className="!h-5 !w-5 stroke-white" />
-                  {cartItemCount > 0 && (
-                    <UiBadge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs rounded-full bg-orange-500 text-white"
-                    >
-                      {cartItemCount > 9 ? '9+' : cartItemCount}
-                    </UiBadge>
-                  )}
-                  <span className="sr-only">Shopping Cart</span>
-                </Link>
-              </Button>
-            </div>
-
-            <div className="h-12 px-3 py-2">
-              <SearchBar />
-            </div>
-          </div>
-        )}
-
-        {isScrolled && (
-          <div className="flex items-center h-14 px-3 gap-2 bg-[#15243f]">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 flex-shrink-0">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-full max-w-xs p-6">
-                {/* Mobile Menu Content */}
-              </SheetContent>
-            </Sheet>
-
-            <div className="flex-1 mx-2">
-              <SearchBar />
-            </div>
-
-            <Button variant="ghost" size="icon" asChild className="relative h-8 w-8 p-0 flex-shrink-0">
-              <Link href="/cart">
-                <ShoppingCart className="!h-5 !w-5 stroke-white" />
-                {cartItemCount > 0 && (
-                  <UiBadge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-xs rounded-full bg-orange-500 text-white"
-                  >
-                    {cartItemCount > 9 ? '9+' : cartItemCount}
-                  </UiBadge>
-                )}
-                <span className="sr-only">Shopping Cart</span>
-              </Link>
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Desktop Header */}
-      <div className="hidden md:block bg-[#15243f]">
+    <header className="sticky top-0 z-50 w-full border-b bg-[#15243f] shadow-md">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <img
@@ -261,7 +172,6 @@ export function Header() {
             </div>
           </div>
         </div>
-      </div>
     </header>
   );
 }
