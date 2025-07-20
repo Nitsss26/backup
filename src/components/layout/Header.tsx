@@ -66,6 +66,7 @@ export function Header() {
 
   const navLinks = [
     { href: '/courses', label: 'Courses', icon: BookOpenText },
+    { href: '/ebooks', label: 'E-Books', icon: Book },
     { href: '/subscriptions', label: 'Subscriptions', icon: Star },
     { href: '/compare', label: 'Compare', icon: Book },
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
