@@ -30,6 +30,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (params: Required<LoginParams>) => Promise<AppUser | null>;
   logout: () => Promise<void>;
+  register: (details: any) => Promise<AppUser | null>; // Re-added register function
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
@@ -39,6 +40,11 @@ export function useAuth() {
   }
   return context;
 }
+
+// Helper to generate a mock ID for new users
+const generateMockObjectId = () => {
+  return Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+};
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
@@ -65,7 +71,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async ({ email, password }: Required<LoginParams>): Promise<AppUser | null> => {
     setIsLoading(true);
     try {
-      const response = await axios.post('/api/users/login', { email, password }); // Assumes a dedicated login route
+      const response = await axios.post('/api/users/login', { email, password });
       if (response.status === 200) {
         const userFromDb = response.data;
         const userToStore: AppUser = { ...userFromDb, id: userFromDb._id.toString() };
@@ -85,6 +91,29 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     }
   };
+
+  const register = async (details: any): Promise<AppUser | null> => {
+    setIsLoading(true);
+    try {
+        const response = await axios.post('/api/users', details);
+        if (response.status === 201) {
+            const userFromDb = response.data;
+            const userToStore: AppUser = { ...userFromDb, id: userFromDb._id.toString() };
+            // Note: Don't automatically log in user after registration to enforce verification
+            // setUser(userToStore);
+            // localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
+            return userToStore;
+        } else {
+            throw new Error(response.data.message || "Registration failed");
+        }
+    } catch (error: any) {
+       console.error("Error during app registration:", error);
+       const errorMessage = error.response?.data?.message || error.message || "An unknown error occurred during registration.";
+       throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   const logout = async () => {
     setIsLoading(true);
@@ -93,7 +122,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(false);
   };
   
-  const value = { user, isLoading, login, logout };
+  const value = { user, isLoading, login, logout, register };
 
   return (
     <AuthContext.Provider value={value}>
@@ -139,14 +168,30 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = useCallback((item: Course | EBook | Subscription, type: 'course' | 'ebook' | 'subscription') => {
     setCartItems((prev) => {
-      const existing = prev.find(i => i.item.id === item.id && i.type === type);
+      // Create a unique ID for the item, especially for subscriptions with validity options
+      const uniqueItemId = (type === 'subscription' && (item as any).validity?.duration) 
+        ? `${item.id}-${(item as any).validity.duration}`
+        : item.id;
+      
+      const existing = prev.find(i => {
+        const prevUniqueItemId = (i.type === 'subscription' && (i.item as any).validity?.duration) 
+            ? `${i.item.id}-${(i.item as any).validity.duration}`
+            : i.item.id;
+        return prevUniqueItemId === uniqueItemId && i.type === type;
+      });
+
       if (existing) return prev;
       return [...prev, { type, item }];
     });
   }, []);
 
   const removeFromCart = useCallback((itemId: string, type: 'course' | 'ebook' | 'subscription') => {
-    setCartItems((prev) => prev.filter(i => !(i.item.id === itemId && i.type === type)));
+    setCartItems((prev) => prev.filter(i => {
+       const prevUniqueItemId = (i.type === 'subscription' && (i.item as any).validity?.duration) 
+            ? `${i.item.id}-${(i.item as any).validity.duration}`
+            : i.item.id;
+      return !(prevUniqueItemId === itemId && i.type === type)
+    }));
   }, []);
 
   const clearCart = useCallback(() => setCartItems([]), []);
