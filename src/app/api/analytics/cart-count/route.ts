@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '@/lib/dbConnect';
+import ClickEvent from '@/models/ClickEvent';
 import mongoose from 'mongoose';
-import ClickEvent, { IClickEvent } from '@/models/ClickEvent';
 
 export async function GET(request: NextRequest) {
   try {
+    await dbConnect();
+
     // Extract date range from query parameters
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get('startDate');
@@ -19,14 +22,7 @@ export async function GET(request: NextRequest) {
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 });
     }
-
-    // Ensure MongoDB connection
-    if (mongoose.connection.readyState !== 1) {
-      await mongoose.connect(process.env.MONGODB_URI!, {
-        dbName: 'EdTechCart',
-      });
-    }
-
+    
     // Count "Added to Cart" events in the specified date range
     const currentCount = await ClickEvent.countDocuments({
       elementText: 'Added to Cart',
