@@ -30,7 +30,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (params: Required<LoginParams>) => Promise<AppUser | null>;
   logout: () => Promise<void>;
-  register: (details: any) => Promise<AppUser | null>; // Re-added register function
+  register: (details: any) => Promise<AppUser | null>;
 }
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
@@ -40,11 +40,6 @@ export function useAuth() {
   }
   return context;
 }
-
-// Helper to generate a mock ID for new users
-const generateMockObjectId = () => {
-  return Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
-};
 
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
@@ -169,14 +164,10 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
   const addToCart = useCallback((item: Course | EBook | Subscription, type: 'course' | 'ebook' | 'subscription') => {
     setCartItems((prev) => {
       // Create a unique ID for the item, especially for subscriptions with validity options
-      const uniqueItemId = (type === 'subscription' && (item as any).validity?.duration) 
-        ? `${item.id}-${(item as any).validity.duration}`
-        : item.id;
+      const uniqueItemId = item.id;
       
       const existing = prev.find(i => {
-        const prevUniqueItemId = (i.type === 'subscription' && (i.item as any).validity?.duration) 
-            ? `${i.item.id}-${(i.item as any).validity.duration}`
-            : i.item.id;
+        const prevUniqueItemId = i.item.id;
         return prevUniqueItemId === uniqueItemId && i.type === type;
       });
 
@@ -187,9 +178,7 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const removeFromCart = useCallback((itemId: string, type: 'course' | 'ebook' | 'subscription') => {
     setCartItems((prev) => prev.filter(i => {
-       const prevUniqueItemId = (i.type === 'subscription' && (i.item as any).validity?.duration) 
-            ? `${i.item.id}-${(i.item as any).validity.duration}`
-            : i.item.id;
+       const prevUniqueItemId = i.item.id;
       return !(prevUniqueItemId === itemId && i.type === type)
     }));
   }, []);
