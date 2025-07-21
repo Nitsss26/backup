@@ -18,7 +18,7 @@ export interface IVisitEvent extends Document {
   };
   device?: string;
   browser?: string;
-  trafficSource?: string; // Changed to flexible string for UTM sources
+  trafficSource?: string;
   type: 'visit';
 }
 
