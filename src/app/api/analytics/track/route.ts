@@ -102,6 +102,7 @@ export async function POST(request: Request) {
 
       // Create the visit event itself
       await VisitEventModel.create({
+        type: 'visit', // Fix: Add the required 'type' field
         sessionId,
         path,
         courseId: validCourseId,
@@ -119,6 +120,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Element type and text are required for click event' }, { status: 400 });
       }
       await ClickEventModel.create({
+        type: 'click', // Add type for consistency
         sessionId,
         elementType,
         elementText,
@@ -136,19 +138,20 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Path and valid duration are required for duration event' }, { status: 400 });
       }
       
+      // Update the visit event to set its duration.
       await VisitEventModel.updateOne(
-        { sessionId, path, duration: 0 }, 
+        { sessionId, path, duration: 0 }, // Find the initial visit event for this path
         { 
             $set: { 
+                type: 'visit', // Fix: Add the required 'type' field
                 duration,
                 timestamp: timestamp ? new Date(timestamp) : new Date(),
                 geoData: sanitizedGeoData,
                 device,
                 browser,
-                trafficSource, // Ensure trafficSource is preserved on duration update
             } 
         },
-        { sort: { timestamp: -1 } } 
+        { sort: { timestamp: -1 } } // Update the most recent one if multiple exist
       );
     } else if (type === 'scroll') {
       await UserActionEventModel.create({
