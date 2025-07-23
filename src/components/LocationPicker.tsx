@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 // Fix for default marker icon issue with Webpack
 // @ts-ignore
 delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.imagePath = "/"; // Explicitly set path
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -25,10 +26,16 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>('');
     const mapRef = useRef<any>(null);
+    const [mapKey, setMapKey] = useState(Date.now()); // Add a key to force re-render
 
     useEffect(() => {
-        // Set default view to a central location in India
-        setPosition({ lat: 20.5937, lng: 78.9629 });
+        // Set default view to a central location in India when component mounts
+        if (!position) {
+          setPosition({ lat: 20.5937, lng: 78.9629 });
+        }
+        // This effect will run when the dialog is opened/closed,
+        // resetting the key will ensure the map re-initializes correctly.
+        setMapKey(Date.now());
     }, []);
 
     const LocationMarker = () => {
@@ -68,6 +75,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
             <div className="flex-grow h-[calc(100%-8rem)]">
                 {typeof window !== 'undefined' && (
                     <MapContainer
+                        key={mapKey} // Use the key here
                         center={position || [20.5937, 78.9629]}
                         zoom={5}
                         style={{ height: '100%', width: '100%' }}
