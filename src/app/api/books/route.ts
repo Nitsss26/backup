@@ -2,7 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import BookModel from '@/models/Book';
-import UserModel from '@/models/User';
+import UserModel from '@/models/User'; // Ensure UserModel is imported to register schema
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
