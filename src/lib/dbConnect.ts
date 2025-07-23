@@ -1,9 +1,10 @@
-
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config({ path: '.env' });
 
 const MONGODB_URI = process.env.MONGODB_URI;
-console.log(MONGODB_URI)
-const DB_NAME = "edtechcart_dev"; // Specify the database name here
 
 if (!MONGODB_URI) {
   throw new Error(
@@ -35,12 +36,11 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
+    // The MONGODB_URI should already contain the database name.
     const opts = {
       bufferCommands: false,
-      dbName: DB_NAME, // Specify the database name in the connection options
     };
-    console.log(`🔄 Creating new MongoDB connection promise to database: ${DB_NAME}`);
-    // Mongoose will append the dbName to the URI if it's not already there
+    console.log(`🔄 Creating new MongoDB connection promise...`);
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
       console.log("✅ New MongoDB connection established.");
       return mongooseInstance;

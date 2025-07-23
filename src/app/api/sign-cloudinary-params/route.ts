@@ -1,37 +1,10 @@
-
-// import { NextResponse, type NextRequest } from 'next/server';
-// import { v2 as cloudinary } from 'cloudinary';
-
-// cloudinary.config({
-//   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-//   api_secret: process.env.CLOUDINARY_API_SECRET,
-//   // The API key is not required for backend configuration for signing
-// });
-
-// export async function POST(request: NextRequest) {
-//   try {
-//     const body = await request.json();
-//     const { paramsToSign } = body;
-
-//     if (!paramsToSign) {
-//       return NextResponse.json({ message: 'Parameters to sign are required.' }, { status: 400 });
-//     }
-
-//     const signature = cloudinary.utils.api_sign_request(paramsToSign, process.env.CLOUDINARY_API_SECRET!);
-
-//     return NextResponse.json({ signature });
-
-//   } catch (error: any) {
-//     console.error("Failed to sign Cloudinary params:", error);
-//     return NextResponse.json({ message: error.message }, { status: 500 });
-//   }
-// }
-
-
 import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
 
-// Configure Cloudinary
+// Load environment variables
+dotenv.config({ path: '.env' });
+
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -42,48 +15,34 @@ export async function POST(request: NextRequest) {
   try {
     const { paramsToSign } = await request.json();
 
-    // Validate environment variables
-    if (!process.env.CLOUDINARY_API_SECRET) {
-      console.error('Missing CLOUDINARY_API_SECRET');
+    // Validate environment variables on each request
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!apiKey) {
+      console.error('SERVER ERROR: Missing CLOUDINARY_API_KEY');
       return NextResponse.json(
-        { error: 'Cloudinary configuration missing' },
+        { error: 'Cloudinary API Key is missing on the server.' },
         { status: 500 }
       );
     }
-
-    if (!process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
-      console.error('Missing NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME');
+     if (!apiSecret) {
+      console.error('SERVER ERROR: Missing CLOUDINARY_API_SECRET');
       return NextResponse.json(
-        { error: 'Cloudinary configuration missing' },
-        { status: 500 }
-      );
-    }
-
-    if (!process.env.CLOUDINARY_API_KEY) {
-      console.error('Missing CLOUDINARY_API_KEY');
-      return NextResponse.json(
-        { error: 'Cloudinary configuration missing' },
+        { error: 'Cloudinary API Secret is missing on the server.' },
         { status: 500 }
       );
     }
 
     // Generate the signature
-    const signature = cloudinary.utils.api_sign_request(
-      paramsToSign,
-      process.env.CLOUDINARY_API_SECRET
-    );
+    const signature = cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
 
-    return NextResponse.json({ 
-      signature,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-      timestamp: paramsToSign.timestamp
-    });
+    return NextResponse.json({ signature });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error signing Cloudinary params:', error);
     return NextResponse.json(
-      { error: 'Failed to sign upload parameters' },
+      { error: 'Failed to sign upload parameters', details: error.message },
       { status: 500 }
     );
   }
