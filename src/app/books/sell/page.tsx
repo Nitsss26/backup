@@ -94,16 +94,25 @@ export default function SellBookPage() {
     try {
         const file = data.coverPhoto[0];
         
+        // Use a FormData object to send the file to our new API route
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', 'edtechcart_books'); // Create an upload preset in Cloudinary
-
-        const cloudinaryResponse = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, formData);
         
-        const imageUrl = cloudinaryResponse.data.secure_url;
+        // Post to our own backend API endpoint for secure upload
+        const uploadResponse = await axios.post('/api/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        
+        const imageUrl = uploadResponse.data.secure_url;
+        if (!imageUrl) {
+            throw new Error("Image upload failed, no URL returned.");
+        }
 
         const payload = {
             ...data,
+            coverPhoto: undefined, // Remove file object before sending to books API
             whatsappNumber: `+91${data.whatsappNumber}`,
             sellerId: user?.id,
             imageUrl,
@@ -118,13 +127,15 @@ export default function SellBookPage() {
         toast({ title: "Success", description: "Your book has been submitted for approval." });
         router.push('/books/my-listings');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Submission error:", error);
-      toast({ title: "Error", description: "Failed to submit your book. Please try again.", variant: "destructive" });
+      const errorMessage = error.response?.data?.message || "Failed to submit your book. Please try again.";
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   if (authLoading || !user) {
     return (
