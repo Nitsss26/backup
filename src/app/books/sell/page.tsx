@@ -93,21 +93,10 @@ export default function SellBookPage() {
     
     try {
         const file = data.coverPhoto[0];
-        const timestamp = Math.round((new Date()).getTime() / 1000);
-        const folder = "book-covers";
-        const paramsToSign = {
-          timestamp: timestamp,
-          folder: folder,
-        };
-
-        const { signature } = await axios.post('/api/upload-signature', { paramsToSign }).then(res => res.data);
-
+        
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('signature', signature);
-        formData.append('timestamp', timestamp.toString());
-        formData.append('folder', folder);
-        formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
+        formData.append('upload_preset', 'edtechcart_books'); // Create an upload preset in Cloudinary
 
         const cloudinaryResponse = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, formData);
         
