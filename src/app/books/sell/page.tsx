@@ -93,12 +93,19 @@ export default function SellBookPage() {
     
     try {
         const file = data.coverPhoto[0];
-        const { signature, timestamp, folder } = await axios.post('/api/upload-signature').then(res => res.data);
+        const timestamp = Math.round((new Date()).getTime() / 1000);
+        const folder = "book-covers";
+        const paramsToSign = {
+          timestamp,
+          folder,
+        };
+
+        const { signature } = await axios.post('/api/upload-signature', { paramsToSign }).then(res => res.data);
 
         const formData = new FormData();
         formData.append('file', file);
         formData.append('signature', signature);
-        formData.append('timestamp', timestamp);
+        formData.append('timestamp', timestamp.toString());
         formData.append('folder', folder);
         formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
 
@@ -108,7 +115,7 @@ export default function SellBookPage() {
 
         const payload = {
             ...data,
-            whatsappNumber: `+91${data.whatsappNumber}`, // Prepend country code
+            whatsappNumber: `+91${data.whatsappNumber}`,
             sellerId: user?.id,
             imageUrl,
             address: data.location.address,
