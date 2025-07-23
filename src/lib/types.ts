@@ -86,8 +86,8 @@ export interface Book {
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
+    address: string;
   };
-  address: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
 }
 
@@ -238,3 +238,5 @@ export interface Order {
   orderDate: string;
   transactionId?: string;
 }
+
+    

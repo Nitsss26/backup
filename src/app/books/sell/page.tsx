@@ -113,7 +113,8 @@ export default function SellBookPage() {
             sellerId: user?.id,
             location: {
               type: 'Point',
-              coordinates: data.location.coordinates
+              coordinates: data.location.coordinates,
+              address: data.location.address
             }
         };
 
@@ -177,11 +178,10 @@ export default function SellBookPage() {
                     multiple: false,
                     maxFiles: 1,
                     cropping: true,
-                    croppingAspectRatio: 0.75, // Aspect ratio for book covers
-                    uploadPreset: 'edtechcart_books'
+                    croppingAspectRatio: 0.75,
                   }}
                   onSuccess={handleUploadSuccess}
-                  uploadPreset="edtechcart_books"
+                  uploadPreset="ml_default"
                   className="w-full"
                 >
                   <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer">
@@ -311,3 +311,5 @@ export default function SellBookPage() {
     </>
   );
 }
+
+    

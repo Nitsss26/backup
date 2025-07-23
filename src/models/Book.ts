@@ -15,8 +15,8 @@ export interface IBook extends Document {
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
+    address: string;
   };
-  address: string;
   whatsappNumber: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
   createdAt: Date;
@@ -35,9 +35,9 @@ const BookSchema: Schema<IBook> = new Schema({
   seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   location: {
     type: { type: String, enum: ['Point'], required: true },
-    coordinates: { type: [Number], required: true } // [longitude, latitude]
+    coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    address: { type: String, required: true, trim: true },
   },
-  address: { type: String, required: true, trim: true },
   whatsappNumber: { type: String, required: true, trim: true },
   approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
 }, { timestamps: true });
@@ -49,3 +49,5 @@ BookSchema.index({ seller: 1 });
 const BookModel: Model<IBook> = models.Book || mongoose.model<IBook>('Book', BookSchema);
 
 export default BookModel;
+
+    
