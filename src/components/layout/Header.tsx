@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Link from 'next/link';
@@ -68,6 +69,7 @@ export function Header() {
     { href: '/courses', label: 'Courses', icon: BookOpenText },
     { href: '/ebooks', label: 'E-Books', icon: Book },
     { href: '/subscriptions', label: 'Subscriptions', icon: Star },
+    { href: '/books', label: 'Books', icon: Book },
     { href: '/compare', label: 'Compare', icon: Book },
     { href: '/sell-courses', label: 'Sell on EdTechCart', icon: Store },
     { href: '/about', label: 'About', icon: Store },

@@ -1,3 +1,4 @@
+
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export interface IUser extends Document {
@@ -20,6 +21,7 @@ export interface IUser extends Document {
   coursesEnrolled: mongoose.Types.ObjectId[];
   wishlist: mongoose.Types.ObjectId[];
   orders: mongoose.Types.ObjectId[];
+  whatsappNumber?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +52,7 @@ const UserSchema: Schema<IUser> = new Schema({
   coursesEnrolled: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   wishlist: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
+  whatsappNumber: { type: String, trim: true },
 }, { timestamps: true });
 
 const UserModel: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);

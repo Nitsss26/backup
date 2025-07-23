@@ -1,6 +1,6 @@
 
 import type { Category, PaymentOption } from './types';
-import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, UploadCloud, Wallet, Camera, Music, Sprout, PenTool } from 'lucide-react';
+import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Languages as LanguagesIcon, LineChart, Palette, PersonStanding, ShieldCheck, TestTube2, UploadCloud, Wallet, Camera, Music, Sprout, PenTool, Book } from 'lucide-react';
 
 export const APP_NAME = "EdTechCart";
 export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
@@ -20,6 +20,13 @@ export const CATEGORIES: Category[] = [
   { id: 'health-fitness', name: 'Health & Fitness', slug: 'health-fitness', icon: Sprout },
   { id: 'design-illustration', name: 'Design & Illustration', slug: 'design-illustration', icon: PenTool },
 ];
+
+export const BOOK_CATEGORIES = {
+  School: ['1st-8th', '9th', '10th', '11th', '12th'],
+  'College/University': ['B.Tech', 'B.A.', 'BCA', 'LLB', 'M.Tech', 'MBA', 'B.Sc', 'B.Com'],
+  Entrance: ['IIT-JEE', 'NEET', 'UPSC', 'SSC', 'GATE', 'NDA', 'CAT', 'CUET']
+};
+
 
 export const INSTRUCTOR_TYPES = [ 
   'Individual Teacher',
@@ -70,6 +77,7 @@ export const FOOTER_LINKS = {
     { name: 'About Us', href: '/about' },
     { name: 'Careers', href: '/careers' },
     { name: 'Press', href: '/press' },
+    { name: 'Sell Books', href: '/books/sell' },
   ],
   support: [
     { name: 'Help Center', href: '/help' },

@@ -903,8 +903,8 @@ export default function HomePage() {
   </div>
 </section>
 
-<C2/>
-<C3/>
+{/* <C2/>
+<C3/> */}
 <Video2/>
 <Video/>
 {/* Recommended For You */}

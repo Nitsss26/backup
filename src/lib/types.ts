@@ -71,6 +71,27 @@ export interface EBook {
   faqs?: { q: string; a: string }[];
 }
 
+export interface Book {
+  id: string;
+  _id?: string;
+  title: string;
+  author?: string;
+  category: string;
+  subcategory: string;
+  imageUrl: string;
+  listingType: 'sell' | 'rent';
+  price: number;
+  rentPricePerMonth?: number;
+  seller: User;
+  location: {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+  };
+  address: string;
+  approvalStatus: 'pending' | 'approved' | 'rejected';
+}
+
+
 export interface Subscription {
   id: string;
   title: string;
@@ -151,6 +172,7 @@ export interface User {
     promotions?: boolean;
     platformAnnouncements?: boolean;
   };
+  whatsappNumber?: string;
 }
 
 export type CartItem = {
@@ -173,6 +195,9 @@ export type WishlistItem = {
 } | {
     type: 'subscription';
     item: Subscription;
+} | {
+    type: 'book';
+    item: Book;
 };
 
 export interface Category {

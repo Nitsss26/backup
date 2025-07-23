@@ -1,0 +1,137 @@
+
+"use client";
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { Button } from '@/components/ui/button';
+import { Book, MapPin, Loader2, X, Filter } from 'lucide-react';
+import type { Book as BookType } from '@/lib/types';
+import axios from 'axios';
+import { useAuth } from '@/components/AppProviders';
+import { useRouter } from 'next/navigation';
+import { calculateDistance, getUserLocation } from '@/lib/location';
+import { BookCard } from '@/components/BookCard';
+import { BOOK_CATEGORIES } from '@/lib/constants';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+export default function BooksPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [books, setBooks] = useState<BookType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({ category: 'all', subcategory: 'all' });
+
+  useEffect(() => {
+    const fetchBooks = async () => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get('/api/books');
+        setBooks(response.data.books);
+      } catch (error) {
+        console.error("Failed to fetch books", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBooks();
+  }, []);
+
+  const handleGetLocation = useCallback(async () => {
+    setLocationError(null);
+    try {
+      const location = await getUserLocation();
+      setUserLocation(location);
+    } catch (error: any) {
+      setLocationError(error.message);
+    }
+  }, []);
+  
+  const handleFilterChange = (type: 'category' | 'subcategory', value: string) => {
+    if(type === 'category'){
+      setFilters({category: value, subcategory: 'all'})
+    } else {
+       setFilters(prev => ({ ...prev, [type]: value }));
+    }
+  }
+
+  const filteredBooks = books.filter(book => {
+    const categoryMatch = filters.category === 'all' || book.category === filters.category;
+    const subcategoryMatch = filters.subcategory === 'all' || book.subcategory === filters.subcategory;
+    return categoryMatch && subcategoryMatch;
+  });
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow bg-slate-50 dark:bg-slate-900 py-8 px-4 md:px-6">
+        <div className="container">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold font-headline">Book Marketplace</h1>
+            <p className="text-muted-foreground mt-2">Buy or rent used books from sellers near you.</p>
+          </div>
+          
+          <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-center bg-card p-4 rounded-lg shadow-sm border">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              {!userLocation && !locationError && (
+                <Button onClick={handleGetLocation} className="w-full sm:w-auto">
+                  <MapPin className="mr-2 h-4 w-4" /> Find Books Near Me
+                </Button>
+              )}
+              {locationError && <p className="text-sm text-destructive">{locationError}</p>}
+              <Button onClick={() => router.push(user ? '/books/sell' : '/auth/login?redirect=/books/sell')} variant="outline" className="w-full sm:w-auto">
+                Sell Your Book
+              </Button>
+              {user && (
+                 <Button onClick={() => router.push('/books/my-listings')} variant="outline" className="w-full sm:w-auto">
+                    My Book Listings
+                </Button>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+              <Select value={filters.category} onValueChange={(v) => handleFilterChange('category', v)}>
+                <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Category" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {Object.keys(BOOK_CATEGORIES).map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={filters.subcategory} onValueChange={(v) => handleFilterChange('subcategory', v)} disabled={filters.category === 'all'}>
+                <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Sub-category" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sub-categories</SelectItem>
+                  {filters.category !== 'all' && BOOK_CATEGORIES[filters.category as keyof typeof BOOK_CATEGORIES].map(sub => <SelectItem key={sub} value={sub}>{sub}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+
+          {isLoading ? (
+            <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
+          ) : filteredBooks.length > 0 ? (
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+              {filteredBooks.map(book => (
+                <BookCard 
+                  key={book.id} 
+                  book={book} 
+                  distance={userLocation ? calculateDistance(userLocation.latitude, userLocation.longitude, book.location.coordinates[1], book.location.coordinates[0]) : undefined}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                <Book className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-xl font-semibold mb-2">No Books Found</h2>
+                <p className="text-muted-foreground">No books match your current filters. Try a different category.</p>
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
