@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BOOK_CATEGORIES } from '@/lib/constants';
-import { Loader2, BookUp, MapPin } from 'lucide-react';
+import { Loader2, BookUp, MapPin, UploadCloud, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AppProviders';
@@ -23,6 +23,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getUserLocation } from '@/lib/location';
 import LocationPicker from '@/components/LocationPicker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { CldUploadButton, type CldUploadWidgetResults } from 'next-cloudinary';
+import Image from 'next/image';
+
 
 const bookSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long."),
@@ -33,7 +36,7 @@ const bookSchema = z.object({
   price: z.coerce.number().optional(),
   rentPricePerMonth: z.coerce.number().optional(),
   whatsappNumber: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit WhatsApp number."),
-  coverPhoto: z.any().refine(files => files?.length > 0, "Cover photo is required."),
+  imageUrl: z.string().min(1, "Cover photo is required."),
   location: z.object({
     coordinates: z.array(z.number()).length(2, "Location is required"),
     address: z.string().min(1, "Address is required")
@@ -56,13 +59,14 @@ export default function SellBookPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isMapOpen, setIsMapOpen] = useState(false);
 
-  const { control, register, handleSubmit, formState: { errors }, watch, setValue } = useForm<BookFormValues>({
+  const { control, register, handleSubmit, formState: { errors }, watch, setValue, trigger } = useForm<BookFormValues>({
     resolver: zodResolver(bookSchema),
     defaultValues: { listingType: 'sell' }
   });
 
   const listingType = watch('listingType');
   const locationValue = watch('location');
+  const imageUrlValue = watch('imageUrl');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -88,35 +92,25 @@ export default function SellBookPage() {
     setIsMapOpen(false);
   }
 
+  const handleUploadSuccess = (result: CldUploadWidgetResults) => {
+    const info = result.info as { secure_url: string };
+    if (info.secure_url) {
+      setValue('imageUrl', info.secure_url, { shouldValidate: true });
+      toast({ title: "Success", description: "Image uploaded successfully." });
+    } else {
+      toast({ title: "Upload Error", description: "Could not get image URL after upload.", variant: "destructive" });
+    }
+  };
+
+
   const onSubmit = async (data: BookFormValues) => {
     setIsLoading(true);
     
     try {
-        const file = data.coverPhoto[0];
-        
-        // Use a FormData object to send the file to our new API route
-        const formData = new FormData();
-        formData.append('file', file);
-        
-        // Post to our own backend API endpoint for secure upload
-        const uploadResponse = await axios.post('/api/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-        
-        const imageUrl = uploadResponse.data.secure_url;
-        if (!imageUrl) {
-            throw new Error("Image upload failed, no URL returned.");
-        }
-
         const payload = {
             ...data,
-            coverPhoto: undefined, // Remove file object before sending to books API
             whatsappNumber: `+91${data.whatsappNumber}`,
             sellerId: user?.id,
-            imageUrl,
-            address: data.location.address,
             location: {
               type: 'Point',
               coordinates: data.location.coordinates
@@ -165,11 +159,40 @@ export default function SellBookPage() {
               <Label htmlFor="author">Author Name (Optional)</Label>
               <Input id="author" {...register('author')} />
             </div>
+            
             <div>
-              <Label htmlFor="coverPhoto">Cover Photo*</Label>
-              <Input id="coverPhoto" type="file" {...register('coverPhoto')} accept="image/*" />
-              {errors.coverPhoto && <p className="text-sm text-destructive mt-1">{errors.coverPhoto.message?.toString()}</p>}
+              <Label>Cover Photo*</Label>
+              <div className="mt-2 flex flex-col items-center gap-4 rounded-lg border-2 border-dashed border-muted p-4">
+                {imageUrlValue ? (
+                    <div className="relative">
+                        <Image src={imageUrlValue} alt="Cover photo preview" width={120} height={160} className="object-cover rounded-md" />
+                        <CheckCircle className="absolute -top-2 -right-2 h-6 w-6 text-white bg-green-500 rounded-full p-1"/>
+                    </div>
+                ) : (
+                   <UploadCloud className="h-12 w-12 text-muted-foreground" />
+                )}
+                <CldUploadButton
+                  options={{
+                    sources: ['local', 'url'],
+                    multiple: false,
+                    maxFiles: 1,
+                    cropping: true,
+                    croppingAspectRatio: 0.75, // Aspect ratio for book covers
+                    uploadPreset: 'edtechcart_books'
+                  }}
+                  onSuccess={handleUploadSuccess}
+                  uploadPreset="edtechcart_books"
+                  className="w-full"
+                >
+                  <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer">
+                    {imageUrlValue ? 'Change Photo' : 'Upload Cover Photo'}
+                  </div>
+                </CldUploadButton>
+                <Input {...register('imageUrl')} className="hidden" />
+                 {errors.imageUrl && <p className="text-sm text-destructive mt-1">{errors.imageUrl.message}</p>}
+              </div>
             </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Category*</Label>
@@ -263,7 +286,7 @@ export default function SellBookPage() {
                   </DialogContent>
                 </Dialog>
               </div>
-               {errors.location && <p className="text-sm text-destructive mt-1">{errors.location.message}</p>}
+               {errors.location && <p className="text-sm text-destructive mt-1">{errors.location?.message || errors.location?.address?.message}</p>}
             </div>
 
              <div>
