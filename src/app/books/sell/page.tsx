@@ -32,7 +32,7 @@ const bookSchema = z.object({
   listingType: z.enum(['sell', 'rent'], { required_error: "You must select a listing type." }),
   price: z.coerce.number().optional(),
   rentPricePerMonth: z.coerce.number().optional(),
-  whatsappNumber: z.string().regex(/^\d{10,15}$/, "Please enter a valid WhatsApp number (10-15 digits)."),
+  whatsappNumber: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit WhatsApp number."),
   coverPhoto: z.any().refine(files => files?.length > 0, "Cover photo is required."),
   location: z.object({
     coordinates: z.array(z.number()).length(2, "Location is required"),
@@ -73,7 +73,6 @@ export default function SellBookPage() {
   const handleUseCurrentLocation = async () => {
     try {
         const { latitude, longitude } = await getUserLocation();
-        // Fetch address from coordinates (reverse geocoding)
         const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
         const data = await response.json();
         const address = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
@@ -109,6 +108,7 @@ export default function SellBookPage() {
 
         const payload = {
             ...data,
+            whatsappNumber: `+91${data.whatsappNumber}`, // Prepend country code
             sellerId: user?.id,
             imageUrl,
             address: data.location.address,
@@ -260,10 +260,13 @@ export default function SellBookPage() {
             </div>
 
              <div>
-              <Label htmlFor="whatsappNumber">WhatsApp Number*</Label>
-              <Input id="whatsappNumber" type="tel" {...register('whatsappNumber')} placeholder="e.g. 919876543210"/>
-              <p className="text-xs text-muted-foreground mt-1">Include country code. This will be shared with potential buyers.</p>
-              {errors.whatsappNumber && <p className="text-sm text-destructive mt-1">{errors.whatsappNumber.message}</p>}
+                <Label htmlFor="whatsappNumber">WhatsApp Number*</Label>
+                <div className="flex items-center">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm">+91</span>
+                  <Input id="whatsappNumber" type="tel" {...register('whatsappNumber')} placeholder="9876543210" className="rounded-l-none"/>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Your 10-digit number. This will be shared with potential buyers.</p>
+                {errors.whatsappNumber && <p className="text-sm text-destructive mt-1">{errors.whatsappNumber.message}</p>}
             </div>
             
             <Button type="submit" className="w-full" disabled={isLoading}>
@@ -278,4 +281,3 @@ export default function SellBookPage() {
     </>
   );
 }
-

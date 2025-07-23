@@ -2,12 +2,8 @@
 import { NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+// Configuration is now done using the CLOUDINARY_URL from .env
+cloudinary.config(true); // Passing true initializes from process.env.CLOUDINARY_URL
 
 export async function POST(request: Request) {
   const timestamp = Math.round(new Date().getTime() / 1000);
@@ -17,7 +13,7 @@ export async function POST(request: Request) {
     const signature = cloudinary.utils.api_sign_request(
       {
         timestamp: timestamp,
-        folder: folder
+        folder: folder,
       },
       process.env.CLOUDINARY_API_SECRET!
     );
