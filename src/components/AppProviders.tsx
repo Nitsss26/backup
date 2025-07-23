@@ -94,9 +94,10 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (response.status === 201) {
             const userFromDb = response.data;
             const userToStore: AppUser = { ...userFromDb, id: userFromDb._id.toString() };
-            // Note: Don't automatically log in user after registration to enforce verification
-            // setUser(userToStore);
-            // localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
+            // Note: Don't automatically log in user after registration to enforce verification if needed.
+            // But for a smoother UX, we can log them in.
+            setUser(userToStore);
+            localStorage.setItem('edtechcart_user', JSON.stringify(userToStore));
             return userToStore;
         } else {
             throw new Error(response.data.message || "Registration failed");
@@ -163,29 +164,19 @@ const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const addToCart = useCallback((item: Course | EBook | Subscription | Book, type: 'course' | 'ebook' | 'subscription' | 'book') => {
     setCartItems((prev) => {
-      // Create a unique ID for the item, especially for subscriptions with validity options
-      const uniqueItemId = item.id;
-      
-      const existing = prev.find(i => {
-        const prevUniqueItemId = i.item.id;
-        return prevUniqueItemId === uniqueItemId && i.type === type;
-      });
-
+      const existing = prev.find(i => i.item.id === item.id && i.type === type);
       if (existing) return prev;
       return [...prev, { type, item }];
     });
   }, []);
 
   const removeFromCart = useCallback((itemId: string, type: 'course' | 'ebook' | 'subscription' | 'book') => {
-    setCartItems((prev) => prev.filter(i => {
-       const prevUniqueItemId = i.item.id;
-      return !(prevUniqueItemId === itemId && i.type === type)
-    }));
+    setCartItems((prev) => prev.filter(i => !(i.item.id === itemId && i.type === type)));
   }, []);
 
   const clearCart = useCallback(() => setCartItems([]), []);
 
-  const subtotal = cartItems.reduce((sum, cartItem) => sum + (cartItem.item.price || (cartItem.item as Book).rentPricePerMonth || 0), 0);
+  const subtotal = cartItems.reduce((sum, cartItem) => sum + (cartItem.item.price || 0), 0);
   const total = subtotal;
 
   return (
