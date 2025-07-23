@@ -26,7 +26,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { CldUploadButton, type CldUploadWidgetResults } from 'next-cloudinary';
 import Image from 'next/image';
 
-
 const bookSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long."),
   author: z.string().optional(),
@@ -36,7 +35,7 @@ const bookSchema = z.object({
   price: z.coerce.number().optional(),
   rentPricePerMonth: z.coerce.number().optional(),
   whatsappNumber: z.string().regex(/^\d{10}$/, "Please enter a valid 10-digit WhatsApp number."),
-  imageUrl: z.string().min(1, "Cover photo is required."),
+  imageUrl: z.string().url("Cover photo is required."),
   location: z.object({
     coordinates: z.array(z.number()).length(2, "Location is required"),
     address: z.string().min(1, "Address is required")
@@ -102,7 +101,6 @@ export default function SellBookPage() {
     }
   };
 
-
   const onSubmit = async (data: BookFormValues) => {
     setIsLoading(true);
     
@@ -130,7 +128,6 @@ export default function SellBookPage() {
       setIsLoading(false);
     }
   };
-
 
   if (authLoading || !user) {
     return (
@@ -179,9 +176,10 @@ export default function SellBookPage() {
                     maxFiles: 1,
                     cropping: true,
                     croppingAspectRatio: 0.75,
+                    folder: 'edtechcart_books'
                   }}
+                  signatureEndpoint="/api/sign-cloudinary-params"
                   onSuccess={handleUploadSuccess}
-                  uploadPreset="ml_default"
                   className="w-full"
                 >
                   <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer">
@@ -311,5 +309,3 @@ export default function SellBookPage() {
     </>
   );
 }
-
-    
