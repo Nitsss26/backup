@@ -36,6 +36,9 @@ export async function GET(request: NextRequest) {
     if (status === 'all') {
       // no status filter for admin
     } else if (sellerId) {
+      if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+        return NextResponse.json({ message: 'Invalid seller ID provided.' }, { status: 400 });
+      }
       query.seller = new mongoose.Types.ObjectId(sellerId);
     }
     else {
