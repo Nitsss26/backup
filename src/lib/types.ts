@@ -89,6 +89,7 @@ export interface Book {
     address: string;
   };
   approvalStatus: 'pending' | 'approved' | 'rejected';
+  distance?: number;
 }
 
 

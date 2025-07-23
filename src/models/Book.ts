@@ -17,8 +17,8 @@ export interface IBook extends Document {
     coordinates: [number, number]; // [longitude, latitude]
     address: string;
   };
-  whatsappNumber: string;
   approvalStatus: 'pending' | 'approved' | 'rejected';
+  distance?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +38,6 @@ const BookSchema: Schema<IBook> = new Schema({
     coordinates: { type: [Number], required: true }, // [longitude, latitude]
     address: { type: String, required: true, trim: true },
   },
-  whatsappNumber: { type: String, required: true, trim: true },
   approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
