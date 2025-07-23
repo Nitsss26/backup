@@ -1,4 +1,55 @@
 
+// import { NextResponse, type NextRequest } from 'next/server';
+// import dbConnect from '@/lib/dbConnect';
+// import BookModel from '@/models/Book';
+// import mongoose from 'mongoose';
+
+// export async function POST(request: NextRequest) {
+//   try {
+//     await dbConnect();
+//     const data = await request.json();
+
+//     const newBook = new BookModel({
+//       ...data,
+//       seller: new mongoose.Types.ObjectId(data.sellerId),
+//       approvalStatus: 'pending' 
+//     });
+
+//     await newBook.save();
+//     return NextResponse.json(newBook, { status: 201 });
+//   } catch (error: any) {
+//     console.error("Failed to create book listing:", error);
+//     return NextResponse.json({ message: error.message }, { status: 400 });
+//   }
+// }
+
+// export async function GET(request: NextRequest) {
+//   try {
+//     await dbConnect();
+//     const { searchParams } = new URL(request.url);
+//     const status = searchParams.get('status');
+//     const sellerId = searchParams.get('sellerId');
+
+//     const query: any = {};
+
+//     if (status === 'all') {
+//       // no status filter for admin
+//     } else if (sellerId) {
+//       query.seller = new mongoose.Types.ObjectId(sellerId);
+//     }
+//     else {
+//       query.approvalStatus = 'approved';
+//     }
+
+//     const books = await BookModel.find(query).populate('seller', 'name email whatsappNumber').sort({ createdAt: -1 });
+
+//     return NextResponse.json({ books });
+//   } catch (error: any) {
+//     console.error("Failed to fetch books:", error);
+//     return NextResponse.json({ message: error.message }, { status: 500 });
+//   }
+// }
+
 import { NextResponse, type NextRequest } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import BookModel from '@/models/Book';
@@ -9,17 +60,82 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     const data = await request.json();
 
-    const newBook = new BookModel({
-      ...data,
-      seller: new mongoose.Types.ObjectId(data.sellerId),
-      approvalStatus: 'pending' 
-    });
+    // Validate required fields
+    if (!data.title || !data.category || !data.subcategory || !data.listingType || !data.imageUrl || !data.whatsappNumber || !data.sellerId) {
+      return NextResponse.json({ message: "Missing required fields" }, { status: 400 });
+    }
 
+    // Validate pricing based on listing type
+    if (data.listingType === 'sell' && (!data.price || data.price <= 0)) {
+      return NextResponse.json({ message: "Valid price is required for selling" }, { status: 400 });
+    }
+
+    if (data.listingType === 'rent' && (!data.rentPricePerMonth || data.rentPricePerMonth <= 0)) {
+      return NextResponse.json({ message: "Valid rent price is required for renting" }, { status: 400 });
+    }
+
+    // Validate location
+    if (!data.location || !data.location.coordinates || !data.location.address) {
+      return NextResponse.json({ message: "Location is required" }, { status: 400 });
+    }
+
+    // Create the book document
+    const bookData = {
+      title: data.title.trim(),
+      author: data.author?.trim() || '',
+      category: data.category,
+      subcategory: data.subcategory,
+      listingType: data.listingType,
+      imageUrl: data.imageUrl,
+      whatsappNumber: data.whatsappNumber,
+      location: {
+        type: 'Point',
+        coordinates: data.location.coordinates,
+        address: data.location.address
+      },
+      seller: new mongoose.Types.ObjectId(data.sellerId),
+      approvalStatus: 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    // Add price based on listing type
+    if (data.listingType === 'sell') {
+      bookData.price = Number(data.price);
+    } else if (data.listingType === 'rent') {
+      bookData.rentPricePerMonth = Number(data.rentPricePerMonth);
+    }
+
+    const newBook = new BookModel(bookData);
     await newBook.save();
-    return NextResponse.json(newBook, { status: 201 });
+
+    return NextResponse.json({ 
+      message: "Book listing created successfully",
+      book: newBook 
+    }, { status: 201 });
+
   } catch (error: any) {
     console.error("Failed to create book listing:", error);
-    return NextResponse.json({ message: error.message }, { status: 400 });
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map((err: any) => err.message);
+      return NextResponse.json({ 
+        message: "Validation failed", 
+        errors: validationErrors 
+      }, { status: 400 });
+    }
+
+    // Handle duplicate key errors
+    if (error.code === 11000) {
+      return NextResponse.json({ 
+        message: "A book with similar details already exists" 
+      }, { status: 409 });
+    }
+
+    return NextResponse.json({ 
+      message: error.message || "Failed to create book listing" 
+    }, { status: 500 });
   }
 }
 
@@ -29,23 +145,69 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
     const sellerId = searchParams.get('sellerId');
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
 
     const query: any = {};
 
+    // Filter by status
     if (status === 'all') {
-      // no status filter for admin
+      // No status filter for admin - shows all books
     } else if (sellerId) {
+      // Show all books for a specific seller
       query.seller = new mongoose.Types.ObjectId(sellerId);
-    }
-    else {
+    } else {
+      // Default: only show approved books
       query.approvalStatus = 'approved';
     }
 
-    const books = await BookModel.find(query).populate('seller', 'name email whatsappNumber').sort({ createdAt: -1 });
+    // Filter by category
+    if (category && category !== 'all') {
+      query.category = category;
+    }
 
-    return NextResponse.json({ books });
+    // Search functionality
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { author: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        { subcategory: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const total = await BookModel.countDocuments(query);
+
+    // Fetch books with pagination
+    const books = await BookModel.find(query)
+      .populate('seller', 'name email whatsappNumber')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    return NextResponse.json({ 
+      books,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1
+      }
+    });
+
   } catch (error: any) {
     console.error("Failed to fetch books:", error);
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      message: error.message || "Failed to fetch books" 
+    }, { status: 500 });
   }
 }

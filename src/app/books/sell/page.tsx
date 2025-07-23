@@ -593,6 +593,79 @@ export default function SellBookPage() {
         onSuccess={handleUploadSuccess}
         onError={(error) => {
           handleUploadError(error);
+          console.error('CldUploadButton error:', error); // Debug the error
+        }}
+        className="w-full"
+      >
+        <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+          {isUploading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Uploading...
+            </div>
+          ) : (
+            imageUrlValue ? 'Change Photo' : 'Upload Cover Photo'
+          )}
+        </div>
+      </CldUploadButton>
+    ) : (
+      <div className="w-full text-center p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+        <p className="text-sm text-yellow-800">
+          Image upload is temporarily unavailable. Please contact support.
+        </p>
+      </div>
+    )}
+    
+    <Input {...register('imageUrl')} className="hidden" />
+    {errors.imageUrl && <p className="text-sm text-destructive mt-1">{errors.imageUrl.message}</p>}
+  </div>
+</div>
+
+            {/* <div>
+  <Label>Cover Photo*</Label>
+  <div className="mt-2 flex flex-col items-center gap-4 rounded-lg border-2 border-dashed border-muted p-4">
+    {imageUrlValue ? (
+      <div className="relative">
+        <Image 
+          src={imageUrlValue} 
+          alt="Cover photo preview" 
+          width={120} 
+          height={160} 
+          className="object-cover rounded-md border"
+        />
+        <button
+          type="button"
+          onClick={removeImage}
+          className="absolute -top-2 -right-2 h-6 w-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+        >
+          <X className="h-3 w-3" />
+        </button>
+        <CheckCircle className="absolute -top-2 -left-2 h-6 w-6 text-white bg-green-500 rounded-full p-1"/>
+      </div>
+    ) : (
+      <div className="text-center">
+        <UploadCloud className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">Upload a clear photo of your book cover</p>
+      </div>
+    )}
+    
+    {process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? (
+      <CldUploadButton
+        options={{
+          sources: ['local', 'url'],
+          multiple: false,
+          maxFiles: 1,
+          cropping: true,
+          croppingAspectRatio: 0.75,
+          folder: 'edtechcart_books',
+          maxFileSize: 5000000,
+          clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+        }}
+        signatureEndpoint="/api/sign-cloudinary-params"
+        onStart={handleUploadStart}
+        onSuccess={handleUploadSuccess}
+        onError={(error) => {
+          handleUploadError(error);
           // Fallback to console log for debugging
           console.error('Upload error:', error);
         }}
@@ -620,7 +693,7 @@ export default function SellBookPage() {
     <Input {...register('imageUrl')} className="hidden" />
     {errors.imageUrl && <p className="text-sm text-destructive mt-1">{errors.imageUrl.message}</p>}
   </div>
-</div>
+</div> */}
 
             {/* <div>
               <Label>Cover Photo*</Label>

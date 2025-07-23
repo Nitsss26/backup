@@ -189,6 +189,12 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  env: {
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  },
+  turbo: {
+    loadTurbopack: false, // Switch to Webpack
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
