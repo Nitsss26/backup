@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BOOK_CATEGORIES } from '@/lib/constants';
-import { Loader2, BookUp } from 'lucide-react';
+import { Loader2, BookUp, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AppProviders';
@@ -20,6 +20,9 @@ import axios from 'axios';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { getUserLocation } from '@/lib/location';
+import LocationPicker from '@/components/LocationPicker';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const bookSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long."),
@@ -29,9 +32,12 @@ const bookSchema = z.object({
   listingType: z.enum(['sell', 'rent'], { required_error: "You must select a listing type." }),
   price: z.coerce.number().optional(),
   rentPricePerMonth: z.coerce.number().optional(),
-  address: z.string().min(10, "Please provide a more detailed address."),
   whatsappNumber: z.string().regex(/^\d{10,15}$/, "Please enter a valid WhatsApp number (10-15 digits)."),
   coverPhoto: z.any().refine(files => files?.length > 0, "Cover photo is required."),
+  location: z.object({
+    coordinates: z.array(z.number()).length(2, "Location is required"),
+    address: z.string().min(1, "Address is required")
+  }).refine(data => data.coordinates.length === 2 && data.address, { message: "Location is required."}),
 }).refine(data => data.listingType === 'sell' ? data.price !== undefined && data.price >= 0 : true, {
   message: "Price is required for selling.",
   path: ["price"],
@@ -48,41 +54,76 @@ export default function SellBookPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
-  
-  const { control, register, handleSubmit, formState: { errors }, watch } = useForm<BookFormValues>({
+  const [isMapOpen, setIsMapOpen] = useState(false);
+
+  const { control, register, handleSubmit, formState: { errors }, watch, setValue } = useForm<BookFormValues>({
     resolver: zodResolver(bookSchema),
     defaultValues: { listingType: 'sell' }
   });
 
   const listingType = watch('listingType');
+  const locationValue = watch('location');
 
   useEffect(() => {
     if (!authLoading && !user) {
       router.push('/auth/login?redirect=/books/sell');
     }
   }, [user, authLoading, router]);
+  
+  const handleUseCurrentLocation = async () => {
+    try {
+        const { latitude, longitude } = await getUserLocation();
+        // Fetch address from coordinates (reverse geocoding)
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        const data = await response.json();
+        const address = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        setValue('location', { coordinates: [longitude, latitude], address }, { shouldValidate: true });
+        toast({ title: "Success", description: "Location set to your current position." });
+    } catch (error: any) {
+        toast({ title: "Error", description: error.message || "Could not fetch current location.", variant: "destructive" });
+    }
+  };
+
+  const handleLocationSelect = (latlng: { lat: number; lng: number }, address: string) => {
+    setValue('location', { coordinates: [latlng.lng, latlng.lat], address }, { shouldValidate: true });
+    setIsMapOpen(false);
+  }
 
   const onSubmit = async (data: BookFormValues) => {
     setIsLoading(true);
-    // Placeholder for image upload and getting location coordinates
-    const imageUrl = "https://placehold.co/400x500.png"; // Replace with actual upload logic
-    const coordinates = [77.5946, 12.9716]; // Placeholder for Bangalore. In real app, geocode address.
-
-    const payload = {
-      ...data,
-      sellerId: user?.id,
-      imageUrl,
-      location: {
-        type: 'Point',
-        coordinates
-      }
-    };
     
     try {
-      await axios.post('/api/books', payload);
-      toast({ title: "Success", description: "Your book has been submitted for approval." });
-      router.push('/books/my-listings');
+        const file = data.coverPhoto[0];
+        const { signature, timestamp, folder } = await axios.post('/api/upload-signature').then(res => res.data);
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('signature', signature);
+        formData.append('timestamp', timestamp);
+        formData.append('folder', folder);
+        formData.append('api_key', process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!);
+
+        const cloudinaryResponse = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, formData);
+        
+        const imageUrl = cloudinaryResponse.data.secure_url;
+
+        const payload = {
+            ...data,
+            sellerId: user?.id,
+            imageUrl,
+            address: data.location.address,
+            location: {
+              type: 'Point',
+              coordinates: data.location.coordinates
+            }
+        };
+
+        await axios.post('/api/books', payload);
+        toast({ title: "Success", description: "Your book has been submitted for approval." });
+        router.push('/books/my-listings');
+
     } catch (error) {
+      console.error("Submission error:", error);
       toast({ title: "Error", description: "Failed to submit your book. Please try again.", variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -186,11 +227,36 @@ export default function SellBookPage() {
                 {errors.rentPricePerMonth && <p className="text-sm text-destructive mt-1">{errors.rentPricePerMonth.message}</p>}
               </div>
             )}
-
+            
             <div>
-              <Label htmlFor="address">Your Pickup Address*</Label>
-              <Textarea id="address" {...register('address')} placeholder="Enter your full address so buyers can estimate distance." />
-              {errors.address && <p className="text-sm text-destructive mt-1">{errors.address.message}</p>}
+              <Label>Pickup Location*</Label>
+              <div className="p-3 border rounded-md min-h-[6rem] flex flex-col justify-center">
+                 {locationValue?.address ? (
+                    <div className="text-sm">
+                      <p className="font-medium">{locationValue.address}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Coords: [{locationValue.coordinates[1].toFixed(4)}, {locationValue.coordinates[0].toFixed(4)}]
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Please set your book's location.</p>
+                  )}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button type="button" variant="outline" onClick={handleUseCurrentLocation}><MapPin className="mr-2 h-4 w-4" /> Use Current Location</Button>
+                <Dialog open={isMapOpen} onOpenChange={setIsMapOpen}>
+                  <DialogTrigger asChild>
+                    <Button type="button" variant="outline">Choose on Map</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl h-[80vh]">
+                    <DialogHeader>
+                      <DialogTitle>Select Pickup Location</DialogTitle>
+                    </DialogHeader>
+                    <LocationPicker onLocationSelect={handleLocationSelect}/>
+                  </DialogContent>
+                </Dialog>
+              </div>
+               {errors.location && <p className="text-sm text-destructive mt-1">{errors.location.message}</p>}
             </div>
 
              <div>
@@ -212,3 +278,4 @@ export default function SellBookPage() {
     </>
   );
 }
+

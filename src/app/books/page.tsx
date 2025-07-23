@@ -14,6 +14,7 @@ import { calculateDistance, getUserLocation } from '@/lib/location';
 import { BookCard } from '@/components/BookCard';
 import { BOOK_CATEGORIES } from '@/lib/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 export default function BooksPage() {
   const { user } = useAuth();
@@ -23,20 +24,50 @@ export default function BooksPage() {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [filters, setFilters] = useState({ category: 'all', subcategory: 'all' });
+  const { toast } = useToast();
+
+  const fetchBooks = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get('/api/books');
+      let fetchedBooks = response.data.books as BookType[];
+      
+      if (userLocation) {
+        fetchedBooks = fetchedBooks.map(book => ({
+          ...book,
+          distance: calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            book.location.coordinates[1],
+            book.location.coordinates[0]
+          ),
+        })).sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+      }
+      setBooks(fetchedBooks);
+    } catch (error) {
+      console.error("Failed to fetch books", error);
+      toast({ title: "Error", description: "Could not fetch books.", variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBooks = async () => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get('/api/books');
-        setBooks(response.data.books);
-      } catch (error) {
-        console.error("Failed to fetch books", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchBooks();
+  }, [userLocation]);
+
+  useEffect(() => {
+    // Prompt for location on component mount
+    toast({
+      title: 'Location Access',
+      description: 'Enable your location to see books nearest to you.',
+      action: (
+        <Button size="sm" onClick={() => handleGetLocation()}>
+          Enable Location
+        </Button>
+      ),
+      duration: 10000,
+    });
   }, []);
 
   const handleGetLocation = useCallback(async () => {
@@ -44,10 +75,12 @@ export default function BooksPage() {
     try {
       const location = await getUserLocation();
       setUserLocation(location);
+      toast({ title: 'Success!', description: 'Location updated. Sorting books by distance.' });
     } catch (error: any) {
       setLocationError(error.message);
+      toast({ title: 'Location Error', description: error.message, variant: 'destructive' });
     }
-  }, []);
+  }, [toast]);
   
   const handleFilterChange = (type: 'category' | 'subcategory', value: string) => {
     if(type === 'category'){
@@ -75,13 +108,7 @@ export default function BooksPage() {
           
           <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-center bg-card p-4 rounded-lg shadow-sm border">
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-              {!userLocation && !locationError && (
-                <Button onClick={handleGetLocation} className="w-full sm:w-auto">
-                  <MapPin className="mr-2 h-4 w-4" /> Find Books Near Me
-                </Button>
-              )}
-              {locationError && <p className="text-sm text-destructive">{locationError}</p>}
-              <Button onClick={() => router.push(user ? '/books/sell' : '/auth/login?redirect=/books/sell')} variant="outline" className="w-full sm:w-auto">
+              <Button onClick={() => router.push(user ? '/books/sell' : '/auth/login?redirect=/books/sell')} className="w-full sm:w-auto">
                 Sell Your Book
               </Button>
               {user && (
@@ -118,7 +145,7 @@ export default function BooksPage() {
                 <BookCard 
                   key={book.id} 
                   book={book} 
-                  distance={userLocation ? calculateDistance(userLocation.latitude, userLocation.longitude, book.location.coordinates[1], book.location.coordinates[0]) : undefined}
+                  distance={book.distance}
                 />
               ))}
             </div>
@@ -135,3 +162,4 @@ export default function BooksPage() {
     </div>
   );
 }
+
