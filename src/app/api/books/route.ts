@@ -2,6 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import BookModel from '@/models/Book';
+import UserModel from '@/models/User';
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
@@ -41,7 +42,13 @@ export async function GET(request: NextRequest) {
       query.approvalStatus = 'approved';
     }
 
-    const books = await BookModel.find(query).populate('seller', 'name email whatsappNumber').sort({ createdAt: -1 });
+    const books = await BookModel.find(query)
+      .populate({
+        path: 'seller',
+        model: UserModel,
+        select: 'name email whatsappNumber',
+      })
+      .sort({ createdAt: -1 });
 
     return NextResponse.json({ books });
   } catch (error: any) {
