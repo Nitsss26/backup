@@ -1,6 +1,6 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { IUser } from './User';
+import UserModel, { type IUser } from './User'; // Ensure UserModel is imported for schema registration
 
 export interface IBook extends Document {
   title: string;
