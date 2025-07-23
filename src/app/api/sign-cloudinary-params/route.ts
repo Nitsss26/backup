@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
 
-// Load environment variables
+// Explicitly load environment variables from the root .env file
 dotenv.config({ path: '.env' });
 
+// Configure Cloudinary with the credentials from environment variables
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -15,21 +16,15 @@ export async function POST(request: NextRequest) {
   try {
     const { paramsToSign } = await request.json();
 
-    // Validate environment variables on each request
+    // Validate environment variables on each request to be certain
     const apiKey = process.env.CLOUDINARY_API_KEY;
     const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 
-    if (!apiKey) {
-      console.error('SERVER ERROR: Missing CLOUDINARY_API_KEY');
+    if (!cloudName || !apiKey || !apiSecret) {
+      console.error('SERVER ERROR: Missing one or more Cloudinary environment variables (CLOUD_NAME, API_KEY, API_SECRET).');
       return NextResponse.json(
-        { error: 'Cloudinary API Key is missing on the server.' },
-        { status: 500 }
-      );
-    }
-     if (!apiSecret) {
-      console.error('SERVER ERROR: Missing CLOUDINARY_API_SECRET');
-      return NextResponse.json(
-        { error: 'Cloudinary API Secret is missing on the server.' },
+        { error: 'Cloudinary server configuration is incomplete. Please check server logs.' },
         { status: 500 }
       );
     }

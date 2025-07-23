@@ -548,8 +548,7 @@ export default function SellBookPage() {
               />
             </div>
             
-            // src/app/books/sell/page.tsx (partial update for upload section)
-<div>
+            <div>
   <Label>Cover Photo*</Label>
   <div className="mt-2 flex flex-col items-center gap-4 rounded-lg border-2 border-dashed border-muted p-4">
     {imageUrlValue ? (
@@ -586,14 +585,17 @@ export default function SellBookPage() {
           cropping: true,
           croppingAspectRatio: 0.75,
           folder: 'edtechcart_books',
-          maxFileSize: 5000000, // 5MB limit
+          maxFileSize: 5000000,
           clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
         }}
         signatureEndpoint="/api/sign-cloudinary-params"
         onStart={handleUploadStart}
         onSuccess={handleUploadSuccess}
-        onError={handleUploadError}
-        uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET} // Fallback to unsigned if signed fails
+        onError={(error) => {
+          handleUploadError(error);
+          // Fallback to console log for debugging
+          console.error('Upload error:', error);
+        }}
         className="w-full"
       >
         <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
