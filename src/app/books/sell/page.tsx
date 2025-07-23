@@ -96,8 +96,8 @@ export default function SellBookPage() {
         const timestamp = Math.round((new Date()).getTime() / 1000);
         const folder = "book-covers";
         const paramsToSign = {
-          timestamp,
-          folder,
+          timestamp: timestamp,
+          folder: folder,
         };
 
         const { signature } = await axios.post('/api/upload-signature', { paramsToSign }).then(res => res.data);

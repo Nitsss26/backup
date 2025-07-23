@@ -2,6 +2,8 @@
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
+console.log(MONGODB_URI)
+const DB_NAME = "edtechcart_dev"; // Specify the database name here
 
 if (!MONGODB_URI) {
   throw new Error(
@@ -35,10 +37,12 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      dbName: DB_NAME, // Specify the database name in the connection options
     };
-    console.log(`🔄 Creating new MongoDB connection with URI: ${MONGODB_URI.split('@')[0]}...`);
+    console.log(`🔄 Creating new MongoDB connection promise to database: ${DB_NAME}`);
+    // Mongoose will append the dbName to the URI if it's not already there
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
-      console.log(`✅ New MongoDB connection established to database: ${mongooseInstance.connection.db.databaseName}`);
+      console.log("✅ New MongoDB connection established.");
       return mongooseInstance;
     }).catch(error => {
       console.error("🔴 MongoDB connection promise error:", error);
