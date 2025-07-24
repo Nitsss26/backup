@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import type { Book } from '@/lib/types';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageSquare, MapPin } from 'lucide-react';
@@ -38,7 +38,8 @@ export function BookCard({ book, distance }: BookCardProps) {
     e.preventDefault();
     e.stopPropagation();
     const message = encodeURIComponent(`Hi ${book.seller.name}, I'm interested in your book "${book.title}" listed on EdTechCart. Is it still available?`);
-    window.open(`https://wa.me/${book.seller.whatsappNumber}?text=${message}`, '_blank');
+    const whatsappUrl = `https://api.whatsapp.com/send/?phone=${book.seller.whatsappNumber}&text=${message}&type=phone_number&app_absent=0`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -58,28 +59,29 @@ export function BookCard({ book, distance }: BookCardProps) {
           <Heart className={cn("h-4 w-4 text-white", isBookInWishlist && "fill-red-500 text-red-500")} />
         </Button>
       </div>
-      <CardContent className="p-3 flex-grow">
+      <CardContent className="p-3 flex-grow flex flex-col">
         <p className="text-xs text-muted-foreground">{book.category} &gt; {book.subcategory}</p>
-        <h3 className="text-sm font-semibold leading-tight line-clamp-2 mt-1">{book.title}</h3>
+        <h3 className="text-sm font-semibold leading-tight line-clamp-2 mt-1 flex-grow">{book.title}</h3>
         {book.author && <p className="text-xs text-muted-foreground mt-1">by {book.author}</p>}
-        {distance !== null && distance !== undefined && (
-            <div className="flex items-center text-xs text-muted-foreground mt-2">
-                <MapPin className="h-3 w-3 mr-1" />
-                <span>Approx. {distance.toFixed(1)} km away</span>
+        
+        <div className="mt-2 pt-2 border-t">
+            {distance !== null && distance !== undefined && (
+                <div className="flex items-center text-xs text-muted-foreground">
+                    <MapPin className="h-3 w-3 mr-1.5 shrink-0" />
+                    <span className="truncate">Approx. {distance.toFixed(1)} km away</span>
+                </div>
+            )}
+            <div className="flex items-center justify-between mt-2">
+                 <p className="text-base font-bold text-primary">
+                    {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
+                </p>
+                 <Button size="sm" onClick={handleContactSeller} className="h-8 px-2.5 text-xs">
+                    <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
+                    Contact
+                </Button>
             </div>
-        )}
-      </CardContent>
-      <CardFooter className="p-3 border-t flex items-center justify-between">
-        <div>
-          <p className="text-base font-bold text-primary">
-            {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
-          </p>
         </div>
-        <Button size="sm" onClick={handleContactSeller}>
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Contact Seller
-        </Button>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }
