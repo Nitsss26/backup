@@ -38,15 +38,16 @@ export function BookCard({ book, distance }: BookCardProps) {
   const handleContactSeller = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const sellerWhatsapp = book.seller?.whatsappNumber;
+    const sellerWhatsapp = book.whatsappNumber; // Use number directly from the book
     if (!sellerWhatsapp) {
-        toast({ title: "Error", description: "Seller's WhatsApp number is not available.", variant: "destructive" });
+        toast({ title: "Error", description: "Seller's WhatsApp number is not available for this listing.", variant: "destructive" });
         return;
     }
-    // Assumes whatsappNumber is a 10-digit string. Prepend country code for India.
-    const whatsappNumber = `91${sellerWhatsapp.replace(/\D/g, '')}`;
-    const message = encodeURIComponent(`Hi ${book.seller.name}, I'm interested in your book "${book.title}" listed on ${APP_NAME}. Is it still available?`);
-    const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${message}&type=phone_number&app_absent=0`;
+    // Use the 10-digit number directly as requested
+    const whatsappNumber = sellerWhatsapp.replace(/\D/g, '').slice(-10);
+    const sellerName = book.seller?.name || 'Seller';
+    const message = encodeURIComponent(`Hi ${sellerName}, I'm interested in your book "${book.title}" listed on ${APP_NAME}. Is it still available?`);
+    const whatsappUrl = `https://api.whatsapp.com/send/?phone=91${whatsappNumber}&text=${message}&type=phone_number&app_absent=0`;
     window.open(whatsappUrl, '_blank');
   };
   

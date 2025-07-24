@@ -1,13 +1,11 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
-// The IUser interface was missing the whatsappNumber.
-// We are adding it here to ensure it's not stripped out during data serialization.
+// The IUser interface no longer needs the whatsappNumber, as it will be stored per book listing.
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
   name: string;
   email: string;
-  whatsappNumber?: string;
 }
 
 export interface IBook extends Document {
@@ -19,7 +17,8 @@ export interface IBook extends Document {
   listingType: 'sell' | 'rent';
   price?: number;
   rentPricePerMonth?: number;
-  seller: IUser; // This now uses the corrected interface above
+  seller: IUser; 
+  whatsappNumber: string; // Added field to store number with the book
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
@@ -41,6 +40,7 @@ const BookSchema: Schema<IBook> = new Schema({
   price: { type: Number, min: 0 },
   rentPricePerMonth: { type: Number, min: 0 },
   seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  whatsappNumber: { type: String, required: true, trim: true }, // Added schema definition
   location: {
     type: { type: String, enum: ['Point'], required: true },
     coordinates: { type: [Number], required: true }, // [longitude, latitude]

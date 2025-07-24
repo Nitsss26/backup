@@ -73,16 +73,21 @@ export interface EBook {
 
 export interface Book {
   id: string;
-  _id?: string;
+  _id: string; // Changed to required as it's the unique key
   title: string;
   author?: string;
   category: string;
   subcategory: string;
   imageUrl: string;
   listingType: 'sell' | 'rent';
-  price: number;
+  price?: number;
   rentPricePerMonth?: number;
-  seller: User;
+  seller: { // Seller info is denormalized slightly for display
+    _id: string;
+    name: string;
+    email: string;
+  };
+  whatsappNumber: string; // Added whatsappNumber here
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
@@ -239,5 +244,3 @@ export interface Order {
   orderDate: string;
   transactionId?: string;
 }
-
-    
