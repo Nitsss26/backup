@@ -1,17 +1,16 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Button } from './ui/button';
 import { toast } from '@/hooks/use-toast';
 
 // Fix for default marker icon issue with Webpack
 // @ts-ignore
 delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.imagePath = "/"; // Explicitly set path
+L.Icon.Default.imagePath = "/";
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -23,34 +22,61 @@ interface LocationPickerProps {
 }
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => {
+    const mapContainerRef = useRef<HTMLDivElement>(null);
+    const mapRef = useRef<L.Map | null>(null);
+    const markerRef = useRef<L.Marker | null>(null);
+    
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>('');
-    const mapRef = useRef<L.Map | null>(null);
 
-    // This component handles map events and updates the state
-    const LocationEvents = () => {
-        useMapEvents({
-            click(e) {
-                setPosition(e.latlng);
-                reverseGeocode(e.latlng);
-                mapRef.current?.flyTo(e.latlng, mapRef.current.getZoom());
-            },
-        });
-        return null;
-    };
-    
     // Reverse geocode to get address from coordinates
     const reverseGeocode = async (latlng: { lat: number; lng: number }) => {
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`);
+            if (!response.ok) throw new Error('Failed to fetch address');
             const data = await response.json();
             setAddress(data.display_name || 'Address not found');
         } catch (error) {
             setAddress('Could not fetch address');
             console.error("Reverse geocoding error:", error);
+            toast({ title: "Error", description: "Could not fetch address details.", variant: "destructive" });
         }
     };
-    
+
+    // Initialize the map
+    useEffect(() => {
+        if (mapContainerRef.current && !mapRef.current) { // Only initialize if it doesn't exist
+            const map = L.map(mapContainerRef.current).setView([20.5937, 78.9629], 5);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            map.on('click', (e) => {
+                const { lat, lng } = e.latlng;
+                setPosition({ lat, lng });
+                reverseGeocode({ lat, lng });
+                
+                if (markerRef.current) {
+                    markerRef.current.setLatLng(e.latlng);
+                } else {
+                    markerRef.current = L.marker(e.latlng).addTo(map);
+                }
+                map.flyTo(e.latlng, map.getZoom());
+            });
+
+            mapRef.current = map;
+        }
+
+        // Cleanup function: this is crucial
+        return () => {
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
+        };
+    }, []); // Empty dependency array ensures this runs only once on mount
+
     // Confirm button handler
     const handleConfirm = () => {
         if (position && address) {
@@ -60,38 +86,9 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         }
     };
 
-    // Correctly manage map instance lifecycle
-    useEffect(() => {
-        const map = mapRef.current;
-        // This cleanup function will run when the component unmounts
-        return () => {
-            if (map) {
-                map.remove(); // This is the crucial step to prevent the error
-                mapRef.current = null;
-            }
-        };
-    }, []); // Empty dependency array ensures this runs only on mount and unmount
-
-
     return (
         <div className="flex flex-col h-full">
-            <div className="flex-grow h-[calc(100%-8rem)]">
-                {typeof window !== 'undefined' && (
-                    <MapContainer
-                        center={[20.5937, 78.9629]} // Default to India
-                        zoom={5}
-                        style={{ height: '100%', width: '100%' }}
-                        whenCreated={(mapInstance) => { mapRef.current = mapInstance; }} // Store map instance
-                    >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        />
-                        <LocationEvents />
-                        {position && <Marker position={position}></Marker>}
-                    </MapContainer>
-                )}
-            </div>
+            <div ref={mapContainerRef} className="flex-grow h-[calc(100%-8rem)] w-full" id="map"></div>
             <div className="p-4 bg-muted/50 rounded-b-md">
                 <p className="text-sm font-medium">Selected Address:</p>
                 <p className="text-xs text-muted-foreground min-h-[2.5rem]">{address || "Click on the map to set a location."}</p>
