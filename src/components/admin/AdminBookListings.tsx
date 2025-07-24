@@ -81,7 +81,7 @@ export function AdminBookListings() {
                       <p className="text-xs text-muted-foreground">{book.author}</p>
                     </div>
                   </TableCell>
-                  <TableCell>{book.seller.name}</TableCell>
+                  <TableCell>{book.seller?.name || 'N/A'}</TableCell>
                   <TableCell>{book.listingType === 'sell' ? 'For Sale' : 'For Rent'}</TableCell>
                   <TableCell>
                     {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
