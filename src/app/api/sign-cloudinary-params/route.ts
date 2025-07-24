@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     const { paramsToSign } = await request.json();
 
     // Explicitly configure Cloudinary inside the request handler
-    // This is a more robust way to ensure credentials are loaded for serverless functions
     cloudinary.config({
       cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
