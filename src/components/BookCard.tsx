@@ -10,6 +10,7 @@ import { Heart, MessageSquare, MapPin } from 'lucide-react';
 import { useWishlist } from '@/components/AppProviders';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { APP_NAME } from '@/lib/constants';
 
 interface BookCardProps {
   book: Book;
@@ -42,8 +43,9 @@ export function BookCard({ book, distance }: BookCardProps) {
         toast({ title: "Error", description: "Seller's WhatsApp number is not available.", variant: "destructive" });
         return;
     }
-    const whatsappNumber = sellerWhatsapp.replace(/\D/g, '');
-    const message = encodeURIComponent(`Hi ${book.seller.name}, I'm interested in your book "${book.title}" listed on EdTechCart. Is it still available?`);
+    // Assumes whatsappNumber is a 10-digit string. Prepend country code for India.
+    const whatsappNumber = `91${sellerWhatsapp.replace(/\D/g, '')}`;
+    const message = encodeURIComponent(`Hi ${book.seller.name}, I'm interested in your book "${book.title}" listed on ${APP_NAME}. Is it still available?`);
     const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${message}&type=phone_number&app_absent=0`;
     window.open(whatsappUrl, '_blank');
   };
@@ -89,7 +91,7 @@ export function BookCard({ book, distance }: BookCardProps) {
         
         <div className="mt-3 pt-3 border-t flex items-center justify-between">
             <p className="text-lg font-bold text-primary">
-                {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
+                {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/month`}
             </p>
             <Button size="sm" onClick={handleContactSeller} className="h-8 px-3 text-xs">
                 <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
