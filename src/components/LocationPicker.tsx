@@ -5,10 +5,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from './ui/button';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { Input } from './ui/input';
 import { Search, Loader2 } from 'lucide-react';
 import { debounce } from 'lodash';
+import { getUserLocation } from '@/lib/location';
 
 // Fix for default marker icon issue with Webpack
 // @ts-ignore
@@ -34,6 +35,46 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+    const { toast } = useToast();
+
+    // Initialize map and try to get user's current location
+    useEffect(() => {
+        if (mapContainerRef.current && !mapRef.current) {
+            const map = L.map(mapContainerRef.current).setView([20.5937, 78.9629], 5); // Default to India
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            map.on('click', (e) => reverseGeocode(e.latlng));
+            mapRef.current = map;
+
+            // Try to get user's current location to center the map
+            getUserLocation()
+                .then(({ latitude, longitude }) => {
+                    const userLatLng = { lat: latitude, lng: longitude };
+                    map.flyTo(userLatLng, 13);
+                    if (markerRef.current) {
+                        markerRef.current.setLatLng(userLatLng);
+                    } else {
+                        markerRef.current = L.marker(userLatLng).addTo(map);
+                    }
+                    reverseGeocode(userLatLng);
+                    toast({ title: "Location Found", description: "Map centered on your current location." });
+                })
+                .catch(error => {
+                    console.warn("Could not get user location on init:", error.message);
+                    // No toast needed here, it's a silent fallback
+                });
+        }
+
+        return () => {
+            if (mapRef.current) {
+                mapRef.current.remove();
+                mapRef.current = null;
+            }
+        };
+    }, [toast]);
 
     const updateMarkerAndPosition = (latlng: { lat: number; lng: number }, newAddress: string) => {
         const map = mapRef.current;
@@ -41,15 +82,15 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         
         setPosition(latlng);
         setAddress(newAddress);
-        setSearchQuery(newAddress); // Update input field with selected address
-        setSuggestions([]); // Hide suggestions
+        setSearchQuery(newAddress);
+        setSuggestions([]);
 
         if (markerRef.current) {
             markerRef.current.setLatLng(latlng);
         } else {
             markerRef.current = L.marker(latlng).addTo(map);
         }
-        map.flyTo(latlng, 16); // Zoom in closer on selection
+        map.flyTo(latlng, 16);
     };
 
     const reverseGeocode = async (latlng: { lat: number; lng: number }) => {
@@ -61,13 +102,11 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         } catch (error) {
             console.error("Reverse geocoding error:", error);
             setAddress('Could not fetch address details.');
-            toast({ title: "Error", description: "Could not fetch address details for the clicked point.", variant: "destructive" });
         }
     };
     
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const debouncedSearch = useCallback(
-        debounce(async (query) => {
+        debounce(async (query: string) => {
             if (query.length < 3) {
                 setSuggestions([]);
                 setIsLoadingSuggestions(false);
@@ -75,7 +114,9 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
             }
             setIsLoadingSuggestions(true);
             try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=in&addressdetails=1`);
+                // Get current map view to bias search results
+                const viewbox = mapRef.current?.getBounds().toBBoxString();
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=in&addressdetails=1&viewbox=${viewbox}&bounded=1`);
                 if (!response.ok) throw new Error("Network response was not ok.");
                 const data = await response.json();
                 setSuggestions(data);
@@ -93,28 +134,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         debouncedSearch(searchQuery);
     }, [searchQuery, debouncedSearch]);
 
-
-    useEffect(() => {
-        if (mapContainerRef.current && !mapRef.current) {
-            const map = L.map(mapContainerRef.current).setView([20.5937, 78.9629], 5);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            map.on('click', (e) => reverseGeocode(e.latlng));
-
-            mapRef.current = map;
-        }
-
-        return () => {
-            if (mapRef.current) {
-                mapRef.current.remove();
-                mapRef.current = null;
-            }
-        };
-    }, []);
-
     const handleConfirm = () => {
         if (position && address) {
             onLocationSelect(position, address);
@@ -127,7 +146,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         <div className="flex flex-col h-full">
             <div className="relative p-2 border-b">
                 <Input 
-                    placeholder="Search for a city, street, or landmark..."
+                    placeholder="Search for a street, landmark, or city..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-8"
