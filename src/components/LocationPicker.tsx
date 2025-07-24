@@ -1,8 +1,8 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Button } from './ui/button';
@@ -25,26 +25,32 @@ interface LocationPickerProps {
 const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => {
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>('');
-    const mapRef = useRef<any>(null);
-    const [mapKey, setMapKey] = useState(Date.now()); // Add a key to force re-render
+    const mapRef = useRef<L.Map | null>(null); // Correctly type the map ref
+    const [mapKey, setMapKey] = useState(Date.now()); // Key to force re-render
 
     useEffect(() => {
-        // Set default view to a central location in India when component mounts
-        if (!position) {
-          setPosition({ lat: 20.5937, lng: 78.9629 });
-        }
-        // This effect will run when the dialog is opened/closed,
+        // This effect will run when the dialog is opened,
         // resetting the key will ensure the map re-initializes correctly.
         setMapKey(Date.now());
     }, []);
 
     const LocationMarker = () => {
+        const map = useMap();
         useMapEvents({
             click(e) {
                 setPosition(e.latlng);
                 reverseGeocode(e.latlng);
+                map.flyTo(e.latlng, map.getZoom());
             },
         });
+
+        // Effect to set initial view without overwriting user selection
+        useEffect(() => {
+            if (!position) {
+                map.setView([20.5937, 78.9629], 5); // Default to India
+            }
+        }, [map, position]);
+
 
         return position === null ? null : (
             <Marker position={position}></Marker>
@@ -70,16 +76,28 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         }
     }
 
+    // This useEffect hook handles the cleanup of the map instance
+    useEffect(() => {
+      const currentMap = mapRef.current;
+      return () => {
+          if (currentMap) {
+              // @ts-ignore
+              currentMap.remove(); // This destroys the Leaflet map instance
+              mapRef.current = null;
+          }
+      };
+    }, []);
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex-grow h-[calc(100%-8rem)]">
                 {typeof window !== 'undefined' && (
                     <MapContainer
-                        key={mapKey} // Use the key here
+                        key={mapKey}
                         center={position || [20.5937, 78.9629]}
                         zoom={5}
                         style={{ height: '100%', width: '100%' }}
-                        whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}
+                        ref={mapRef} // Use the ref prop to get the map instance
                     >
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

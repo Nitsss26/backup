@@ -217,7 +217,7 @@ export default function SellBookPage() {
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <Label htmlFor="title">Book Title*</Label>
+              <Label htmlFor="title">Book Title</Label>
               <Input 
                 id="title" 
                 placeholder="Enter the book title"
@@ -236,7 +236,7 @@ export default function SellBookPage() {
             </div>
             
             <div>
-              <Label>Cover Photo*</Label>
+              <Label>Cover Photo<span className="text-red-500">*</span></Label>
               <div className="mt-2 flex flex-col items-center gap-4 rounded-lg border-2 border-dashed border-muted p-4">
                 {imageUrlValue ? (
                   <div className="relative">
@@ -299,7 +299,7 @@ export default function SellBookPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label>Category*</Label>
+                <Label>Category<span className="text-red-500">*</span></Label>
                 <Controller
                   name="category"
                   control={control}
@@ -325,7 +325,7 @@ export default function SellBookPage() {
                  {errors.category && <p className="text-sm text-destructive mt-1">{errors.category.message}</p>}
               </div>
               <div>
-                <Label>Sub-category*</Label>
+                <Label>Sub-category<span className="text-red-500">*</span></Label>
                 <Controller
                   name="subcategory"
                   control={control}
@@ -351,7 +351,7 @@ export default function SellBookPage() {
             </div>
             
             <div>
-              <Label>Listing Type*</Label>
+              <Label>Listing Type<span className="text-red-500">*</span></Label>
               <Controller
                 name="listingType"
                 control={control}
@@ -373,7 +373,7 @@ export default function SellBookPage() {
             
             {listingType === 'sell' && (
               <div>
-                <Label htmlFor="price">Sale Price (₹)*</Label>
+                <Label htmlFor="price">Sale Price (₹)<span className="text-red-500">*</span></Label>
                 <Input 
                   id="price" 
                   type="number" 
@@ -388,7 +388,7 @@ export default function SellBookPage() {
 
             {listingType === 'rent' && (
               <div>
-                <Label htmlFor="rentPricePerMonth">Rent Price per Month (₹)*</Label>
+                <Label htmlFor="rentPricePerMonth">Rent Price per Month (₹)<span className="text-red-500">*</span></Label>
                 <Input 
                   id="rentPricePerMonth" 
                   type="number" 
@@ -402,7 +402,7 @@ export default function SellBookPage() {
             )}
             
             <div>
-              <Label>Pickup Location*</Label>
+              <Label>Pickup Location<span className="text-red-500">*</span></Label>
               <div className="p-3 border rounded-md min-h-[6rem] flex flex-col justify-center bg-muted/30">
                  {locationValue?.address ? (
                     <div className="text-sm">
@@ -440,24 +440,28 @@ export default function SellBookPage() {
                {errors.location && <p className="text-sm text-destructive mt-1">{errors.location?.message || errors.location?.address?.message}</p>}
             </div>
 
-             <div>
-                <Label htmlFor="whatsappNumber">WhatsApp Number*</Label>
-                <div className="flex items-center">
-                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm">+91</span>
-                  <Input 
-                    id="whatsappNumber" 
-                    type="tel" 
-                    maxLength={10}
-                    placeholder="9876543210"
-                    {...register('whatsappNumber')} 
-                    className="rounded-l-none"
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Your 10-digit number. This will be shared with potential buyers for communication.
-                </p>
-                {errors.whatsappNumber && <p className="text-sm text-destructive mt-1">{errors.whatsappNumber.message}</p>}
-            </div>
+            <div>
+  <Label htmlFor="whatsappNumber">
+    WhatsApp Number <span className="text-red-500">*</span>
+  </Label>
+  <div className="flex items-center mt-2">
+    <span className="inline-flex items-center justify-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm h-10 leading-10">
+      +91
+    </span>
+    <Input
+      id="whatsappNumber"
+      type="tel"
+      maxLength={10}
+      placeholder="9876543210"
+      {...register('whatsappNumber')}
+      className="rounded-l-none h-10 border-l-0 focus:border-l-0 focus:ring-0"
+    />
+  </div>
+  <p className="text-xs text-muted-foreground mt-1">
+    Your 10-digit number. This will be shared with potential buyers for communication.
+  </p>
+  {errors.whatsappNumber && <p className="text-sm text-destructive mt-1">{errors.whatsappNumber.message}</p>}
+</div>
             
             <Button type="submit" className="w-full" disabled={isLoading || isUploading}>
               {isLoading ? (
