@@ -38,12 +38,11 @@ export function BookCard({ book, distance }: BookCardProps) {
   const handleContactSeller = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const sellerWhatsapp = book.whatsappNumber; // Use number directly from the book
+    const sellerWhatsapp = book.whatsappNumber;
     if (!sellerWhatsapp) {
         toast({ title: "Error", description: "Seller's WhatsApp number is not available for this listing.", variant: "destructive" });
         return;
     }
-    // Use the 10-digit number directly as requested
     const whatsappNumber = sellerWhatsapp.replace(/\D/g, '').slice(-10);
     const sellerName = book.seller?.name || 'Seller';
     const message = encodeURIComponent(`Hi ${sellerName}, I'm interested in your book "${book.title}" listed on ${APP_NAME}. Is it still available?`);
@@ -83,7 +82,7 @@ export function BookCard({ book, distance }: BookCardProps) {
       <CardContent className="p-3 flex-grow flex flex-col">
         <div className="flex justify-between items-start mb-1">
             <p className="text-xs text-muted-foreground capitalize">{book.subcategory}</p>
-             <Badge className="text-white text-[10px] px-1.5 py-0.5" variant={book.listingType === 'sell' ? 'default' : 'secondary'}>
+             <Badge className="text-white text-[10px] px-1.5 py-0.5" style={{ backgroundColor: book.listingType === 'sell' ? 'hsl(var(--primary))' : 'hsl(var(--accent))' }}>
               {book.listingType === 'sell' ? 'FOR SALE' : 'FOR RENT'}
             </Badge>
         </div>

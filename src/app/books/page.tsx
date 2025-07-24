@@ -58,10 +58,10 @@ export default function BooksPage() {
       const location = await getUserLocation();
       setUserLocation(location);
       fetchBooks(location); // Fetch books immediately after getting location
-      toast({ title: 'Success!', description: 'Location updated. Sorting books by distance.' });
+      toast({ title: 'Location Enabled!', description: 'Showing books closest to you first.' });
     } catch (error: any) {
       setLocationError(error.message);
-      toast({ title: 'Location Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Location Error', description: "Could not get your location. Showing all books.", variant: 'destructive' });
       fetchBooks(null); // Fetch books without location if permission is denied
     }
   }, [toast]);
@@ -129,7 +129,7 @@ export default function BooksPage() {
           {isLoading ? (
             <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
           ) : filteredBooks.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {filteredBooks.map(book => (
                 <BookCard 
                   key={book._id} 
@@ -151,4 +151,3 @@ export default function BooksPage() {
     </div>
   );
 }
-
