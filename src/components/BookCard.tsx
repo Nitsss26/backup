@@ -20,13 +20,13 @@ export function BookCard({ book, distance }: BookCardProps) {
   const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlist();
   const { toast } = useToast();
 
-  const isBookInWishlist = wishlistItems.some(item => item.type === 'book' && item.item.id === book.id);
+  const isBookInWishlist = wishlistItems.some(item => item.type === 'book' && item.item.id === book._id);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (isBookInWishlist) {
-      removeFromWishlist(book.id, 'book');
+      removeFromWishlist(book._id, 'book');
       toast({ title: "Removed from Wishlist", description: `"${book.title}" has been removed.` });
     } else {
       addToWishlist(book, 'book');
@@ -37,11 +37,12 @@ export function BookCard({ book, distance }: BookCardProps) {
   const handleContactSeller = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const whatsappNumber = book.seller?.whatsappNumber?.replace(/\D/g, '');
-    if (!whatsappNumber) {
+    const sellerWhatsapp = book.seller?.whatsappNumber;
+    if (!sellerWhatsapp) {
         toast({ title: "Error", description: "Seller's WhatsApp number is not available.", variant: "destructive" });
         return;
     }
+    const whatsappNumber = sellerWhatsapp.replace(/\D/g, '');
     const message = encodeURIComponent(`Hi ${book.seller.name}, I'm interested in your book "${book.title}" listed on EdTechCart. Is it still available?`);
     const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${message}&type=phone_number&app_absent=0`;
     window.open(whatsappUrl, '_blank');
@@ -62,7 +63,7 @@ export function BookCard({ book, distance }: BookCardProps) {
           alt={book.title}
           width={300}
           height={425}
-          className="object-cover w-full h-64 sm:h-72 md:h-80 transition-transform duration-300 group-hover:scale-105"
+          className="object-cover w-full h-64 sm:h-72 transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
         
@@ -76,22 +77,22 @@ export function BookCard({ book, distance }: BookCardProps) {
           <Heart className={cn("h-4 w-4 text-white", isBookInWishlist && "fill-red-500 text-red-500")} />
         </Button>
       </div>
-      <CardContent className="p-3 md:p-4 flex-grow flex flex-col">
-        <div className="flex justify-between items-start">
+      <CardContent className="p-3 flex-grow flex flex-col">
+        <div className="flex justify-between items-start mb-1">
             <p className="text-xs text-muted-foreground capitalize">{book.subcategory}</p>
              <Badge className="text-white text-[10px] px-1.5 py-0.5" variant={book.listingType === 'sell' ? 'default' : 'secondary'}>
               {book.listingType === 'sell' ? 'FOR SALE' : 'FOR RENT'}
             </Badge>
         </div>
-        <h3 className="text-sm md:text-base font-bold leading-tight line-clamp-2 flex-grow text-foreground mt-1">{book.title}</h3>
-        {book.author && <p className="text-xs md:text-sm text-muted-foreground mt-1">by {book.author}</p>}
+        <h3 className="text-base font-bold leading-tight line-clamp-2 flex-grow text-foreground">{book.title}</h3>
+        {book.author && <p className="text-xs text-muted-foreground mt-1">by {book.author}</p>}
         
         <div className="mt-3 pt-3 border-t flex items-center justify-between">
-            <p className="text-lg md:text-xl font-bold text-primary">
+            <p className="text-lg font-bold text-primary">
                 {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
             </p>
-            <Button size="sm" onClick={handleContactSeller} className="h-9 px-3 text-xs md:text-sm">
-                <MessageSquare className="mr-1.5 h-4 w-4" />
+            <Button size="sm" onClick={handleContactSeller} className="h-8 px-3 text-xs">
+                <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
                 Contact Seller
             </Button>
         </div>
@@ -99,4 +100,3 @@ export function BookCard({ book, distance }: BookCardProps) {
     </Card>
   );
 }
-

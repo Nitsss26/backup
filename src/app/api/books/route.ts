@@ -1,7 +1,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import BookModel from '@/models/Book';
+import BookModel, { IBook } from '@/models/Book';
 import mongoose from 'mongoose';
 import UserModel from '@/models/User';
 
@@ -37,13 +37,12 @@ export async function POST(request: NextRequest) {
       subcategory: data.subcategory,
       listingType: data.listingType,
       imageUrl: data.imageUrl,
-      whatsappNumber: data.whatsappNumber,
+      seller: new mongoose.Types.ObjectId(data.sellerId),
       location: {
         type: 'Point',
         coordinates: data.location.coordinates,
         address: data.location.address
       },
-      seller: new mongoose.Types.ObjectId(data.sellerId),
       approvalStatus: 'pending',
       createdAt: new Date(),
       updatedAt: new Date()
@@ -55,6 +54,10 @@ export async function POST(request: NextRequest) {
     } else if (data.listingType === 'rent') {
       bookData.rentPricePerMonth = Number(data.rentPricePerMonth);
     }
+    
+    // Update seller's whatsapp number if it's different
+    await UserModel.findByIdAndUpdate(data.sellerId, { whatsappNumber: data.whatsappNumber });
+
 
     const newBook = new BookModel(bookData);
     await newBook.save();
@@ -98,7 +101,7 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = parseInt(searchParams.get('limit') || '20');
 
     const query: any = {};
 
