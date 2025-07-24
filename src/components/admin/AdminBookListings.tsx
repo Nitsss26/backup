@@ -73,7 +73,7 @@ export function AdminBookListings() {
             </TableHeader>
             <TableBody>
               {books.map((book) => (
-                <TableRow key={book.id}>
+                <TableRow key={book._id || book.id}>
                   <TableCell className="flex items-center gap-2">
                     <Image src={book.imageUrl} alt={book.title} width={40} height={50} className="rounded object-cover" />
                     <div>
