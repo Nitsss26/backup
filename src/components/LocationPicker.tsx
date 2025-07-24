@@ -25,38 +25,21 @@ interface LocationPickerProps {
 const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => {
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
     const [address, setAddress] = useState<string>('');
-    const mapRef = useRef<L.Map | null>(null); // Correctly type the map ref
-    const [mapKey, setMapKey] = useState(Date.now()); // Key to force re-render
+    const mapRef = useRef<L.Map | null>(null);
 
-    useEffect(() => {
-        // This effect will run when the dialog is opened,
-        // resetting the key will ensure the map re-initializes correctly.
-        setMapKey(Date.now());
-    }, []);
-
-    const LocationMarker = () => {
-        const map = useMap();
+    // This component handles map events and updates the state
+    const LocationEvents = () => {
         useMapEvents({
             click(e) {
                 setPosition(e.latlng);
                 reverseGeocode(e.latlng);
-                map.flyTo(e.latlng, map.getZoom());
+                mapRef.current?.flyTo(e.latlng, mapRef.current.getZoom());
             },
         });
-
-        // Effect to set initial view without overwriting user selection
-        useEffect(() => {
-            if (!position) {
-                map.setView([20.5937, 78.9629], 5); // Default to India
-            }
-        }, [map, position]);
-
-
-        return position === null ? null : (
-            <Marker position={position}></Marker>
-        );
+        return null;
     };
-
+    
+    // Reverse geocode to get address from coordinates
     const reverseGeocode = async (latlng: { lat: number; lng: number }) => {
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`);
@@ -68,42 +51,44 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
         }
     };
     
+    // Confirm button handler
     const handleConfirm = () => {
         if (position && address) {
             onLocationSelect(position, address);
         } else {
             toast({ title: "Error", description: "Please select a location on the map first.", variant: "destructive" });
         }
-    }
+    };
 
-    // This useEffect hook handles the cleanup of the map instance
+    // Correctly manage map instance lifecycle
     useEffect(() => {
-      const currentMap = mapRef.current;
-      return () => {
-          if (currentMap) {
-              // @ts-ignore
-              currentMap.remove(); // This destroys the Leaflet map instance
-              mapRef.current = null;
-          }
-      };
-    }, []);
+        const map = mapRef.current;
+        // This cleanup function will run when the component unmounts
+        return () => {
+            if (map) {
+                map.remove(); // This is the crucial step to prevent the error
+                mapRef.current = null;
+            }
+        };
+    }, []); // Empty dependency array ensures this runs only on mount and unmount
+
 
     return (
         <div className="flex flex-col h-full">
             <div className="flex-grow h-[calc(100%-8rem)]">
                 {typeof window !== 'undefined' && (
                     <MapContainer
-                        key={mapKey}
-                        center={position || [20.5937, 78.9629]}
+                        center={[20.5937, 78.9629]} // Default to India
                         zoom={5}
                         style={{ height: '100%', width: '100%' }}
-                        ref={mapRef} // Use the ref prop to get the map instance
+                        whenCreated={(mapInstance) => { mapRef.current = mapInstance; }} // Store map instance
                     >
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         />
-                        <LocationMarker />
+                        <LocationEvents />
+                        {position && <Marker position={position}></Marker>}
                     </MapContainer>
                 )}
             </div>
