@@ -37,10 +37,13 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
     const { toast } = useToast();
 
-    // Initialize map and try to get user's current location
+    // Initialize map
     useEffect(() => {
         if (mapContainerRef.current && !mapRef.current) {
-            const map = L.map(mapContainerRef.current).setView([20.5937, 78.9629], 5); // Default to India
+            const map = L.map(mapContainerRef.current, {
+                center: [20.5937, 78.9629], // Default to India
+                zoom: 5,
+            });
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -54,17 +57,10 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
                 .then(({ latitude, longitude }) => {
                     const userLatLng = { lat: latitude, lng: longitude };
                     map.flyTo(userLatLng, 13);
-                    if (markerRef.current) {
-                        markerRef.current.setLatLng(userLatLng);
-                    } else {
-                        markerRef.current = L.marker(userLatLng).addTo(map);
-                    }
-                    reverseGeocode(userLatLng);
-                    toast({ title: "Location Found", description: "Map centered on your current location." });
+                    updateMarkerAndPosition(userLatLng, 'Fetching your location...');
                 })
                 .catch(error => {
                     console.warn("Could not get user location on init:", error.message);
-                    // No toast needed here, it's a silent fallback
                 });
         }
 
@@ -74,7 +70,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
                 mapRef.current = null;
             }
         };
-    }, [toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const updateMarkerAndPosition = (latlng: { lat: number; lng: number }, newAddress: string) => {
         const map = mapRef.current;
@@ -91,6 +88,10 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
             markerRef.current = L.marker(latlng).addTo(map);
         }
         map.flyTo(latlng, 16);
+
+        if (newAddress === 'Fetching your location...') {
+            reverseGeocode(latlng); // Now fetch the real address
+        }
     };
 
     const reverseGeocode = async (latlng: { lat: number; lng: number }) => {
@@ -98,7 +99,9 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}&addressdetails=1`);
             if (!response.ok) throw new Error('Failed to fetch address');
             const data = await response.json();
-            updateMarkerAndPosition(latlng, data.display_name || 'Address not found');
+            const fetchedAddress = data.display_name || 'Address not found';
+            setAddress(fetchedAddress);
+            setSearchQuery(fetchedAddress);
         } catch (error) {
             console.error("Reverse geocoding error:", error);
             setAddress('Could not fetch address details.');
@@ -131,8 +134,10 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
     );
     
     useEffect(() => {
-        debouncedSearch(searchQuery);
-    }, [searchQuery, debouncedSearch]);
+        if(searchQuery !== address) { // Only search if text differs from confirmed address
+            debouncedSearch(searchQuery);
+        }
+    }, [searchQuery, address, debouncedSearch]);
 
     const handleConfirm = () => {
         if (position && address) {
@@ -169,7 +174,8 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
                     </div>
                  )}
             </div>
-            <div ref={mapContainerRef} className="flex-grow h-[calc(100%-10rem)] w-full" id="map"></div>
+            {/* The map container now uses flex-grow to fill available space */}
+            <div ref={mapContainerRef} className="flex-grow w-full" id="map"></div>
             <div className="p-4 bg-muted/50 rounded-b-md">
                 <p className="text-sm font-medium">Selected Address:</p>
                 <p className="text-xs text-muted-foreground min-h-[2.5rem] line-clamp-2">{address || "Click on the map or use search to set a location."}</p>
