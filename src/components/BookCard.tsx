@@ -37,7 +37,6 @@ export function BookCard({ book, distance }: BookCardProps) {
   const handleContactSeller = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Ensure whatsappNumber exists and is a valid string of digits
     const whatsappNumber = book.seller?.whatsappNumber?.replace(/\D/g, '');
     if (!whatsappNumber) {
         toast({ title: "Error", description: "Seller's WhatsApp number is not available.", variant: "destructive" });
@@ -47,6 +46,13 @@ export function BookCard({ book, distance }: BookCardProps) {
     const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${message}&type=phone_number&app_absent=0`;
     window.open(whatsappUrl, '_blank');
   };
+  
+  const formatDistance = (dist: number): string => {
+    if (dist < 1) {
+        return `${Math.round(dist * 1000)}m away`;
+    }
+    return `${dist.toFixed(1)}km away`;
+  }
 
   return (
     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 bg-card group">
@@ -54,15 +60,15 @@ export function BookCard({ book, distance }: BookCardProps) {
         <Image
           src={book.imageUrl}
           alt={book.title}
-          width={400}
-          height={500}
-          className="object-cover w-full h-64 transition-transform duration-300 group-hover:scale-105"
+          width={300}
+          height={425}
+          className="object-cover w-full h-64 sm:h-72 md:h-80 transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
         
         {distance !== null && distance !== undefined && (
-             <Badge variant="secondary" className="absolute top-2 left-2 flex items-center bg-black/50 text-white border-none">
-                <MapPin className="h-3 w-3 mr-1" /> {distance.toFixed(1)} km
+             <Badge variant="secondary" className="absolute top-2 left-2 flex items-center bg-black/50 text-white border-none backdrop-blur-sm">
+                <MapPin className="h-3 w-3 mr-1" /> {formatDistance(distance)}
             </Badge>
         )}
        
@@ -70,19 +76,21 @@ export function BookCard({ book, distance }: BookCardProps) {
           <Heart className={cn("h-4 w-4 text-white", isBookInWishlist && "fill-red-500 text-red-500")} />
         </Button>
       </div>
-      <CardContent className="p-4 flex-grow flex flex-col">
-        <Badge className="mb-2 w-fit text-white" variant={book.listingType === 'sell' ? 'default' : 'secondary'}>
-          {book.listingType === 'sell' ? 'For Sale' : 'For Rent'}
-        </Badge>
-        <h3 className="text-md font-bold leading-tight line-clamp-2 flex-grow text-foreground">{book.title}</h3>
-        {book.author && <p className="text-sm text-muted-foreground mt-1">by {book.author}</p>}
-         <p className="text-xs text-muted-foreground mt-1 capitalize">{book.subcategory}</p>
+      <CardContent className="p-3 md:p-4 flex-grow flex flex-col">
+        <div className="flex justify-between items-start">
+            <p className="text-xs text-muted-foreground capitalize">{book.subcategory}</p>
+             <Badge className="text-white text-[10px] px-1.5 py-0.5" variant={book.listingType === 'sell' ? 'default' : 'secondary'}>
+              {book.listingType === 'sell' ? 'FOR SALE' : 'FOR RENT'}
+            </Badge>
+        </div>
+        <h3 className="text-sm md:text-base font-bold leading-tight line-clamp-2 flex-grow text-foreground mt-1">{book.title}</h3>
+        {book.author && <p className="text-xs md:text-sm text-muted-foreground mt-1">by {book.author}</p>}
         
         <div className="mt-3 pt-3 border-t flex items-center justify-between">
-            <p className="text-xl font-bold text-primary">
+            <p className="text-lg md:text-xl font-bold text-primary">
                 {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
             </p>
-            <Button size="sm" onClick={handleContactSeller} className="h-9 px-3 text-xs">
+            <Button size="sm" onClick={handleContactSeller} className="h-9 px-3 text-xs md:text-sm">
                 <MessageSquare className="mr-1.5 h-4 w-4" />
                 Contact Seller
             </Button>
@@ -91,3 +99,4 @@ export function BookCard({ book, distance }: BookCardProps) {
     </Card>
   );
 }
+

@@ -1,6 +1,6 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import UserModel, { type IUser } from './User'; // Ensure UserModel is imported for schema registration
+import type { IUser } from './User'; // Ensure UserModel is imported for schema registration
 
 export interface IBook extends Document {
   title: string;
@@ -9,7 +9,7 @@ export interface IBook extends Document {
   subcategory: string;
   imageUrl: string;
   listingType: 'sell' | 'rent';
-  price: number;
+  price?: number;
   rentPricePerMonth?: number;
   seller: mongoose.Types.ObjectId | IUser;
   location: {
@@ -30,8 +30,8 @@ const BookSchema: Schema<IBook> = new Schema({
   subcategory: { type: String, required: true },
   imageUrl: { type: String, required: true, trim: true },
   listingType: { type: String, enum: ['sell', 'rent'], required: true },
-  price: { type: Number, required: function(this: IBook) { return this.listingType === 'sell'; }, min: 0 },
-  rentPricePerMonth: { type: Number, required: function(this: IBook) { return this.listingType === 'rent'; }, min: 0 },
+  price: { type: Number, min: 0 },
+  rentPricePerMonth: { type: Number, min: 0 },
   seller: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   location: {
     type: { type: String, enum: ['Point'], required: true },
@@ -49,4 +49,3 @@ const BookModel: Model<IBook> = models.Book || mongoose.model<IBook>('Book', Boo
 
 export default BookModel;
 
-    

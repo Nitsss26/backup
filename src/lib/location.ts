@@ -19,7 +19,7 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
   
   export function getUserLocation(): Promise<{ latitude: number, longitude: number }> {
     return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
+      if (typeof window === 'undefined' || !navigator.geolocation) {
         reject(new Error("Geolocation is not supported by your browser."));
       } else {
         navigator.geolocation.getCurrentPosition(
@@ -48,4 +48,4 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
       }
     });
   }
-  
+

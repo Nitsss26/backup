@@ -26,18 +26,18 @@ export default function BooksPage() {
   const [filters, setFilters] = useState({ category: 'all', subcategory: 'all' });
   const { toast } = useToast();
 
-  const fetchBooks = async () => {
+  const fetchBooks = async (location: { latitude: number; longitude: number } | null) => {
     setIsLoading(true);
     try {
       const response = await axios.get('/api/books');
       let fetchedBooks = response.data.books as BookType[];
       
-      if (userLocation) {
+      if (location) {
         fetchedBooks = fetchedBooks.map(book => ({
           ...book,
           distance: calculateDistance(
-            userLocation.latitude,
-            userLocation.longitude,
+            location.latitude,
+            location.longitude,
             book.location.coordinates[1],
             book.location.coordinates[0]
           ),
@@ -52,35 +52,24 @@ export default function BooksPage() {
     }
   };
 
-  useEffect(() => {
-    fetchBooks();
-  }, [userLocation]);
-
-  useEffect(() => {
-    // Prompt for location on component mount
-    toast({
-      title: 'Location Access',
-      description: 'Enable your location to see books nearest to you.',
-      action: (
-        <Button size="sm" onClick={() => handleGetLocation()}>
-          Enable Location
-        </Button>
-      ),
-      duration: 10000,
-    });
-  }, []);
-
   const handleGetLocation = useCallback(async () => {
     setLocationError(null);
     try {
       const location = await getUserLocation();
       setUserLocation(location);
+      fetchBooks(location); // Fetch books immediately after getting location
       toast({ title: 'Success!', description: 'Location updated. Sorting books by distance.' });
     } catch (error: any) {
       setLocationError(error.message);
       toast({ title: 'Location Error', description: error.message, variant: 'destructive' });
+      fetchBooks(null); // Fetch books without location if permission is denied
     }
   }, [toast]);
+
+  useEffect(() => {
+    // Prompt for location on component mount
+    handleGetLocation();
+  }, [handleGetLocation]);
   
   const handleFilterChange = (type: 'category' | 'subcategory', value: string) => {
     if(type === 'category'){
@@ -140,7 +129,7 @@ export default function BooksPage() {
           {isLoading ? (
             <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
           ) : filteredBooks.length > 0 ? (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {filteredBooks.map(book => (
                 <BookCard 
                   key={book._id} 
@@ -162,3 +151,4 @@ export default function BooksPage() {
     </div>
   );
 }
+

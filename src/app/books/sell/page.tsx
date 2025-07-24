@@ -167,7 +167,7 @@ export default function SellBookPage() {
 
         const payload = {
             ...data,
-            whatsappNumber: `+91${data.whatsappNumber}`,
+            whatsappNumber: data.whatsappNumber,
             sellerId: user?.id,
             location: {
               type: 'Point',
@@ -264,42 +264,34 @@ export default function SellBookPage() {
                   </div>
                 )}
                 
-                {process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? (
-                  <CldUploadButton
-                    uploadPreset="edtechcart_books" // Use the preset name you created
-                    options={{
-                      sources: ['local', 'url'],
-                      multiple: false,
-                      maxFiles: 1,
-                      cropping: true,
-                      croppingAspectRatio: 0.75,
-                      folder: 'edtechcart_books',
-                      maxFileSize: 5000000,
-                      clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
-                    }}
-                    onSuccess={handleUploadSuccess}
-                    onError={handleUploadError}
-                    onUpload={handleUploadStart}
-                    className="w-full"
-                  >
-                    <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                      {isUploading ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Uploading...
-                        </div>
-                      ) : (
-                        imageUrlValue ? 'Change Photo' : 'Upload Cover Photo'
-                      )}
-                    </div>
-                  </CldUploadButton>
-                ) : (
-                  <div className="w-full text-center p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                    <p className="text-sm text-yellow-800">
-                      Image upload is temporarily unavailable. Please contact support.
-                    </p>
+                <CldUploadButton
+                  uploadPreset="edtechcart_books" 
+                  options={{
+                    sources: ['local', 'url'],
+                    multiple: false,
+                    maxFiles: 1,
+                    cropping: true,
+                    croppingAspectRatio: 0.75,
+                    folder: 'edtechcart_books',
+                    maxFileSize: 5000000,
+                    clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+                  }}
+                  onSuccess={handleUploadSuccess}
+                  onError={handleUploadError}
+                  onUpload={handleUploadStart}
+                  className="w-full"
+                >
+                  <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isUploading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Uploading...
+                      </div>
+                    ) : (
+                      imageUrlValue ? 'Change Photo' : 'Upload Cover Photo'
+                    )}
                   </div>
-                )}
+                </CldUploadButton>
                 
                 <Input {...register('imageUrl')} className="hidden" />
                 {errors.imageUrl && <p className="text-sm text-destructive mt-1">{errors.imageUrl.message}</p>}
@@ -487,4 +479,3 @@ export default function SellBookPage() {
   );
 }
 
-    
