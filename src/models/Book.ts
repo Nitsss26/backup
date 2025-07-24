@@ -1,6 +1,14 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { IUser } from './User'; // Ensure UserModel is imported for schema registration
+
+// The IUser interface was missing the whatsappNumber.
+// We are adding it here to ensure it's not stripped out during data serialization.
+export interface IUser extends Document {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  email: string;
+  whatsappNumber?: string;
+}
 
 export interface IBook extends Document {
   title: string;
@@ -11,7 +19,7 @@ export interface IBook extends Document {
   listingType: 'sell' | 'rent';
   price?: number;
   rentPricePerMonth?: number;
-  seller: mongoose.Types.ObjectId | IUser;
+  seller: IUser; // This now uses the corrected interface above
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
@@ -48,4 +56,3 @@ BookSchema.index({ seller: 1 });
 const BookModel: Model<IBook> = models.Book || mongoose.model<IBook>('Book', BookSchema);
 
 export default BookModel;
-
