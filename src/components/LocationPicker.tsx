@@ -154,7 +154,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
                  {isLoadingSuggestions && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground"/>}
                  {suggestions.length > 0 && (
-                    <div className="absolute top-full left-0 w-full bg-card border shadow-lg rounded-b-md z-[1000]">
+                    <div className="absolute top-full left-0 w-full bg-card border shadow-lg rounded-b-md z-[1001]">
                         <ul>
                             {suggestions.map((s) => (
                                 <li 
@@ -169,7 +169,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ onLocationSelect }) => 
                     </div>
                  )}
             </div>
-            <div ref={mapContainerRef} className="flex-grow h-[calc(100%-8rem)] w-full" id="map"></div>
+            <div ref={mapContainerRef} className="flex-grow h-[calc(100%-10rem)] w-full" id="map"></div>
             <div className="p-4 bg-muted/50 rounded-b-md">
                 <p className="text-sm font-medium">Selected Address:</p>
                 <p className="text-xs text-muted-foreground min-h-[2.5rem] line-clamp-2">{address || "Click on the map or use search to set a location."}</p>
