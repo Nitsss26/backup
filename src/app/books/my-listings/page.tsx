@@ -6,19 +6,32 @@ import { useAuth } from '@/components/AppProviders';
 import { useRouter } from 'next/navigation';
 import type { Book } from '@/lib/types';
 import axios from 'axios';
-import { Loader2, BookOpen, PlusCircle } from 'lucide-react';
+import { Loader2, BookOpen, PlusCircle, Trash2, Edit } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function MyBookListingsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [myBooks, setMyBooks] = useState<Book[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,13 +47,24 @@ export default function MyBookListingsPage() {
           setMyBooks(response.data.books);
         } catch (error) {
           console.error("Failed to fetch user's book listings", error);
+          toast({ title: "Error", description: "Could not fetch your book listings.", variant: "destructive"});
         } finally {
           setIsLoading(false);
         }
       };
       fetchMyBooks();
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, toast]);
+
+  const handleDelete = async (bookId: string) => {
+    try {
+      await axios.delete(`/api/books/${bookId}`);
+      setMyBooks(prevBooks => prevBooks.filter(book => book._id !== bookId));
+      toast({ title: "Success", description: "Book listing deleted successfully."});
+    } catch (error) {
+        toast({ title: "Error", description: "Failed to delete book listing.", variant: "destructive"});
+    }
+  }
 
   const getStatusBadge = (status: 'pending' | 'approved' | 'rejected') => {
     switch (status) {
@@ -73,20 +97,46 @@ export default function MyBookListingsPage() {
         {isLoading ? (
           <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
         ) : myBooks.length > 0 ? (
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {myBooks.map(book => (
-              <Card key={book.id} className="overflow-hidden">
+              <Card key={book._id} className="overflow-hidden flex flex-col">
                 <Image src={book.imageUrl} alt={book.title} width={400} height={500} className="object-cover w-full h-48" />
-                <CardContent className="p-4">
+                <CardContent className="p-4 flex-grow">
                   <h3 className="font-semibold line-clamp-2">{book.title}</h3>
                   <p className="text-sm text-muted-foreground">{book.author}</p>
                   <div className="flex justify-between items-center mt-2">
                     <p className="text-lg font-bold text-primary">
-                      {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/mo`}
+                      {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/month`}
                     </p>
                     {getStatusBadge(book.approvalStatus)}
                   </div>
                 </CardContent>
+                <CardFooter className="p-2 border-t flex gap-2">
+                    <Button variant="outline" size="sm" className="w-full" disabled>
+                        <Edit className="mr-2 h-3.5 w-3.5" /> Edit
+                    </Button>
+                     <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm" className="w-full">
+                                <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your book listing for "{book.title}".
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(book._id)}>
+                                Yes, delete listing
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardFooter>
               </Card>
             ))}
           </div>

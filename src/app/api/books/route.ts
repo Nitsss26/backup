@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       listingType: data.listingType,
       imageUrl: data.imageUrl,
       seller: new mongoose.Types.ObjectId(data.sellerId),
+      whatsappNumber: data.whatsappNumber.replace(/\D/g, ''), // Store the number for this book
       location: {
         type: 'Point',
         coordinates: data.location.coordinates,
@@ -55,10 +56,7 @@ export async function POST(request: NextRequest) {
       bookData.rentPricePerMonth = Number(data.rentPricePerMonth);
     }
     
-    // Update seller's whatsapp number if it's different
-    await UserModel.findByIdAndUpdate(data.sellerId, { whatsappNumber: data.whatsappNumber });
-
-
+    // Removed the logic to update user model's whatsapp number
     const newBook = new BookModel(bookData);
     await newBook.save();
 
@@ -139,7 +137,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch books with pagination
     const books = await BookModel.find(query)
-      .populate('seller', 'name email whatsappNumber')
+      .populate('seller', 'name email') // Removed whatsappNumber from populate
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
