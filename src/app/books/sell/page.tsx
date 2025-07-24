@@ -153,13 +153,13 @@ export default function SellBookPage() {
     
     try {
         // Validate required fields based on listing type
-        if (data.listingType === 'sell' && (!data.price || data.price <= 0)) {
+        if (data.listingType === 'sell' && (data.price === undefined || data.price < 0)) {
           toast({ title: "Error", description: "Please enter a valid sale price.", variant: "destructive" });
           setIsLoading(false);
           return;
         }
         
-        if (data.listingType === 'rent' && (!data.rentPricePerMonth || data.rentPricePerMonth <= 0)) {
+        if (data.listingType === 'rent' && (data.rentPricePerMonth === undefined || data.rentPricePerMonth < 0)) {
           toast({ title: "Error", description: "Please enter a valid rent price.", variant: "destructive" });
           setIsLoading(false);
           return;
@@ -266,6 +266,7 @@ export default function SellBookPage() {
                 
                 {process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? (
                   <CldUploadButton
+                    signatureEndpoint="/api/sign-cloudinary-params"
                     options={{
                       sources: ['local', 'url'],
                       multiple: false,
@@ -276,9 +277,9 @@ export default function SellBookPage() {
                       maxFileSize: 5000000,
                       clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
                     }}
-                    uploadPreset="ml_default"
-                    onUpload={handleUploadSuccess}
+                    onSuccess={handleUploadSuccess}
                     onError={handleUploadError}
+                    onUpload={handleUploadStart}
                     className="w-full"
                   >
                     <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
@@ -485,3 +486,4 @@ export default function SellBookPage() {
     </>
   );
 }
+
