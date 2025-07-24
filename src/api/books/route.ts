@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       listingType: data.listingType,
       imageUrl: data.imageUrl,
       seller: new mongoose.Types.ObjectId(data.sellerId),
-      whatsappNumber: data.whatsappNumber.replace(/\D/g, ''), // Store the number for this book
+      whatsappNumber: data.whatsappNumber, // Store the number for this book
       location: {
         type: 'Point',
         coordinates: data.location.coordinates,
