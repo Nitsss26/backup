@@ -65,7 +65,7 @@ export function BookCard({ book, distance }: BookCardProps) {
           alt={book.title}
           width={300}
           height={425}
-          className="object-cover w-full h-64 sm:h-72 transition-transform duration-300 group-hover:scale-105"
+          className="object-cover w-full aspect-[3/4] transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
         
