@@ -266,7 +266,7 @@ export default function SellBookPage() {
                 
                 {process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? (
                   <CldUploadButton
-                    signatureEndpoint="/api/sign-cloudinary-params"
+                    uploadPreset="edtechcart_books" // Use the preset name you created
                     options={{
                       sources: ['local', 'url'],
                       multiple: false,
@@ -487,3 +487,4 @@ export default function SellBookPage() {
   );
 }
 
+    
