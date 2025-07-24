@@ -35,7 +35,7 @@ export function AdminBookListings() {
     try {
       await axios.put(`/api/books/${bookId}/approve`, { status });
       setBooks(prevBooks => prevBooks.map(book => 
-        book.id === bookId ? { ...book, approvalStatus: status } : book
+        book._id === bookId ? { ...book, approvalStatus: status } : book
       ));
       toast({ title: "Success", description: `Book status updated to ${status}.` });
     } catch (error) {
@@ -73,7 +73,7 @@ export function AdminBookListings() {
             </TableHeader>
             <TableBody>
               {books.map((book) => (
-                <TableRow key={book._id || book.id}>
+                <TableRow key={book._id}>
                   <TableCell className="flex items-center gap-2">
                     <Image src={book.imageUrl} alt={book.title} width={40} height={50} className="rounded object-cover" />
                     <div>
@@ -90,8 +90,8 @@ export function AdminBookListings() {
                   <TableCell className="space-x-2">
                     {book.approvalStatus === 'pending' && (
                       <>
-                        <Button size="sm" variant="success" onClick={() => handleApproval(book.id, 'approved')}>Approve</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleApproval(book.id, 'rejected')}>Reject</Button>
+                        <Button size="sm" variant="success" onClick={() => handleApproval(book._id, 'approved')}>Approve</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleApproval(book._id, 'rejected')}>Reject</Button>
                       </>
                     )}
                   </TableCell>
