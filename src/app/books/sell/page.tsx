@@ -266,6 +266,7 @@ export default function SellBookPage() {
                 
                 {process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ? (
                   <CldUploadButton
+                    signatureEndpoint="/api/sign-cloudinary-params"
                     options={{
                       sources: ['local', 'url'],
                       multiple: false,
@@ -276,10 +277,9 @@ export default function SellBookPage() {
                       maxFileSize: 5000000,
                       clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
                     }}
-                    signatureEndpoint="/api/sign-cloudinary-params"
-                    onStart={handleUploadStart}
                     onSuccess={handleUploadSuccess}
                     onError={handleUploadError}
+                    onUploadWidgetOpen={() => setIsUploading(true)}
                     className="w-full"
                   >
                     <div className="w-full bg-primary text-primary-foreground text-center p-2 rounded-md hover:bg-primary/90 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
