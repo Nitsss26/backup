@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Link from 'next/link';
 
 export default function MyBookListingsPage() {
   const { user, isLoading: authLoading } = useAuth();
@@ -97,23 +98,27 @@ export default function MyBookListingsPage() {
         {isLoading ? (
           <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
         ) : myBooks.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {myBooks.map(book => (
-              <Card key={book._id} className="overflow-hidden flex flex-col">
-                <Image src={book.imageUrl} alt={book.title} width={400} height={500} className="object-cover w-full h-48" />
-                <CardContent className="p-4 flex-grow">
-                  <h3 className="font-semibold line-clamp-2">{book.title}</h3>
-                  <p className="text-sm text-muted-foreground">{book.author}</p>
+              <Card key={book._id} className="overflow-hidden flex flex-col w-full">
+                <div className="relative w-full aspect-[3/4] overflow-hidden">
+                    <Image src={book.imageUrl} alt={book.title} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw" className="object-cover" />
+                </div>
+                <CardContent className="p-3 flex-grow">
+                  <h3 className="font-semibold line-clamp-2 text-sm">{book.title}</h3>
+                  <p className="text-xs text-muted-foreground">{book.author}</p>
                   <div className="flex justify-between items-center mt-2">
-                    <p className="text-lg font-bold text-primary">
+                    <p className="text-base font-bold text-primary">
                       {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/month`}
                     </p>
                     {getStatusBadge(book.approvalStatus)}
                   </div>
                 </CardContent>
                 <CardFooter className="p-2 border-t flex gap-2">
-                    <Button variant="outline" size="sm" className="w-full" disabled>
-                        <Edit className="mr-2 h-3.5 w-3.5" /> Edit
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                        <Link href={`/books/edit/${book._id}`}>
+                            <Edit className="mr-2 h-3.5 w-3.5" /> Edit
+                        </Link>
                     </Button>
                      <AlertDialog>
                         <AlertDialogTrigger asChild>

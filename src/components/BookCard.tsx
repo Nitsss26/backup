@@ -57,46 +57,81 @@
 //     return `${dist.toFixed(1)}km away`;
 //   }
 
+//   const formatPrice = (price: number | undefined, listingType: 'sell' | 'rent'): string => {
+//     if (listingType === 'sell') {
+//       return `₹${price?.toLocaleString() || '0'}`;
+//     }
+//     return `₹${price?.toLocaleString() || '0'}/month`;
+//   };
+
 //   return (
-//     <Card className="flex flex-col h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 border hover:border-primary/50 bg-card group">
-//       <div className="relative">
+//     <Card className="w-full overflow-hidden bg-card border rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group">
+//       <div className="relative w-full aspect-[3/4] overflow-hidden">
 //         <Image
 //           src={book.imageUrl}
 //           alt={book.title}
-//           width={300}
-//           height={425}
-//           className="object-cover w-full aspect-[3/4] transition-transform duration-300 group-hover:scale-105"
+//           fill
+//           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+//           className="object-cover transition-transform duration-300 group-hover:scale-105"
 //         />
-//         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        
+//         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         
 //         {distance !== null && distance !== undefined && (
-//              <Badge variant="secondary" className="absolute top-2 left-2 flex items-center bg-black/50 text-white border-none backdrop-blur-sm">
-//                 <MapPin className="h-3 w-3 mr-1" /> {formatDistance(distance)}
-//             </Badge>
+//           <Badge className="absolute top-2 left-2 bg-black/70 text-white border-0 backdrop-blur-sm text-xs font-medium">
+//             <MapPin className="w-3 h-3 mr-1" />
+//             {formatDistance(distance)}
+//           </Badge>
 //         )}
-       
-//         <Button size="icon" variant="ghost" className="absolute top-2 right-2 bg-black/30 hover:bg-black/50 h-8 w-8 rounded-full" onClick={handleWishlistToggle}>
-//           <Heart className={cn("h-4 w-4 text-white", isBookInWishlist && "fill-red-500 text-red-500")} />
+        
+//         <Button
+//           size="icon"
+//           variant="ghost"
+//           onClick={handleWishlistToggle}
+//           className="absolute top-2 right-2 w-8 h-8 bg-black/70 hover:bg-black/80 rounded-full border-0"
+//         >
+//           <Heart className={cn("w-4 h-4 text-white transition-colors", isBookInWishlist && "fill-red-500 text-red-500")} />
 //         </Button>
 //       </div>
-//       <CardContent className="p-3 flex-grow flex flex-col">
-//         <div className="flex justify-between items-start mb-1">
-//             <p className="text-xs text-muted-foreground capitalize">{book.subcategory}</p>
-//              <Badge className="text-white text-[10px] px-1.5 py-0.5" style={{ backgroundColor: book.listingType === 'sell' ? 'hsl(var(--primary))' : 'hsl(var(--accent))' }}>
-//               {book.listingType === 'sell' ? 'FOR SALE' : 'FOR RENT'}
-//             </Badge>
+
+//       <CardContent className="p-3 flex flex-col justify-between h-auto">
+//         <div className="flex items-center justify-between mb-2">
+//           <span className="text-xs text-muted-foreground capitalize font-medium truncate w-1/2">
+//             {book.subcategory}
+//           </span>
+//           <Badge 
+//             className="text-white text-xs px-2 py-0.5 font-semibold flex-shrink-0"
+//             style={{ 
+//               backgroundColor: book.listingType === 'sell' ? '#2563eb' : '#7c3aed'
+//             }}
+//           >
+//             {book.listingType === 'sell' ? 'SALE' : 'RENT'}
+//           </Badge>
 //         </div>
-//         <h3 className="text-base font-bold leading-tight line-clamp-2 flex-grow text-foreground">{book.title}</h3>
-//         {book.author && <p className="text-xs text-muted-foreground mt-1">by {book.author}</p>}
-        
-//         <div className="mt-3 pt-3 border-t flex items-center justify-between">
-//             <p className="text-lg font-bold text-primary">
-//                 {book.listingType === 'sell' ? `₹${book.price}` : `₹${book.rentPricePerMonth}/month`}
-//             </p>
-//             <Button size="sm" onClick={handleContactSeller} className="h-8 px-3 text-xs">
-//                 <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
-//                 Contact Seller
-//             </Button>
+
+//         <h3 className="font-bold text-sm leading-tight line-clamp-2 text-foreground mb-2 h-10">
+//           {book.title}
+//         </h3>
+
+//         {book.author && (
+//           <p className="text-xs text-muted-foreground truncate mb-2">
+//             by {book.author}
+//           </p>
+//         )}
+
+//         <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
+//           <p className="font-bold text-primary text-base">
+//             {formatPrice(book.listingType === 'sell' ? book.price : book.rentPricePerMonth, book.listingType)}
+//           </p>
+//           <Button
+//             size="sm"
+//             onClick={handleContactSeller}
+//             className="ml-2 h-8 px-3 text-xs font-medium flex-shrink-0"
+//           >
+//             <MessageSquare className="w-3 h-3 mr-1.5" />
+//             <span className="hidden sm:inline">Contact</span>
+//             <span className="sm:hidden">Chat</span>
+//           </Button>
 //         </div>
 //       </CardContent>
 //     </Card>
@@ -234,7 +269,7 @@ export function BookCard({ book, distance }: BookCardProps) {
 
         {/* Price and Contact Section */}
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
-          <p className="font-bold text-primary text-xs md:text-sm">
+          <p className="font-bold text-primary text-xs md:sm">
             {formatPrice(book.listingType === 'sell' ? book.price : book.rentPricePerMonth, book.listingType)}
           </p>
           <Button
