@@ -65,7 +65,7 @@ const Caro = () => {
               image:"https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2F84acc100-c930-4aff-8cba-16f58acbc87a.png&w=1920&q=75",
              // image: "/1.jpg",
               hasCart: false,
-              url:"http://localhost:9003/add-ons/addon-010"
+              url:"https://www.edtechcart.com/add-ons/addon-010"
            //   url: "https://games.capcomusa.com/#118170", // optional, empty means no redirect
             },
             {
@@ -81,7 +81,7 @@ const Caro = () => {
               hasCart: false,
            //   url: "https://store.playstation.com/en-in/concept/10013248", // example link
          
-             url:"http://localhost:9003/add-ons/addon-011"
+             url:"https://www.edtechcart.com/add-ons/addon-011"
           },
             {
               title: "",
@@ -90,7 +90,7 @@ const Caro = () => {
               image:"https://d2bps9p1kiy4ka.cloudfront.net/5eb393ee95fab7468a79d189/65673665-4fa6-4187-aafd-d7e69573b299.png",
               hasCart: false,
               //url: "https://www.nintendo.com/us/store/products/pokemon-brilliant-diamond-switch/",
-            url:"http://localhost:9003/add-ons/addon-012"
+            url:"https://www.edtechcart.com/add-ons/addon-012"
             },
             {
               title: "",
@@ -99,7 +99,7 @@ const Caro = () => {
               image:"https://d2bps9p1kiy4ka.cloudfront.net/5eb393ee95fab7468a79d189/5284f34e-5c86-4228-9ccd-7fbcef378ad8.png",
               //image: "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/07751f86ef4b4b8ebbac1fd74a274153_1024",
               hasCart: false,
-              url:"http://localhost:9003/add-ons/addon-013"
+              url:"https://www.edtechcart.com/add-ons/addon-013"
              // url: "https://www.nintendo.com/us/store/products/marvel-ultimate-alliance-3-the-black-order-switch/", // example link
             },
           ],

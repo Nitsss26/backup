@@ -14,7 +14,7 @@ const getTrafficSourceFromReferrer = (referrer: string): string => {
   
   try {
     const referrerUrl = new URL(referrer);
-    const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
+    const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.edtechcart.com').hostname;
 
     if (referrerUrl.hostname.includes(appHostname)) return 'Direct';
     

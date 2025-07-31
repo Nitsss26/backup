@@ -65,7 +65,7 @@ const Caro = () => {
               image:"https://store.pw.live/_next/image?url=https%3A%2F%2Fd2bps9p1kiy4ka.cloudfront.net%2F5eb393ee95fab7468a79d189%2F08f75706-612f-4b47-b558-915da61e485f.jpg&w=1920&q=75",
              // image: "/1.jpg",
               hasCart: false,
-              url:"http://localhost:9003/add-ons/addon-008"
+              url:"https://www.edtechcart.com/add-ons/addon-008"
            //   url: "https://games.capcomusa.com/#118170", // optional, empty means no redirect
             },
             {
@@ -81,7 +81,7 @@ const Caro = () => {
               hasCart: false,
            //   url: "https://store.playstation.com/en-in/concept/10013248", // example link
          
-             url:"http://localhost:9003/add-ons/addon-006"
+             url:"https://www.edtechcart.com/add-ons/addon-006"
           },
             {
               title: "",
@@ -90,7 +90,7 @@ const Caro = () => {
               image:"https://d502jbuhuh9wk.cloudfront.net/courses/67b5bbb6c8deaf6f5f4042fd/67b5bbb6c8deaf6f5f4042fd_scaled_cover.jpg?v=1",
               hasCart: false,
               //url: "https://www.nintendo.com/us/store/products/pokemon-brilliant-diamond-switch/",
-            url:"http://localhost:9003/add-ons/addon-007"
+            url:"https://www.edtechcart.com/add-ons/addon-007"
             },
             {
               title: "",
@@ -99,7 +99,7 @@ const Caro = () => {
               image:"/uux.png",
               //image: "https://assets.nintendo.com/image/fetch/q_auto/f_auto/https://atum-img-lp1.cdn.nintendo.net/i/c/07751f86ef4b4b8ebbac1fd74a274153_1024",
               hasCart: false,
-              url:"http://localhost:9003/add-ons/addon-009"
+              url:"https://www.edtechcart.com/add-ons/addon-009"
              // url: "https://www.nintendo.com/us/store/products/marvel-ultimate-alliance-3-the-black-order-switch/", // example link
             },
           ],
@@ -116,7 +116,7 @@ const Caro = () => {
           subtitle: "Steam • Global • Key",
           badge: "BESTSELLER",
           image: "https://store.akamai.steamstatic.com/public/images/gift/steamcards_physical.png",
-          url: "http://localhost:9003/gift-cards", // 🔗 added
+          url: "https://www.edtechcart.com/gift-cards", // 🔗 added
           // gradient: "from-purple-600 to-pink-600",
         },
         {
@@ -124,7 +124,7 @@ const Caro = () => {
           subtitle: "Discover all the fresh drops",
           badge: "BESTSELLER",
           image: "https://picasso.cosmofeed.com/media.cosmofeed.com/Untitled-design--1--2024-22-05-05-10-30.png?w=600&&q=100",
-          url: "http://localhost:9003/ebooks", // 🔗 added
+          url: "https://www.edtechcart.com/ebooks", // 🔗 added
           // gradient: "from-orange-600 to-yellow-600",
         },
         {
@@ -132,7 +132,7 @@ const Caro = () => {
           subtitle: "Comics • Global • Account",
           badge: "NEW",
           image: "https://cdn.promo.capcomusa.com/boxart/158157.png",
-          url: "http://localhost:9003/comics", // 🔗 added
+          url: "https://www.edtechcart.com/comics", // 🔗 added
           // gradient: "from-green-600 to-emerald-600",
         },
         {
@@ -140,7 +140,7 @@ const Caro = () => {
           subtitle: "Amazon • Global • Key",
           badge: "BESTSELLER",
           image: "/ammm.png",
-          url: "http://localhost:9003/subscriptions", // 🔗 added
+          url: "https://www.edtechcart.com/subscriptions", // 🔗 added
           // gradient: "from-blue-600 to-cyan-600",
         },
       ],
@@ -192,7 +192,7 @@ const Caro = () => {
             tag: "INDIA",
            image: "https://images.g2a.com/300x400/1x1x1/spotify-premium-subscription-12-months-spotify-account-global-i10000000243117/590e065bae653a65930c36ea",
        // image:"https://static.driffle.com/fit-in/720x512/media-gallery/production/2afa6304-de60-46e5-b643-36fcce297292_spotify-subscription-india-12-months-52280jpg"  
-       url:"http://localhost:9003/subscriptions/sub-004"
+       url:"https://www.edtechcart.com/subscriptions/sub-004"
         },
           {
             badge: "OFFERS FROM 2 SELLERS",
@@ -204,7 +204,7 @@ const Caro = () => {
             platforms: ["steam", "key"],
            // image: "https://i0.wp.com/breakers-store.site/wp-content/uploads/2023/10/NETFLIX_PREMIUM.png?fit=300%2C428&ssl=1",
           image: "/ntt.png",
-          url:"http://localhost:9003/subscriptions/sub-003"
+          url:"https://www.edtechcart.com/subscriptions/sub-003"
           },
           {
             badge: "OFFERS FROM 4 SELLERS",
@@ -213,7 +213,7 @@ const Caro = () => {
             tag: "GLOBAL",
             platforms: ["nintendo", "account"],
             image: "/perr.png",
-            url:"http://localhost:9003/subscriptions/sub-002"
+            url:"https://www.edtechcart.com/subscriptions/sub-002"
           },
           {
             badge: "SPONSORED",
@@ -224,7 +224,7 @@ const Caro = () => {
             tag: "INDIA",
             platforms: ["nintendo", "key"],
             image: "/appp.png",
-            url:"http://localhost:9003/subscriptions/sub-001"
+            url:"https://www.edtechcart.com/subscriptions/sub-001"
           },
         ],
         rightSection: {

@@ -46,7 +46,7 @@ export const ineuronData = {
         price: 5999,
         rating: 4.8,
         reviewsCount: 1250,
-        ctaLink: 'http://localhost:9003/courses/65a8b4ae188aa67dd4099999',
+        ctaLink: 'https://www.edtechcart.com/courses/65a8b4ae188aa67dd4099999',
               category:"Data Science"
       },
       {
@@ -56,7 +56,7 @@ export const ineuronData = {
         price: 10500,
         rating: 4.7,
         reviewsCount: 900,
-        ctaLink: 'http://localhost:9003/courses/65b8c4be288bb78ee5091234',
+        ctaLink: 'https://www.edtechcart.com/courses/65b8c4be288bb78ee5091234',
               category:"Artifical Intelligence"
       },
       {
@@ -66,7 +66,7 @@ export const ineuronData = {
         price: 5999,
         rating: 4.5,
         reviewsCount: 600,
-        ctaLink: 'http://localhost:9003/courses/66a9c3de288bb78ee5095678',
+        ctaLink: 'https://www.edtechcart.com/courses/66a9c3de288bb78ee5095678',
               category:"Computer Science"
       },
       {
@@ -76,7 +76,7 @@ export const ineuronData = {
         price: 2999,
         rating: 4.6,
         reviewsCount: 700,
-        ctaLink: 'http://localhost:9003/courses/66a9c4ff288bb78ee5096789',
+        ctaLink: 'https://www.edtechcart.com/courses/66a9c4ff288bb78ee5096789',
          category:"Excel"
       },
       // {
@@ -117,7 +117,7 @@ export const ineuronData = {
         price: 1999,
         rating: 4.7,
         reviewsCount: 800,
-        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097910',
+        ctaLink: 'https://www.edtechcart.com/courses/66a9c7aa288bb78ee5097910',
          category:"Data Analytics"
       },
       {
@@ -127,7 +127,7 @@ export const ineuronData = {
         price: 599,
         rating: 4.6,
         reviewsCount: 650,
-        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097890',
+        ctaLink: 'https://www.edtechcart.com/courses/66a9c7aa288bb78ee5097890',
         category:"Data Science"
       },
       
@@ -138,7 +138,7 @@ export const ineuronData = {
         price: 2599,
         rating: 4.5,
         reviewsCount: 500,
-        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097928',
+        ctaLink: 'https://www.edtechcart.com/courses/66a9c7aa288bb78ee5097928',
              category:"Data Analytics"
       },
       {
@@ -148,7 +148,7 @@ export const ineuronData = {
         price: 1999,
         rating: 4.8,
         reviewsCount: 900,
-        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097934',
+        ctaLink: 'https://www.edtechcart.com/courses/66a9c7aa288bb78ee5097934',
         category:"App Development"
       },
       // {
