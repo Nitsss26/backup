@@ -1,195 +1,229 @@
 
-'use client';
+"use client";
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import KpiCards from '@/components/analytics/KpiCards';
-import ChartCard from '@/components/analytics/ChartCard';
+import AnalyticsDashboard from '@/components/analytics/AnalyticsDashboard';
+import SessionDetailsTable from '@/components/analytics/SessionDetailsTable';
+import RouteAnalyticsTable from '@/components/analytics/RouteAnalyticsTable';
+import DebugAnalytics from '@/components/analytics/DebugAnalytics';
+import SimpleTest from '@/components/analytics/SimpleTest';
 import TrafficChannels from '@/components/analytics/TrafficChannels';
-import AdPerformance from '@/components/analytics/AdPerformance';
-import PerformanceMetricsTable from '@/components/analytics/PerformanceMetricsTable';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { chartTypes } from '@/components/analytics/analyticsUtils';
+import RecentActivityTable from '@/components/analytics/RecentActivityTable';
+import TopPagesTable from '@/components/analytics/TopPagesTable';
+import ClicksTable from '@/components/analytics/ClicksTable';
+import CartActivityTable from '@/components/analytics/CartActivityTable';
+import WishlistActivityTable from '@/components/analytics/WishlistActivityTable';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import type { DateRange } from 'react-day-picker';
+import { BarChart3, Users } from 'lucide-react';
+import GeoAnalytics from '@/components/analytics/GeoAnalytics';
+import ChartCard from '@/components/analytics/ChartCard';
 import AiAnalyticsBot from '@/components/analytics/AiAnalyticsBot';
 
-export default function AdvancedAnalyticsDashboard() {
+export default function AnalyticsDashboardPage() {
+  
+  const [date, setDate] = useState<DateRange | undefined>({
+    from: new Date(new Date().getFullYear(), 6, 1), // July 1st of the current year
+    to: new Date(),
+  });
+
+  // State for each chart's type
   const [usersChartType, setUsersChartType] = useState('line');
+  const [registeredUsersChartType, setRegisteredUsersChartType] = useState('bar');
   const [sessionsChartType, setSessionsChartType] = useState('line');
-  const [salesChartType, setSalesChartType] = useState('line');
-  const [enrollmentsChartType, setEnrollmentsChartType] = useState('line');
+  const [salesChartType, setSalesChartType] = useState('bar');
+  const [enrollmentsChartType, setEnrollmentsChartType] = useState('bar');
   const [conversionChartType, setConversionChartType] = useState('line');
   const [avgTimeChartType, setAvgTimeChartType] = useState('line');
-  const [engagementsChartType, setEngagementsChartType] = useState('line');
-  const [impressionsChartType, setImpressionsChartType] = useState('line');
+  const [engagementsChartType, setEngagementsChartType] = useState('area');
+  const [impressionsChartType, setImpressionsChartType] = useState('area');
 
-  const [startDate, setStartDate] = useState(() => {
-    const date = new Date('2025-06-01');
-    return date.toISOString().split('T')[0];
-  });
-
-  const [endDate, setEndDate] = useState(() => {
-    const date = new Date('2025-06-30');
-    return date.toISOString().split('T')[0];
-  });
-
-  const formatDateRange = () => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
-    return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}`;
-  };
 
   return (
-    <div className="bg-gray-900 min-h-screen p-3 sm:p-4 md:p-6">
-      <div className="max-w-screen-2xl mx-auto">
-        {/* Header Section - Mobile Responsive */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-4">
+    <div className="bg-[#101727] min-h-screen p-4 md:p-6 text-[#E2E8F0]">
+      <div className="w-full">
+        
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white leading-tight">
+            <h1 className="text-3xl font-bold leading-tight text-white flex items-center gap-3">
+              <BarChart3 className="text-blue-400" />
               Analytics Dashboard
             </h1>
-            <p className="text-gray-400 text-sm sm:text-base mt-1">
-              Track and analyze platform performance metrics
+            <p className="text-gray-400 text-base mt-1">
+              Comprehensive analysis of your platform's performance.
             </p>
           </div>
-          
-          {/* Date Range Display - Mobile Responsive */}
-          <div className="flex items-center">
-            <div className="bg-gray-800 rounded-lg px-3 py-2 sm:px-4">
-              <span className="text-gray-400 text-xs sm:text-sm block sm:inline">Report Date:</span>
-              <span className="text-white text-xs sm:text-sm sm:ml-2 block sm:inline mt-1 sm:mt-0">
-                {formatDateRange()}
-              </span>
-            </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <DateRangePicker date={date} onDateChange={setDate} />
           </div>
         </div>
 
-        {/* Date Picker Section - Mobile Responsive */}
-        <div className="mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div className="flex-1 sm:flex-none">
-              <Label htmlFor="startDate" className="text-gray-400 text-sm block mb-1">
-                Start Date:
-              </Label>
-              <Input
-                type="date"
-                id="startDate"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white w-full"
-              />
-            </div>
-            <div className="flex-1 sm:flex-none">
-              <Label htmlFor="endDate" className="text-gray-400 text-sm block mb-1">
-                End Date:
-              </Label>
-              <Input
-                type="date"
-                id="endDate"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-gray-800 border-gray-700 text-white w-full"
-              />
-            </div>
+        <div className="mb-6">
+          <KpiCards startDate={date?.from?.toISOString()} endDate={date?.to?.toISOString()} />
+        </div>
+
+        {/* NEW: Enhanced Analytics Dashboard Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <BarChart3 className="text-emerald-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Enhanced Analytics Dashboard</h2>
+            <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-1 rounded-full">NEW</span>
+          </div>
+          <div className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 p-4 rounded-lg border border-emerald-500/20 mb-4">
+            <p className="text-emerald-400 text-sm">
+              🚀 This is the new comprehensive analytics system that processes data from your existing MongoDB collections with enhanced error handling and better visualizations.
+            </p>
+          </div>
+          <AnalyticsDashboard startDate={date?.from} endDate={date?.to} />
+        </div>
+
+        {/* DEBUG: Analytics API Testing */}
+        <div className="mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SimpleTest />
+            <DebugAnalytics />
           </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="mb-4 sm:mb-6">
-          <KpiCards startDate={startDate} endDate={endDate} />
+        {/* NEW: Session & Route Analytics Tables */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Users className="text-purple-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Session & Route Analytics</h2>
+            <span className="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full">NEW</span>
+          </div>
+          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 rounded-lg border border-purple-500/20 mb-4">
+            <p className="text-purple-400 text-sm">
+              📊 Detailed session tracking and route performance analytics with user identification and engagement metrics.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-6">
+            <SessionDetailsTable startDate={date?.from} endDate={date?.to} />
+            <RouteAnalyticsTable startDate={date?.from} endDate={date?.to} />
+          </div>
         </div>
 
-        {/* Traffic Channels */}
-        <div className="mb-4 sm:mb-6">
-          <TrafficChannels startDate={startDate} endDate={endDate} />
-        </div>
 
-        {/* Charts Grid - Responsive Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <ChartCard
-            title="Total Users"
-            dataKey="users"
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+           <ChartCard
+            title="Unique Visitors"
+            dataKeys={['desktop', 'mobile']}
+            endpoint="users"
             chartType={usersChartType}
             setChartType={setUsersChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
+          />
+           <ChartCard
+            title="Registered Users"
+            dataKey="count"
+            endpoint="registered-users"
+            chartType={registeredUsersChartType}
+            setChartType={setRegisteredUsersChartType}
+            startDate={date?.from}
+            endDate={date?.to}
           />
           <ChartCard
-            title="Sessions"
-            dataKey="sessions"
+            title="Sessions Overview"
+            dataKey="count"
+            endpoint="sessions"
             chartType={sessionsChartType}
             setChartType={setSessionsChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
           <ChartCard
-            title="Sales"
-            dataKey="sales"
+            title="Sales Performance"
+            dataKeys={["count", "revenue"]}
+            endpoint="sales"
             chartType={salesChartType}
             setChartType={setSalesChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
           <ChartCard
-            title="Enrollments"
-            dataKey="enrollments"
+            title="Add to Cart vs Purchase"
+            dataKeys={['addToCart', 'purchases']}
+            endpoint="cart-vs-purchase"
             chartType={enrollmentsChartType}
             setChartType={setEnrollmentsChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
-          <ChartCard
-            title="Conversion %"
-            dataKey="conversion"
+           <ChartCard
+            title="Bounce Rate"
+            dataKey="bounceRate"
+            endpoint="bounce-rate"
             chartType={conversionChartType}
             setChartType={setConversionChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
-          <ChartCard
-            title="Avg Time"
+           <ChartCard
+            title="Average Session Duration"
             dataKey="avgTime"
+            endpoint="avg-time"
             chartType={avgTimeChartType}
             setChartType={setAvgTimeChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
-          <ChartCard
+           <ChartCard
             title="Engagements"
-            dataKey="engagements"
+            dataKey="count"
+            endpoint="engagements"
             chartType={engagementsChartType}
             setChartType={setEngagementsChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
-          <ChartCard
+           <ChartCard
             title="Impressions"
-            dataKey="impressions"
+            dataKey="count"
+            endpoint="impressions"
             chartType={impressionsChartType}
             setChartType={setImpressionsChartType}
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
+            startDate={date?.from}
+            endDate={date?.to}
           />
         </div>
 
-        {/* Ad Performance and Metrics Table - Mobile Responsive */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="lg:col-span-1">
-            <AdPerformance />
-          </div>
-          <div className="lg:col-span-2">
-            <PerformanceMetricsTable />
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+            <div className="xl:col-span-2">
+                <TrafficChannels startDate={date?.from?.toISOString()} endDate={date?.to?.toISOString()} />
+            </div>
+            <RecentActivityTable />
         </div>
 
-        {/* AI Analytics Bot */}
-        <div className="mb-4 sm:mb-6">
-          <AiAnalyticsBot
-            startDate={new Date(startDate)}
-            endDate={new Date(endDate)}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <TopPagesTable />
+          <ClicksTable startDate={date?.from} endDate={date?.to} />
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <CartActivityTable startDate={date?.from} endDate={date?.to} />
+          <WishlistActivityTable startDate={date?.from} endDate={date?.to} />
+        </div>
+
+        {/* NEW: Geo Analytics Section */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <BarChart3 className="text-orange-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Geo Analytics - India Distribution</h2>
+            <span className="bg-orange-500/20 text-orange-400 text-xs px-2 py-1 rounded-full">NEW</span>
+          </div>
+          <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 p-4 rounded-lg border border-orange-500/20 mb-4">
+            <p className="text-orange-400 text-sm">
+              🗺️ Comprehensive geographical analysis with 8 different maps showing distribution of visitors, sessions, clicks, cart actions, wishlist, sales, visits, and UTM sources across India.
+            </p>
+          </div>
+          <GeoAnalytics startDate={date?.from?.toISOString()} endDate={date?.to?.toISOString()} />
+        </div>
+        
+        <AiAnalyticsBot startDate={date?.from} endDate={date?.to} />
+
       </div>
     </div>
   );

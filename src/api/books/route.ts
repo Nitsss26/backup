@@ -107,10 +107,13 @@ export async function GET(request: NextRequest) {
     if (status === 'all') {
       // No status filter for admin - shows all books
     } else if (sellerId) {
-      // Show all books for a specific seller
+      // Validate sellerId before using it
+      if (!mongoose.Types.ObjectId.isValid(sellerId)) {
+        return NextResponse.json({ message: "Invalid seller ID format." }, { status: 400 });
+      }
       query.seller = new mongoose.Types.ObjectId(sellerId);
     } else {
-      // Default: only show approved books
+      // Default: only show approved books for public queries
       query.approvalStatus = 'approved';
     }
 

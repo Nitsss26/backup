@@ -4,7 +4,7 @@ import dbConnect from '@/lib/dbConnect';
 import VisitEventModel from '@/models/VisitEvent';
 import { subMinutes, subHours } from 'date-fns';
 import logger from '@/lib/logger';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 const IST_TIMEZONE = 'Asia/Kolkata';
 
@@ -35,8 +35,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ message: 'Invalid timeframe' }, { status: 400 });
     }
 
-    const utcEndDate = zonedTimeToUtc(nowInIST, IST_TIMEZONE);
-    const utcStartDate = zonedTimeToUtc(startDateInIST, IST_TIMEZONE);
+    const utcEndDate = toZonedTime(nowInIST, IST_TIMEZONE);
+    const utcStartDate = toZonedTime(startDateInIST, IST_TIMEZONE);
 
     logger.info('[/api/analytics/geo/india/states GET] Fetching geo data for India states with filters:', { timeframe, utcStartDate, utcEndDate });
 

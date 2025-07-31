@@ -5,12 +5,36 @@ import { Banknote, BookOpen, Briefcase, CreditCard, Cpu, Globe, HeartPulse, Lang
 export const APP_NAME = "EdTechCart";
 export const APP_DESCRIPTION = "The All-in-One Marketplace for Online Courses";
 
+export const CATEGORIES2: Category[] = [
+  { id: 'books', name: 'Books', slug: 'books', icon: HeartPulse },
+  { id: 'courses', name: 'Courses', slug: 'courses', icon: TestTube2 },
+  { id: 'ebooks', name: 'E-Books', slug: 'ebooks', icon: HeartPulse },
+  { id: 'subscriptions', name: 'Subscriptions', slug: 'subscriptions', icon: Cpu },
+  { id: 'gift-cards', name: 'Gift Cards', slug: 'gift-cards', icon: ShieldCheck },
+  { id: 'virtual-products', name: 'Virtual Products', slug: 'virtual-products', icon: LineChart },
+];
+
+export const CATEGORIESPW: Category[] = [
+  { id: 'pw/iit-jee', name: 'IIT-JEE', slug: 'pw/iit-jee', icon: TestTube2 },
+  { id: 'pw/neet', name: 'NEET', slug: 'pw/neet', icon: HeartPulse },
+  { id: 'pw/cs', name: 'Computer Science', slug: 'pw/computer-science', icon: Cpu },
+  { id: 'pw/gov-exams', name: 'Government Exams', slug: 'pw/gov-exams', icon: ShieldCheck },
+  
+  { id: 'pw/business', name: 'Business & Finance', slug: 'pw/business-finance', icon: LineChart },
+  { id: 'pw/arts', name: 'Arts & Humanities', slug: 'pw/arts-humanities', icon: Palette },
+  { id: 'pw/lang', name: 'Language Learning', slug: 'pw/language-learning', icon: LanguagesIcon },
+  { id: 'pw/personal-dev', name: 'Personal Development', slug: 'pw/personal-development', icon: PersonStanding },
+  { id: 'pw/photo-video', name: 'Photography & Video', slug: 'pw/photography-video', icon: Camera },
+  { id: 'pw/music-arts', name: 'Music & Performing Arts', slug: 'pw/music-performing-arts', icon: Music },
+  { id: 'pw/health-fitness', name: 'Health & Fitness', slug: 'pw/health-fitness', icon: Sprout },
+  { id: 'pw/design-illustration', name: 'Design & Illustration', slug: 'pw/design-illustration', icon: PenTool },
+];
+
 export const CATEGORIES: Category[] = [
   { id: 'iit-jee', name: 'IIT-JEE', slug: 'iit-jee', icon: TestTube2 },
   { id: 'neet', name: 'NEET', slug: 'neet', icon: HeartPulse },
   { id: 'cs', name: 'Computer Science', slug: 'computer-science', icon: Cpu },
   { id: 'gov-exams', name: 'Government Exams', slug: 'gov-exams', icon: ShieldCheck },
-  
   { id: 'business', name: 'Business & Finance', slug: 'business-finance', icon: LineChart },
   { id: 'arts', name: 'Arts & Humanities', slug: 'arts-humanities', icon: Palette },
   { id: 'lang', name: 'Language Learning', slug: 'language-learning', icon: LanguagesIcon },

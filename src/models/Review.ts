@@ -1,6 +1,6 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { ICourse } from './Course';
+import './User'; // Ensure User model is registered
 import type { IUser } from './User';
 
 export interface IReview extends Document {

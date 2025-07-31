@@ -47,6 +47,7 @@ export const ineuronData = {
         rating: 4.8,
         reviewsCount: 1250,
         ctaLink: 'https://ineuron.ai/course/30-days-fast-track-data-science-interview-preparation',
+              category:"Data Science"
       },
       {
         id: 'Edtech-course-2',
@@ -56,6 +57,7 @@ export const ineuronData = {
         rating: 4.7,
         reviewsCount: 900,
         ctaLink: 'https://ineuron.ai/course/7-end-to-end-genai-projects-using-llmops-and-deployment',
+              category:"Artifical Intelligence"
       },
       {
         id: 'Edtech-course-4',
@@ -65,6 +67,7 @@ export const ineuronData = {
         rating: 4.5,
         reviewsCount: 600,
         ctaLink: 'https://ineuron.ai/course/a-job-ready-bootcamp-in-c-dsa-and-iot-tech-neuron',
+              category:"Computer Science"
       },
       {
         id: 'Edtech-course-6',
@@ -74,16 +77,17 @@ export const ineuronData = {
         rating: 4.6,
         reviewsCount: 700,
         ctaLink: 'https://ineuron.ai/course/advance-applications-of-excel',
+         category:"Excel"
       },
-      {
-        id: 'Edtech-course-11',
-        title: 'Airflow',
-        imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F621c8dacb0701c8001dbfa72.jpg&w=828&q=75',
-        price: 3999,
-        rating: 4.6,
-        reviewsCount: 650,
-        ctaLink: 'http://ineuron.ai/course/airflow',
-      }
+      // {
+      //   id: 'Edtech-course-11',
+      //   title: 'Airflow',
+      //   imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F621c8dacb0701c8001dbfa72.jpg&w=828&q=75',
+      //   price: 3999,
+      //   rating: 4.6,
+      //   reviewsCount: 650,
+      //   ctaLink: 'http://ineuron.ai/course/airflow',
+      // }
     ],
     banners: [
       {
@@ -93,6 +97,7 @@ export const ineuronData = {
         title: '',
         ctaText: 'Shop Now',
         ctaLink: 'https://jobs.ineuron.ai/',
+        
       },
       {
         id: 'banner2',
@@ -101,18 +106,10 @@ export const ineuronData = {
          title: '',
         ctaText: 'Explore Now',
         ctaLink: 'https://ineuron.ai/one-neuron',
+             
       },
     ],
     allCourses: [
-      {
-        id: 'Edtech-course-11',
-        title: 'Airflow',
-        imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F621c8dacb0701c8001dbfa72.jpg&w=828&q=75',
-        price: 3999,
-        rating: 4.6,
-        reviewsCount: 650,
-        ctaLink: 'http://ineuron.ai/course/airflow',
-      },
       {
         id: 'Edtech-course-12',
         title: 'Alteryx Course',
@@ -121,7 +118,19 @@ export const ineuronData = {
         rating: 4.7,
         reviewsCount: 800,
         ctaLink: 'https://ineuron.ai/course/alteryx-course',
+         category:"Data Analytics"
       },
+      {
+        id: 'Edtech-course-11',
+        title: 'Airflow',
+        imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F621c8dacb0701c8001dbfa72.jpg&w=828&q=75',
+        price: 3999,
+        rating: 4.6,
+        reviewsCount: 650,
+        ctaLink: 'http://ineuron.ai/course/airflow',
+        category:"Data Science"
+      },
+      
       {
         id: 'Edtech-course-13',
         title: 'Alteryx',
@@ -130,6 +139,7 @@ export const ineuronData = {
         rating: 4.5,
         reviewsCount: 500,
         ctaLink: 'https://ineuron.ai/course/alteryx-course-ba',
+             category:"Data Analytics"
       },
       {
         id: 'Edtech-course-14',
@@ -139,15 +149,16 @@ export const ineuronData = {
         rating: 4.8,
         reviewsCount: 900,
         ctaLink: 'https://ineuron.ai/course/android-chat-app-with-firebase',
+        category:"App Development"
       },
-      {
-        id: 'Edtech-course-15',
-        title: 'Angular',
-        imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F61e81fe3c7b80a9ddcc78df2.jpg&w=828&q=75',
-        price: 5499,
-        rating: 4.7,
-        reviewsCount: 850,
-        ctaLink: 'https://ineuron.ai/course/angular',
-      },
+      // {
+      //   id: 'Edtech-course-15',
+      //   title: 'Angular',
+      //   imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F61e81fe3c7b80a9ddcc78df2.jpg&w=828&q=75',
+      //   price: 5499,
+      //   rating: 4.7,
+      //   reviewsCount: 850,
+      //   ctaLink: 'https://ineuron.ai/course/angular',
+      // },
     ],
   };

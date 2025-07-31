@@ -5,7 +5,7 @@ const nextConfig = {
   /* config options here */
  
   images: {
-    domains: ['static.uacdn.net', 'static.pw.live', 'images.unsplash.com', 'encrypted-tbn0.gstatic.com', 'res.cloudinary.com'],
+    domains: ['static.uacdn.net', 'static.pw.live', 'images.unsplash.com', 'encrypted-tbn0.gstatic.com', 'res.cloudinary.com','d502jbuhuh9wk.cloudfront.net'],
     remotePatterns: [ 
       {
         protocol: 'https',
@@ -13,6 +13,7 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',

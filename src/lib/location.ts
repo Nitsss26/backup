@@ -68,6 +68,27 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
   return dist;
 }
 
+// export function getUserLocation(): Promise<{ latitude: number, longitude: number } | null> {
+//   return new Promise((resolve) => {
+//     if (typeof window === 'undefined' || !navigator.geolocation) {
+//       resolve(null); // Resolve with null if Geolocation is not supported
+//       return;
+//     }
+
+//     navigator.geolocation.getCurrentPosition(
+//       (position) => {
+//         resolve({
+//           latitude: position.coords.latitude,
+//           longitude: position.coords.longitude
+//         });
+//       },
+//       () => {
+//         resolve(null); // Resolve with null on permission denial or other errors
+//       }
+//     );
+//   });
+// }
+
 export function getUserLocation(): Promise<{ latitude: number, longitude: number } | null> {
   return new Promise((resolve) => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
@@ -82,8 +103,15 @@ export function getUserLocation(): Promise<{ latitude: number, longitude: number
           longitude: position.coords.longitude
         });
       },
-      () => {
+      (error) => {
+        // Log the specific error for debugging
+        console.warn('Geolocation error:', error.code, error.message);
         resolve(null); // Resolve with null on permission denial or other errors
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 300000 // 5 minutes
       }
     );
   });

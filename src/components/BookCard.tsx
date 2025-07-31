@@ -269,7 +269,7 @@ export function BookCard({ book, distance }: BookCardProps) {
 
         {/* Price and Contact Section */}
         <div className="flex items-center justify-between mt-auto pt-2 border-t border-border">
-          <p className="font-bold text-primary text-xs md:sm">
+          <p className="font-bold text-primary text-xs md:text-sm">
             {formatPrice(book.listingType === 'sell' ? book.price : book.rentPricePerMonth, book.listingType)}
           </p>
           <Button

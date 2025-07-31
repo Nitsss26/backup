@@ -1,63 +1,65 @@
+
 import { NextResponse } from 'next/server';
-import  UserModel  from '@/models/User'; // Adjust import as per your setup
-import dbConnect from '@/lib/dbConnect'; // Adjust import as per your setup
+import  UserModel  from '@/models/User';
+import dbConnect from '@/lib/dbConnect';
 
 export async function GET(request: Request) {
   try {
     await dbConnect();
     
     const { searchParams } = new URL(request.url);
-    const startDate = searchParams.get('startDate');
-    const endDate = searchParams.get('endDate');
+    const startDateParam = searchParams.get('startDate');
+    const endDateParam = searchParams.get('endDate');
 
-    if (!startDate || !endDate) {
+    if (!startDateParam || !endDateParam) {
       return NextResponse.json({ error: 'Start date and end date are required' }, { status: 400 });
     }
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    const start = new Date(startDateParam);
+    const end = new Date(endDateParam);
+
+    // Limit to last 7 days to prevent timeout for large datasets
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const actualStart = start > sevenDaysAgo ? start : sevenDaysAgo;
     
-    // Calculate previous period
-    const dateDiff = end.getTime() - start.getTime();
-    const prevStart = new Date(start.getTime() - dateDiff);
+    const dateDiff = end.getTime() - actualStart.getTime();
+    const prevStart = new Date(actualStart.getTime() - dateDiff);
     const prevEnd = new Date(end.getTime() - dateDiff);
 
-    // Cumulative users up to end date
-    const currentUsers = await UserModel.countDocuments({
-      createdAt: { $lte: end }
+    // Count new registered users in the current period
+    const currentRegisteredUsers = await UserModel.countDocuments({
+      createdAt: { $gte: actualStart, $lte: end }
     });
 
-    // Cumulative users up to previous period's end
-    const previousUsers = await UserModel.countDocuments({
-      createdAt: { $lte: prevEnd }
+    // Count new registered users in the previous period
+    const previousRegisteredUsers = await UserModel.countDocuments({
+      createdAt: { $gte: prevStart, $lte: prevEnd }
     });
 
-    // Daily new users within the selected range
+    // Aggregate daily new users within the selected range
     const dailyNewUsers = await UserModel.aggregate([
       {
         $match: {
-          createdAt: { $gte: start, $lte: end }
+          createdAt: { $gte: actualStart, $lte: end }
         }
       },
       {
         $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' }
-          },
-          count: { $sum: 1 }
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          users: { $sum: 1 }
         }
       },
       {
-        $sort: { _id: 1 }
-      }
+        $project: {
+          date: '$_id',
+          users: '$users',
+          _id: 0
+        }
+      },
+      { $sort: { date: 1 } }
     ]);
-
-    // Users before start date for cumulative baseline
-    const usersBeforeStart = await UserModel.countDocuments({
-      createdAt: { $lt: start }
-    });
-
-    // Generate all dates in range
+    
     function getDatesInRange(start: Date, end: Date) {
       const dates = [];
       let currentDate = new Date(start);
@@ -69,31 +71,29 @@ export async function GET(request: Request) {
     }
 
     const datesInRange = getDatesInRange(start, end);
-    const newUserMap = new Map(dailyNewUsers.map(item => [item._id, item.count]));
-
-    // Cumulative chart data
-    let cumulative = usersBeforeStart;
+    const newUserMap = new Map(dailyNewUsers.map(item => [item.date, item.users]));
+    
     const chartData = datesInRange.map(date => {
       const dateStr = date.toISOString().split('T')[0];
-      const dailyNew = newUserMap.get(dateStr) || 0;
-      cumulative += dailyNew;
-      return { date: dateStr, users: cumulative };
+      return {
+        date: dateStr,
+        users: newUserMap.get(dateStr) || 0
+      };
     });
 
-    // Calculate increment
-    const increment = currentUsers - previousUsers;
-    const incrementPercentage = previousUsers > 0 
-      ? ((increment / previousUsers) * 100).toFixed(1)
-      : currentUsers > 0 ? '100' : '0';
+    const increment = currentRegisteredUsers - previousRegisteredUsers;
+    const incrementPercentage = previousRegisteredUsers > 0 
+      ? ((increment / previousRegisteredUsers) * 100).toFixed(1)
+      : currentRegisteredUsers > 0 ? '100' : '0';
     const trend = `${increment >= 0 ? '↑' : '↓'} ${Math.abs(Number(incrementPercentage))}% from previous period`;
 
     return NextResponse.json({
-      totalUsers: currentUsers,
+      totalUsers: currentRegisteredUsers,
       increment: trend,
       chartData
     });
   } catch (error) {
-    console.error('Error fetching analytics:', error);
+    console.error('Error fetching registered users analytics:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

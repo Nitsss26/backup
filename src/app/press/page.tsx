@@ -64,8 +64,7 @@ export default function PressPage() {
                     </div>
                 </div>
                 <div className="flex justify-center">
-                     <Image src="/Home.jpg" alt="EdTechCart logo and brand assets" width={500} height={300} className="rounded-lg shadow-lg" data-ai-hint="brand logo assets" />
-                </div>
+                <Image src="/Home.jpg" alt="EdTechCart logo and brand assets" width={500} height={300} className="rounded-lg shadow-lg" data-ai-hint="brand logo assets" />
             </div>
         </section>
 

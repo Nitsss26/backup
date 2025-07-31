@@ -5,7 +5,7 @@
 // import { Header } from '@/components/layout/Header';
 // import { Footer } from '@/components/layout/Footer';
 // import { Button } from '@/components/ui/button';
-// import { Book, MapPin, Loader2, X, Filter, AlertTriangle } from 'lucide-react';
+// import { Book, MapPin, Loader2, X, Filter } from 'lucide-react';
 // import type { Book as BookType } from '@/lib/types';
 // import axios from 'axios';
 // import { useAuth } from '@/components/AppProviders';
@@ -30,7 +30,8 @@
 //   const fetchBooks = useCallback(async (location: { latitude: number; longitude: number } | null) => {
 //     setIsLoading(true);
 //     try {
-//       const response = await axios.get('/api/books');
+//       // Explicitly request only approved books for the public marketplace
+//       const response = await axios.get('/api/books?status=approved');
 //       let fetchedBooks = response.data.books as BookType[];
       
 //       if (location) {
@@ -42,7 +43,7 @@
 //             book.location.coordinates[1],
 //             book.location.coordinates[0]
 //           ),
-//         })).sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+//         })).sort((a, b) => (a.distance || 0) - (b.distance || 0));
 //       } else {
 //         fetchedBooks = fetchedBooks.sort((a, b) => 
 //           new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
@@ -61,12 +62,16 @@
 //     setLocationError(null);
 //     try {
 //       const location = await getUserLocation();
-//       setUserLocation(location);
-//       fetchBooks(location);
-//       toast({ title: 'Location Enabled!', description: 'Showing books closest to you first.' });
+//       if (location) {
+//         setUserLocation(location);
+//         fetchBooks(location);
+//         toast({ title: 'Location Enabled!', description: 'Showing books closest to you first.' });
+//       } else {
+//          throw new Error("Could not get your location. Please enable location services in your browser.");
+//       }
 //     } catch (error: any) {
 //       setLocationError(error.message);
-//       toast({ title: 'Location Error', description: "Could not get your location. Showing all books.", variant: 'destructive' });
+//       toast({ title: 'Location Error', description: "Could not get your location. Showing all books sorted by newest.", variant: 'destructive' });
 //       fetchBooks(null);
 //     }
 //   }, [toast, fetchBooks]);
@@ -100,9 +105,9 @@
 //           </div>
           
 //           {locationError && (
-//             <Alert variant="warning" className="mb-6">
-//               <AlertTriangle className="h-4 w-4" />
-//               <AlertTitle>Location Disabled</AlertTitle>
+//             <Alert variant="destructive" className="mb-6">
+//               <MapPin className="h-4 w-4" />
+//               <AlertTitle>Location Disabled or Denied</AlertTitle>
 //               <AlertDescription>
 //                 {locationError} Distances to book listings cannot be calculated.
 //               </AlertDescription>
@@ -139,12 +144,20 @@
 //             </div>
 //           </div>
 
-//           {userLocation && (
-//             <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
-//               <MapPin className="h-4 w-4" />
-//               <span>Showing books sorted by distance from your location</span>
-//             </div>
-//           )}
+        
+//           {userLocation ? (
+//   <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
+//     <MapPin className="h-4 w-4" />
+//     <span>Showing books sorted by distance from your location</span>
+//   </div>
+// ) : (
+//   <div className="flex items-center justify-center gap-2 mb-4 text-sm text-yellow-700 bg-yellow-100 border border-yellow-300 p-2 rounded-md">
+//     <MapPin className="h-4 w-4" />
+//     <span>
+//       <strong>Location not enabled:</strong> You won’t see how far books are from you unless you allow location access.
+//     </span>
+//   </div>
+// )}
 
 //           {isLoading ? (
 //             <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>
@@ -189,6 +202,7 @@ import { BookCard } from '@/components/BookCard';
 import { BOOK_CATEGORIES } from '@/lib/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function BooksPage() {
   const { user } = useAuth();
@@ -200,10 +214,10 @@ export default function BooksPage() {
   const [filters, setFilters] = useState({ category: 'all', subcategory: 'all' });
   const { toast } = useToast();
 
-  const fetchBooks = async (location: { latitude: number; longitude: number } | null) => {
+  const fetchBooks = useCallback(async (location: { latitude: number; longitude: number } | null) => {
     setIsLoading(true);
     try {
-      const response = await axios.get('/api/books');
+      const response = await axios.get('/api/books?status=approved');
       let fetchedBooks = response.data.books as BookType[];
       
       if (location) {
@@ -228,26 +242,34 @@ export default function BooksPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   const handleGetLocation = useCallback(async () => {
     setLocationError(null);
     try {
       const location = await getUserLocation();
-      setUserLocation(location);
-      fetchBooks(location);
-      toast({ title: 'Location Enabled!', description: 'Showing books closest to you first.' });
+      if (location) {
+        setUserLocation(location);
+        fetchBooks(location);
+        toast({ title: 'Location Enabled!', description: 'Showing books closest to you first.' });
+      } else {
+        throw new Error("Could not get your location. Please enable location services in your browser.");
+      }
     } catch (error: any) {
       setLocationError(error.message);
-      toast({ title: 'Location Error', description: "Could not get your location. Showing all books.", variant: 'destructive' });
+      toast({ title: 'Location Error', description: "Could not get your location. Showing all books sorted by newest.", variant: 'destructive' });
       fetchBooks(null);
     }
-  }, [toast]);
+  }, [toast, fetchBooks]);
 
   useEffect(() => {
     handleGetLocation();
   }, [handleGetLocation]);
-  
+
+  const handleRetryLocation = useCallback(() => {
+    handleGetLocation();
+  }, [handleGetLocation]);
+
   const handleFilterChange = (type: 'category' | 'subcategory', value: string) => {
     if (type === 'category') {
       setFilters({ category: value, subcategory: 'all' });
@@ -272,6 +294,26 @@ export default function BooksPage() {
             <p className="text-muted-foreground mt-2">Buy or rent used books from sellers near you.</p>
           </div>
           
+          {locationError && (
+            <Alert variant="destructive" className="mb-6">
+            <MapPin className="h-4 w-4" color="white" />
+
+
+              <AlertTitle className="text-white">Location Disabled or Denied</AlertTitle>
+              <AlertDescription className="text-white">
+              <div className="flex items-center text-xs">
+  <span>
+    Distances to book listings cannot be calculated. Please enable location services in your browser via the tab bar icon next to the URL search bar on the left side.
+  </span>
+  <Button onClick={handleRetryLocation} variant="primary" className="ml-2 bg-primary text-xs">
+    Enable Location
+  </Button>
+</div>
+
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between items-center bg-card p-4 rounded-lg shadow-sm border">
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
               <Button onClick={() => router.push(user ? '/books/sell' : '/auth/login?redirect=/books/sell')} className="w-full sm:w-auto">
@@ -302,27 +344,19 @@ export default function BooksPage() {
             </div>
           </div>
 
-          {/* Show location status */}
-          {/* {userLocation && (
+          {userLocation ? (
             <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>Showing books sorted by distance from your location</span>
             </div>
-          )} */}
-          {userLocation ? (
-  <div className="flex items-center justify-center gap-2 mb-4 text-sm text-muted-foreground">
-    <MapPin className="h-4 w-4" />
-    <span>Showing books sorted by distance from your location</span>
-  </div>
-) : (
-  <div className="flex items-center justify-center gap-2 mb-4 text-sm text-yellow-700 bg-yellow-100 border border-yellow-300 p-2 rounded-md">
-    <MapPin className="h-4 w-4" />
-    <span>
-      <strong>Location not enabled:</strong> You won’t see how far books are from you unless you allow location access.
-    </span>
-  </div>
-)}
-
+          ) : (
+            <div className="flex items-center justify-center gap-2 mb-4 text-sm text-yellow-700 bg-yellow-100 border border-yellow-300 p-2 rounded-md">
+              <MapPin className="h-4 w-4" />
+              <span>
+                <strong>Location not enabled:</strong> You won’t see how far books are from you unless you allow location access.
+              </span>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="text-center py-12"><Loader2 className="h-8 w-8 animate-spin mx-auto" /></div>

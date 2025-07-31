@@ -1,9 +1,8 @@
-
-
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
+import './User'; // Ensure User model is registered
 import type { IUser } from './User';
 
-// This allows referencing different models in the same field
+// This allows referencing different item details in the same array
 const orderItemSchema = new Schema({
   itemId: { // Store ID as string to accommodate both ObjectId and custom strings
     type: String, 
@@ -12,7 +11,7 @@ const orderItemSchema = new Schema({
   itemType: {
     type: String,
     required: true,
-    enum: ['course', 'ebook'] // The possible models (lowercase to match CartItem)
+    enum: ['course', 'ebook', 'subscription', 'addon', 'book'] // Expanded item types
   },
   priceAtPurchase: {
     type: Number,
@@ -26,8 +25,8 @@ const orderItemSchema = new Schema({
 }, { _id: false });
 
 export interface IOrderItem extends Document {
-  itemId: string; // Changed to string
-  itemType: 'course' | 'ebook';
+  itemId: string;
+  itemType: 'course' | 'ebook' | 'subscription' | 'addon' | 'book';
   priceAtPurchase: number;
   titleAtPurchase: string;
 }

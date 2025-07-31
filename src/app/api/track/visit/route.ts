@@ -1,8 +1,7 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import VisitEventModel from '@/models/VisitEvent';
-import type { IVisitEvent } from '@/models/VisitEvent'; // Import the interface
+import type { IVisitEvent } from '@/models/VisitEvent';
 import mongoose from 'mongoose';
 
 export async function POST(request: NextRequest) {
@@ -13,6 +12,9 @@ export async function POST(request: NextRequest) {
 
     if (!path) {
       return NextResponse.json({ message: 'Path is required for visit event' }, { status: 400 });
+    }
+    if (!sessionId) {
+      return NextResponse.json({ message: 'Session ID is required' }, { status: 400 });
     }
 
     const visitEventData: Partial<IVisitEvent> = {

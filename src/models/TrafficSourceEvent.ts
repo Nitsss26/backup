@@ -1,4 +1,3 @@
-
 import mongoose, { Schema, Document, Model, models } from 'mongoose';
 
 export interface ITrafficSourceEvent extends Document {

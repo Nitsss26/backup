@@ -53,7 +53,7 @@ const UserSchema: Schema<IUser> = new Schema({
   wishlist: [{ type: Schema.Types.ObjectId, ref: 'Course' }],
   orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
   whatsappNumber: { type: String, trim: true },
-}, { timestamps: true });
+}, { timestamps: true }); // This ensures createdAt and updatedAt are automatically managed.
 
 const UserModel: Model<IUser> = models.User || mongoose.model<IUser>('User', UserSchema);
 

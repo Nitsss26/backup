@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEvent from '@/models/VisitEvent';
+import VisitEventModel from '@/models/VisitEvent';
 import UserActionEvent from '@/models/UserActionEvent';
 import Order from '@/models/Order';
 import User from '@/models/User';
@@ -43,7 +43,7 @@ export async function GET() {
     const dateFormat = diffHours <= 24 ? '%Y-%m-%d %H:00' : '%Y-%m-%d';
 
     // 1. Visit Events
-    const visitEvents = await VisitEvent.aggregate([
+    const visitEvents = await VisitEventModel.aggregate([
       { $match: { courseId: { $in: sellerCourseIds }, timestamp: { $gte: start, $lte: end } } },
       {
         $group: {

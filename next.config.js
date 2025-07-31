@@ -5,8 +5,27 @@ const nextConfig = {
   /* config options here */
  
   images: {
-    domains: ['static.uacdn.net', 'static.pw.live', 'images.unsplash.com', 'encrypted-tbn0.gstatic.com', 'res.cloudinary.com'],
+    domains: ['static.uacdn.net', 'static.pw.live', 'images.unsplash.com', 'encrypted-tbn0.gstatic.com','res.cloudinary.com'],
     remotePatterns: [ 
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'careerwill.com',
+        port: '',
+        pathname: '/**',
+      },
+   
+      {
+        protocol: 'https',
+        hostname: 'sttc.gamersgate.com',
+        port: '',
+        pathname: '/**',
+      },     
       {
         protocol: 'https',
         hostname: 'picasso.cosmofeed.com',
@@ -15,10 +34,16 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
+        hostname: 'example.com',
         port: '',
         pathname: '/**',
       },
+        {
+          protocol: 'https',
+          hostname: 'cdn.pwskills.com',
+          port: '',
+          pathname: '/**',
+        },
       {
         protocol: 'https',
         hostname: 'logowik.com',

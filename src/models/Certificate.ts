@@ -1,7 +1,9 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { ICourse } from './Course'; // Ensure this path is correct
-import type { IUser } from './User'; // Ensure this path is correct
+import './Course'; // Ensure Course model is registered
+import './User'; // Ensure User model is registered
+import type { ICourse } from './Course';
+import type { IUser } from './User';
 
 export interface ICertificate extends Document {
   course: mongoose.Types.ObjectId | ICourse;

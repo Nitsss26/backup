@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -34,7 +35,7 @@ export function DateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-[300px] justify-start text-left font-normal bg-[#1E293B] border-slate-700 text-slate-300 hover:bg-slate-700",
               !date && "text-muted-foreground"
             )}
           >
@@ -53,7 +54,7 @@ export function DateRangePicker({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 bg-[#1E293B] border-slate-700 text-slate-300" align="end">
           <Calendar
             initialFocus
             mode="range"

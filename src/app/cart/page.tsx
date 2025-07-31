@@ -29,7 +29,7 @@ export default function CartPage() {
   }, []);
 
 
-  const handleRemoveItem = (itemId: string, itemType: 'course' | 'ebook' | 'subscription') => {
+  const handleRemoveItem = (itemId: string, itemType: CartItem['type']) => {
     removeFromCart(itemId, itemType);
   };
 
@@ -90,11 +90,19 @@ export default function CartPage() {
                 if (cartItem.type === 'course') linkHref = `/courses/${item.id}`;
                 if (cartItem.type === 'ebook') linkHref = `/ebooks/${item.id}`;
                 if (cartItem.type === 'subscription') linkHref = `/subscriptions/${item.id}`;
+                if (cartItem.type === 'addon') linkHref = `/add-ons/${item.id}`;
+
 
                 let authorOrProvider = '';
-                if (cartItem.type === 'course') authorOrProvider = (item as any).providerInfo?.name || (item as any).instructor;
-                if (cartItem.type === 'ebook') authorOrProvider = (item as any).author;
-                if (cartItem.type === 'subscription') authorOrProvider = (item as any).providerInfo?.name;
+                if ('providerInfo' in item && item.providerInfo) {
+                    authorOrProvider = item.providerInfo.name;
+                } else if ('instructor' in item) {
+                    authorOrProvider = item.instructor;
+                } else if ('author' in item) {
+                    authorOrProvider = item.author;
+                } else if ('provider' in item) {
+                    authorOrProvider = item.provider;
+                }
 
                 return (
                     <Card key={`${cartItem.type}-${item.id}`} className="flex flex-col md:flex-row items-start md:items-center gap-4 p-4 shadow-sm hover:shadow-md transition-shadow border">
@@ -102,7 +110,7 @@ export default function CartPage() {
                         src={item.imageUrl || ''}
                         alt={item.title}
                         width={160}
-                        height={cartItem.type === 'ebook' ? 213 : (cartItem.type === 'subscription' ? 213 : 90)}
+                        height={90}
                         className="rounded-md object-cover w-full md:w-40 aspect-video"
                         data-ai-hint={`${item.category} ${cartItem.type} cart item`}
                     />

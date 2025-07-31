@@ -1,11 +1,10 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import UserActionEventModel from '@/models/UserActionEvent';
 import type { IUserActionEvent, UserActionType } from '@/models/UserActionEvent';
 import mongoose from 'mongoose';
 
-const VALID_ACTION_TYPES: UserActionType[] = ['signup', 'login', 'logout', 'profile_update', 'password_reset_request', 'password_reset_complete', 'add_to_cart', 'remove_from_cart', 'view_cart', 'start_checkout', 'order_completed', 'order_failed'];
+const VALID_ACTION_TYPES: UserActionType[] = ['signup', 'login', 'logout', 'profile_update', 'password_reset_request', 'password_reset_complete', 'add_to_cart', 'remove_from_cart', 'view_cart', 'start_checkout', 'order_completed', 'order_failed', 'click', 'scroll'];
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,19 +12,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userId, actionType, details, sessionId, ipAddress, userAgent } = body;
 
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      return NextResponse.json({ message: 'Valid User ID is required' }, { status: 400 });
+    // Session ID is now mandatory for all user actions
+    if (!sessionId) {
+      return NextResponse.json({ message: 'Session ID is required' }, { status: 400 });
+    }
+    
+    if (userId && !mongoose.Types.ObjectId.isValid(userId)) {
+      return NextResponse.json({ message: 'Valid User ID is required if provided' }, { status: 400 });
     }
     if (!actionType || !VALID_ACTION_TYPES.includes(actionType as UserActionType)) {
       return NextResponse.json({ message: 'Valid Action Type is required' }, { status: 400 });
     }
 
     const eventData: Partial<IUserActionEvent> = {
-      userId: new mongoose.Types.ObjectId(userId),
+      userId: userId ? new mongoose.Types.ObjectId(userId) : undefined,
+      sessionId,
       actionType: actionType as UserActionType,
       details,
-      sessionId,
-      ipAddress,
+      ipAddress, 
       userAgent,
     };
     

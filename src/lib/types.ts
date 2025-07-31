@@ -1,5 +1,3 @@
-
-
 export interface Course {
   id: string;
   _id?: string; // Add _id for consistency with API responses
@@ -34,7 +32,7 @@ export interface Course {
   tags?: string[];
   approvalStatus?: 'pending' | 'approved' | 'rejected';
   moneyBackGuaranteeDays?: number;
-  freeTrialAvailable?: boolean;
+  freeTrialAvailable: boolean;
   demoVideoUrl?: string; 
   downloadableMaterialsDescription?: string; 
   detailedScheduleDescription?: string; 
@@ -73,7 +71,7 @@ export interface EBook {
 
 export interface Book {
   id: string;
-  _id: string; // Changed to required as it's the unique key
+  _id: string; 
   title: string;
   author?: string;
   category: string;
@@ -82,12 +80,12 @@ export interface Book {
   listingType: 'sell' | 'rent';
   price?: number;
   rentPricePerMonth?: number;
-  seller: { // Seller info is denormalized slightly for display
+  seller: { 
     _id: string;
     name: string;
     email: string;
   };
-  whatsappNumber: string; // Added whatsappNumber here
+  whatsappNumber: string; 
   location: {
     type: 'Point';
     coordinates: [number, number]; // [longitude, latitude]
@@ -95,14 +93,18 @@ export interface Book {
   };
   approvalStatus: 'pending' | 'approved' | 'rejected';
   distance?: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 
 export interface Subscription {
   id: string;
+  _id?: string;
   title: string;
   price: number;
   originalPrice?: number;
+  priceSuffix?: string;
   category: 'Subscription';
   imageUrl: string;
   rating: number;
@@ -117,14 +119,40 @@ export interface Subscription {
     duration: string;
     price: number;
     originalPrice?: number;
+    description?: string;
   }[];
   features: string[];
   usageLimitations?: string[];
   purchaseInstructions?: string[];
   reviews?: Review[];
   faqs?: { q: string; a: string }[];
+  url?: string;
 }
 
+
+export interface AddOn {
+  id: string;
+  _id?: string;
+  title: string;
+  provider: string;
+  rating: number;
+  reviewsCount: number;
+  price: number;
+  originalPrice?: number;
+  discount?: string;
+  inStock?: boolean;
+  category: string;
+  imageUrl: string;
+  description: string;
+  details: { label: string; value: string | number }[];
+  benefits?: string[];
+  extraOptions?: {
+    label: string;
+    options: string[];
+  };
+  reviews: Review[];
+  faqs: { q: string; a: string }[];
+}
 
 export interface Module {
   id: string;
@@ -182,28 +210,13 @@ export interface User {
 }
 
 export type CartItem = {
-    type: 'course';
-    item: Course;
-} | {
-    type: 'ebook';
-    item: EBook;
-} | {
-    type: 'subscription';
-    item: Subscription;
+    type: 'course' | 'ebook' | 'subscription' | 'addon' | 'book';
+    item: Course | EBook | Subscription | AddOn | Book;
 };
 
 export type WishlistItem = {
-    type: 'course';
-    item: Course;
-} | {
-    type: 'ebook';
-    item: EBook;
-} | {
-    type: 'subscription';
-    item: Subscription;
-} | {
-    type: 'book';
-    item: Book;
+    type: 'course' | 'ebook' | 'subscription' | 'book' | 'addon';
+    item: Course | EBook | Subscription | Book | AddOn;
 };
 
 export interface Category {
@@ -230,11 +243,12 @@ export interface Certificate {
 }
 
 export interface Order {
+  _id: string;
   id: string;
   userId: string;
   items: Array<{
-    item: Course | EBook | Subscription,
-    type: 'course' | 'ebook' | 'subscription',
+    itemId: string,
+    itemType: 'course' | 'ebook' | 'subscription' | 'addon' | 'book',
     priceAtPurchase: number,
     titleAtPurchase: string
   }>;

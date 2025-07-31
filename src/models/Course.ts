@@ -1,6 +1,7 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
-import type { IUser } from './User'; // For seller type reference
+import './User'; // Ensure the User model is registered before referencing it
+import type { IUser } from './User';
 
 interface ILesson extends Document {
   title: string;

@@ -1,5 +1,7 @@
+import mongoose, { Schema, Document, Model, models } from 'mongoose';
 
-import mongoose, { Schema, Document } from 'mongoose';
+// Note: This model is DEPRECATED in favor of the more generic UserActionEvent model.
+// It is kept for historical data migration purposes but should not be used for new event tracking.
 
 export interface IClickEvent extends Document {
   _id: string;
@@ -42,8 +44,8 @@ const ClickEventSchema: Schema = new Schema({
   type: { type: String, enum: ['click'], required: true },
 });
 
-// Add indexes for analytics
 ClickEventSchema.index({ sessionId: 1 });
 ClickEventSchema.index({ courseId: 1, timestamp: -1 });
 
-export default mongoose.models.ClickEvent || mongoose.model<IClickEvent>('ClickEvent', ClickEventSchema);
+const ClickEventModel: Model<IClickEvent> = models.ClickEvent || mongoose.model<IClickEvent>('ClickEvent', ClickEventSchema);
+export default ClickEventModel;

@@ -1,131 +1,110 @@
+
+"use client";
+
 import { 
-    LineChart as RechartsLine, 
-    BarChart as RechartsBar, 
-    PieChart as RechartsPie, 
-    AreaChart as RechartsArea, 
-    ScatterChart as RechartsScatter,
-    ResponsiveContainer, 
-    Line, 
-    Bar, 
-    Pie, 
-    Area, 
-    Scatter, 
-    XAxis, 
-    YAxis, 
-    CartesianGrid, 
-    Tooltip, 
-    Legend, 
-    Cell 
-  } from 'recharts';
+  LineChart as RechartsLine, 
+  BarChart as RechartsBar, 
+  PieChart as RechartsPie, 
+  AreaChart as RechartsArea, 
+  ResponsiveContainer, 
+  Line, 
+  Bar, 
+  Pie, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  Cell 
+} from 'recharts';
+import { PieChart, BarChart, LineChart, AreaChart as AreaChartIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export const chartTypes = [
+    { value: 'line', label: 'Line Chart', icon: <LineChart size={16} /> },
+    { value: 'bar', label: 'Bar Chart', icon: <BarChart size={16} /> },
+    { value: 'area', label: 'Area Chart', icon: <AreaChartIcon size={16} /> },
+    { value: 'pie', label: 'Pie Chart', icon: <PieChart size={16} /> },
+];
+
+const COLORS = {
+  blue: '#3B82F6',
+  pink: '#EC4899',
+  yellow: '#F59E0B',
+  teal: '#14B8A6',
+  purple: '#8B5CF6',
+  green: '#2ECC71',
+  red: '#E74C3C',
+  orange: '#F97316'
+};
+
+const colorCycle = [COLORS.blue, COLORS.pink, COLORS.yellow, COLORS.teal, COLORS.purple, COLORS.green, COLORS.orange, COLORS.red];
+
+const keyToLabelAndColor = {
+  'desktop': { label: 'Desktop', color: COLORS.blue },
+  'mobile': { label: 'Mobile', color: COLORS.pink },
+  'users': { label: 'Users', color: COLORS.blue },
+  'sessions': { label: 'Sessions', color: COLORS.teal },
+  'sales': { label: 'Sales', color: COLORS.green },
+  'enrollments': { label: 'Enrollments', color: COLORS.purple },
+  'conversion': { label: 'Conversion', color: COLORS.orange },
+  'avgTime': { label: 'Avg. Time', color: COLORS.yellow },
+  'engagements': { label: 'Engagements', color: COLORS.red },
+  'impressions': { label: 'Impressions', color: COLORS.pink },
+}
   
-  export const chartTypes = [
-    { value: 'line', label: 'Line' },
-    { value: 'bar', label: 'Bar' },
-    { value: 'area', label: 'Area' },
-    { value: 'pie', label: 'Pie' },
-    { value: 'scatter', label: 'Scatter' },
-  ];
-  
-  export const mockData = {
-    users: [
-      { date: '2025-06-01', users: 100 },
-      { date: '2025-06-30', users: 150 },
-    ],
-    sessions: [
-      { date: '2025-06-01', sessions: 200 },
-      { date: '2025-06-30', sessions: 250 },
-    ],
-    sales: [
-      { date: '2025-06-01', sales: 5000 },
-      { date: '2025-06-30', sales: 7500 },
-    ],
-    enrollments: [
-      { date: '2025-06-01', enrollments: 50 },
-      { date: '2025-06-30', enrollments: 75 },
-    ],
-    conversion: [
-      { date: '2025-06-01', conversion: 0, dailyIncrement: 'No data' },
-      { date: '2025-06-30', conversion: 7.5, dailyIncrement: '↑ 100%' },
-    ],
-    avgTime: [
-      { date: '2025-06-01', avgTime: 120 },
-      { date: '2025-06-30', avgTime: 180 },
-    ],
-    engagements: [
-      { date: '2025-06-01', engagements: 300 },
-      { date: '2025-06-30', engagements: 400 },
-    ],
-    impressions: [
-      { date: '2025-06-01', impressions: 1000 },
-      { date: '2025-06-30', impressions: 1500 },
-    ],
-  };
-  
-  const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
-  
-  export const renderChart = (dataKey: string, chartType: string, title: string, data: any[] = []) => {
-    // Validate data format
-    const isValidData = data.every((item, index) => {
-      const isValid = item.date && typeof item[dataKey] === 'number' && !isNaN(item[dataKey]);
-      if (!isValid) {
-        console.warn(`Invalid data at index ${index} for ${dataKey} chart:`, item);
-      }
-      return isValid;
-    });
-  
-    if (!isValidData && data.length > 0) {
-      return (
-        <div className="flex items-center justify-center h-full text-gray-400">
-          Invalid or malformed data format
-        </div>
-      );
-    }
-  
+export const renderChart = (dataKeys: string[], chartType: string, title: string, data: any[] = []) => {
+    
     if (data.length === 0) {
-      return (
-        <div className="flex items-center justify-center h-full text-gray-400">
-          No data available for the selected period
-        </div>
-      );
+      return <div className="flex items-center justify-center h-full text-slate-500">No data available for this period.</div>;
     }
-  
-    // Default to line chart for time-series data if pie is selected
-    const effectiveChartType = (chartType === 'pie' && (dataKey === 'users' || dataKey === 'sessions' || dataKey === 'sales' || dataKey === 'enrollments' || dataKey === 'engagements' || dataKey === 'avgTime' || dataKey === 'impressions' || dataKey === 'conversion')) ? 'line' : chartType;
+    
+    const isValidData = data.every(item => {
+        const hasLabel = item.date || item.name;
+        const allKeysValid = dataKeys.every(key => typeof item[key] === 'number' && !isNaN(item[key]));
+        return hasLabel && allKeysValid;
+    });
+
+    if (!isValidData) {
+        console.error("Invalid data format for chart:", {dataKeys, data});
+        return <div className="flex items-center justify-center h-full text-red-400">Invalid data format for chart.</div>;
+    }
+    
+    const isTimeSeries = data[0]?.date;
+    const effectiveChartType = (chartType === 'pie' && isTimeSeries) ? 'line' : chartType;
   
     const chartProps = {
       data,
-      margin: { top: 20, right: 30, left: 20, bottom: 10 },
+      margin: { top: 5, right: 20, left: -10, bottom: 5 },
     };
   
-    // Formatter for Y-axis and tooltip
-    const formatValue = (value: number) => {
-      if (dataKey === 'sales') {
-        return `₹${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      } else if (dataKey === 'avgTime') {
+    const formatValue = (value: number, key: string) => {
+      if (isNaN(value)) return '0';
+      if (key === 'sales') return `₹${value.toLocaleString('en-IN')}`;
+      if (key === 'avgTime') {
         const minutes = Math.floor(value / 60);
         const seconds = Math.round(value % 60).toString().padStart(2, '0');
         return `${minutes}:${seconds}`;
-      } else if (dataKey === 'impressions') {
-        return value.toLocaleString();
-      } else if (dataKey === 'conversion') {
-        return `${value.toFixed(2)}%`;
       }
+      if (key === 'conversion') return `${value.toFixed(2)}%`;
       return value.toLocaleString();
     };
   
-    // Custom tooltip to show daily increment for conversion
     const CustomTooltip = ({ active, payload, label }: any) => {
       if (active && payload && payload.length) {
-        const data = payload[0].payload;
         return (
-          <div className="bg-gray-800 border-gray-700 p-2 rounded shadow">
-            <p className="text-white">{`Date: ${label}`}</p>
-            <p className="text-white">{`${title}: ${formatValue(data[dataKey])}`}</p>
-            {dataKey === 'conversion' && data.dailyIncrement && (
-              <p className={`text-xs ${data.dailyIncrement.includes('↑') ? 'text-green-500' : data.dailyIncrement.includes('↓') ? 'text-red-500' : 'text-gray-400'}`}>
-                {`Change: ${data.dailyIncrement}`}
-              </p>
-            )}
+          <div className="bg-[#0F172A] border border-slate-700 p-2 rounded shadow-lg text-white text-xs">
+            <p className="font-bold mb-2">{label}</p>
+            {payload.map((p: any, index: number) => {
+                 const keyConfig = keyToLabelAndColor[p.dataKey as keyof typeof keyToLabelAndColor] || { label: p.name, color: colorCycle[index % colorCycle.length] };
+                 return (
+                    <div key={index} className="flex items-center justify-between gap-4">
+                        <span style={{ color: keyConfig.color }}>{keyConfig.label}:</span>
+                        <span className="font-semibold">{formatValue(p.value, p.dataKey)}</span>
+                    </div>
+                )
+            })}
           </div>
         );
       }
@@ -137,20 +116,15 @@ import {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <RechartsLine {...chartProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" tickFormatter={formatValue} />
-              <Tooltip 
-                content={<CustomTooltip />}
-              />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey={dataKey} 
-                stroke={COLORS[0]} 
-                activeDot={{ r: 8 }} 
-                name={title}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+              <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => formatValue(val, dataKeys[0])} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{fontSize: "12px"}}/>
+              {dataKeys.map((key, index) => {
+                 const keyConfig = keyToLabelAndColor[key as keyof typeof keyToLabelAndColor] || { label: key, color: colorCycle[index % colorCycle.length] };
+                 return <Line key={key} type="monotone" dataKey={key} name={keyConfig.label} stroke={keyConfig.color} strokeWidth={2} dot={false} />
+              })}
             </RechartsLine>
           </ResponsiveContainer>
         );
@@ -158,14 +132,15 @@ import {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <RechartsBar {...chartProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" tickFormatter={formatValue} />
-              <Tooltip 
-                content={<CustomTooltip />}
-              />
-              <Legend />
-              <Bar dataKey={dataKey} fill={COLORS[1]} name={title} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+              <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => formatValue(val, dataKeys[0])} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{fontSize: "12px"}}/>
+              {dataKeys.map((key, index) => {
+                 const keyConfig = keyToLabelAndColor[key as keyof typeof keyToLabelAndColor] || { label: key, color: colorCycle[index % colorCycle.length] };
+                 return <Bar key={key} dataKey={key} name={keyConfig.label} fill={keyConfig.color} radius={[4, 4, 0, 0]} />
+              })}
             </RechartsBar>
           </ResponsiveContainer>
         );
@@ -173,78 +148,58 @@ import {
         return (
           <ResponsiveContainer width="100%" height="100%">
             <RechartsArea {...chartProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" tickFormatter={formatValue} />
-              <Tooltip 
-                content={<CustomTooltip />}
-              />
-              <Legend />
-              <Area type="monotone" dataKey={dataKey} fill={COLORS[2]} stroke={COLORS[2]} name={title} />
+              <defs>
+                 {dataKeys.map((key, index) => {
+                    const keyConfig = keyToLabelAndColor[key as keyof typeof keyToLabelAndColor] || { label: key, color: colorCycle[index % colorCycle.length] };
+                    return (
+                        <linearGradient key={key} id={`color-${key}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={keyConfig.color} stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor={keyConfig.color} stopOpacity={0}/>
+                        </linearGradient>
+                    )
+                 })}
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+              <XAxis dataKey="date" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => formatValue(val, dataKeys[0])} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{fontSize: "12px"}}/>
+              {dataKeys.map((key, index) => {
+                 const keyConfig = keyToLabelAndColor[key as keyof typeof keyToLabelAndColor] || { label: key, color: colorCycle[index % colorCycle.length] };
+                 return <Area key={key} type="monotone" dataKey={key} stroke={keyConfig.color} fillOpacity={1} fill={`url(#color-${key})`} name={keyConfig.label} />
+              })}
             </RechartsArea>
           </ResponsiveContainer>
         );
       case 'pie':
+        const pieData = data.map(item => ({ name: item.name, value: item.value }));
         return (
           <ResponsiveContainer width="100%" height="100%">
             <RechartsPie>
               <Pie
-                data={data}
+                data={pieData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                outerRadius={80}
+                outerRadius={100}
                 fill="#8884d8"
-                dataKey={dataKey}
-                nameKey="date"
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                dataKey="value"
+                nameKey="name"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
               >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                {pieData.map((entry, index) => (
+                  <Cell key={`cell-${entry.name}`} fill={colorCycle[index % colorCycle.length]} />
                 ))}
               </Pie>
               <Tooltip 
-                content={<CustomTooltip />}
+                contentStyle={{ background: '#0F172A', border: '1px solid #334155', color: '#E2E8F0', borderRadius: '0.5rem' }} 
+                formatter={(value, name) => [`${(value as number).toLocaleString()} sessions`, name]} 
               />
-              <Legend />
+              <Legend wrapperStyle={{fontSize: "12px"}}/>
             </RechartsPie>
           </ResponsiveContainer>
         );
-      case 'scatter':
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <RechartsScatter {...chartProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" tickFormatter={formatValue} />
-              <Tooltip 
-                content={<CustomTooltip />}
-              />
-              <Legend />
-              <Scatter name={title} dataKey={dataKey} fill={COLORS[4]} />
-            </RechartsScatter>
-          </ResponsiveContainer>
-        );
       default:
-        return (
-          <ResponsiveContainer width="100%" height="100%">
-            <RechartsLine {...chartProps}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" tickFormatter={formatValue} />
-              <Tooltip 
-                content={<CustomTooltip />}
-              />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey={dataKey} 
-                stroke={COLORS[0]} 
-                activeDot={{ r: 8 }} 
-                name={title}
-              />
-            </RechartsLine>
-          </ResponsiveContainer>
-        );
+        return null;
     }
   };

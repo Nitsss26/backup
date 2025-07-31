@@ -1,13 +1,12 @@
+
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import ClickEvent from '@/models/ClickEvent';
-import mongoose from 'mongoose';
+import UserActionEventModel from '@/models/UserActionEvent';
 
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Extract date range from query parameters
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
@@ -23,9 +22,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 });
     }
     
-    // Count "Added to Cart" events in the specified date range
-    const currentCount = await ClickEvent.countDocuments({
-      elementText: 'Added to Cart',
+    // Count "add_to_cart" events in the specified date range
+    const currentCount = await UserActionEventModel.countDocuments({
+      actionType: 'add_to_cart',
       timestamp: { $gte: start, $lte: end },
     });
 
@@ -34,29 +33,22 @@ export async function GET(request: NextRequest) {
     const prevStart = new Date(start.getTime() - duration);
     const prevEnd = new Date(end.getTime() - duration);
 
-    const previousCount = await ClickEvent.countDocuments({
-      elementText: 'Added to Cart',
+    const previousCount = await UserActionEventModel.countDocuments({
+      actionType: 'add_to_cart',
       timestamp: { $gte: prevStart, $lte: prevEnd },
     });
 
     // Calculate percentage change
-    let percentageChange: number | null = null;
-    let trend: 'up' | 'down' | 'no change' = 'no change';
-
-    if (previousCount > 0) {
-      percentageChange = ((currentCount - previousCount) / previousCount) * 100;
-      percentageChange = Math.round(percentageChange * 100) / 100; // Round to 2 decimals
-      trend = percentageChange > 0 ? 'up' : percentageChange < 0 ? 'down' : 'no change';
-    } else if (currentCount > 0) {
-      percentageChange = 100; // If previous count is 0 but current is > 0, assume 100% increase
-      trend = 'up';
-    }
+    const increment = currentCount - previousCount;
+    const incrementPercentage = previousCount > 0 
+      ? ((increment / previousCount) * 100).toFixed(1)
+      : currentCount > 0 ? '100' : '0';
+      
+    const trend = `${increment >= 0 ? '↑' : '↓'} ${Math.abs(Number(incrementPercentage))}% from previous period`;
 
     return NextResponse.json({
       cartCount: currentCount,
-      percentageChange: percentageChange !== null ? percentageChange : 0,
-      trend,
-      period: { startDate, endDate },
+      increment: trend,
     });
   } catch (error) {
     console.error('Error fetching cart count:', error);

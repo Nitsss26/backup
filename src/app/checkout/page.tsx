@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -19,9 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useCart, useAuth } from '@/components/AppProviders';
 import axios from 'axios';
-
-const SPECIAL_COURSE_ID = "6845b4b7188aa67dd40937b1";
-const SPECIAL_COURSE_REDIRECT_URL = "https://www.pw.live/iit-jee/class-11/batches/arjuna-jee-2026-700192";
 
 export default function CheckoutPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -67,10 +63,15 @@ export default function CheckoutPage() {
     try {
       const orderData = {
         userId: user.id,
-        items: cartItems, 
+        items: cartItems.map(ci => ({
+            itemId: ci.item.id || ci.item._id,
+            itemType: ci.type,
+            priceAtPurchase: ci.item.price,
+            titleAtPurchase: ci.item.title,
+        })),
         totalAmount: total,
         paymentMethod: paymentMethod,
-         paymentDetails: {
+        paymentDetails: {
           gateway: 'mock-gateway',
           transactionTime: new Date().toISOString()
         }
@@ -79,21 +80,14 @@ export default function CheckoutPage() {
       const response = await axios.post('/api/orders', orderData);
 
       if (response.status === 201) {
-        const containsSpecialCourse = cartItems.some(item => item.item.id === SPECIAL_COURSE_ID);
-
         toast({
           title: "Order Placed Successfully!",
-          description: "Your items are now being processed.",
+          description: "Thank you for your purchase.",
           variant: "success",
           duration: 7000,
         });
         clearCart(); 
-
-        if (containsSpecialCourse) {
-          window.location.href = SPECIAL_COURSE_REDIRECT_URL;
-        } else {
-          router.push('/dashboard/student/orders'); 
-        }
+        router.push(`/orderplaced?amount=${total}`); 
       } else {
         throw new Error(response.data.message || "Failed to place order.");
       }
@@ -241,7 +235,7 @@ export default function CheckoutPage() {
                     <h3 className="text-lg font-semibold mb-2">Review Your Order</h3>
                     <div className="space-y-3 border rounded-md p-4 bg-background">
                       {cartItems.map(cartItem => (
-                        <div key={cartItem.item.id} className="flex justify-between items-center p-2 border-b last:border-b-0">
+                        <div key={cartItem.item.id || cartItem.item._id} className="flex justify-between items-center p-2 border-b last:border-b-0">
                            <div className="flex items-center gap-3">
                              <Image src={cartItem.item.imageUrl || ''} alt={cartItem.item.title} width={80} height={cartItem.type === 'ebook' ? 107 : 45} className="rounded object-cover" data-ai-hint={`${cartItem.item.category} checkout thumbnail`}/>
                              <div>
@@ -280,7 +274,7 @@ export default function CheckoutPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {cartItems.map(cartItem => (
-                  <div key={cartItem.item.id} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
+                  <div key={cartItem.item.id || cartItem.item._id} className="flex items-start gap-3 pb-3 border-b last:border-b-0">
                     <Image src={cartItem.item.imageUrl || ''} alt={cartItem.item.title} width={100} height={cartItem.type === 'ebook' ? 133 : 56} className="rounded-md object-cover aspect-video" data-ai-hint={`${cartItem.item.category} checkout order summary`}/>
                     <div>
                       <p className="text-sm font-medium line-clamp-2">{cartItem.item.title}</p>
@@ -306,7 +300,7 @@ export default function CheckoutPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-xs text-muted-foreground">All transactions are encrypted and processed securely. We respect your privacy.</p>
-                    <Image src="https://placehold.co/300x50.png" alt="Secure payment badges" width={300} height={50} className="mt-2" data-ai-hint="payment security badges logos"/>
+                    <Image src="/sp.jpg" alt="Secure payment badges" width={300} height={50} className="mt-2" data-ai-hint="payment security badges logos"/>
                 </CardContent>
             </Card>
           </div>

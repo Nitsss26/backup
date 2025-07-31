@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -20,16 +19,8 @@ import { LogOut, Settings, UserCircle, LayoutGrid, BookOpen, DollarSign, Users, 
 import { useAuth } from '@/components/AppProviders';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import '../globals.css'; // Corrected import path
-
-const studentNavItems: NavItem[] = [
-  { href: '/dashboard/student', label: 'Dashboard', icon: LayoutGrid },
-  { href: '/dashboard/student/courses', label: 'My Courses', icon: BookOpen },
-  { href: '/dashboard/student/certificates', label: 'Certificates', icon: FileCheck2 },
-  { href: '/dashboard/student/wishlist', label: 'Wishlist', icon: Heart },
-  { href: '/dashboard/student/orders', label: 'Order History', icon: ShoppingBag },
-  { href: '/dashboard/profile', label: 'Profile Settings', icon: Settings, isShared: true },
-];
+import '../globals.css'; 
+import { Skeleton } from '@/components/ui/skeleton';
 
 const providerNavItems: NavItem[] = [
   { href: '/dashboard/seller', label: 'Seller Dashboard', icon: LayoutGrid },
@@ -49,6 +40,7 @@ const adminNavItems: NavItem[] = [
   { href: '/admin/content', label: 'Platform Content', icon: FileQuestion },
   { href: '/admin/payments', label: 'Payments & Revenue', icon: DollarSign },
   { href: '/admin/settings', label: 'Platform Settings', icon: Palette },
+  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
 ];
 
 export default function DashboardLayout({
@@ -67,57 +59,49 @@ export default function DashboardLayout({
     setIsLayoutClient(true);
   }, []);
 
-
   useEffect(() => {
     if (!isLayoutClient || isLoading) return;
 
     if (!user) {
-      router.push(`/auth/login?redirect=${currentPath}`);
+      if (currentPath.startsWith('/admin') || currentPath.startsWith('/dashboard')) {
+        router.push(`/auth/login?redirect=${currentPath}`);
+      }
       return;
     }
 
-    const isAdminContext = currentPath.startsWith('/admin');
-    const isSellerContext = currentPath.startsWith('/dashboard/seller');
-    const isStudentContext = currentPath.startsWith('/dashboard/student');
+    const isAdminRoute = currentPath.startsWith('/admin');
+    const isSellerRoute = currentPath.startsWith('/dashboard/seller');
     const isProfilePage = currentPath === '/dashboard/profile';
 
     let navs: NavItem[] = [];
     let showSidebar = false;
 
     if (user.role === 'admin') {
-      if (isAdminContext || (isProfilePage && !isSellerContext && !isStudentContext) ) {
+      if (isAdminRoute || isProfilePage) {
         navs = adminNavItems;
         showSidebar = true;
-      } else if (!isAdminContext) {
-         router.push('/admin');
       }
     } else if (user.role === 'provider') {
-      if (isSellerContext || (isProfilePage && !isAdminContext && !isStudentContext)) {
+      if (isSellerRoute || isProfilePage) {
         navs = providerNavItems;
         showSidebar = true;
-      } else if (!isSellerContext) {
-          router.push('/dashboard/seller');
+      } else if (isAdminRoute) {
+        router.push('/');
       }
     } else if (user.role === 'student') {
-      navs = studentNavItems;
-      if (isStudentContext || (isProfilePage && !isAdminContext && !isSellerContext)) {
-        showSidebar = true;
-      } else {
-        showSidebar = false; 
-      }
-       if(!isStudentContext && !isProfilePage) { 
-          router.push('/dashboard/student');
-       }
+        showSidebar = false;
+        if(isAdminRoute || isSellerRoute) {
+           router.push('/');
+        }
     } else {
-      router.push('/auth/login');
+        router.push('/auth/login');
     }
     
     setActiveNavItems(navs);
     setShouldShowMainSidebar(showSidebar);
   }, [user, isLoading, router, currentPath, isLayoutClient]);
 
-
-  if (isLoading || !user || !isLayoutClient) {
+  if (isLoading || !isLayoutClient) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <LayoutGrid className="h-12 w-12 animate-spin text-primary" />
@@ -127,12 +111,24 @@ export default function DashboardLayout({
 
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
 
+  if (!shouldShowMainSidebar) {
+      return (
+        <div className="flex flex-col min-h-screen">
+          <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+          <Footer/>
+        </div>
+      )
+  }
+
   return (
     <SidebarProvider defaultOpen={shouldShowMainSidebar}>
       <div className="flex flex-col min-h-screen">
         <Header />
         <div className="flex flex-1">
-          {shouldShowMainSidebar && (
+          {user && (
             <Sidebar 
               className="group border-r bg-card text-card-foreground transition-all duration-300 ease-in-out w-16 hover:w-64 h-[calc(100vh-64px)] sticky top-16 z-30 md:w-16 md:hover:w-64"
               collapsible="none"

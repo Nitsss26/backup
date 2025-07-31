@@ -1,35 +1,41 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { usePathname, useParams, useSearchParams } from 'next/navigation';
+import { useEffect, useCallback, useRef } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { v4 as uuidv4 } from 'uuid';
 import clientLogger from '@/lib/clientLogger';
+import { useAuth } from '@/components/AppProviders';
+import { debounce } from 'lodash';
 
-function getSessionId() {
-  if (typeof window !== 'undefined') {
-    let sessionId = sessionStorage.getItem('sessionId');
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      sessionStorage.setItem('sessionId', sessionId);
-    }
-    return sessionId;
+// --- Session and User ID Management ---
+function getSessionId(): string {
+  if (typeof window === 'undefined') return 'server-session';
+  let sessionId = sessionStorage.getItem('edtechcart_session_id');
+  if (!sessionId) {
+    sessionId = uuidv4();
+    sessionStorage.setItem('edtechcart_session_id', sessionId);
   }
-  return null;
+  return sessionId;
 }
 
+function getUniqueUserId(): string {
+  if (typeof window === 'undefined') return 'server-user';
+  let userId = localStorage.getItem('edtechcart_unique_user_id');
+  if (!userId) {
+    userId = uuidv4();
+    localStorage.setItem('edtechcart_unique_user_id', userId);
+  }
+  return userId;
+}
+
+// --- Traffic Source Logic ---
 const getTrafficSourceFromReferrer = (referrer: string): string => {
   if (!referrer) return 'Direct';
-
   try {
     const referrerUrl = new URL(referrer);
-    const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
-
-    if (referrerUrl.hostname.includes(appHostname)) {
-        return 'Direct';
-    }
-    
+    if (referrerUrl.hostname.includes(window.location.hostname)) return 'Direct';
     const hostname = referrerUrl.hostname.toLowerCase();
-    
     if (hostname.includes('google.')) return 'google';
     if (hostname.includes('linkedin.com')) return 'linkedin';
     if (hostname.includes('instagram.com')) return 'instagram';
@@ -37,7 +43,6 @@ const getTrafficSourceFromReferrer = (referrer: string): string => {
     if (hostname.includes('youtube.com')) return 'youtube';
     if (hostname.includes('facebook.com')) return 'facebook';
     if (hostname.includes('whatsapp.com') || hostname.includes('wa.me')) return 'whatsapp';
-    
     return 'Other Referral';
   } catch (e) {
     clientLogger.warn("Could not parse referrer URL:", { referrer, error: e });
@@ -45,85 +50,197 @@ const getTrafficSourceFromReferrer = (referrer: string): string => {
   }
 };
 
+const sendBeacon = (eventData: Record<string, any>) => {
+    try {
+        if (navigator.sendBeacon) {
+            const blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+            navigator.sendBeacon('/api/analytics/track', blob);
+        } else {
+            // Fallback for browsers that don't support sendBeacon
+            fetch('/api/analytics/track', {
+                method: 'POST',
+                body: JSON.stringify(eventData),
+                headers: { 'Content-Type': 'application/json' },
+                keepalive: true
+            });
+        }
+    } catch(e) {
+        console.error("Failed to send analytics data", e);
+    }
+}
+
+
+// --- Main Tracker Component ---
 export function AnalyticsTracker() {
   const pathname = usePathname();
-  const params = useParams();
   const searchParams = useSearchParams();
-  const pageViewRef = useRef(false);
+  const pageViewRef = useRef<{ path: string; startTime: number } | null>(null);
+  const { user } = useAuth(); // Get authenticated user
 
-  useEffect(() => {
-    // This effect should only run once per component mount on the client.
-    if (pageViewRef.current) return;
-    pageViewRef.current = true;
-
-    const sessionId = getSessionId();
-    if (!sessionId) return;
-
-    let courseId: string | undefined;
-    if (params?.id && pathname.startsWith('/courses/') && /^[0-9a-fA-F]{24}$/.test(params.id.toString())) {
-      courseId = params.id.toString();
-    }
-    
-    const referrer = document.referrer || '';
-    
-    // --- UTM Tracking Logic ---
-    const utmSource = searchParams.get('utm_source');
-    if (utmSource) {
-        // Direct call to the dedicated UTM tracking API
-        fetch('/api/analytics/track-utm', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ source: utmSource }),
-            keepalive: true,
-        }).catch(error => {
-            clientLogger.error('AnalyticsTracker: Failed to send UTM event', {
-                error: (error as Error).message,
-                source: utmSource,
-            });
-        });
-    }
-
-    const trafficSource = utmSource || getTrafficSourceFromReferrer(referrer);
-
-    const trackEvent = async (eventPayload: Record<string, any>) => {
-      try {
-        const fullEvent = {
-            ...eventPayload,
-            sessionId,
-            path: pathname,
-            timestamp: new Date().toISOString(),
-            courseId,
-            referrer,
-            trafficSource,
-            device: navigator.userAgent.includes('Mobi') ? 'Mobile' : 'Desktop',
-            browser: navigator.userAgent,
-        };
-        
-        console.log('[FRONTEND TRACKER] Sending event:', fullEvent);
-        
-        const blob = new Blob([JSON.stringify(fullEvent)], { type: 'application/json' });
-        navigator.sendBeacon('/api/analytics/track', blob);
+  // --- UTM Tracking Function ---
+  const trackUTMSource = useCallback(async () => {
+    try {
+      const utmSource = searchParams.get('utmsource') || searchParams.get('utm_source');
+      const sessionId = getSessionId();
+      const uniqueUserId = getUniqueUserId();
       
-      } catch (error) {
-        clientLogger.error('AnalyticsTracker: Failed to send event', {
-          error: (error as Error).message,
-          event: eventPayload,
-        });
+      const utmData = {
+        utmSource,
+        sessionId,
+        userId: user?.id || uniqueUserId,
+        path: pathname,
+        referrer: document.referrer || ''
+      };
+
+      await fetch('/api/analytics/utm-tracking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(utmData),
+      });
+    } catch (error) {
+      clientLogger.error('AnalyticsTracker: Failed to track UTM source', {
+        error: (error as Error).message,
+      });
+    }
+  }, [searchParams, user, pathname]);
+
+  // --- Core Tracking Function ---
+  const trackEvent = useCallback(async (eventData: Record<string, any>, useBeacon: boolean = false) => {
+    try {
+      const sessionId = getSessionId();
+      const uniqueUserId = getUniqueUserId();
+      const referrer = document.referrer || '';
+      const utmSource = searchParams.get('utmsource') || searchParams.get('utm_source');
+      const trafficSource = utmSource || getTrafficSourceFromReferrer(referrer);
+      
+      const fullEvent = {
+        ...eventData,
+        sessionId,
+        uniqueUserId,
+        userId: user?.id,
+        timestamp: new Date().toISOString(),
+        device: navigator.userAgent.includes('Mobi') ? 'Mobile' : 'Desktop',
+        browser: navigator.userAgent,
+        trafficSource,
+      };
+      
+      if (useBeacon) {
+          sendBeacon(fullEvent);
+      } else {
+          await fetch('/api/analytics/track', {
+              method: 'POST',
+              body: JSON.stringify(fullEvent),
+              headers: { 'Content-Type': 'application/json' },
+          });
+      }
+
+    } catch (error) {
+      clientLogger.error('AnalyticsTracker: Failed to send event', {
+        error: (error as Error).message,
+        event: eventData,
+      });
+    }
+  }, [searchParams, user]);
+  
+  // --- Scroll Tracking ---
+  useEffect(() => {
+    const scrollTracker = {
+      path: pathname,
+      thresholds: { 25: false, 50: false, 75: false, 95: false }
+    };
+
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollPercentage = (scrollTop / (scrollHeight - clientHeight)) * 100;
+      
+      for (const threshold of [25, 50, 75, 95]) {
+          if (scrollPercentage >= threshold && !scrollTracker.thresholds[threshold as keyof typeof scrollTracker.thresholds]) {
+              scrollTracker.thresholds[threshold as keyof typeof scrollTracker.thresholds] = true;
+              trackEvent({
+                  type: 'scroll',
+                  details: { path: scrollTracker.path, scrollDepth: threshold },
+              });
+          }
       }
     };
     
-    trackEvent({ type: 'visit' });
+    const debouncedScrollHandler = debounce(handleScroll, 200);
+    window.addEventListener('scroll', debouncedScrollHandler);
+    return () => window.removeEventListener('scroll', debouncedScrollHandler);
+  }, [pathname, trackEvent]);
+
+
+  // --- Page View and Duration Tracking ---
+  useEffect(() => {
+    const handleUnload = () => {
+        if(pageViewRef.current) {
+            const duration = (Date.now() - pageViewRef.current.startTime) / 1000;
+            trackEvent({ type: 'duration', path: pageViewRef.current.path, details: { duration: Math.round(duration) } }, true);
+        }
+    };
     
-    const handlePageExit = () => {
-        trackEvent({ type: 'duration', duration: 0 });
+    if (pageViewRef.current && pageViewRef.current.path !== pathname) {
+       handleUnload();
     }
-    window.addEventListener('beforeunload', handlePageExit)
+    
+    pageViewRef.current = { path: pathname, startTime: Date.now() };
+    const courseId = pathname.includes('/courses/') ? pathname.split('/courses/')[1] : undefined;
+    
+    // Track UTM source on page view
+    trackUTMSource();
+    
+    // Track regular page view
+    trackEvent({ type: 'page_view', path: pathname, courseId });
+    
+    window.addEventListener('beforeunload', handleUnload);
 
     return () => {
-        window.removeEventListener('beforeunload', handlePageExit)
-    }
+        window.removeEventListener('beforeunload', handleUnload);
+        handleUnload();
+    };
 
-  }, [pathname, params, searchParams]);
+  }, [pathname, trackEvent, trackUTMSource]);
 
+
+  // --- Click Tracking ---
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      let element = event.target as HTMLElement;
+      let section: string | null = null;
+      let elementText: string | null = null;
+
+      while (element && element !== document.body) {
+        if (element.hasAttribute('data-analytics-section')) {
+          section = element.getAttribute('data-analytics-section');
+          break;
+        }
+        element = element.parentElement as HTMLElement;
+      }
+      
+      element = event.target as HTMLElement;
+      elementText = element.textContent?.trim().slice(0, 50) || element.ariaLabel || element.id || 'Unnamed Element';
+      const courseId = pathname.includes('/courses/') ? pathname.split('/courses/')[1] : undefined;
+      
+      trackEvent({
+        type: 'click',
+        details: {
+            path: pathname,
+            section: section || 'unknown',
+            elementType: element.tagName,
+            elementText,
+            href: (element as HTMLAnchorElement).href,
+        },
+        courseId,
+      });
+    };
+
+    document.addEventListener('click', handleClick, true);
+    return () => document.removeEventListener('click', handleClick, true);
+  }, [trackEvent, pathname]);
+  
   return null;
 }

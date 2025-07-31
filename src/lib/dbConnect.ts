@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 
@@ -36,17 +37,16 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
-    // The MONGODB_URI should already contain the database name.
     const opts = {
       bufferCommands: false,
     };
-    console.log(`🔄 Creating new MongoDB connection promise...`);
-    cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
+    console.log("🔄 Creating new MongoDB connection promise...");
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
       console.log("✅ New MongoDB connection established.");
       return mongooseInstance;
     }).catch(error => {
       console.error("🔴 MongoDB connection promise error:", error);
-      cached.promise = null; 
+      cached.promise = null; // Reset promise on error
       throw error;
     });
   }
@@ -55,6 +55,7 @@ async function dbConnect() {
     console.log("⏳ Awaiting MongoDB connection promise...");
     cached.conn = await cached.promise;
   } catch (e) {
+    // If the promise fails, reset it so a new connection attempt can be made
     cached.promise = null;
     console.error("🔴 Failed to establish MongoDB connection from promise:", e);
     throw e;

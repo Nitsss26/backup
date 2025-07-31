@@ -2,30 +2,23 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import VisitEventModel from '@/models/VisitEvent';
-import ClickEventModel from '@/models/ClickEvent';
 import UserActionEventModel from '@/models/UserActionEvent';
-import TrafficSourceEventModel from '@/models/TrafficSourceEvent'; // Import the new model
+import TrafficSourceEventModel from '@/models/TrafficSourceEvent';
 import mongoose from 'mongoose';
 import logger from '@/lib/logger';
+import UserModel from '@/models/User'; // Import user model for unique user logic
 
-// Helper function to categorize the referrer
-const getTrafficSource = (referrer: string): string => {
-  if (!referrer) {
-    return 'Direct';
-  }
+// Fallback function to determine traffic source from referrer
+const getTrafficSourceFromReferrer = (referrer: string): string => {
+  if (!referrer) return 'Direct';
   
   try {
     const referrerUrl = new URL(referrer);
-    // Use NEXT_PUBLIC_APP_URL for the app's hostname, default to localhost for dev
     const appHostname = new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9003').hostname;
 
-    if (referrerUrl.hostname.includes(appHostname)) {
-        return 'Direct'; // Internal navigation
-    }
+    if (referrerUrl.hostname.includes(appHostname)) return 'Direct';
     
     const hostname = referrerUrl.hostname.toLowerCase();
-    
-    // Exact or "contains" matching for hostnames. More robust.
     if (hostname.includes('google.')) return 'google';
     if (hostname.includes('linkedin.com')) return 'linkedin';
     if (hostname.includes('instagram.com')) return 'instagram';
@@ -36,153 +29,99 @@ const getTrafficSource = (referrer: string): string => {
     
     return 'Other Referral';
   } catch(e) {
-      console.warn("Could not parse referrer URL on backend:", referrer, e);
+      logger.warn("Could not parse referrer URL on backend:", { referrer, error: (e as Error).message });
       return 'Unknown';
   }
 };
 
-
+// Main POST handler for all analytics events
 export async function POST(request: Request) {
   try {
     await dbConnect();
-
-    let body;
-    try {
-      body = await request.json();
-    } catch (error) {
-      logger.warn('[/api/analytics/track POST] Invalid JSON payload', { error: (error as Error).message });
-      return NextResponse.json({ message: 'Invalid JSON payload' }, { status: 400 });
-    }
-
-    if (!body || typeof body !== 'object') {
-      logger.warn('[/api/analytics/track POST] Empty or non-object body received');
-      return NextResponse.json({ message: 'Request body is required' }, { status: 400 });
-    }
-
-    const {
-      type,
-      sessionId,
-      path,
-      elementType,
-      elementText,
-      href,
-      duration,
-      courseId,
-      timestamp,
-      geoData,
-      device,
-      browser,
-      referrer,
-      trafficSource: providedTrafficSource, // This is the source determined on the client (e.g., from utm_source)
-      details,
-    } = body;
-    
-    // CRITICAL FIX: Prioritize the traffic source sent from the frontend.
-    // Only fall back to deriving from referrer if the frontend couldn't determine it.
-    const trafficSource = providedTrafficSource || getTrafficSource(referrer);
-    console.log(`[BACKEND /api/analytics/track] Received trafficSource: ${trafficSource}`);
-
+    const body = await request.json();
+    const { type: eventType, sessionId, uniqueUserId, ...eventData } = body;
 
     if (!sessionId) {
       logger.warn('[/api/analytics/track POST] Missing sessionId');
       return NextResponse.json({ message: 'Session ID is required' }, { status: 400 });
     }
-
-    let validCourseId = courseId && mongoose.Types.ObjectId.isValid(courseId) ? new mongoose.Types.ObjectId(courseId) : undefined;
-
-    const sanitizedGeoData = {
-      country: geoData?.country || 'unknown',
-      city: geoData?.city || 'unknown',
-      state: geoData?.state || 'unknown',
-      lat: geoData?.lat || 0,
-      lng: geoData?.lng || 0,
+    
+    let userRecord = null;
+    if (eventData.userId) { // Check for authenticated user ID from payload
+        const isValidId = mongoose.Types.ObjectId.isValid(eventData.userId);
+        if(isValidId) {
+            userRecord = await UserModel.findById(eventData.userId);
+        }
+    }
+    
+    // Determine traffic source: prioritize frontend-provided source, then fallback to referrer
+    const trafficSource = eventData.trafficSource || getTrafficSourceFromReferrer(eventData.referrer || '');
+    
+    const commonData = {
+      sessionId,
+      uniqueUserId, // Store the persistent client-side ID
+      userId: userRecord?._id, // Store the DB user ID if found
+      timestamp: eventData.timestamp ? new Date(eventData.timestamp) : new Date(),
+      geoData: {
+        country: eventData.geoData?.country || 'unknown',
+        city: eventData.geoData?.city || 'unknown',
+        state: eventData.geoData?.state || 'unknown',
+        lat: eventData.geoData?.lat || 0,
+        lng: eventData.geoData?.lng || 0,
+      },
+      device: eventData.device,
+      browser: eventData.browser,
+      trafficSource,
+      courseId: eventData.courseId && mongoose.Types.ObjectId.isValid(eventData.courseId) ? new mongoose.Types.ObjectId(eventData.courseId) : undefined,
     };
+    
+    switch (eventType) {
+      case 'page_view':
+        // Record the first traffic source for a session
+        await TrafficSourceEventModel.findOneAndUpdate(
+          { sessionId },
+          { $setOnInsert: { sessionId, trafficSource, timestamp: commonData.timestamp } },
+          { upsert: true, new: true }
+        );
+        
+        await VisitEventModel.create({
+          ...commonData,
+          path: eventData.path,
+          duration: 0,
+        });
+        break;
 
-    if (type === 'visit') {
-      if (!path) {
-        logger.warn('[/api/analytics/track POST] Missing path for visit event');
-        return NextResponse.json({ message: 'Path is required for visit event' }, { status: 400 });
-      }
-      
-      // Atomically create the TrafficSourceEvent if it doesn't exist for this session
-      // This ensures we only record the *first* source for a session
-      await TrafficSourceEventModel.findOneAndUpdate(
-        { sessionId: sessionId },
-        { $setOnInsert: { sessionId: sessionId, trafficSource: trafficSource, timestamp: new Date(timestamp) } },
-        { upsert: true, new: true }
-      );
+      case 'duration':
+        await VisitEventModel.updateOne(
+          { sessionId: sessionId, path: eventData.path },
+          { $set: { duration: eventData.details.duration } },
+          { sort: { timestamp: -1 } }
+        );
+        break;
 
-      // Create the visit event itself
-      await VisitEventModel.create({
-        type: 'visit', // Fix: Add the required 'type' field
-        sessionId,
-        path,
-        courseId: validCourseId,
-        timestamp: timestamp ? new Date(timestamp) : new Date(),
-        duration: 0, // Duration is updated later
-        geoData: sanitizedGeoData,
-        device,
-        browser,
-        trafficSource, // Also store it on the visit event for direct analysis
-      });
-
-    } else if (type === 'click') {
-       if (!elementType || !elementText) {
-        logger.warn('[/api/analytics/track POST] Missing elementType or elementText for click event');
-        return NextResponse.json({ message: 'Element type and text are required for click event' }, { status: 400 });
-      }
-      await ClickEventModel.create({
-        type: 'click', // Add type for consistency
-        sessionId,
-        elementType,
-        elementText,
-        href,
-        courseId: validCourseId,
-        timestamp: timestamp ? new Date(timestamp) : new Date(),
-        geoData: sanitizedGeoData,
-        device,
-        browser,
-        trafficSource,
-      });
-    } else if (type === 'duration') {
-       if (!path || !Number.isFinite(duration) || duration < 0) {
-        logger.warn('[/api/analytics/track POST] Missing or invalid path/duration for duration event');
-        return NextResponse.json({ message: 'Path and valid duration are required for duration event' }, { status: 400 });
-      }
-      
-      // Update the visit event to set its duration.
-      await VisitEventModel.updateOne(
-        { sessionId, path, duration: 0 }, // Find the initial visit event for this path
-        { 
-            $set: { 
-                type: 'visit', // Fix: Add the required 'type' field
-                duration,
-                timestamp: timestamp ? new Date(timestamp) : new Date(),
-                geoData: sanitizedGeoData,
-                device,
-                browser,
-            } 
-        },
-        { sort: { timestamp: -1 } } // Update the most recent one if multiple exist
-      );
-    } else if (type === 'scroll') {
-      await UserActionEventModel.create({
-        sessionId,
-        actionType: 'scroll',
-        details: details || { scrollDepth: 0 },
-        courseId: validCourseId,
-        timestamp: timestamp ? new Date(timestamp) : new Date(),
-        geoData: sanitizedGeoData,
-        device,
-        browser,
-        trafficSource,
-      });
-    } else {
-      logger.warn('[/api/analytics/track POST] Invalid event type:', type);
-      return NextResponse.json({ message: 'Invalid event type' }, { status: 400 });
+      case 'click':
+      case 'scroll':
+      case 'add_to_cart':
+        await UserActionEventModel.create({
+          ...commonData,
+          actionType: eventType,
+          details: { 
+            path: eventData.details.path,
+            elementType: eventData.details.elementType, 
+            elementText: eventData.details.elementText, 
+            href: eventData.details.href,
+            section: eventData.details.section,
+            scrollDepth: eventData.details?.scrollDepth 
+          },
+        });
+        break;
+        
+      default:
+        logger.warn('[/api/analytics/track POST] Invalid event type:', eventType);
+        return NextResponse.json({ message: 'Invalid event type' }, { status: 400 });
     }
 
-    logger.info('[/api/analytics/track POST] Event tracked successfully', { type, sessionId, trafficSource });
+    logger.info('[/api/analytics/track POST] Event tracked successfully', { eventType, sessionId, trafficSource });
     return NextResponse.json({ success: true, message: 'Event tracked' });
   } catch (error: any) {
     logger.error('[/api/analytics/track POST] Error:', {

@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -21,7 +20,7 @@ export interface NavItem {
   children?: NavItem[];
   role?: 'student' | 'provider' | 'admin' | 'all';
   disabled?: boolean;
-  isShared?: boolean; // Added to identify items potentially shared across dashboards (like Profile)
+  isShared?: boolean;
 }
 
 interface DashboardSidebarNavProps {
@@ -35,13 +34,17 @@ export function DashboardSidebarNav({ navItems, userRole }: DashboardSidebarNavP
   const renderNavItems = (items: NavItem[], isSubmenu = false) => {
     return items
       .filter(item => {
-        if (item.isShared && item.href === '/dashboard/profile') return true; // Always show profile if shared
+        if (item.isShared && item.href === '/dashboard/profile') return true;
         return !item.role || item.role === 'all' || item.role === userRole;
       })
       .map((item) => {
         const isActive = pathname === item.href || (item.href !== '/' && item.href !== '/admin' && item.href !== '/dashboard/seller' && item.href !== '/dashboard/student' && pathname.startsWith(item.href));
         const ButtonComponent = isSubmenu ? SidebarMenuSubButton : SidebarMenuButton;
         const ItemComponent = isSubmenu ? SidebarMenuSubItem : SidebarMenuItem;
+
+        if (item.href === '/dashboard/student') {
+            return null; // Skip rendering the student dashboard link
+        }
 
         return (
           <ItemComponent key={item.href}>
@@ -50,7 +53,7 @@ export function DashboardSidebarNav({ navItems, userRole }: DashboardSidebarNavP
               isActive={isActive}
               className={cn(
                 "w-full justify-start",
-                isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90" // Use primary for active sidebar items
+                isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
               )}
               disabled={item.disabled}
               tooltip={item.label}
