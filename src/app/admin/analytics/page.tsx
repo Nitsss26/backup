@@ -16,10 +16,14 @@ import CartActivityTable from '@/components/analytics/CartActivityTable';
 import WishlistActivityTable from '@/components/analytics/WishlistActivityTable';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
-import { BarChart3, Users } from 'lucide-react';
+import { BarChart3, Users, Award, Zap, MapPin } from 'lucide-react';
 import GeoAnalytics from '@/components/analytics/GeoAnalytics';
 import ChartCard from '@/components/analytics/ChartCard';
 import AiAnalyticsBot from '@/components/analytics/AiAnalyticsBot';
+import NewAnalyticsCharts from '@/components/analytics/NewAnalyticsCharts';
+import ComprehensiveAnalytics from '@/components/analytics/ComprehensiveAnalytics';
+import UltimateAnalyticsDashboard from '@/components/analytics/UltimateAnalyticsDashboard';
+import EnhancedIndiaMap from '@/components/analytics/EnhancedIndiaMap';
 
 export default function AnalyticsDashboardPage() {
   
@@ -207,22 +211,82 @@ export default function AnalyticsDashboardPage() {
           <WishlistActivityTable startDate={date?.from} endDate={date?.to} />
         </div>
 
-        {/* NEW: Geo Analytics Section */}
+        {/* NEW: Advanced Analytics Charts */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <BarChart3 className="text-emerald-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Advanced Analytics Charts</h2>
+            <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-1 rounded-full">NEW</span>
+          </div>
+          <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-4 rounded-lg border border-emerald-500/20 mb-4">
+            <p className="text-emerald-400 text-sm">
+              📊 Brand new comprehensive analytics with proper calculations: Registered Users Growth, Sessions Overview, Bounce Rate Analysis, Average Session Duration, User Engagements, and Page Impressions.
+            </p>
+          </div>
+          <NewAnalyticsCharts startDate={date?.from} endDate={date?.to} />
+        </div>
+
+        {/* NEW: Comprehensive Analytics */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Award className="text-purple-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Comprehensive Analytics Suite</h2>
+            <span className="bg-purple-500/20 text-purple-400 text-xs px-2 py-1 rounded-full">NEW</span>
+          </div>
+          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 p-4 rounded-lg border border-purple-500/20 mb-4">
+            <p className="text-purple-400 text-sm">
+              🏆 Advanced analytics suite with user growth trends, engagement analysis, conversion funnel, and comprehensive KPI summaries with trend indicators.
+            </p>
+          </div>
+          <ComprehensiveAnalytics startDate={date?.from} endDate={date?.to} />
+        </div>
+
+        {/* NEW: Ultimate Analytics Dashboard */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Zap className="text-yellow-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Ultimate Analytics Dashboard</h2>
+            <span className="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-1 rounded-full">ULTIMATE</span>
+          </div>
+          <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 p-4 rounded-lg border border-yellow-500/20 mb-4">
+            <p className="text-yellow-400 text-sm">
+              ⚡ Complete analytics solution with 12 different chart types, each with 4 visualization options (Line, Bar, Area, Scatter). Switch between chart types instantly for any metric!
+            </p>
+          </div>
+          <UltimateAnalyticsDashboard startDate={date?.from} endDate={date?.to} />
+        </div>
+
+        {/* NEW: Enhanced India Map */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <MapPin className="text-green-400 h-6 w-6" />
+            <h2 className="text-2xl font-bold text-white">Enhanced India Analytics Map</h2>
+            <span className="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full">ENHANCED</span>
+          </div>
+          <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 p-4 rounded-lg border border-green-500/20 mb-4">
+            <p className="text-green-400 text-sm">
+              🗺️ Professional India map with accurate state boundaries, proper data calculations, interactive features, and comprehensive state rankings with performance indicators.
+            </p>
+          </div>
+          <EnhancedIndiaMap startDate={date?.from?.toISOString()} endDate={date?.to?.toISOString()} />
+        </div>
+
+        {/* OLD: Geo Analytics Section */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-4">
             <BarChart3 className="text-orange-400 h-6 w-6" />
-            <h2 className="text-2xl font-bold text-white">Geo Analytics - India Distribution</h2>
-            <span className="bg-orange-500/20 text-orange-400 text-xs px-2 py-1 rounded-full">NEW</span>
+            <h2 className="text-2xl font-bold text-white">Geo Analytics - India Distribution (Legacy)</h2>
+            <span className="bg-orange-500/20 text-orange-400 text-xs px-2 py-1 rounded-full">LEGACY</span>
           </div>
           <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 p-4 rounded-lg border border-orange-500/20 mb-4">
             <p className="text-orange-400 text-sm">
-              🗺️ Comprehensive geographical analysis with 8 different maps showing distribution of visitors, sessions, clicks, cart actions, wishlist, sales, visits, and UTM sources across India.
+              🗺️ Original geographical analysis - kept for comparison purposes.
             </p>
           </div>
           <GeoAnalytics startDate={date?.from?.toISOString()} endDate={date?.to?.toISOString()} />
         </div>
         
-        <AiAnalyticsBot startDate={date?.from} endDate={date?.to} />
+        {/* <AiAnalyticsBot startDate={date?.from} endDate={date?.to} /> */}
 
       </div>
     </div>

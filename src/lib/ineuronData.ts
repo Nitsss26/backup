@@ -46,27 +46,27 @@ export const ineuronData = {
         price: 5999,
         rating: 4.8,
         reviewsCount: 1250,
-        ctaLink: 'https://ineuron.ai/course/30-days-fast-track-data-science-interview-preparation',
+        ctaLink: 'http://localhost:9003/courses/65a8b4ae188aa67dd4099999',
               category:"Data Science"
       },
       {
         id: 'Edtech-course-2',
         title: '7 End-to-End GenAI Projects Using LLMOPS And Deployment',
         imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6638a780894c19bffb176718.jpg&w=828&q=75',
-        price: 6999,
+        price: 10500,
         rating: 4.7,
         reviewsCount: 900,
-        ctaLink: 'https://ineuron.ai/course/7-end-to-end-genai-projects-using-llmops-and-deployment',
+        ctaLink: 'http://localhost:9003/courses/65b8c4be288bb78ee5091234',
               category:"Artifical Intelligence"
       },
       {
         id: 'Edtech-course-4',
         title: 'A Job Ready Bootcamp in C++, DSA and IOT',
         imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6287516e696079bccc3b5284.jpg&w=828&q=75',
-        price: 5499,
+        price: 5999,
         rating: 4.5,
         reviewsCount: 600,
-        ctaLink: 'https://ineuron.ai/course/a-job-ready-bootcamp-in-c-dsa-and-iot-tech-neuron',
+        ctaLink: 'http://localhost:9003/courses/66a9c3de288bb78ee5095678',
               category:"Computer Science"
       },
       {
@@ -76,7 +76,7 @@ export const ineuronData = {
         price: 2999,
         rating: 4.6,
         reviewsCount: 700,
-        ctaLink: 'https://ineuron.ai/course/advance-applications-of-excel',
+        ctaLink: 'http://localhost:9003/courses/66a9c4ff288bb78ee5096789',
          category:"Excel"
       },
       // {
@@ -114,20 +114,20 @@ export const ineuronData = {
         id: 'Edtech-course-12',
         title: 'Alteryx Course',
         imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6238e99f8e583ca633037fdc.jpg&w=828&q=75',
-        price: 5999,
+        price: 1999,
         rating: 4.7,
         reviewsCount: 800,
-        ctaLink: 'https://ineuron.ai/course/alteryx-course',
+        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097910',
          category:"Data Analytics"
       },
       {
         id: 'Edtech-course-11',
         title: 'Airflow',
         imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F621c8dacb0701c8001dbfa72.jpg&w=828&q=75',
-        price: 3999,
+        price: 599,
         rating: 4.6,
         reviewsCount: 650,
-        ctaLink: 'http://ineuron.ai/course/airflow',
+        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097890',
         category:"Data Science"
       },
       
@@ -135,20 +135,20 @@ export const ineuronData = {
         id: 'Edtech-course-13',
         title: 'Alteryx',
         imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F6218eb05dc76485e693cdfd7.jpg&w=828&q=75',
-        price: 2999,
+        price: 2599,
         rating: 4.5,
         reviewsCount: 500,
-        ctaLink: 'https://ineuron.ai/course/alteryx-course-ba',
+        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097928',
              category:"Data Analytics"
       },
       {
         id: 'Edtech-course-14',
         title: 'Android Chat App with Firebase',
         imageUrl: 'https://ineuron.ai/_next/image?url=https%3A%2F%2Fcdn.ineuron.ai%2Fassets%2Fuploads%2Fthumbnails%2F623c477e8af2b967a56a3cb1.jpg&w=828&q=75',
-        price: 6499,
+        price: 1999,
         rating: 4.8,
         reviewsCount: 900,
-        ctaLink: 'https://ineuron.ai/course/android-chat-app-with-firebase',
+        ctaLink: 'http://localhost:9003/courses/66a9c7aa288bb78ee5097934',
         category:"App Development"
       },
       // {

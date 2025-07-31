@@ -62,7 +62,7 @@ interface RegisteredUsersData {
     }>;
 }
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'];
+const COLORS = ['#4F46E5', '#EC4899', '#F59E0B', '#06B6D4'];
 
 const LoadingSkeleton = () => (
     <div className="space-y-6">
@@ -153,7 +153,7 @@ export default function UniqueUsersDashboard({ startDate, endDate }: UniqueUsers
 
     const pieData = [
         { name: 'Desktop', value: data.deviceBreakdown.desktop, color: '#3B82F6' },
-        { name: 'Mobile', value: data.deviceBreakdown.mobile, color: '#10B981' }
+        { name: 'Mobile', value: data.deviceBreakdown.mobile, color: '#EC4899' }
     ];
 
     return (
@@ -285,10 +285,10 @@ export default function UniqueUsersDashboard({ startDate, endDate }: UniqueUsers
                                 <Line
                                     type="monotone"
                                     dataKey="mobile"
-                                    stroke="#10B981"
+                                    stroke="#EC4899"
                                     strokeWidth={2}
                                     name="Mobile"
-                                    dot={{ fill: '#10B981', strokeWidth: 2, r: 4 }}
+                                    dot={{ fill: '#EC4899', strokeWidth: 2, r: 4 }}
                                 />
                             </LineChart>
                         </ResponsiveContainer>
@@ -313,7 +313,7 @@ export default function UniqueUsersDashboard({ startDate, endDate }: UniqueUsers
                                     labelLine={false}
                                     label={({ name, value, percent }) => `${name}: ${value} (${(percent * 100).toFixed(1)}%)`}
                                     outerRadius={80}
-                                    fill="#8884d8"
+                                    fill="transparent"
                                     dataKey="value"
                                 >
                                     {pieData.map((entry, index) => (
@@ -366,10 +366,13 @@ export default function UniqueUsersDashboard({ startDate, endDate }: UniqueUsers
                                 />
                                 <Bar
                                     dataKey="sessions"
-                                    fill="#8B5CF6"
                                     name="Sessions"
                                     radius={[4, 4, 0, 0]}
-                                />
+                                >
+                                    {data.sessionsChart.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={['#3B82F6', '#EC4899', '#F59E0B', '#14B8A6', '#8B5CF6', '#10B981', '#EF4444', '#F97316'][index % 8]} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>
@@ -408,10 +411,13 @@ export default function UniqueUsersDashboard({ startDate, endDate }: UniqueUsers
                                 />
                                 <Bar
                                     dataKey="registrations"
-                                    fill="#14B8A6"
                                     name="New Registrations"
                                     radius={[4, 4, 0, 0]}
-                                />
+                                >
+                                    {registeredUsersData?.chartData?.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={['#3B82F6', '#EC4899', '#F59E0B', '#14B8A6', '#8B5CF6', '#10B981', '#EF4444', '#F97316'][index % 8]} />
+                                    )) || []}
+                                </Bar>
                             </BarChart>
                         </ResponsiveContainer>
                     </CardContent>

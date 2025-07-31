@@ -1,29 +1,33 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEvent from '@/models/VisitEvent';
+import OrderModel from '@/models/Order';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await dbConnect();
     
-    // Get last 7 days to prevent timeout
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const { searchParams } = new URL(request.url);
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     
-    const salesData = await VisitEvent.aggregate([
+    // Set date range - default to last 30 days if not provided
+    const end = endDate ? new Date(endDate) : new Date();
+    const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    
+    const salesData = await OrderModel.aggregate([
       {
         $match: {
-          timestamp: { $gte: sevenDaysAgo },
-          path: { $regex: /purchase|checkout|payment|success/i }
+          orderDate: { $gte: start, $lte: end },
+          status: 'completed'
         }
       },
       {
         $group: {
           _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$timestamp" }
+            $dateToString: { format: "%Y-%m-%d", date: "$orderDate" }
           },
           count: { $sum: 1 },
-          revenue: { $sum: { $multiply: [{ $rand: {} }, 1000] } }
+          revenue: { $sum: "$totalAmount" }
         }
       },
       {
@@ -33,42 +37,30 @@ export async function GET() {
           revenue: { $round: ["$revenue", 2] }
         }
       },
-      { $sort: { date: 1 } },
-      { $limit: 7 }
+      { $sort: { date: 1 } }
     ]);
 
-    // If no data, generate sample sales data
-    if (salesData.length === 0) {
-      const sampleData = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const sales = Math.floor(Math.random() * 20) + 5; // 5-25 sales
-        sampleData.push({
-          date: date.toISOString().split('T')[0],
-          count: sales,
-          revenue: Math.round((sales * (Math.random() * 500 + 100)) * 100) / 100 // $100-600 per sale
-        });
-      }
-      return NextResponse.json(sampleData);
+    // Fill in missing dates with 0 count
+    const result = [];
+    const currentDate = new Date(start);
+    const endDateObj = new Date(end);
+    
+    while (currentDate <= endDateObj) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const existingData = salesData.find(item => item.date === dateStr);
+      
+      result.push({
+        date: dateStr,
+        count: existingData ? existingData.count : 0,
+        revenue: existingData ? existingData.revenue : 0
+      });
+      
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    return NextResponse.json(salesData);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Sales API error:', error);
-    
-    // Return sample data on error
-    const sampleData = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const sales = Math.floor(Math.random() * 20) + 5;
-      sampleData.push({
-        date: date.toISOString().split('T')[0],
-        count: sales,
-        revenue: Math.round((sales * (Math.random() * 500 + 100)) * 100) / 100
-      });
-    }
-    return NextResponse.json(sampleData);
+    return NextResponse.json({ error: 'Failed to fetch sales data' }, { status: 500 });
   }
 }

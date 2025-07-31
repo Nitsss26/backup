@@ -18,14 +18,14 @@ interface GeoAnalyticsProps {
 }
 
 const mapTypes = [
-  { id: 'unique-visitors', title: 'Unique Visitors Distribution', icon: Users, color: '#3B82F6' },
+  { id: 'unique-visitors', title: 'Unique Visitors Distribution', icon: Users, color: '#4F46E5' },
   { id: 'sessions', title: 'Sessions Distribution', icon: Eye, color: '#10B981' },
   { id: 'clicks', title: 'Clicks Distribution', icon: MousePointer, color: '#F59E0B' },
   { id: 'add-to-cart', title: 'Add to Cart Distribution', icon: ShoppingCart, color: '#EF4444' },
   { id: 'add-to-wishlist', title: 'Add to Wishlist Distribution', icon: Heart, color: '#EC4899' },
   { id: 'sales', title: 'Sales Distribution', icon: DollarSign, color: '#8B5CF6' },
   { id: 'visits', title: 'Visit Distribution', icon: MapPin, color: '#06B6D4' },
-  { id: 'utm-sources', title: 'UTM Sources Distribution', icon: Share2, color: '#84CC16' }
+  { id: 'utm-sources', title: 'UTM Sources Distribution', icon: Share2, color: '#059669' }
 ];
 
 export default function GeoAnalytics({ startDate, endDate }: GeoAnalyticsProps) {
@@ -105,6 +105,8 @@ export default function GeoAnalytics({ startDate, endDate }: GeoAnalyticsProps) 
             activeMap={activeMap}
             geoData={geoData}
             isLoading={isLoading}
+            startDate={startDate}
+            endDate={endDate}
           />
         )}
       </CardContent>

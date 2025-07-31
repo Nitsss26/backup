@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEvent from '@/models/VisitEvent';
+import UserModel from '@/models/User';
 
 export async function GET(request: Request) {
   try {
@@ -14,25 +14,24 @@ export async function GET(request: Request) {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     
-    const registeredUsersData = await VisitEvent.aggregate([
+    const registeredUsersData = await UserModel.aggregate([
       {
         $match: {
-          timestamp: { $gte: start, $lte: end },
-          userId: { $ne: null, $exists: true }
+          createdAt: { $gte: start, $lte: end }
         }
       },
       {
         $group: {
           _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$timestamp" }
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
           },
-          uniqueUsers: { $addToSet: "$userId" }
+          count: { $sum: 1 }
         }
       },
       {
         $project: {
           date: "$_id",
-          count: { $size: "$uniqueUsers" }
+          count: 1
         }
       },
       { $sort: { date: 1 } }

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import UserActionEventModel from '@/models/UserActionEvent';
-import Order from '@/models/Order';
+import OrderModel from '@/models/Order';
 
 export async function GET(request: Request) {
   try {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     ]);
 
     // Get daily completed orders (purchases)
-    const dailyPurchases = await Order.aggregate([
+    const dailyPurchases = await OrderModel.aggregate([
       { 
         $match: { 
           orderDate: { $gte: start, $lte: end },

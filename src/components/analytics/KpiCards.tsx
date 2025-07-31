@@ -16,12 +16,12 @@ interface KpiCardsProps {
 const kpiConfig = [
     { key: 'uniqueUsers', title: 'Unique Users', icon: Users, color: 'text-blue-400' },
     { key: 'totalSessions', title: 'Total Sessions', icon: Activity, color: 'text-green-400' },
-    { key: 'totalRegisteredUsers', title: 'Registered Users', icon: UserPlus, color: 'text-teal-400' },
+    { key: 'totalRegisteredUsers', title: 'Registered', icon: UserPlus, color: 'text-teal-400' },
     { key: 'totalSales', title: 'Sales', icon: ShoppingCart, color: 'text-orange-400' },
-    { key: 'totalEngagements', title: 'Total Engagements', icon: MousePointerClick, color: 'text-purple-400' },
-    { key: 'totalImpressions', title: 'Total Impressions', icon: Eye, color: 'text-cyan-400' },
-    { key: 'totalAddToCart', title: 'Total Add to Cart', icon: ShoppingCart, color: 'text-pink-400' },
-    { key: 'totalAddToWishlist', title: 'Total Wishlist', icon: Heart, color: 'text-red-400' },
+    { key: 'totalEngagements', title: 'Engagements', icon: MousePointerClick, color: 'text-purple-400' },
+    { key: 'totalImpressions', title: 'Impressions', icon: Eye, color: 'text-cyan-400' },
+    { key: 'totalAddToCart', title: 'Add to Cart', icon: ShoppingCart, color: 'text-pink-400' },
+    { key: 'totalAddToWishlist', title: 'Wishlist', icon: Heart, color: 'text-red-400' },
     { key: 'totalClicks', title: 'Total Clicks', icon: MousePointerClick, color: 'text-yellow-400' },
     { key: 'avgTime', title: 'Avg Session', icon: Clock, color: 'text-indigo-400' },
 ];

@@ -105,7 +105,7 @@
 //     params.set('page', '1'); 
 //     router.push(`${pathname}?${params.toString()}`, { scroll: false });
 //   };
-  
+
 //   const currentCategorySlug = currentSearchParams.get('category');
 //   const currentCategoryObject = currentCategorySlug 
 //     ? STATIC_CATEGORIES.find(c => c.slug === currentCategorySlug)
@@ -134,7 +134,7 @@
 //       <Header />
 //       <main className="flex-grow container py-8 px-4 md:px-6">
 //         <Breadcrumbs items={breadcrumbItems} />
-        
+
 //         <div className="flex flex-col md:flex-row gap-8 mt-6">
 //           {/* Mobile Filter Button */}
 //           <div className="md:hidden mb-4">
@@ -149,7 +149,7 @@
 //               </SheetContent>
 //             </Sheet>
 //           </div>
-          
+
 //           {/* Desktop Sidebar */}
 //           <div className="hidden md:block w-72 lg:w-80 shrink-0">
 //             {/* Page Title above sidebar */}
@@ -163,7 +163,7 @@
 //                 </p>
 //               )}
 //             </div>
-            
+
 //             <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
 //               <FilterSidebar />
 //             </div>
@@ -198,7 +198,7 @@
 //                 />
 //               </div>
 //             )}
-            
+
 //             {/* Course Count and Sort Options */}
 //             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
 //               <p className="text-sm text-muted-foreground">
@@ -207,7 +207,7 @@
 //                 )}
 //                 {isLoading && "Loading courses..."}
 //               </p>
-              
+
 //               <Select 
 //                 value={currentSearchParams.get('sort') || 'relevance'} 
 //                 onValueChange={handleSortChange}
@@ -279,7 +279,7 @@
 // }
 
 
-"use client"; 
+"use client";
 
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -308,12 +308,12 @@ interface ApiResponse {
 // Define banner images for different categories
 const bannerImages = {
   //default: 'https://static.uacdn.net/thumbnail/banner/7e23db71618445328b5a5dbfe2b4f630.file?q=75&auto=format%2Ccompress&w=1200',
-  default:'https://static.uacdn.net/thumbnail/banner/8419ceb25b4541e98ab2bdd2af6313d9.file?q=75&auto=format%2Ccompress&w=1200',
+  default: 'https://static.uacdn.net/thumbnail/banner/8419ceb25b4541e98ab2bdd2af6313d9.file?q=75&auto=format%2Ccompress&w=1200',
   'iit-jee': 'https://static.pw.live/5eb393ee95fab7468a79d189/dd49d2c5-8f93-42df-8d09-f2bb4a53a21f.jpg',
   'neet': 'https://static.uacdn.net/thumbnail/banner/8419ceb25b4541e98ab2bdd2af6313d9.file?q=75&auto=format%2Ccompress&w=1200',
   'gov-exams': 'https://static.pw.live/5eb393ee95fab7468a79d189/GLOBAL_CMS/a07750f1-686a-48f9-a2a7-4cd9ae20467a.jpg',
   'computer-science': '/nttt.png',
-  'business-finance': 'https://i.ibb.co/xSS8JGN2/Screenshot-2025-06-12-113053.png', 
+  'business-finance': 'https://i.ibb.co/xSS8JGN2/Screenshot-2025-06-12-113053.png',
   'arts-humanities': 'https://i.ibb.co/QnS8rTj/jee-main-2025-results-banner.png',
   'language-learning': 'https://i.ibb.co/qYrHYsWw/Screenshot-2025-06-12-112651.png',
   'personal-development': 'https://i.ibb.co/rGH1yFCZ/Screenshot-2025-06-12-111947.png',
@@ -324,9 +324,9 @@ const bannerImages = {
 };
 
 export default function CoursesPage() {
-  const router = useRouter(); 
-  const pathname = usePathname(); 
-  const currentSearchParams = useNextSearchParams(); 
+  const router = useRouter();
+  const pathname = usePathname();
+  const currentSearchParams = useNextSearchParams();
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [totalPages, setTotalPages] = useState(0);
@@ -348,7 +348,7 @@ export default function CoursesPage() {
     } catch (err: any) {
       console.error("[CoursesPage] Failed to fetch courses:", err);
       setError(err.response?.data?.message || err.message || "Failed to load courses. Please try again later.");
-      setCourses([]); 
+      setCourses([]);
     } finally {
       setIsLoading(false);
     }
@@ -377,27 +377,27 @@ export default function CoursesPage() {
   }, [currentSearchParams, fetchCourses]);
 
   const handleSortChange = (value: string) => {
-    const params = new URLSearchParams(currentSearchParams.toString()); 
+    const params = new URLSearchParams(currentSearchParams.toString());
     if (value === 'relevance') {
       params.delete('sort');
     } else {
       params.set('sort', value);
     }
-    params.set('page', '1'); 
+    params.set('page', '1');
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
-  
+
   const currentCategorySlug = currentSearchParams.get('category');
-  const currentCategoryObject = currentCategorySlug 
+  const currentCategoryObject = currentCategorySlug
     ? STATIC_CATEGORIES.find(c => c.slug === currentCategorySlug)
     : undefined;
   const currentCategoryName = currentCategoryObject?.name;
   const searchQuery = currentSearchParams.get('q');
 
-  const pageTitle = searchQuery 
-    ? `Search results for "${searchQuery}"` 
-    : currentCategoryName 
-      ? `${currentCategoryName} Courses` 
+  const pageTitle = searchQuery
+    ? `Search results for "${searchQuery}"`
+    : currentCategoryName
+      ? `${currentCategoryName} Courses`
       : 'All Courses';
 
   const breadcrumbItems = [
@@ -417,7 +417,7 @@ export default function CoursesPage() {
         <div className="block md:hidden mt-4">
           <Breadcrumbs items={breadcrumbItems} />
         </div>
-        
+
         <div className="flex flex-col md:flex-row gap-3 md:gap-8 mt-3 md:mt-6">
           {/* Mobile Filter Button */}
           <div className="md:hidden mb-2">
@@ -439,13 +439,13 @@ export default function CoursesPage() {
               </SheetContent>
             </Sheet>
           </div>
-          
+
           {/* Desktop Sidebar */}
           <div className="hidden md:block w-72 lg:w-80 shrink-0">
             <div className="hidden md:block mb-6">
               <Breadcrumbs items={breadcrumbItems} />
             </div>
-            
+
             {/* Page Title above sidebar */}
             <div className="mb-6">
               <h1 className="text-3xl md:text-4xl font-bold font-headline">
@@ -457,7 +457,7 @@ export default function CoursesPage() {
                 </p>
               )}
             </div>
-            
+
             <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <FilterSidebar />
             </div>
@@ -484,23 +484,23 @@ export default function CoursesPage() {
                   key={currentBannerUrl}
                   src={currentBannerUrl}
                   alt="Promotional Banner for Courses"
-                  width={1200} 
-                  height={250} 
-                  className="rounded-md shadow-lg object-cover w-full h-[120px] sm:h-[150px] md:h-[200px] lg:h-[250px]" 
+                  width={1200}
+                  height={250}
+                  className="rounded-md shadow-lg object-cover w-full h-[120px] sm:h-[150px] md:h-[200px] lg:h-[250px]"
                   priority
                   data-ai-hint="promotional course banner advertisement education offers"
                 />
               </div>
             )}
-            
+
             {/* Course Count and Sort Options */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 md:mb-6 gap-2">
-            <p className="hidden md:block text-xs md:text-sm text-muted-foreground">
-  {!isLoading && !error && (
-    `${totalCourses} courses`
-  )}
-  {isLoading && "Loading..."}
-</p>
+              <p className="hidden md:block text-xs md:text-sm text-muted-foreground">
+                {!isLoading && !error && (
+                  `${totalCourses} courses`
+                )}
+                {isLoading && "Loading..."}
+              </p>
 
               {/* <p className="text-xs md:text-sm text-muted-foreground">
                 {!isLoading && !error && (
@@ -508,9 +508,9 @@ export default function CoursesPage() {
                 )}
                 {isLoading && "Loading..."}
               </p> */}
-              
-              <Select 
-                value={currentSearchParams.get('sort') || 'relevance'} 
+
+              <Select
+                value={currentSearchParams.get('sort') || 'relevance'}
                 onValueChange={handleSortChange}
               >
                 <SelectTrigger className="w-full sm:w-[140px] md:w-[180px] h-8 md:h-10 text-xs md:text-sm">
@@ -533,10 +533,10 @@ export default function CoursesPage() {
               </div>
             ) : error ? (
               <div className="text-center py-8 md:py-16 text-destructive-foreground bg-destructive/10 rounded-lg shadow-sm p-4 md:p-6">
-                <Search className="h-8 w-8 md:h-16 md:w-16 mx-auto mb-3 md:mb-4 text-destructive"/>
+                <Search className="h-8 w-8 md:h-16 md:w-16 mx-auto mb-3 md:mb-4 text-destructive" />
                 <h2 className="text-base md:text-2xl font-semibold mb-2">Error Loading Courses</h2>
                 <p className="text-sm md:text-base mb-4 md:mb-6">{error}</p>
-                <Button 
+                <Button
                   onClick={() => fetchCourses(new URLSearchParams(currentSearchParams.toString()))}
                   className="h-9 md:h-10 text-sm md:text-base px-4 md:px-6"
                 >
@@ -565,15 +565,15 @@ export default function CoursesPage() {
               </>
             ) : (
               <div className="text-center py-8 md:py-16 text-muted-foreground bg-card rounded-lg shadow-sm p-4 md:p-6">
-                <Search className="h-8 w-8 md:h-16 md:w-16 mx-auto mb-3 md:mb-4 text-border"/>
+                <Search className="h-8 w-8 md:h-16 md:w-16 mx-auto mb-3 md:mb-4 text-border" />
                 <h2 className="text-base md:text-2xl font-semibold mb-2 text-foreground">No Courses Found</h2>
                 <p className="text-sm md:text-base mb-4 md:mb-6">Try adjusting your filters or search terms.</p>
-                <Image 
-                  src="https://placehold.co/400x250/EBF4FF/64748B?text=No+Results+Illustration" 
-                  alt="No courses found illustration" 
-                  width={400} 
-                  height={250} 
-                  className="mx-auto rounded-md max-w-[200px] sm:max-w-[300px] md:max-w-[400px]" 
+                <Image
+                  src="https://placehold.co/400x250/EBF4FF/64748B?text=No+Results+Illustration"
+                  alt="No courses found illustration"
+                  width={400}
+                  height={250}
+                  className="mx-auto rounded-md max-w-[200px] sm:max-w-[300px] md:max-w-[400px]"
                   data-ai-hint="empty state no data search results illustration"
                 />
               </div>

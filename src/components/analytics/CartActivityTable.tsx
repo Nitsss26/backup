@@ -114,8 +114,8 @@ export default function CartActivityTable({ startDate, endDate }: CartActivityTa
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {cartEvents.map((event) => (
-                                    <TableRow key={event._id} className="border-slate-700 hover:bg-slate-800/20">
+                                {cartEvents.map((event, index) => (
+                                    <TableRow key={event._id || `cart-event-${index}`} className="border-slate-700 hover:bg-slate-800/20">
                                         <TableCell>
                                             <div className="text-white font-mono text-sm">
                                                 {event.sessionId?.substring(0, 8)}...

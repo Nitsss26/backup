@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEvent from '@/models/VisitEvent';
+import UserActionEvent from '@/models/UserActionEvent';
 
 export async function GET(request: Request) {
   try {
@@ -14,15 +14,10 @@ export async function GET(request: Request) {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     
-    const engagementsData = await VisitEvent.aggregate([
+    const engagementsData = await UserActionEvent.aggregate([
       {
         $match: {
-          timestamp: { $gte: start, $lte: end },
-          $or: [
-            { duration: { $gt: 30000 } }, // Sessions longer than 30 seconds
-            { path: { $regex: /courses|subscriptions|contact|about/i } }, // Engagement pages
-            { path: { $ne: "/" } } // Any page other than home
-          ]
+          timestamp: { $gte: start, $lte: end }
         }
       },
       {

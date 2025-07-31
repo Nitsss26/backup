@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
-import VisitEvent from '@/models/VisitEvent';
+import VisitEventModel from '@/models/VisitEvent';
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const end = endDate ? new Date(endDate) : new Date();
     const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     
-    const impressionsData = await VisitEvent.aggregate([
+    const impressionsData = await VisitEventModel.aggregate([
       {
         $match: {
           timestamp: { $gte: start, $lte: end }
