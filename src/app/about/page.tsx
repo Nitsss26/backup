@@ -117,8 +117,11 @@ export default function AboutPage() {
               <p className="text-muted-foreground mb-4">
                 Our mission is to make quality education accessible to everyone, everywhere. We strive to connect passionate learners with expert instructors and institutions, fostering a global community dedicated to lifelong learning and skill development.
               </p>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-4">
                 We believe in the transformative power of education and aim to provide a platform that is intuitive, comprehensive, and supportive for both students and course sellers.
+              </p>
+              <p className="text-muted-foreground text-sm italic">
+                - Nitesh, Founder and CEO
               </p>
             </div>
             <div className="flex justify-center">
