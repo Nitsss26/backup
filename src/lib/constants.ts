@@ -10,7 +10,7 @@ export const CATEGORIES2: Category[] = [
   { id: 'courses', name: 'Courses', slug: 'courses', icon: TestTube2 },
   { id: 'ebooks', name: 'E-Books', slug: 'ebooks', icon: HeartPulse },
   { id: 'subscriptions', name: 'Subscriptions', slug: 'subscriptions', icon: Cpu },
-  { id: 'gift-cards', name: 'Gift Cards', slug: 'gift-cards', icon: ShieldCheck },
+  { id: 'add-ons', name: 'Add-ons', slug: 'add-ons', icon: ShieldCheck },
   { id: 'virtual-products', name: 'Virtual Products', slug: 'virtual-products', icon: LineChart },
 ];
 
@@ -108,6 +108,7 @@ export const FOOTER_LINKS = {
     { name: 'Contact Us', href: '/contact' },
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms of Service', href: '/terms' },
+    { name: 'Refund Policy', href: '/refund-policy' },
   ],
   community: [
     { name: 'Blog', href: '/blog' },
